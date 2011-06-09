@@ -3443,8 +3443,8 @@ expt.mon = &mon;
 	  i++;
 	}
 */
-	makewindow(windowname);
-	makeRasterFont();
+	//makewindow(windowname);
+	//makeRasterFont();
 
 
 #if defined(Linux) || defined(Cygwin) || defined(WIN32)

@@ -10,8 +10,8 @@
 
 int main (int argc, const char * argv[])
 {
+    binocmain(argc, argv);
 
-    // insert code here...
     printf("Hello, World!\n");
     return 0;
 }

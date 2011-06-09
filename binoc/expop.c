@@ -3779,7 +3779,7 @@ void make_interface(Widget toplevel, Stimulus *st)
 	XmStringFree(str);
 
 	fiterate(allframe, 0, 0);
-	SetAllPanel(&expt);
+//	SetAllPanel(&expt);
   XtVaSetValues(allframe,XmNx,panelx,NULL);
   XtVaSetValues(allframe,XmNy,panely,NULL);
 /*
