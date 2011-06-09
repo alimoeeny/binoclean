@@ -3797,7 +3797,7 @@ void make_interface(Widget toplevel, Stimulus *st)
   thecursor = XCreateFontCursor(XtDisplay(toplevel),XC_tcross);
   XDefineCursor(XtDisplay(allframe), XtWindow(allframe), thecursor);
   XDefineCursor(XtDisplay(toplevel), XtWindow(toplevel), thecursor);	
-  XDefineCursor(XtDisplay(toplevel), myXWindow(), thecursor);
+//AliGLX  XDefineCursor(XtDisplay(toplevel), myXWindow(), thecursor);
   read_file_popup(toplevel, NULL);
   FCloseShell(fsdialog, XtParent(fsdialog));
   windowlist[1] = XtWindow(allframe);
@@ -10261,7 +10261,7 @@ void LoadBackgrounds()
   for(j = 0; j < ns; j++){
     sprintf(cbuf,"Loading Movie %d\n",j);
     glstatusline(cbuf,1);
-    mySwapBuffers();
+//AliGLX    mySwapBuffers();
     start = expval[offset+expt.nstim[2] + j];
     for(i = 0; i < nf; i++){
       sprintf(name,"%s%.4d.pgm",expt.backprefix,i+start);
@@ -13692,7 +13692,7 @@ int RunExptStimSeq(Stimulus *st, int nframes, int nstims, Display *D)
 /* running human psychophysics, stimuili are terminated buy a button press */
 	if(option2flag & PSYCHOPHYSICS_BIT)
 	  {
-	    if(XCheckTypedWindowEvent(D, myXWindow(), ButtonPress, &e))
+	    if(XCheckTypedWindowEvent(D, 0/* AliGLX myXWindow() */, ButtonPress, &e))
 	      {
 		HandleXevent(D,e);
 		finished=RESPONDED;
@@ -14056,7 +14056,7 @@ int RunStrobedStim(Stimulus *st, int n, Display *D)
 /* running human psychophysics, stimuili are terminated buy a button press */
 	if(option2flag & PSYCHOPHYSICS_BIT)
 	  {
-	    if(XCheckTypedWindowEvent(D, myXWindow(), ButtonPress, &e))
+	    if(XCheckTypedWindowEvent(D, 0/* AliGLX myXWindow()*/, ButtonPress, &e))
 	      {
 		HandleXevent(D,e);
 		finished=RESPONDED;
@@ -14226,10 +14226,10 @@ int RunHarrisStim(Stimulus *st, int n, Display *D, Window win)
 	  {
 	    frametimes[framesdone] = timediff(&frametime,&zeroframetime);
 	    framecounts[framesdone] = rc;
-	    if(XCheckTypedWindowEvent(D, myXWindow(), KeyPress, &e)){
+	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX  myXWindow()*/, KeyPress, &e)){
 		HandleXevent(D,e);
 	    }
-	    if(XCheckTypedWindowEvent(D, myXWindow(), ButtonPress, &e))
+	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))
 	      {
 		realframes = getframecount();
 		HandleXevent(D,e);
@@ -14506,10 +14506,10 @@ int RunExptStim(Stimulus *st, int n, Display *D, Window win)
 	    framecounts[framesdone] = rc;
 	    if(rc >= n && n < MAXFRAMES) 
 	      finished = 2;
-	    if(XCheckTypedWindowEvent(D, myXWindow(), KeyPress, &e)){
+	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){
 		HandleXevent(D,e);
 	    }
-	    if(XCheckTypedWindowEvent(D, myXWindow(), ButtonPress, &e))
+	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))
 	      {
 		if(e.xbutton.button == Button1 ||
 		   e.xbutton.button == Button2 ||
@@ -14718,10 +14718,10 @@ int RunExptStim(Stimulus *st, int n, Display *D, Window win)
 	    framecounts[framesdone] = rc;
 	    if(rc >= n && n < MAXFRAMES) 
 	      finished = 2;
-	    if(XCheckTypedWindowEvent(D, myXWindow(), KeyPress, &e)){
+	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){
 		HandleXevent(D,e);
 	    }
-	    if(XCheckTypedWindowEvent(D, myXWindow(), ButtonPress, &e))
+	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))
 	      {
 		realframes = getframecount();
 		HandleXevent(D,e);
@@ -14754,7 +14754,7 @@ int RunExptStim(Stimulus *st, int n, Display *D, Window win)
 	}
 
 //Ali #ifdef macosx
-	if(n >= MAXFRAMES && XCheckTypedWindowEvent(D,  myXWindow(), KeyPress, &e)){
+	if(n >= MAXFRAMES && XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){
 	  HandleXevent(D,e);
 	}
 	i = CheckKeyboard(D, allframe);
@@ -15235,7 +15235,7 @@ void framepause(int nf)
 		return;
 	for(i = 0; i < nf; i++)
 	{
-		mySwapBuffers();
+//AliGLX		mySwapBuffers();
 		GLblock(1);
 	}
 }
@@ -17832,9 +17832,9 @@ int ButtonResponse(int button, int revise, vcoord *locn)
     {
     fprintf(stdout,"Wrong:");
     start_timeout(SEARCH);
-    mySwapBuffers();
+//AliGLX    mySwapBuffers();
     end_timeout();
-    mySwapBuffers();
+//AliGLX    mySwapBuffers();
     }
   
 

@@ -5639,7 +5639,7 @@ void nsine_background()
   }
   calc_stimulus(tempstim);
   paint_stimulus(tempstim);
-  mySwapBuffers();
+//AliGLX  mySwapBuffers();
   paint_stimulus(tempstim);
 }
 
@@ -6022,7 +6022,7 @@ int change_frame()
 	  printString(buf,1);
 	}
 	glFlush();
-	mySwapBuffers();
+//AliGLX	mySwapBuffers();
 	glFinish();
 	framesswapped++;
 	if(mode & FRAME_BITS)
@@ -6989,7 +6989,7 @@ int next_frame(Stimulus *st)
       if(newtimeout < 5){
 	redraw_overlay(expt.plot);
 	if(debug) glstatusline("Stopped",3);
-	mySwapBuffers();
+//AliGLX	mySwapBuffers();
       }
       SetWidgetTimes();
       gettimeofday(&now,NULL);
@@ -7826,7 +7826,7 @@ void makewindow(char *s)
   w = 1024; h = 760;
 
     dsy = XtDisplay(toplevel);
-    setdisplay(dsy);
+//AliGLX    setdisplay(dsy);
     root_w = RootWindow(dsy,DefaultScreen(dsy));
     XGetGeometry(dsy, root_w, &win, &x, &y, &w, &h, &bw, &depth);
 /*
@@ -7849,9 +7849,9 @@ void makewindow(char *s)
     expt.winsiz[1] = winsiz[1];
     wsize =  w;
     hsize = h;
-    if(!myInitWindow("StimulusWindow",winpos[0],winpos[1],w,h, 8, stereo,XtWindow((toplevel))))
-      if(!myInitWindow("StimulusWindow",winpos[0],winpos[1],w,h, 5, stereo,XtWindow(toplevel)))
-	if(!myInitWindow("StimulusWindow",0,0,w,h, 1, stereo,XtWindow(toplevel)))
+//AliGLX    if(!myInitWindow("StimulusWindow",winpos[0],winpos[1],w,h, 8, stereo,XtWindow((toplevel))))
+//AliGLX      if(!myInitWindow("StimulusWindow",winpos[0],winpos[1],w,h, 5, stereo,XtWindow(toplevel)))
+//AliGLX	if(!myInitWindow("StimulusWindow",0,0,w,h, 1, stereo,XtWindow(toplevel)))
 #ifdef NIDAQ
 	  {
 	    DIOClose();
@@ -7861,14 +7861,14 @@ void makewindow(char *s)
 	    exit(0);
 #endif
 
-    display_win = myXWindow();
+//AliGLX    display_win = myXWindow();
     windowlist[0] = display_win;
     setmask(ALLPLANES);
     glClearColor(0.5, 0.5, 0.5, 0.5);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnd();
     glFlush();
-    mySwapBuffers();
+//AliGLX    mySwapBuffers();
     glOrtho(-wsize/2.0, wsize/2.0, -hsize/2.0,  hsize/2.0, -1.0, 1.0); 
     XDefineCursor(dsy, display_win, thecursor);
 }
@@ -8017,7 +8017,7 @@ void run_rds_test_loop()
 	glClearColor(0.5, 0.5, 0.5,1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	paint_stimulus(st);
-	mySwapBuffers();
+//AliGLX	mySwapBuffers();
       }
       return;
 	  }
@@ -8042,7 +8042,7 @@ void run_rds_test_loop()
       gettimeofday(&timeb,NULL);
 
     glGetIntegerv(GL_RGBA_MODE, &ival);
-    printf("%s RGBA %d ",getRenderer(),ival);
+//AliGLX    printf("%s RGBA %d ",getRenderer(),ival);
     glGetIntegerv(GL_RED_BITS, &ival);
     printf(" Red_Bits %d ",ival);
     glGetIntegerv(GL_SUBPIXEL_BITS, &ival);
@@ -8154,7 +8154,7 @@ void run_rds_test_loop()
 	    write(ttys[0],&c,1);
 	    if(!optionflags[CALCULATE_ONCE_ONLY])
 	      calc_stimulus(TheStim);
-	    mySwapBuffers();
+//AliGLX	    mySwapBuffers();
 	    glFlush();
 	    c = FRAME_SIGNAL;
 	    write(ttys[0],&c,1);
@@ -8187,7 +8187,7 @@ void run_rds_test_loop()
 	testcalc_rds(st,st->right, testmode);
 	if(testmode == 3)
 	  paint_stimulus(st);
-	mySwapBuffers();
+//AliGLX	mySwapBuffers();
       }
       gettimeofday(&now,NULL);
       val = timediff(&now,&timeb);
@@ -8334,7 +8334,7 @@ void run_gabor_test_loop()
 	  }
 	  }
 	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-	  mySwapBuffers();
+//AliGLX	  mySwapBuffers();
 	}
   }
   else if(option2flag & FLASH_BIT){
@@ -8351,7 +8351,7 @@ void run_gabor_test_loop()
 	  }
 	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
 	  glFlush();
-	  mySwapBuffers();
+//AliGLX	  mySwapBuffers();
 	}
   }
   else if(option2flag & RANDOM){
@@ -8364,7 +8364,7 @@ void run_gabor_test_loop()
 	  else
 	    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im2);
 	  glFlush();
-	  mySwapBuffers();
+//AliGLX	  mySwapBuffers();
 	}
   }
   else if(optionflags[PAINT_BACKGROUND]){
@@ -8400,7 +8400,7 @@ void run_gabor_test_loop()
 	  }
 	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
 	  glFlush();
-	  mySwapBuffers();
+//AliGLX	  mySwapBuffers();
 	}
   }
       gettimeofday(&now,NULL);
@@ -8459,7 +8459,7 @@ void run_anticorrelated_test_loop()
 	glPopMatrix();
 	glFlush();
 	glFinish();
-	mySwapBuffers();
+//AliGLX	mySwapBuffers();
 }
 
 void run_general_test_loop()
@@ -8475,7 +8475,7 @@ void run_general_test_loop()
       paint_stimulus(TheStim);
       pos->phase += TheStim->incr;
 /*      calc_stimulus(TheStim);*/
-      mySwapBuffers();
+//AliGLX      mySwapBuffers();
       }
   j = getframecount();
   sprintf(cbuf,"Took %d real frames",j);
@@ -8488,7 +8488,7 @@ void run_general_test_loop()
       paint_stimulus(TheStim);
       pos->phase += TheStim->incr;
       calc_stimulus(TheStim);
-      mySwapBuffers();
+//AliGLX      mySwapBuffers();
       }
   i = getframecount();
   sprintf(cbuf,"Took %d,%d real frames",j,i);
