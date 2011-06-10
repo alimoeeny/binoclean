@@ -1,0 +1,447 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0813A133B3004E8464 /* Cocoa.framework */; };
+		419DCE1313A133B3004E8464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1113A133B3004E8464 /* InfoPlist.strings */; };
+		419DCE1513A133B3004E8464 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE1413A133B3004E8464 /* main.m */; };
+		419DCE1913A133B3004E8464 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1713A133B3004E8464 /* Credits.rtf */; };
+		419DCE1C13A133B3004E8464 /* binocleanAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */; };
+		419DCE1F13A133B3004E8464 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1D13A133B3004E8464 /* MainMenu.xib */; };
+		419DCE2713A133B3004E8464 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE2613A133B3004E8464 /* SenTestingKit.framework */; };
+		419DCE2813A133B3004E8464 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0813A133B3004E8464 /* Cocoa.framework */; };
+		419DCE3013A133B3004E8464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE2E13A133B3004E8464 /* InfoPlist.strings */; };
+		419DCE3213A133B3004E8464 /* binocleanTests.h in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE3113A133B3004E8464 /* binocleanTests.h */; };
+		419DCE3413A133B3004E8464 /* binocleanTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE3313A133B3004E8464 /* binocleanTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		419DCE2913A133B3004E8464 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 419DCDFB13A133B2004E8464 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 419DCE0313A133B3004E8464;
+			remoteInfo = binoclean;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		419DCE0413A133B3004E8464 /* binoclean.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = binoclean.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		419DCE0813A133B3004E8464 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		419DCE0B13A133B3004E8464 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		419DCE0C13A133B3004E8464 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		419DCE0D13A133B3004E8464 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		419DCE1013A133B3004E8464 /* binoclean-Info.plist */ = {isa = PBXFileReference; path = "binoclean-Info.plist"; sourceTree = "<group>"; };
+		419DCE1213A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		419DCE1413A133B3004E8464 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		419DCE1613A133B3004E8464 /* binoclean-Prefix.pch */ = {isa = PBXFileReference; path = "binoclean-Prefix.pch"; sourceTree = "<group>"; };
+		419DCE1813A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		419DCE1A13A133B3004E8464 /* binocleanAppDelegate.h */ = {isa = PBXFileReference; path = binocleanAppDelegate.h; sourceTree = "<group>"; };
+		419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = binocleanAppDelegate.m; sourceTree = "<group>"; };
+		419DCE1E13A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		419DCE2513A133B3004E8464 /* binocleanTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = binocleanTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		419DCE2613A133B3004E8464 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		419DCE2D13A133B3004E8464 /* binocleanTests-Info.plist */ = {isa = PBXFileReference; path = "binocleanTests-Info.plist"; sourceTree = "<group>"; };
+		419DCE2F13A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		419DCE3113A133B3004E8464 /* binocleanTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binocleanTests.h; sourceTree = "<group>"; };
+		419DCE3313A133B3004E8464 /* binocleanTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = binocleanTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		419DCE0113A133B3004E8464 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		419DCE2113A133B3004E8464 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				419DCE2713A133B3004E8464 /* SenTestingKit.framework in Frameworks */,
+				419DCE2813A133B3004E8464 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		419DCDF913A133B2004E8464 = {
+			isa = PBXGroup;
+			children = (
+				419DCE0E13A133B3004E8464 /* binoclean */,
+				419DCE2B13A133B3004E8464 /* binocleanTests */,
+				419DCE0713A133B3004E8464 /* Frameworks */,
+				419DCE0513A133B3004E8464 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		419DCE0513A133B3004E8464 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE0413A133B3004E8464 /* binoclean.app */,
+				419DCE2513A133B3004E8464 /* binocleanTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		419DCE0713A133B3004E8464 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE0813A133B3004E8464 /* Cocoa.framework */,
+				419DCE2613A133B3004E8464 /* SenTestingKit.framework */,
+				419DCE0A13A133B3004E8464 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		419DCE0A13A133B3004E8464 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE0B13A133B3004E8464 /* AppKit.framework */,
+				419DCE0C13A133B3004E8464 /* CoreData.framework */,
+				419DCE0D13A133B3004E8464 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		419DCE0E13A133B3004E8464 /* binoclean */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE1A13A133B3004E8464 /* binocleanAppDelegate.h */,
+				419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */,
+				419DCE1D13A133B3004E8464 /* MainMenu.xib */,
+				419DCE0F13A133B3004E8464 /* Supporting Files */,
+			);
+			path = binoclean;
+			sourceTree = "<group>";
+		};
+		419DCE0F13A133B3004E8464 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE1013A133B3004E8464 /* binoclean-Info.plist */,
+				419DCE1113A133B3004E8464 /* InfoPlist.strings */,
+				419DCE1413A133B3004E8464 /* main.m */,
+				419DCE1613A133B3004E8464 /* binoclean-Prefix.pch */,
+				419DCE1713A133B3004E8464 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		419DCE2B13A133B3004E8464 /* binocleanTests */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE3113A133B3004E8464 /* binocleanTests.h */,
+				419DCE3313A133B3004E8464 /* binocleanTests.m */,
+				419DCE2C13A133B3004E8464 /* Supporting Files */,
+			);
+			path = binocleanTests;
+			sourceTree = "<group>";
+		};
+		419DCE2C13A133B3004E8464 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				419DCE2D13A133B3004E8464 /* binocleanTests-Info.plist */,
+				419DCE2E13A133B3004E8464 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		419DCE0313A133B3004E8464 /* binoclean */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 419DCE3713A133B3004E8464 /* Build configuration list for PBXNativeTarget "binoclean" */;
+			buildPhases = (
+				419DCE0013A133B3004E8464 /* Sources */,
+				419DCE0113A133B3004E8464 /* Frameworks */,
+				419DCE0213A133B3004E8464 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = binoclean;
+			productName = binoclean;
+			productReference = 419DCE0413A133B3004E8464 /* binoclean.app */;
+			productType = "com.apple.product-type.application";
+		};
+		419DCE2413A133B3004E8464 /* binocleanTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 419DCE3A13A133B3004E8464 /* Build configuration list for PBXNativeTarget "binocleanTests" */;
+			buildPhases = (
+				419DCE2013A133B3004E8464 /* Sources */,
+				419DCE2113A133B3004E8464 /* Frameworks */,
+				419DCE2213A133B3004E8464 /* Resources */,
+				419DCE2313A133B3004E8464 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				419DCE2A13A133B3004E8464 /* PBXTargetDependency */,
+			);
+			name = binocleanTests;
+			productName = binocleanTests;
+			productReference = 419DCE2513A133B3004E8464 /* binocleanTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		419DCDFB13A133B2004E8464 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 419DCDFE13A133B2004E8464 /* Build configuration list for PBXProject "binoclean" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 419DCDF913A133B2004E8464;
+			productRefGroup = 419DCE0513A133B3004E8464 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				419DCE0313A133B3004E8464 /* binoclean */,
+				419DCE2413A133B3004E8464 /* binocleanTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		419DCE0213A133B3004E8464 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				419DCE1313A133B3004E8464 /* InfoPlist.strings in Resources */,
+				419DCE1913A133B3004E8464 /* Credits.rtf in Resources */,
+				419DCE1F13A133B3004E8464 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		419DCE2213A133B3004E8464 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				419DCE3013A133B3004E8464 /* InfoPlist.strings in Resources */,
+				419DCE3213A133B3004E8464 /* binocleanTests.h in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		419DCE2313A133B3004E8464 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		419DCE0013A133B3004E8464 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				419DCE1513A133B3004E8464 /* main.m in Sources */,
+				419DCE1C13A133B3004E8464 /* binocleanAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		419DCE2013A133B3004E8464 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				419DCE3413A133B3004E8464 /* binocleanTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		419DCE2A13A133B3004E8464 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 419DCE0313A133B3004E8464 /* binoclean */;
+			targetProxy = 419DCE2913A133B3004E8464 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		419DCE1113A133B3004E8464 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419DCE1213A133B3004E8464 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		419DCE1713A133B3004E8464 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419DCE1813A133B3004E8464 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		419DCE1D13A133B3004E8464 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419DCE1E13A133B3004E8464 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		419DCE2E13A133B3004E8464 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				419DCE2F13A133B3004E8464 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		419DCE3513A133B3004E8464 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		419DCE3613A133B3004E8464 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		419DCE3813A133B3004E8464 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
+				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		419DCE3913A133B3004E8464 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
+				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		419DCE3B13A133B3004E8464 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/binoclean.app/Contents/MacOS/binoclean";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
+				INFOPLIST_FILE = "binocleanTests/binocleanTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		419DCE3C13A133B3004E8464 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/binoclean.app/Contents/MacOS/binoclean";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
+				INFOPLIST_FILE = "binocleanTests/binocleanTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		419DCDFE13A133B2004E8464 /* Build configuration list for PBXProject "binoclean" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				419DCE3513A133B3004E8464 /* Debug */,
+				419DCE3613A133B3004E8464 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		419DCE3713A133B3004E8464 /* Build configuration list for PBXNativeTarget "binoclean" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				419DCE3813A133B3004E8464 /* Debug */,
+				419DCE3913A133B3004E8464 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		419DCE3A13A133B3004E8464 /* Build configuration list for PBXNativeTarget "binocleanTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				419DCE3B13A133B3004E8464 /* Debug */,
+				419DCE3C13A133B3004E8464 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 419DCDFB13A133B2004E8464 /* Project object */;
+}

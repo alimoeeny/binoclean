@@ -1,0 +1,1 @@
+#define CMPTIME "Fri May 27 07:00:04 EDT 2011"
