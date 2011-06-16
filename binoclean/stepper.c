@@ -704,7 +704,7 @@ else{
   if(penlog){
     fprintf(penlog,"ed %d at %.1f\n",electrodeDepth,times[totalsteps]);
     if(diff < -200){
-      fprintf(penlog,"Step Back at %s\n",TimeString());
+      fprintf(penlog,"Step Back at %s\n",binocTimeString());
     }
   }
   times[totalsteps+1] = 0;

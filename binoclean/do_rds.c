@@ -228,7 +228,7 @@ int init_rds(Stimulus *st,  Substim *sst, float density)
 	}
 	sst->xshift = 0;
         memcpy(&sst->pos,&st->pos,sizeof(Locator));
-	glShadeModel(GL_FLAT);
+//	glShadeModel(GL_FLAT);
 	return(0);
 }
 

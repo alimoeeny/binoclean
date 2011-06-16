@@ -820,7 +820,7 @@ void paint_grating(Substim *sst, int mode, int shift)
 	if(xtest > 0)
 	  {
 	  xtest = sqrt(xtest);
-	x[1] = (i - pos->size[1]/2) * pos->ss[1]; 
+	x[1] = ((float)i - pos->size[1]/2) * pos->ss[1]; 
 	z[1] = x[1];
 	x[0] = -xtest;
 	z[0] = -x[0];

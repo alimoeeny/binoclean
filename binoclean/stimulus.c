@@ -2138,7 +2138,7 @@ void paint_stimulus(Stimulus *st)
       st->right->mode = RIGHTMODE;
     }
   glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
-  if(debug)
+//  if(debug)
     glDrawBuffer(GL_FRONT_AND_BACK);
   if(st->next != NULL && optionflags[PAINT_BACKGROUND])
     paint_stimulus(st->next);

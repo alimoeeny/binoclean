@@ -691,14 +691,15 @@ static void drawCube (GLfloat fSize)
     
 	// clear our drawable
     //NSLog(@"time is: %f ", time);
-    float cc = 0.0f;
-    cc = ABS(sin(time*5.0f)); //remainderl(time, 1.0f);
-    glClearColor(cc, cc, cc, 1);
+//    float cc = 0.0f;
+//    cc = ABS(sin(time*5.0f)); //remainderl(time, 1.0f);
+//    glClearColor(cc, cc, cc, 1);
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	// model view and projection matricies already set
     
-	drawCube (1.5f); // draw scene
+//	drawCube (1.5f); // draw scene
+    glOrtho(-640.0,640.0,-512.0,512.0,-1.0,1.0);
     calc_stimulus(TheStim);
     paint_stimulus(TheStim);
     
@@ -737,6 +738,10 @@ static void drawCube (GLfloat fSize)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	[self resetCamera];
 	shapeSize = 7.0f; // max radius of of objects
+    
+    //Ali 
+    glOrtho(-640.0f, 640.0f, -512.0f, 512.0f, 0, 0);
+    
     
 	// init fonts for use with strings
 	NSFont * font =[NSFont fontWithName:@"Helvetica" size:12.0];

@@ -20,7 +20,7 @@
     
 }
 
-@property (strong) IBOutlet NSWindow *window;
+@property (retain) IBOutlet NSWindow *window;
 @property (nonatomic, retain) NSWindow * monkeyWindow;
 @property (nonatomic, retain) IBOutlet NSButton * runButton;
 

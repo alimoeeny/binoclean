@@ -89,6 +89,7 @@
 #define ZERO 0
 #define MANUALEVENT 0
 #define TRUE 1
+#import "stimuli.h"
 
 #define MAXRF 10
 extern Expstim oldrfs[];
@@ -4160,7 +4161,7 @@ char *ShowTextVal(int i, char *s)
 //Ali  settextlabel(comitem,buf);
   
       if(logfd)
-	fprintf(logfd,"%s %s\n",buf,TimeString());
+	fprintf(logfd,"%s %s\n",buf,binocTimeString());
 
 //Ali      MakeTextLabel(i, buf);
 //Ali      my_set_label(cmdlabel,buf);
@@ -7238,7 +7239,7 @@ char *SerialSend(int code)
 	  case UFF_PREFIX:
 	    SerialString(cbuf,0);
 	    if(penlog)
-	      fprintf(penlog,"%s File %s\n",TimeString(),expt.bwptr->prefix);
+	      fprintf(penlog,"%s File %s\n",binocTimeString(),expt.bwptr->prefix);
 	    if(mode & UFF_FILE_OPEN){
 	      SerialSend(RF_DIMENSIONS);
 	      SerialSend(XPIXEL_CODE);
@@ -7478,7 +7479,7 @@ void InitExpt()
 		  serial_strings[COVARY_XPOS],afc_s.ccvar, 
 		  serial_strings[TARGET_RATIO],expt.vals[TARGET_RATIO]);
 	  tval = RunTime();
-	  ts = TimeString();
+	  ts = binocTimeString();
 	  ts[3] = '.';
 	  ts[6] = 0;
 	  fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[5] * expt.nreps);
@@ -11619,7 +11620,7 @@ int ReadExptFile(char *name, int new, int show, int reset)
 	oldnquick = nquickexpts;
 	oldnhelp = nhelpfiles;
 	newtoggles = 0;
-	oldseed = expt.st->left->baseseed;
+    oldseed = expt.st->left->baseseed;
 	gettimeofday(&then,NULL);
 
 	if(new == 1 && exfd != NULL)
@@ -13207,12 +13208,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	    sscanf(s,"%lu",&bwticks);
 	    gettimeofday(&bwtime,NULL);
 	    if(penlog && (bwticks - lastticks > 6000000 || bwticks < lastticks)){
-	      fprintf(penlog,"%lu bwticks = %s\n",bwticks,TimeString());
+	      fprintf(penlog,"%lu bwticks = %s\n",bwticks,binocTimeString());
 	      lastticks = bwticks;
 	    }
 	    if(seroutfile){
 	      fprintf(seroutfile,"#%s\n",s);
-	      fprintf(seroutfile,"#%lu bwticks = %s\n",bwticks,TimeString());
+	      fprintf(seroutfile,"#%lu bwticks = %s\n",bwticks,binocTimeString());
 	    }
 	  }
 	break;

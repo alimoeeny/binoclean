@@ -542,7 +542,7 @@ int PrintToggles(FILE *ofd)
   return(i);
 }
 
-char *TimeString()
+char *binocTimeString()
 {
   char name[BUFSIZ],*t = NULL ,buf[256];
   time_t tval;
@@ -578,13 +578,13 @@ void ShowTime()
   SetGrey(1.0);
   if(TheStim->gammaback > 0){
     if(states[EXPT_PAUSED_BY_QEXP])
-      sprintf(buf,"%s: Expt Pausing (%.1f)",TimeString(),timediff(&now,&endexptime));
+      sprintf(buf,"%s: Expt Pausing (%.1f)",binocTimeString(),timediff(&now,&endexptime));
     else if(states[EXPT_PAUSED])
-      sprintf(buf,"%s: Expt Paused",TimeString());
+      sprintf(buf,"%s: Expt Paused",binocTimeString());
     else if(check_for_monkey == 0)
-      sprintf(buf,"%s: Not Checking Monkey",TimeString());
+      sprintf(buf,"%s: Not Checking Monkey",binocTimeString());
     else
-      sprintf(buf,"%s",TimeString());
+      sprintf(buf,"%s",binocTimeString());
     if(microsaccade)
       sprintf(buf,"Saccade %.2f",microsaccade);
     if((stimstate == IN_TIMEOUT || stimstate == IN_TIMEOUT_W) && timeout_type == SHAKE_TIMEOUT_PART2){
@@ -630,7 +630,7 @@ int getframecount()
       gotzerr++;
     }
     if(seroutfile && gotzerr % 1000000 == 1)
-      fprintf(seroutfile,"Negative frames at %u %u (%u) %s state %d,%d,%d\n",ufftime(&frametime),ufftime(&zeroframetime),ufftime(&prevframetime),TimeString(),stimstate,fixstate,mode&FRAME_BITS);
+      fprintf(seroutfile,"Negative frames at %u %u (%u) %s state %d,%d,%d\n",ufftime(&frametime),ufftime(&zeroframetime),ufftime(&prevframetime),binocTimeString(),stimstate,fixstate,mode&FRAME_BITS);
     return(1000);
   }
   return(frames);
@@ -1241,6 +1241,9 @@ expt.mon = &mon;
 	  DIOClose();
 	  exit(1);
 	}
+    DIOWrite(0x0);
+    DIOWrite(0xF);
+    
 #endif
 	OpenPenetrationLog(0); /* open a dummy so ed is ALWAYS saved */
 
@@ -1448,7 +1451,7 @@ expt.mon = &mon;
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
-	event_loop();
+//	event_loop();
 }
 
 
@@ -1701,7 +1704,7 @@ void Box(int a, int b, int c, int d, float color)
   glEnd();
 }
 
-void Line(int a, int b, int c, int d, float color)
+void binocLine(int a, int b, int c, int d, float color)
 {
   vcoord pt[2];
   /*  glDrawBuffer(GL_FRONT_AND_BACK);*/
@@ -2302,7 +2305,7 @@ void redraw_overlay(struct plotdata  *plot)
       ShowBox(es, BOX_COLOR);
   if((pl = plot->linedata) != NULL)
     for(i = 0; i <= expt.nlines; i++,pl+=4)
-      Line(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
+      binocLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
   for(i = 0; i < rfctr; i++)
       ShowBox(&oldrfs[i],0.2);
     
@@ -8110,10 +8113,10 @@ int ShowTrialCount(float down, float sum)
 	}
 	val = StimDuration();
 	if(debug)
-	  sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",TimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
+	  sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
 	    totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
 	else
-	  sprintf(mssg,"%s Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %.0f/%d",TimeString(),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
+	  sprintf(mssg,"%s Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %.0f/%d",binocTimeString(),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
 	    totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
 
 
@@ -8635,7 +8638,7 @@ int GotChar(char c)
  * check for changes
  */
 			if(logfd){
-			  fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],TimeString());
+			  fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],binocTimeString());
 			  fflush(logfd);
 			  /*
 			  close(logfd);
@@ -9133,7 +9136,7 @@ void expt_over(int flag)
       optionflags[MODULATE_DISPARITY] = 0;
   }
   if(!(optionflag & FRAME_ONLY_BIT)){
-    sprintf(buf,"Expt over at %s",TimeString());
+    sprintf(buf,"Expt over at %s",binocTimeString());
      statusline(buf);
   }
   TheStim->mode &= (~(EXPTPENDING | EXPT_OVER | INTRIAL));

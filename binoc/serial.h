@@ -1,2 +1,0 @@
-#define MYEOF 17
-

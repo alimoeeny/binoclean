@@ -25,6 +25,9 @@
 		419DCE3213A133B3004E8464 /* binocleanTests.h in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE3113A133B3004E8464 /* binocleanTests.h */; };
 		419DCE3413A133B3004E8464 /* binocleanTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE3313A133B3004E8464 /* binocleanTests.m */; };
 		419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0D13A133B3004E8464 /* Foundation.framework */; };
+		41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A8ED2513AA832F00C9EAAC /* nidaqmxbase */; };
+		41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41AA181D13AA71D7009AC8E2 /* ni_dio.c */; };
+		41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */; };
 		41BF8E1E13A174FE00C8B6BA /* expop.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEB13A174FE00C8B6BA /* expop.c */; };
 		41BF8E1F13A174FE00C8B6BA /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
 		41BF8E2013A174FE00C8B6BA /* xrand.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DED13A174FE00C8B6BA /* xrand.c */; };
@@ -101,6 +104,10 @@
 		419DCE2F13A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		419DCE3113A133B3004E8464 /* binocleanTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binocleanTests.h; sourceTree = "<group>"; };
 		419DCE3313A133B3004E8464 /* binocleanTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = binocleanTests.m; sourceTree = "<group>"; };
+		41A8ED2513AA832F00C9EAAC /* nidaqmxbase */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = nidaqmxbase; path = /Library/Frameworks/nidaqmxbase.framework/Versions/3/nidaqmxbase; sourceTree = "<absolute>"; };
+		41AA181D13AA71D7009AC8E2 /* ni_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ni_dio.c; sourceTree = "<group>"; };
+		41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NIDAQmxBase.h; sourceTree = "<group>"; };
+		41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = nidaqmxbaselv; path = /Library/Frameworks/nidaqmxbaselv.framework/Versions/A/nidaqmxbaselv; sourceTree = "<absolute>"; };
 		41BF8DEB13A174FE00C8B6BA /* expop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = expop.c; sourceTree = "<group>"; };
 		41BF8DEC13A174FE00C8B6BA /* binoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = binoc.c; sourceTree = "<group>"; };
 		41BF8DED13A174FE00C8B6BA /* xrand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xrand.c; sourceTree = "<group>"; };
@@ -159,6 +166,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */,
+				41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */,
 				41BF8E4013A1753B00C8B6BA /* OpenGL.framework in Frameworks */,
 				419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */,
 				419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */,
@@ -180,6 +189,8 @@
 		41520B5F13A258F1006CE4A7 /* Binoc */ = {
 			isa = PBXGroup;
 			children = (
+				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
+				41AA181D13AA71D7009AC8E2 /* ni_dio.c */,
 				41BF8DEB13A174FE00C8B6BA /* expop.c */,
 				41BF8DEC13A174FE00C8B6BA /* binoc.c */,
 				41BF8DED13A174FE00C8B6BA /* xrand.c */,
@@ -278,6 +289,8 @@
 		419DCE0713A133B3004E8464 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41A8ED2513AA832F00C9EAAC /* nidaqmxbase */,
+				41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */,
 				41BF8E3F13A1753B00C8B6BA /* OpenGL.framework */,
 				419DCE0813A133B3004E8464 /* Cocoa.framework */,
 				419DCE2613A133B3004E8464 /* SenTestingKit.framework */,
@@ -489,6 +502,7 @@
 				41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */,
 				41520B6E13A25BD7006CE4A7 /* trackball.c in Sources */,
 				41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */,
+				41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,7 +564,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -560,6 +574,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "NIDAQ=1";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -576,7 +591,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -597,6 +612,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbase.framework/Versions/3\"",
+					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbaselv.framework/Versions/A\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -609,6 +629,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbase.framework/Versions/3\"",
+					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbaselv.framework/Versions/A\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

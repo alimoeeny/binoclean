@@ -31,7 +31,7 @@ Stimulus *TheStim;
 {
     NSLog(@"run clicked");
     monkeyWindow = [[NSWindow alloc]
-                        initWithContentRect:CGRectMake(100, 100, 400, 300)
+                        initWithContentRect:NSRectFromCGRect(CGRectMake(0, -200, 1280, 1024))
                         styleMask:NSBorderlessWindowMask
                         backing:NSBackingStoreBuffered
                         defer:YES
@@ -42,7 +42,7 @@ Stimulus *TheStim;
     [monkeyWindow makeKeyAndOrderFront:nil];
     
     
-    init_stimulus(TheStim);
+//    init_stimulus(TheStim);
 //	if(TheStim->next != NULL)
 //		init_stimulus(TheStim->next);
 
