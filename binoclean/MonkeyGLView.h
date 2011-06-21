@@ -21,14 +21,15 @@ typedef struct {
     GLdouble x,y,z;
 } recVec;
 
-typedef struct {
-	recVec viewPos; // View position
-	recVec viewDir; // View direction vector
-	recVec viewUp; // View up direction
-	recVec rotPoint; // Point to rotate about
-	GLdouble aperture; // pContextInfo->camera aperture
-	GLint viewWidth, viewHeight; // current window/screen height and width
-} recCamera;
+//Ali 20/6/2011
+//typedef struct {
+//	recVec viewPos; // View position
+//	recVec viewDir; // View direction vector
+//	recVec viewUp; // View up direction
+//	recVec rotPoint; // Point to rotate about
+//	GLdouble aperture; // pContextInfo->camera aperture
+//	GLint viewWidth, viewHeight; // current window/screen height and width
+//} recCamera;
 
 @interface MonkeyGLView : NSOpenGLView
 {
@@ -60,10 +61,10 @@ typedef struct {
 	GLfloat rAccel [3];
 	
 	// camera handling
-	recCamera camera;
-	GLfloat worldRotation [4];
-	GLfloat objectRotation [4];
-	GLfloat shapeSize;
+	//recCamera camera;
+	//GLfloat worldRotation [4];
+	//GLfloat objectRotation [4];
+	//GLfloat shapeSize;
 	
 }
 

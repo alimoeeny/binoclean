@@ -103,7 +103,7 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
   float x[2],z[2],vcolor[3],*xc,*yc,*cc,*rc,cval;
   float angle,val;
 
-  val = (st->background) * (1+ pos->contrast);
+    val = (st->background) * (1+ pos->contrast);
   if(pos->contrast > 2)
     val = 1.0;
   else if (st->background == 0)

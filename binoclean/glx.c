@@ -244,6 +244,7 @@
 //
 //void mySwapBuffers()
 //{
-////AliGL  	glXSwapBuffers(xDisplay, MainWindow);
+//    [];
+////  	glXSwapBuffers(xDisplay, MainWindow);
 //}
-//
+

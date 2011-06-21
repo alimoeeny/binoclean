@@ -77,7 +77,8 @@ void setmask(int type)
 {
   int cyc;
   static int lastmask = -1000;
-  
+    return;
+    
   if(optionflags[STEREO_GLASSES]){
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     return;
@@ -2173,13 +2174,15 @@ void paint_stimulus(Stimulus *st)
     case STIM_GRATINGN:
     case STIM_GRATING2:
     case STIM_GRATING:
-      
       setmask(LEFTMODE);
        glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
        if(optionflags[SPLITSCREEN])
 	 glTranslatef(-psychoff[0]/2,0,0);
        glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
        paint_grating(st->left,st->left->mode,0);
+            if (debug)
+                glFinish();
+            
        setmask(RIGHTMODE);
        if(optionflags[SPLITSCREEN])
 	 glTranslatef(psychoff[0],psychoff[1],0);

@@ -30,6 +30,7 @@
 #import "protos.h"
 #import "cmptime.h"
 
+
 /*
 INTRIAL = TRIAL_PENDING | POST_STIMULUS_BIT
 */
@@ -194,7 +195,7 @@ unsigned int mode = 0;
 int stmode = 0;
 static int oldmode = 0;
 int runmode = 1;
-int testmode = 3;
+int testmode = 4;
 static int maxloops = 0;
 static char *loadfiles[100] = {NULL};
 
@@ -515,7 +516,7 @@ void afc_statusline(char *s, int line);
 void paint_target(float color, int flag);
 
 
-static void event_loop();
+void event_loop();
 void expback();
 void expfront(),exprun();
 
@@ -599,9 +600,9 @@ void ShowTime()
 
 
 //Ali
-void acknowledge(int a ,int b)
+void acknowledge(char * a ,int b)
 {
-    printf("Acknowledge!");
+    printf("Acknowledge! %s", a);
 }
 
 
@@ -1911,7 +1912,7 @@ void one_event_loop()
   }
 }
 
-static void event_loop()
+void event_loop()
 {
 	int i, j, mask,ctr,nstim,estim = 0;
 	vcoord end[2],mpos[2];
@@ -1926,8 +1927,8 @@ static void event_loop()
 	int statectr = 0,tc;
 	static int testlaps = 0;
 
-	for(;;)
-	{
+    //Ali 20/6/2011
+    stimstate = PRESTIMULUS;
 	  	
 		tc = 0;
 		while((c = ReadSerial(ttys[0])) != MYEOF){
@@ -1960,8 +1961,9 @@ static void event_loop()
 		      statectr++;
 		      }
 		  }
-		if(mode & TEST_PENDING)
+		if(mode & TEST_PENDING || 1)
 		  {
+              testmode = 4;
 		    if(testmode == 0){
 	    /*		      run_anticorrelated_test_loop();*/
 		      if(TheStim->type == STIM_RADIAL)
@@ -1969,13 +1971,31 @@ static void event_loop()
 		      else if(TheStim->type == STIM_RDS)
 			run_anticorrelated_test_loop();
 		      else
-			run_swap_test_loop();
+			run_general_test_loop();
 		    }
 		    else if(testmode == 2)
 		      run_gabor_test_loop();
 		    else if(testmode == 1 || testmode == 3)
 		      run_rds_test_loop();
-		    if(forcestart >1 && ++testlaps >= forcestart)
+            else if (testmode == 4){
+                for (i = 0; i < 20; i++){
+                paint_stimulus(TheStim);
+              TheStim->pos.phase += TheStim->incr;
+              calc_stimulus(TheStim);
+                    //glFinish();
+                    glSwapAPPLE();
+                    //Ali where the screen update goes
+                    //TESTRefresh();
+                }
+            }
+//                  run_general_test_loop();
+		    else if (testmode == 5){
+                paint_stimulus(TheStim);
+                TheStim->pos.phase += TheStim->incr;
+                calc_stimulus(TheStim);
+                glFinish();
+            }
+              if(forcestart >1 && ++testlaps >= forcestart)
 		      exit_program();
 		  }
 		else
@@ -1984,7 +2004,7 @@ static void event_loop()
 		  ReadExptFile(NULL, 0, 0,0);
 		}
 		ctr++;
-	}
+	
 }
 
 
@@ -4020,7 +4040,7 @@ void search_background()
   int i,j,xstep,ystep,rnd,nb;
   int oldoption = optionflag;
   float val,vborder,hborder;
-  int forcecalc = 0;
+  int forcecalc = 1;
   ystep = xstep = 70;
   
 /*
@@ -4392,7 +4412,7 @@ int change_frame()
 	  sprintf(buf,"%d",framesswapped);
 	  printString(buf,1);
 	}
-	glFlush();
+//	glFlush();
 //AliGLX	mySwapBuffers();
 	glFinish();
 	framesswapped++;
@@ -5352,7 +5372,7 @@ int next_frame(Stimulus *st)
       if(newtimeout < 5){
 	redraw_overlay(expt.plot);
 	if(debug) glstatusline("Stopped",3);
-//AliGLX	mySwapBuffers();
+ 	//mySwapBuffers();
       }
       gettimeofday(&now,NULL);
       if(timediff(&now,&alarmstart) >  1){
@@ -5430,7 +5450,7 @@ int next_frame(Stimulus *st)
       if(rdspair(expt.st))
 	i = 0;
 	change_frame();
-	glFinish();
+//	glFinish();
       if(rdspair(expt.st))
 	i = 0;
       break;
@@ -5531,8 +5551,9 @@ int next_frame(Stimulus *st)
       }
       CheckFix();
 //Ali CheckKeyboard(D, allframe);
-      if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
-	 val > expt.vals[TRIAL_START_BLANK])
+//      if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
+//	 val > expt.vals[TRIAL_START_BLANK])
+            if(1)
 	{
 	  redraw_overlay(expt.plot);
 //Ali CheckKeyboard(D, allframe);
@@ -5547,7 +5568,7 @@ int next_frame(Stimulus *st)
 	    break;
 	  }
 //Ali CheckKeyboard(D, allframe);
-	  if(ExptIsRunning() && (mode & ANIMATE_BIT))
+	  if (1) //(ExptIsRunning() && (mode & ANIMATE_BIT) )
 	    {
 	      inexptstim = 1;
 	      if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
@@ -6739,7 +6760,8 @@ void run_general_test_loop()
     {
       paint_stimulus(TheStim);
       pos->phase += TheStim->incr;
-/*      calc_stimulus(TheStim);*/
+      calc_stimulus(TheStim);
+        change_frame();
 //AliGLX      mySwapBuffers();
       }
   j = getframecount();

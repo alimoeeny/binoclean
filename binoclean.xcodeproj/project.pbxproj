@@ -611,6 +611,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
