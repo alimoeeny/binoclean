@@ -684,8 +684,8 @@ int clear_screen(Stimulus *st, int flag)
 
  glClearColor(vcolor[0],vcolor[1],vcolor[2],1.0);
  glClear(GL_COLOR_BUFFER_BIT);
- glFlush();
- glFinish();
+ glFlushRenderAPPLE();
+ glFinishRenderAPPLE();
  setmask(BOTHMODE);
 
   /* if fixation marker is off, clear the screen blank - don't draw
@@ -2165,11 +2165,11 @@ void paint_stimulus(Stimulus *st)
       setmask(LEFTMODE);
       paint_image(st, st->left);
       if(debug)
-	glFlush();
+	glFlushRenderAPPLE();
       setmask(RIGHTMODE);
       paint_image(st, st->right);
       if(debug)
-	glFlush();
+	glFlushRenderAPPLE();
       break;
     case STIM_GRATINGN:
     case STIM_GRATING2:
@@ -2181,7 +2181,7 @@ void paint_stimulus(Stimulus *st)
        glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
        paint_grating(st->left,st->left->mode,0);
             if (debug)
-                glFinish();
+                glFinishRenderAPPLE();
             
        setmask(RIGHTMODE);
        if(optionflags[SPLITSCREEN])
@@ -2463,7 +2463,7 @@ void paint_stimulus(Stimulus *st)
 	 setmask(BOTHMODE);
        }
       if(debug)
-	glFlush();
+	glFlushRenderAPPLE();
       break;
    case STIM_PROBE:
       setmask(LEFTMODE);
@@ -2507,10 +2507,10 @@ void paint_stimulus(Stimulus *st)
 	CheckRect(st->next);
         paint_cylinder(st->next,JONLEFT, 0);
 	if(debug)
-	  glFlush();
+	  glFlushRenderAPPLE();
       }
       if(debug)
-	glFlush();
+	glFlushRenderAPPLE();
       paint_cylinder(st,JONLEFT, 0);
       if(mon.crosstalk[1] > 0 && !(optionflag & RIGHT_FIXATION_CHECK)){
 	setmask(FORCERIGHT);
@@ -2562,7 +2562,7 @@ void paint_stimulus(Stimulus *st)
         paint_stimulus(st->next);
   }
     if(debug)
-      glFlush();
+      glFlushRenderAPPLE();
   if(st->next != NULL && st->next->type == STIM_PROBE)
     paint_stimulus(st->next);
 }

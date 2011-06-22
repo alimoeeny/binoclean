@@ -719,7 +719,7 @@ static void drawCube (GLfloat fSize)
 //		[self drawInfo];
 //    
 //	if ([self inLiveResize] && !fAnimate)
-//		glFlush ();
+//		—glFlushRenderAPPLE ();
 //	else
 //		[[self openGLContext] flushBuffer];
 //	glReportError ();

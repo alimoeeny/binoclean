@@ -64,11 +64,11 @@ void TESTRefresh()
     //counter = [NSNumber numberWithInt:1 + [counter intValue]];
     //NSLog(@" Counter: %d", [counter intValue]);
     //printf("counter %d\r\n",[counter intValue]);
-    NSLog(@"ali");
+    //NSLog(@"ali");
     glOrtho(-640.0f, 640.0f, -512.0f, 512.0f, 0, 0);
     event_loop();
-    [[monkeyWindow contentView] setNeedsDisplay:YES];
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //[[monkeyWindow contentView] setNeedsDisplay:YES];
+    //glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //[[NSOpenGLContext currentContext] flushBuffer];
 //    NSOpenGLContext.currentContext()] flushBuffer];
     

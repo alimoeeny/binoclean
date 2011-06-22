@@ -202,7 +202,7 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
   glEnd();
     glPopMatrix();
     if(debug)
-      glFlush();
+      glFlushRenderAPPLE();
   }
 
 }

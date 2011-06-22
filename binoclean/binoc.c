@@ -1979,10 +1979,11 @@ void event_loop()
 		      run_rds_test_loop();
             else if (testmode == 4){
                 for (i = 0; i < 20; i++){
-                paint_stimulus(TheStim);
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    paint_stimulus(TheStim);
               TheStim->pos.phase += TheStim->incr;
               calc_stimulus(TheStim);
-                    //glFinish();
+                    //glFinishRenderAPPLE();
                     glSwapAPPLE();
                     //Ali where the screen update goes
                     //TESTRefresh();
@@ -1993,7 +1994,7 @@ void event_loop()
                 paint_stimulus(TheStim);
                 TheStim->pos.phase += TheStim->incr;
                 calc_stimulus(TheStim);
-                glFinish();
+                glFinishRenderAPPLE();
             }
               if(forcestart >1 && ++testlaps >= forcestart)
 		      exit_program();
@@ -2292,8 +2293,8 @@ void clear_display(int flag)
     draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
   ShowPerformanceString(0);
     glDrawBuffer(GL_BACK);
-    glFlush();
-    glFinish();
+    glFlushRenderAPPLE();
+    glFinishRenderAPPLE();
 }
 
 void redraw_overlay(struct plotdata  *plot)
@@ -4169,7 +4170,7 @@ void start_timeout(int mode)
 	  glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
 	  }
 	glClear(GL_COLOR_BUFFER_BIT);
-	glFlush();
+	glFlushRenderAPPLE();
   }
 	gettimeofday(&starttimeout,NULL);
 
@@ -4210,7 +4211,7 @@ else
 	  stimstate = POSTTRIAL;
 	  break;
 	}
-	glFlush();
+	glFlushRenderAPPLE();
 	if(stimstate != IN_TIMEOUT && stimstate != POSTTRIAL)
 	  stimstate = STIMSTOPPED;
 	BackupStimFile();
@@ -4412,9 +4413,9 @@ int change_frame()
 	  sprintf(buf,"%d",framesswapped);
 	  printString(buf,1);
 	}
-//	glFlush();
+//	—glFlushRenderAPPLE();
 //AliGLX	mySwapBuffers();
-	glFinish();
+	glFinishRenderAPPLE();
 	framesswapped++;
 	if(mode & FRAME_BITS)
 	  {
@@ -4422,7 +4423,7 @@ int change_frame()
 	    DIOWrite(DIOval | 8);
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
-	      glFinish(); /* block until buffer swapped */
+	      glFinishRenderAPPLE(); /* block until buffer swapped */
 	    WriteSignal();
 	    if(c == END_STIM){
 	      sprintf(buf,"%s%d\n",serial_strings[NFRAMES_CODE],framesdone);
@@ -5081,7 +5082,7 @@ void paint_frame(int type, int showfix)
     draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
   gettimeofday(&btime, NULL);
   if(debug)
-    glFlush();
+    glFlushRenderAPPLE();
   paintdur = timediff(&btime,&paintframetime);
   if(optionflags[STIMULUS_IN_OVERLAY])
     {
@@ -5450,7 +5451,7 @@ int next_frame(Stimulus *st)
       if(rdspair(expt.st))
 	i = 0;
 	change_frame();
-//	glFinish();
+//	glFinishRenderAPPLE();
       if(rdspair(expt.st))
 	i = 0;
       break;
@@ -5700,7 +5701,7 @@ int next_frame(Stimulus *st)
 	      draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
 	  }
 	  change_frame();
-	  glFinish();
+	  glFinishRenderAPPLE();
 	}
       break;
     case POSTSTIMINTRIAL:
@@ -5842,7 +5843,7 @@ int next_frame(Stimulus *st)
 	change_frame();
 	SerialSignal(WURTZ_OK);
 	glDrawBuffer(GL_BACK);
-	glFinish();
+	glFinishRenderAPPLE();
 	stimstate = WAIT_FOR_RESPONSE;
 	ShowTrialCount(0.0, wsum);
       break;
@@ -6289,7 +6290,7 @@ void run_rds_test_loop()
       glDrawBuffer(GL_FRONT_AND_BACK);
       glClearColor(clearcolor, clearcolor, clearcolor,clearcolor);
       glClear(GL_COLOR_BUFFER_BIT);
-      glFlush();
+      glFlushRenderAPPLE();
       glPushMatrix();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -6442,7 +6443,7 @@ void run_rds_test_loop()
 	    if(!optionflags[CALCULATE_ONCE_ONLY])
 	      calc_stimulus(TheStim);
 //AliGLX	    mySwapBuffers();
-	    glFlush();
+	    glFlushRenderAPPLE();
 	    c = FRAME_SIGNAL;
 	    write(ttys[0],&c,1);
 	}
@@ -6636,7 +6637,7 @@ void run_gabor_test_loop()
 	    }
 	  }
 	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-	  glFlush();
+	  glFlushRenderAPPLE();
 //AliGLX	  mySwapBuffers();
 	}
   }
@@ -6649,7 +6650,7 @@ void run_gabor_test_loop()
 	    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
 	  else
 	    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im2);
-	  glFlush();
+	  glFlushRenderAPPLE();
 //AliGLX	  mySwapBuffers();
 	}
   }
@@ -6685,7 +6686,7 @@ void run_gabor_test_loop()
 	  }
 	  }
 	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-	  glFlush();
+	  glFlushRenderAPPLE();
 //AliGLX	  mySwapBuffers();
 	}
   }
@@ -6743,8 +6744,8 @@ void run_anticorrelated_test_loop()
 	st->pos.lastxy[1] = st->pos.xy[1];
 	pos->phase += TheStim->incr;
 	glPopMatrix();
-	glFlush();
-	glFinish();
+	glFlushRenderAPPLE();
+	glFinishRenderAPPLE();
 //AliGLX	mySwapBuffers();
 }
 
@@ -6796,8 +6797,8 @@ void run_swap_test_loop()
       draw_fix(fixpos[0],fixpos[1],expt.st->fix.size,expt.st->fix.fixcolor);
       change_frame();
       /*
-      glFlush();
-      glFinish();
+      —glFlushRenderAPPLE();
+      glFinishRenderAPPLE();
       mySwapBuffers();
       */
     }
@@ -8058,7 +8059,7 @@ void GLblock(int n)
 		glVertex2s(x[0],x[1]);
 	}
 	glEnd();
-	glFinish(); /* wait to finish */
+	glFinishRenderAPPLE(); /* wait to finish */
 }
 
 void WurtzTrial()
@@ -9191,7 +9192,7 @@ void expt_over(int flag)
   SetStopButton(STOP);
   clear_display(1);
   }
-  glFinish();
+  glFinishRenderAPPLE();
 
  /*
   * work on expt file _AFTER_ clearing the display and telling BW that the expt is over

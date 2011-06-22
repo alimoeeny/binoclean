@@ -10289,7 +10289,7 @@ int RunStrobedStim(Stimulus *st, int n, /*Ali Display */ int D)
   }
     
 
-    glFinish(); /* block until buffer swapped */
+    glFinishRenderAPPLE(); /* block until buffer swapped */
     gettimeofday(&endstimtime,NULL);
 /* 
  * getframecount counts from after the first frame to after the last frame, so
