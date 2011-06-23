@@ -1912,6 +1912,8 @@ void one_event_loop()
   }
 }
 
+#pragma mark Event_Loop
+
 void event_loop()
 {
 	int i, j, mask,ctr,nstim,estim = 0;
@@ -1928,7 +1930,7 @@ void event_loop()
 	static int testlaps = 0;
 
     //Ali 20/6/2011
-    stimstate = PRESTIMULUS;
+    //stimstate = PRESTIMULUS;
 	  	
 		tc = 0;
 		while((c = ReadSerial(ttys[0])) != MYEOF){
@@ -1938,6 +1940,7 @@ void event_loop()
 			  fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
 			}
 		}
+    ReadInputPipe();
 		if(cleartime.tv_sec != 0){
 		  gettimeofday(&now,NULL);
 		  val = timediff(&now,&cleartime);
@@ -1961,7 +1964,7 @@ void event_loop()
 		      statectr++;
 		      }
 		  }
-		if(mode & TEST_PENDING || 1)
+		if(mode & TEST_PENDING)
 		  {
               testmode = 4;
 		    if(testmode == 0){
@@ -1979,10 +1982,11 @@ void event_loop()
 		      run_rds_test_loop();
             else if (testmode == 4){
                 for (i = 0; i < 20; i++){
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    paint_stimulus(TheStim);
+  //                  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    paint_frame(WHOLESTIM,1);
+ //                   paint_stimulus(TheStim);
               TheStim->pos.phase += TheStim->incr;
-              calc_stimulus(TheStim);
+   //           calc_stimulus(TheStim);
                     //glFinishRenderAPPLE();
                     glSwapAPPLE();
                     //Ali where the screen update goes
@@ -2348,11 +2352,6 @@ void redraw_overlay(struct plotdata  *plot)
   if(option2flag & PSYCHOPHYSICS_BIT && stimstate == STIMSTOPPED
     && option2flag & PERF_STRING)
     setmask(ALLPLANES);
-  if(optionflags[PLOT_ELECTRODE_TRACK]){
-     plottrack(plot);
-  }
-  else
-     plotexpt(plot);
 /*  statusline(NULL);  redraws info line too often*/
   glstatusline(NULL,2);
     ShowPerformanceString(-1);
@@ -4416,6 +4415,7 @@ int change_frame()
 //	—glFlushRenderAPPLE();
 //AliGLX	mySwapBuffers();
 	glFinishRenderAPPLE();
+    glSwapAPPLE();
 	framesswapped++;
 	if(mode & FRAME_BITS)
 	  {
@@ -5000,7 +5000,7 @@ void wipescreen(float color)
       glClearColor(color,color,color,color);
     else
       glClearColor(color,clearcolor,color,color);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
   }
   if(expt.vals[GRIDSIZE] > 0.1){
     if(optionflag & CONTRAST_REVERSE_BIT){
@@ -5036,6 +5036,7 @@ void paint_frame(int type, int showfix)
   struct timeval atime,btime,ctime;
   
   gettimeofday(&atime, NULL);
+    mode |= NEED_REPAINT;
   if(!optionflags[CALCULATE_ONCE_ONLY])
     calc_stimulus(TheStim);
   gettimeofday(&calctime, NULL);
@@ -5209,7 +5210,6 @@ void testcolor()
     glDrawBuffer(GL_FRONT_AND_BACK);
     glClearColor(expt.st->gammaback, expt.st->gammaback, expt.st->gammaback, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    plotexpt(expt.plot);
     glBegin(GL_LINES);
 
     for(color = 0; color <= 1; color += 0.05)
@@ -5569,7 +5569,7 @@ int next_frame(Stimulus *st)
 	    break;
 	  }
 //Ali CheckKeyboard(D, allframe);
-	  if (1) //(ExptIsRunning() && (mode & ANIMATE_BIT) )
+	  if (ExptIsRunning() && (mode & ANIMATE_BIT) )
 	    {
 	      inexptstim = 1;
 	      if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
@@ -9095,7 +9095,7 @@ void expt_over(int flag)
 	    ReadExptFile(NULL, 1,1, 1);
 	  else
 	    {
-	      //Ali runexpt(NULL,NULL,NULL);
+	      runexpt(NULL,NULL,NULL);
 	      return;
 	    }
 	}

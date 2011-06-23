@@ -10,9 +10,6 @@
 #import "misc.h"
 #import "protos.h" 
 
-#import "fpslider.h" //Ali
-#import "myview.h" //Ali
-
 #define ISI 5
 
 

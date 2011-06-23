@@ -667,8 +667,8 @@ else{
     }
     if(fabs(diff) > 200){
       sprintf(buf,"Thats a big step (%d) Proceed?",diff);
-      //Ali if(!confirm_yes(buf,NULL))
-	  // return;
+      if(!confirm_yes(buf,NULL))
+	   return;
         if(pos < -1000) // leaving brain
 	  SetWaterAlarm(300);
    
@@ -691,7 +691,6 @@ else{
 #endif
 
     sprintf(buf,"%d",pos);
-//Ali    settextvalue(textdepth,buf);
 
     electrodeDepth = pos;
 

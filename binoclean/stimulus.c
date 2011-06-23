@@ -36,7 +36,6 @@ static int bytes = 0,bytes2 = 0;
 static unsigned long *backrect = NULL,*backrect2 = NULL;
 static Rectangle oldrect,oldrect2;
 static int lastflag = 0;
-static /* Ali GC */ int BackGC;
 
 extern int debug;
 extern float clearcolor;
@@ -77,8 +76,9 @@ void setmask(int type)
 {
   int cyc;
   static int lastmask = -1000;
-    return;
+
     
+  //  cyc = glGet(GL_RGBA_MODE);
   if(optionflags[STEREO_GLASSES]){
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     return;
@@ -990,47 +990,34 @@ void wipestim(Stimulus *st, int color)
 
 void clearstim(Stimulus *st, float color, int drawfix)
 {
-
-/* just wipes the stimlus area clear to color */
-
-  clearcnt++;
-  if(st->mode & STIMULUS_NEEDS_CLEAR || mode & NEED_REPAINT || mode & NEED_REPAINT_AGAIN || testflags[TEST_RC])
+    
+    /* just wipes the stimlus area clear to color */
+    
+    clearcnt++;
+    if(mode & NEED_REPAINT || testflags[TEST_RC])
     {
-/*
- * if change to monocular in an RC sequence, need to do a binocular wipe screen
- * befoe setting the mask
- */
-      if(newmonoc){
-	optionflag &= (~(LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
-	setmask(0);
-      }
-      if(expt.backim.name){
-	PaintBackIm(expt.backim);
-      }
-      else if(option2flag & WIPE_WHOLE_SCREEN)
-	{
-	 glClearColor(color, st->gammaback, color, 1.0);
-         glClear(GL_COLOR_BUFFER_BIT);
-	}
-      else
-	WipeBackRect(st,st->mode,color);
-      if(newmonoc)
-	optionflag |= newmonoc;
+        /*
+         * if change to monocular in an RC sequence, need to do a binocular wipe screen
+         * befoe setting the mask
+         */
+        if(newmonoc){
+            optionflag &= (~(LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
+            setmask(0);
+        }
+        if(expt.backim.name){
+            PaintBackIm(expt.backim);
+        }
+        glClearColor(color, st->gammaback, color, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if(newmonoc)
+            optionflag |= newmonoc;
     }
-
-      if(mode & NEED_REPAINT)
-	{
-	  mode &= (~NEED_REPAINT);
-	  mode |= NEED_REPAINT_AGAIN;
-	}
-      else
-	  mode &= (~NEED_REPAINT_AGAIN);
-
-  if(drawfix && st->prev == NULL)
-    draw_fix(fixpos[0],fixpos[1],st->fix.size, st->fixcolor);
-  if(expt.vals[GRIDSIZE] > 0.1){
-    wipescreen(clearcolor);
-      }
+    
+    if(drawfix && st->prev == NULL)
+        draw_fix(fixpos[0],fixpos[1],st->fix.size, st->fixcolor);
+    if(expt.vals[GRIDSIZE] > 0.1){
+        wipescreen(clearcolor);
+    }
 }
 
 void init_stimulus(Stimulus *st)
@@ -2139,7 +2126,7 @@ void paint_stimulus(Stimulus *st)
       st->right->mode = RIGHTMODE;
     }
   glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
-//  if(debug)
+  if(debug)
     glDrawBuffer(GL_FRONT_AND_BACK);
   if(st->next != NULL && optionflags[PAINT_BACKGROUND])
     paint_stimulus(st->next);

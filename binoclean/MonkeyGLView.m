@@ -163,7 +163,8 @@ static void drawCube (GLfloat fSize)
     NSOpenGLPixelFormatAttribute attributes [] = {
         NSOpenGLPFAWindow,
         NSOpenGLPFADoubleBuffer,	// double buffered
-        NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)16, // 16 bit depth buffer
+        NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)0, // 16 bit depth buffer,
+        NSOpenGLPFAAlphaSize, (NSOpenGLPixelFormatAttribute)8, 
         (NSOpenGLPixelFormatAttribute)nil
     };
     return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
@@ -740,12 +741,12 @@ static void drawCube (GLfloat fSize)
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval]; // set to vbl sync
     
 	// init GL stuff here
-	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DEPTH_TEST);
     
 	glShadeModel(GL_SMOOTH);    
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CCW);
-	glPolygonOffset (1.0f, 1.0f);
+//	glEnable(GL_CULL_FACE);
+//	glFrontFace(GL_CCW);
+//	glPolygonOffset (1.0f, 1.0f);
 	
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	[self resetCamera];

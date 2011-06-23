@@ -779,7 +779,7 @@ void RunWaterAlarm()
 
   sprintf(mbuf,"mssg:Have You Recorded the Water Hendikje?\0\n");
   SerialString(mbuf,0);
-    i = 0; //Ali confirm_yes("!!      ???????             Did you record the water ?????????        !!",NULL);
+    i = 0; confirm_yes("!!      ???????             Did you record the water ?????????        !!",NULL);
   if(i && penlog){
     fprintf(penlog,"Water recorded by %s %s\n",userstrings[userid],ctime(&t));
     }
@@ -1957,6 +1957,46 @@ struct plotdata *ReadPlot(char *s)
   return(plot);
 }
 
+void ListExpStims(int w)
+{
+    int i;
+    char buf[256];
+//    XmString str;
+    Expstim *es;
+    struct plotdata *plot = expt.plot;
+    
+    
+    if(!(mode & RUNNING))
+        return;
+    PlotSet(&expt,plot);
+//    if(w == NULL)
+//    {
+//        if(stimlist != NULL)
+//            ListExpStims(stimlist);
+//        if(astimlist != NULL)
+//            ListExpStims(astimlist);
+//        return;
+//    }
+//    XmListDeleteAllItems(w);
+    es = plot->stims;
+    if(plot->fplaces > 10)
+        plot->fplaces = 1;
+    if(plot->fplaces > 3)
+        plot->fplaces = 3;
+    for(i = 0; i < (plot->nstim[0]+plot->nstim[2]); i++, es++)
+    {
+
+    }
+    /*  str = XmStringCreateSimple("end");
+     XmListAddItemUnselected(w, str, i+1);
+     XmStringFree(str);
+     */
+        for(i = plot->nstim[0]+plot->nstim[2]; i < (plot->nstim[0]+plot->nstim[2]+plot->nstim[1]) ; i++, es++)
+        {
+
+        }
+}
+
 
 int GetTotal(struct plotdata *plot, int cluster, int type)
 {
@@ -2106,6 +2146,7 @@ void psychclear(struct plotdata *plot, int allflag)
     
     if(allflag)
       clear_afccounters();
+    return;
     for(i=0; i < plot->nstim[5]; i++, es++){
 	es->psychdata[0] = 0;
 	es->psychdata[1] = 0;
@@ -2243,6 +2284,7 @@ int PlotSet(Expt *exp, struct plotdata *plot)
 	float val;
 	Expstim *es = plot->stims;
 
+    return(0);
 
 	if(exp->nstim[0] > exp->plot->nstim[0])
 		return(-1);
@@ -3126,12 +3168,12 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
 	    fix->fixframes  = (int)val;
 		break;
 	case EXPTYPE_CODE:
-		//Ali setexp(NULL,0,(int)val);
+		setexp(NULL,0,(int)val);
 		if(mode & RUNNING)
 		redraw_overlay(expt.plot);
 		break;
 	case EXPTYPE_CODE2:
-		//Ali setsecondexp(NULL,0,(int)val);
+		setsecondexp(NULL,0,(int)val);
 		if(mode & RUNNING)
 		redraw_overlay(expt.plot);
 		break;
@@ -3344,7 +3386,6 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
 	switch(flag)
 	{
 	case PLOT_CLUSTER:
-	  //Ali plotexptbutton(NULL,NULL,NULL);
 	  break;
 	case STIMULUS_MODE:
 	  SerialSend(flag);
@@ -4059,7 +4100,7 @@ int ReadCommand(char *s)
     StopGo(GO);
   }
   else if(!strncasecmp(s,"expt",4)){
-    //Ali runexpt(NULL,NULL,NULL);
+    runexpt(NULL,NULL,NULL);
   }
   else if(!strncasecmp(s,"clear",4)){
     //expbuttons(NULL, (XtPointer)(CLEAR_EXPT), NULL);
@@ -4235,6 +4276,631 @@ double pos2phase(Stimulus *st)
 
   x = (st->pos.phase - M_PI_2)/(2 * M_PI * st->f);
   return(x);
+}
+
+void setexp(int w, int id, int val)
+{
+    int i;
+    struct plotdata *plot;
+//    XmString str;
+//    Widget item;
+    float fval;
+    
+    SavePlot(expt.plot);
+    expt.vals[EXPT1_MAXSIG] = 0;
+    expt.flag &= (~LOGINCR);
+    setextras();
+    for(i = 0; i <= NPLOTDATA; i++)
+    {
+        if(val == firstmenu[i].val)
+        {
+            expt.plot = &expplots[i];
+            if(seroutfile)
+                fprintf(seroutfile,"#Plot set to %p\n",expt.plot);
+            
+            break;
+        }
+    }
+    PlotAlloc(&expt);
+    plot = expt.plot;
+    for(i = 0; i < plot->nstim[0]; i++)
+        plot->stims[i].flag &= (~BOX_ON);
+//    if(val != TF && expt.mode == TF && exframe != NULL)
+//    {
+//		item = FindWidgetChild(exframe,NFRAMES_CODE);
+//		numeric_set(item, PANEL_LABEL, "# Frames", NUMERIC_VALUE, expt.st->nframes, NULL);
+//    }
+    
+    plot->fplaces = nfplaces[val];
+    expt.mean = GetProperty(&expt, expt.st, val);
+    expt.mode = val;
+	switch(val)
+	{
+        case DISP_AS_CYCLES:
+            setexp(NULL, 0, DISP_X);
+            if((fval = sin(expt.st->pos.angle)) != 0.0)
+            {
+                expt.incr = 1/(expt.st->f * 4 * fval);
+                expt.mean = 0;
+            }
+            expt.nstim[0] = 5;
+            break;
+        case ORIENTATION:
+            expt.mode = ORIENTATION;
+//            set_fprange(meanslider,                        0.0, 360.0, expt.mean, 0);
+            expt.incr = 22.5;
+            expt.nstim[0] = 9;
+            break;
+        case SF:
+            expt.flag |= LOGINCR;
+            expt.mean = 1.0;
+	        expt.incr = 0.5;
+//            set_fprange(meanslider,0.0, 30.0, expt.mean, 0);
+            expt.plot->fplaces = 2;
+            break;
+        case DISP_X:
+            if(expt.type2 == ANTICORRELATED_DISPARITY)
+                val = CORRELATED_DISPARITY;
+        case CORRELATED_DISPARITY:
+            if(expt.type2 == CORRELATION)
+                val = DISP_X;
+            expt.mode = val;
+//            set_fprange(meanslider,-1.0, 1.0, expt.mean, 3);
+//            set_fprange(incrslider,                        0, 1.0, expt.incr, 3);
+            break;
+        case DISP_Y:
+            expt.incr = 0.2;
+//            set_fprange(meanslider,
+//                        -1.0, 1.0, expt.mean, 3);
+//            set_fprange(incrslider,
+//                        0, 1.0, expt.incr, 3);
+            break;
+        case DOT_SIZE:
+            expt.incr = 0.1;
+            expt.mean = 0.2;
+            expt.nstim[0] = 3;
+//            set_fprange(meanslider,
+//                        -1.0, 1.0, expt.mean, 3);
+//            set_fprange(incrslider,
+//                        0, 1.0, expt.incr, 3);
+            break;
+        case ORTHOG_DISP:
+            expt.incr = 0.2;
+//            set_fprange(meanslider,
+//                        -1.0, 1.0, expt.mean, 3);
+//            set_fprange(incrslider,
+//                        0, 1.0, expt.incr, 3);
+            break;
+        case DISP_BACK:
+            expt.mode = DISP_BACK;
+//            set_fprange(meanslider,                        0.0, 60.0, expt.mean, 0);
+            break;
+        case STIM_WIDTH:
+//            set_fprange(meanslider,0.0, 60.0, expt.mean, 0);
+            break;
+        case STIM_HEIGHT:
+//            set_fprange(meanslider,                        0.0, 60.0, expt.mean, 0);
+            break;
+        case SETZXOFF:
+            break;
+        case DISP_P:
+            expt.mean = 30;
+            expt.incr = 60;
+            expt.nstim[0] = 6;
+//            set_fprange(meanslider,                        0.0, 60.0, expt.mean, 0);
+            break;
+        case END_OFFSET:
+            SetProperty(&expt,expt.st,ORIENTATION,(float)(expt.rf->angle/10));
+            expt.mean = pix2deg(expt.rf->size[0]/2) + GetProperty(&expt, expt.st,STIM_HEIGHT)/2;
+//            set_fprange(meanslider,                        -10.0, 10.0, expt.mean, 2);
+            expt.incr = pix2deg(expt.rf->size[0])/10;
+//            set_fprange(incrslider,-10.0, 10.0, expt.incr, 2);
+            break;
+        case SIDE_OFFSET:
+            expt.st->pos.phase = 0;
+            if(rdspair(expt.st))
+                expt.mean = 0.0;
+            else if(expt.st->type == STIM_BAR)
+            {
+                option2flag |= FLASH_BIT;
+                SetProperty(&expt,expt.st,ORIENTATION,expt.rf->angle);
+                SetProperty(&expt,expt.st,STIM_WIDTH,(float)(0.0));
+                expt.mean = pix2deg(expt.rf->size[1]/2);
+            }
+            else
+                expt.mean = pix2deg(expt.rf->size[1]/2) + GetProperty(&expt, expt.st,STIM_WIDTH)/2;
+            expt.mode = SIDE_OFFSET;
+//            set_fprange(meanslider,-10.0, 10.0, expt.mean, 2);
+            expt.incr = expt.mean/5;
+//            set_fprange(incrslider,-10.0, 10.0, expt.incr, 2);
+            break;
+        case MODULATION_F:
+            expt.flag |= LOGINCR;
+            break;
+        case TF:
+            expt.flag |= LOGINCR;
+        case TFLIN:
+            expt.mode = TF;
+            plot->fplaces = 1;
+            expt.mode = TF;
+            if(val == TF){
+                expt.mean = 4.5;
+                expt.incr = 2.25;
+                expt.nstim[0] = 7;
+            }
+            else if(val == TFLIN){
+                if(lasttf > 0){
+                    expt.mean = lasttf/2;
+                    expt.incr = lasttf;
+                }
+                expt.nstim[0] = 2;
+            }
+//            set_fprange(meanslider,0.0, 24, expt.mean, 0);
+            break;
+        case MONOCULARITY_EXPT:
+            expt.incr = 1;
+            expt.mean = 0.5;
+            expt.nstim[0] = 2;
+            break;
+            
+        case CONTRAST_LEFT:
+            expt.mean = 0.5;
+            expt.incr = 0.25;
+            expt.nstim[0] = 3;
+            expt.mode = CONTRAST_LEFT;
+            expt.flag |= LOGINCR;
+            break;
+        case STIM_SIZE:
+            expt.incr = 0.5;
+            expt.nstim[0] = 5;
+            plot->fplaces = 2;
+            expt.mode = val;
+            expt.mean = (StimulusProperty(expt.st,STIM_WIDTH) + StimulusProperty(expt.st,STIM_HEIGHT))/2;
+            break;
+        case START_PHASE:
+            plot->fplaces = 0;
+            expt.mode = val;
+            expt.mean = 15;
+            expt.incr = 30;
+            expt.nstim[0] = 6;
+            break;
+        case SETPHASE:
+            plot->fplaces = 0;
+            expt.mode = val;
+            expt.mean = 30;
+            expt.incr = 60;
+            expt.nstim[0] = 6;
+            break;
+        case STIMULUS_MODE:
+            expt.mode = val;
+            expt.mean = 16.5;
+            expt.incr = 1;
+            expt.nstim[0] = 2;
+            break;
+        case DISP_A:
+        case DISP_B:
+            expt.mode = val;
+            plot->fplaces = nfplaces[val];
+            break;
+        default:
+            plot->fplaces = nfplaces[val];
+            expt.mode = val;
+            expt.mean = StimulusProperty(expt.st,val);
+	}
+    switch(val)
+    {
+        case STIM_SIZE:
+        case SF:
+        case TF:
+        case STIM_WIDTH:
+        case STIM_HEIGHT:
+//            SetSliderType(allfps[0], val);
+            break;
+            
+    }
+    expt.nextval = expt.mean;
+    PlotAlloc(&expt);
+    plot = expt.plot;
+    for(i = 0; i < plot->nstim[0]; i++)
+        plot->stims[i].flag &= (~BOX_ON);
+    /*  plot->fplaces = fplaces(expt.incr,2);*/
+    plot->fplaces = nfplaces[val];
+    if(plot->fplaces > 10)
+        plot->fplaces = 1;
+    setstimuli(1);
+    SetPlotLabels(expt.plot);
+    psychclear(expt.plot,1);
+    PlotSet(&expt,expt.plot);
+    setstimuli(0);
+    CheckExpts();
+//    SetExpPanel(&expt);
+    /* newly deleted
+     if(expt.nreps > 0 && mode & UFF_FILE_OPEN)
+     optionflag |= STORE_WURTZ_BIT;
+     */
+//SetRunButton(NULL);
+//SetWPanel();
+}
+
+
+void setsecondexp(int w, int id, int val)
+{
+    
+    int i,type;
+    struct plotdata *plot;
+    float fval;
+    
+    SavePlot(expt.plot);
+    expt.vals[EXPT1_MAXSIG] = 0;
+    optionflag &= (~(CLAMP_EXPT_BIT | CLAMP_HOLD_BIT));
+    if(optionflags[TIMES_EXPT]){
+        expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+        expt.flag |= TIMES_EXPT2;
+    }
+    else{
+        expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+        expt.flag |= ADD_EXPT2;
+    }
+    expt.flag &= (~ALTERNATE_EXPTS); /* only when forced */
+    expt.flag &= (~EXPT2_BITS);
+    expt.flag &= (~LOGINCR2);
+    expt.type2 = val;
+    if(expt.nstim[1] == 0)
+        expt.nstim[1] = 1;
+    
+    switch(val)
+    {
+        case JUMPTYPE:
+            expt.type2 = JUMPTYPE;
+            if(expt.st->type == STIM_RDS){
+                expt.mean2 = 2;
+                expt.incr2 = 1;
+                expt.nstim[1] = 5;
+            }
+            else{
+                expt.mean2 = 1.5;
+                expt.incr2 = 1;
+                expt.nstim[1] = 4;
+            }
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            break;
+        case RF_SIGN:
+            expt.type2 = RF_SIGN;
+            expt.mean2 = 0;
+            expt.incr2 = 2;
+            expt.nstim[1] = 2;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            break;
+        case CONTRAST_PAIRS:
+            expt.type2 = CONTRAST_PAIRS;
+            expt.mean2 = 0.25;
+            expt.incr2 = 0.5;
+            expt.nstim[1] = 4;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            break;
+        case START_PHASE:
+            expt.type2 = START_PHASE;
+            expt.mean2 = 45;
+            expt.incr2 = 90;
+            expt.nstim[1] = 4;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            break;
+        case LOG_SIZE:
+            expt.flag |= (LOGINCR2);
+        case STIM_SIZE:
+            expt.type2 = STIM_SIZE;
+            if(expt.mode == TF){
+                expt.mean2 = 3;
+                expt.incr2 = 2;
+                expt.nstim[1] = 2;
+            }
+            else{
+                expt.mean2 = 5;
+                expt.incr2 = 1;
+            }
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            break;
+        case STIMULUS_TYPE_CODE: /* usually a 2-grating expt */
+            expt.mean2 = 12;
+            expt.incr2 = 2;
+            expt.nstim[1] = 3;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.type2 = val;
+            break;
+        case RDSXSINE: /* usually a 2-grating expt */
+            expt.mean2 = 2.5;
+            expt.incr2 = 1;
+            expt.nstim[1] = 2;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.type2 = STIMULUS_TYPE_CODE;
+            break;
+        case RDSBNONE: /* usually a 2-grating expt */
+            expt.mean2 = 1;
+            expt.incr2 = 2;
+            expt.nstim[1] = 2;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.type2 = BACKSTIM_TYPE;
+            break;
+        case MONOCULARITY_EXPT:
+        case LRINTERLEAVE:
+        case LBINTERLEAVE:
+        case RBINTERLEAVE:
+        case LRBINTERLEAVE:
+            if(val == LRINTERLEAVE){
+                if(dominanteye == LEFT)
+                    expt.incr2 = 2;
+                else
+                    expt.incr2 = -2;
+            }
+            else
+                expt.incr2 = 1;
+            switch(val)
+        {
+            default:
+            case LRINTERLEAVE:
+                expt.mean2 = 0;
+                expt.nstim[1] = 2;
+                break;
+            case LBINTERLEAVE:
+                expt.mean2 = -0.5;
+                expt.nstim[1] = 2;
+                break;
+            case RBINTERLEAVE:
+                expt.mean2 = 0.5;
+                expt.nstim[1] = 2;
+                break;
+            case LRBINTERLEAVE:
+                expt.mean2 = 0;
+                expt.nstim[1] = 3;
+                break;
+        }
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.type2 = MONOCULARITY_EXPT;
+            break;
+        case CLAMP_DISPARITY_CODE:
+            optionflag |= (CLAMP_EXPT_BIT | CLAMP_HOLD_BIT);
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.nstim[1] = 2;
+            expt.incr2 = 0.2;
+            expt.mean2 = 0.0;
+            break;
+        case FIXATION_SURROUND:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.nstim[1] = 2;
+            expt.mean2 = 1.0;
+            expt.incr2 = 2.0;
+            break;
+        case TFLIN:
+            expt.type2 = TF;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            break;
+        case NFRAMES_CODE:
+            expt.flag |= LOGINCR2;
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2);
+            break;
+        case SF:
+        case JVELOCITY:
+            expt.flag |= LOGINCR2;
+        case SEED_DELAY:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.mean2 = 0;
+            expt.incr2 = 1;
+            expt.nstim[1] = 5;
+            break;
+        case DISP_P2:
+        case LINEAR_SPEED:
+        case SFLIN:
+        case DEPTH_MOD:
+        case DISP_GRAD:
+        case PARALELL_DISP:
+        case ORTHOG_DISP:
+        case ORIENTATION:
+        case STATIC_CONJUGATE:
+        case SET_SEED:
+        case STIM_WIDTH:
+        case STIM_HEIGHT:
+        case BACK_ORI:
+        case BACK_TF:
+        case DOT_SIZE:
+        case ALTERNATE_STIM_MODE:
+        case RELDISP:
+        case RELVDISP:
+        case VDISP_MOD:
+        case HIGHX:
+        case REWARD_BIAS:
+        case MIXAC:
+        case BLACKDOT_FRACTION:
+            if(val == SFLIN)
+                val = SF;
+            if(val == LINEAR_SPEED)
+                val = JVELOCITY;
+            if(val == RELDISP){
+                expt.nstim[2] = 2;
+                expt.mean2 = 0;
+            }
+            expt.flag |= (TIMES_EXPT2);
+            expt.flag &= (~ALTERNATE_EXPTS);
+            break;
+        case PHASE_AS_DISP:
+        case DISP_X:
+        case PURSUIT_INCREMENT:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2);
+            break;
+        case ORI_BANDWIDTH:
+        case DISP_P:
+        case NCOMPONENTS:
+        case DELAY:
+        case DISP_B:
+        case DISTRIBUTION_CONC:
+        case DISTRIBUTION_WIDTH:
+        case TEMPORAL_ORI_BANDWIDTH:
+        case INITIAL_DISPARITY:
+        case INITIAL_MOVEMENT:
+        case TARGET_RATIO:
+        case NHIGHCOMPONENTS:
+        case NLOWCOMPONENTS:
+        case COVARY_XPOS:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2);
+            break;
+        case DISP_BACK:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2);
+            break; 
+        case BACK_CORRELATION:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.nstim[1] = 2;
+            expt.mean2 = .5;
+            expt.incr2 = 1;
+            break;
+        case CORRELATION:
+            expt.type2 = val;
+            expt.flag |= (TIMES_EXPT2);
+            expt.flag &= (~ALTERNATE_EXPTS);
+            expt.nstim[1] = 2;
+            expt.mean2 = 0;
+            expt.incr2 = 2;
+            if(expt.mode == CORRELATED_DISPARITY)
+                expt.mode = DISP_X;
+            break;
+        case SET_COUNTERPHASE: 
+            /*  set to +- 1*/
+            expt.type2 = val;
+            expt.nstim[1] = 2;
+            expt.mean2 = 0.5;
+            expt.incr2 = 1;
+            expt.flag |= (TIMES_EXPT2);
+            expt.flag &= (~ALTERNATE_EXPTS);
+            break;
+        case ANTICORRELATED_DISPARITY:
+            expt.type2 = val;
+            expt.flag |= ADD_EXPT2;
+            expt.nstim[1] = expt.nstim[0];
+            expt.mean2 = expt.mean;
+            expt.incr2 = expt.incr;
+            if(expt.mode == DISP_X)
+                expt.mode = CORRELATED_DISPARITY;
+            break;
+        case OPPOSITE_DELAY:
+            expt.type2 = val;
+            expt.flag |= ADD_EXPT2;
+            expt.nstim[1] = expt.nstim[0];
+            expt.mean2 = expt.mean;
+            expt.incr2 = expt.incr;
+            break;
+        case XOFFLOG:
+            expt.flag |= LOGINCR2;
+            expt.mean2 = GetProperty(&expt,expt.st,SETZXOFF);
+            expt.type2 = SETZXOFF;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= TIMES_EXPT2;
+            break;
+        case SETCONTRAST:
+        case ORI2:
+        case STIM_ECCENTRICITY:
+        case STIM_POLARANGLE:
+        case DISP_Y:
+        case SETZXOFF:
+        case SETZYOFF:
+            expt.mean2 = GetProperty(&expt,expt.st,val);
+        case ORI_RIGHT:
+        case STANDING_DISP:
+        case BACK_SIZE:
+        case HEIGHT_R:
+        case BACK_CONTRAST:
+        case FB_RELATIVE_CONTRAST:
+            expt.type2 = val;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= TIMES_EXPT2;
+            break;
+        case WIDTH_R:
+            expt.type2 = val;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= TIMES_EXPT2;
+            if(expt.mode == WIDTH_L){
+                expt.mean2 = expt.mean;
+                expt.incr2 = expt.incr;
+                expt.nstim[1] = expt.nstim[0];
+            }
+            break;
+        case FIXPOS_Y:
+        case ORTHOG_POS:
+        case PARA_POS:
+            expt.type2 = val;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= ADD_EXPT2;
+            break;
+        case NPLANES:
+            expt.type2 = val;
+            expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.mean2 = 1.5;
+            expt.incr2 = 1.0;
+            expt.nstim[1] = 2;
+            break;
+        case CONTRAST_RIGHT:
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.flag |= LOGINCR2;
+            expt.mean2 = 0.5;
+            expt.incr2 = 0.25;
+            expt.nstim[1] = 3;
+            break;
+        case CONTRAST_RATIO:
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            /*      expt.flag |= LOGINCR2;*/
+            expt.nstim[1] = 2;
+            break;
+        case STATIC_VERGENCE:
+            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.mean2 = 3;
+            expt.incr2 = 4.0;
+            expt.nstim[1] = 3;
+            break;
+        case BACKGROUND_IMAGE:
+        case BACKGROUND_MOVIE:
+            expt.flag |= (TIMES_EXPT2);
+            break;
+        default:
+            i = 0;
+            expt.type2 = EXPTYPE_NONE;
+            optionflags[PLOTFLIP] = 0;
+            while((type = secondmenu[i++].val) >= 0){
+                if(type == val)
+                    expt.type2 = type;
+            }
+            if(expt.type2 == EXPTYPE_NONE){ /* Not found*/
+                expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+                expt.nstim[1] = 0;
+            }
+            break;
+    }
+    if(expt.type2 == expt.mode && expt.mode != EXPTYPE_NONE){
+        expt.flag &= (~TIMES_EXPT2);
+        expt.flag |= ADD_EXPT2;
+	}
+    if(expt.flag & TIMES_EXPT2)
+        optionflags[TIMES_EXPT] = 1;
+    else
+        optionflags[TIMES_EXPT] = 0;
+    
+    if(option2flag & PSYCHOPHYSICS_BIT)
+        expt.flag &= (~ALTERNATE_EXPTS);
+    PlotAlloc(&expt);
+    psychclear(expt.plot,1);
+    setstimuli(0);
+    CheckExpts();
+    ListExpStims(NULL);
 }
 
 
@@ -5065,392 +5731,6 @@ void plotpsychdata(struct plotdata *plot)
 	glLineWidth(1);
 }
 
-void plotexpt(struct plotdata *plot)
-{
-	int i,j,cw,n,y,h,nplots,nlin = 0,k,sw,bw,npts;
-	int alli;
-	vcoord x[2];
-	int symbtype[MAXPLOTS];
-	float symbcolor[MAXPLOTS],rate,maxrate;
-	int plotcluster = 1;
-	int nw,delay,totalreps,nstims;
-	char *t;
-	char s[BUFSIZ];
-	Thisstim *stp;
-
-	if(plot == NULL || plot->nstim[3] <= 0 || demomode)
-		return;
-
-	cw = 10;
-	plot->maxrate = 0;
-	h = plot->size[1];
-/*
- * taken out BGC 19 Apr 1999 becuase this stops Stimuli from
- * being shufled after badfixes in this version.
- *
- *	afc_s.lasttrial = -(BAD_TRIAL);
- */
-
-/*
- * this messes up plotexpt, for unknown reasons.....
- * dark lines no longer appear. ? because of alpha plane and LINE_SMOOTH?
- */
-	glDisable(GL_BLEND);
-	glDisable(GL_LINE_SMOOTH);
-
-	if(plot->nstim[4] < 1)
-	  plot->nstim[4] = 1;
-	if(plot->flag & TIMES_EXPT2 && plot->nstim[1] > 0)
-	  {
-	    if(optionflags[PLOTFLIP])
-	      nplots = plot->nstim[0];
-	    else
-	      nplots = plot->nstim[1];
-	  }
-	else if(plot->flag & ADD_EXPT2)
-	  nplots = 2;
-	else
-	  nplots = 1;
-	if(nplots == 0)
-	  nplots = 1;
-
-	if(optionflag & CLAMP_HOLD_BIT)
-	  {
-	    nplots *=2;
-	    symbtype[0] = symbtype[1] = 0;
-	    symbtype[2] = symbtype[3] = 1;
-	    symbcolor[0] = symbcolor[2] = 1.0;
-	    symbcolor[1] = symbcolor[3] = 0.0;
-	  }
-	if(option2flag & PSYCHOPHYSICS_BIT)
-	  {
-	  plot->maxrate = 100;
-	  plotcluster = 0;
-	  }
-	else
-	    plotcluster = expt.plotcluster;
-	if(optionflags[PLOT_SEQUENCE])
-	   plot->maxrate = MaxTrialRate(plot);
-	else
-	  MinMaxCounts(plot,0,plotcluster);
-
-	nplots = nplots * plot->nstim[4];
-
-	for(i = 0; i < nplots; i++)
-	  {
-	    symbtype[i] = i/2;
-	    if(expt.st->background > 0)
-	      symbcolor[i] = (float)(i&1) * 1.0;
-	    else
-	      symbcolor[i] = 0.5 + ((float)(i&1) * 0.5);
-	}
-
-/* draw key before data */
-	x[0] = plot->pos[0] + plot->size[0]/2;
-	x[1] = plot->pos[1] + h + cw*2;
-	SetColor(symbcolor[0], 0);
-	mycmv(x);
-	sprintf(s,"Title");
-	if(strlen(plot->title) > 2)
-	  sprintf(s,"%s",plot->title);
-	else if(plot->nstim[1] > 1)
-	  sprintf(s,"%s X %s",serial_names[expt.mode],serial_names[expt.type2]);
-	else
-	  sprintf(s,"%s",serial_names[expt.mode]);
-	printString(s,1);
-
-
-	x[0] = plot->pos[0] - cw *9;
-	x[1] = plot->pos[1];
-	h = plot->size[1]/nplots;
-	x[1] += (h/2);
-
-	if(optionflags[CONTOUR_PLOT]){
-	  if(optionflags[SMOOTH_CONTOUR])
-	    glShadeModel(GL_SMOOTH);
-	  else
-	    glShadeModel(GL_FLAT);
-	}
-
-	if(expt.nstim[4] > 1 && expt.plot3type == 1){
-	  for(i = 0; i < nplots/expt.nstim[4]; i++)
-	    PlotCounts(plot, i, symbtype[i],symbcolor[i],plotcluster);
-	}
-	else if(expt.nstim[4] > 1 && expt.plot3type == 2){
-	  for(i = nplots/expt.nstim[4]; i < nplots; i++)
-	    PlotCounts(plot, i, symbtype[i],symbcolor[i],plotcluster);
-	}
-	else if(optionflags[PLOTFLIP]){
-	  for(i = 0; i < expt.nstim[0]; i++)
-	    PlotCounts(plot, i, symbtype[i],symbcolor[i],plotcluster);
-	}
-	else{
-	  for(i = 0; i < nplots; i++)
-	    PlotCounts(plot, i, symbtype[i],symbcolor[i],plotcluster);
-	}
-
-	if(debug){
-	  glBegin(GL_LINES);
-	  glColor4f(0.0,0.0,0.0,1.0);
-	  x[0] = -50;
-	  x[1] = -50;
-	  myvx(x);
-	  x[0] = 50;
-	  x[1] = -50;
-	  myvx(x);
-	  x[0] = 50;
-	  x[1] = 50;
-	  myvx(x);
-	  x[0] = -50;
-	  x[1] = 50;
-	  myvx(x);
-	  x[0] = -50;
-	  x[1] = -50;
-	  myvx(x);
-	  glEnd();
-	}
-
-	for(i = 0; i < nplots && i < plot->nlabels; i++)
-	  {
-	    j = i;
-	    if(optionflags[CONTOUR_PLOT]){
-	      if(plot->label[i] != NULL){
-		SetColor(0, 0);
-		mycmv(x);
-		if((t = strchr(plot->label[i],'=')))
-		  printString(++t,0);
-		else
-		  printString(plot->label[i],0);
-	      }		
-	      x[1] += h;
-	    }
-	    else{
-	      x[1] += (cw*2);
-	      SetColor(symbcolor[i], 0);
-	      mycmv(x);
-	      if(plot->label[i] != NULL)
-		printString(plot->label[i],0);
-	      plotsymbol(x[0]-2*cw,x[1]+5,5,symbtype[i]);
-	    }
-	  }
-/*
- * Show PSTH on graph if doing disparity ramp
- */
-	bw = (int)expt.vals[PLOTSMOOTH];
-	sw = (bw+1)/2;
-	if(bw < 1){
-	  bw = 1;
-	  sw = 0;
-	}
-	if(expt.mode == DISP_RAMP){
-	  nw = plot->stims[0].nbins;
-	  maxrate = 0;
-	  for(j = 0; j < 2; j++)
-	    for(i = 0; i < nw; i++)
-	      {
-		if(bw > 1 && i >= sw && (nw-i) > sw){
-		  rate = 0;
-		  for(k = 0; k < bw; k++)
-		    rate += plot->stims[j].binvals[i+k-sw];
-		  rate = (rate * 1000)/(plot->binwidth * bw);
-		}
-		else
-		  rate = (plot->stims[j].binvals[i] * 1000)/plot->binwidth;
-		if(rate > maxrate)
-		  maxrate = rate;
-	      }
-	  SetColor(symbcolor[nlin-1], 0);
-	if(maxrate > 0){
-	  for(j = 0; j < 2; j++){
-	    SetColor(j * 1.0, 0);
-	    glBegin(GL_LINE_STRIP);
-	    for(i = 0; i < nw; i++)
-	      {
-		if(j)
-		  x[0] = (plot->size[0] * i)/nw + plot->pos[0];
-		else
-		  x[0] = plot->pos[0] + plot->size[0] - (plot->size[0] * i)/nw;
-		if(bw > 1 && i >= sw && (nw - i) > sw){
-		  rate = 0;
-		  for(k = 0; k < bw; k++)
-		    rate += plot->stims[j].binvals[i+k-sw];
-		  rate = (rate * 1000)/(plot->binwidth * bw);
-		}
-		else
-		  rate = (plot->stims[j].binvals[i] * 1000)/plot->binwidth;
-		x[1] = (plot->size[1] * rate/maxrate) + plot->pos[1];
-		myvx(x);
-	      }
-	    glEnd();
-	  }
-	}
-	}
-	else if(optionflags[REVERSE_CORRELATE] || optionflags[RUN_SEQUENCE]){
-	  if(optionflags[REVERSE_CORRELATE])
-	    nstims =  expt.st->nframes;
-	  else
-	    nstims = expt.nstim[5];
-	  delay = rint(expt.vals[RC_DELAY]);
-	  for(i = 0; i < nstims; i++){
-	    expt.rcvals[i] = 0;
-	    expt.rcn[i] = 0;
-	  }
-	  for(i = 0; i < rcframe - delay; i++)
-	    {
-	     rate = expt.rccounts[i + delay];
-	     if(expt.rcframes[i] >= 0 && expt.rcframes[i] < expt.nstim[5]){
-	       expt.rcvals[expt.rcframes[i]] += rate;
-	       expt.rcn[expt.rcframes[i]]++;
-	     }
-	    }
-	  maxrate = 0;
-	  for(i = 0; i < nstims; i++){
-	    if(expt.rcn[i] > 0)
-	      expt.rcvals[i] = 1000 * expt.rcvals[i]/(expt.binw * expt.rcn[i]);
-	    if(expt.rcvals[i] > maxrate)
-	      maxrate = expt.rcvals[i];
-	  }
-	  plot->maxrate = ((int)(maxrate/10) +1) * 10;
-	    SetColor(1.0, 0);
-	    glBegin(GL_LINE_STRIP);
-	  for(i = sw; i < nstims-sw; i++)
-	    {
-	      rate = 0;
-	      for(j = i-sw; j < i-sw+bw;j++)
-		rate += expt.rcvals[j];
-	      rate /=bw;
-	      stp = getexpval(i);
-      	      x[0] = (plot->size[0] * stp->vals[0])/(nstims-1) + plot->pos[0];
-	      x[0] = CalcXPos(plot,i);
-	      x[1] = (plot->size[1] * rate/maxrate) + plot->pos[1];
-		myvx(x);
-	    }
-		glEnd();
-	mycmv(x);
-	sprintf(s,"delay %d",delay);
-	printString(s,1);
-	}
-	if(SACCREQD(afc_s))
-	  plotpsychdata(plot);
-	  
-/* default char width */
-	cw = 9;
-
-
-	npts = n = plot->nstim[0] + plot->nstim[2];
-	if(optionflags[PLOTFLIP])
-	  npts = plot->nstim[1];
-	if(n >1)
-	  n--;
-	if(plot->fplaces > 10)
-	  plot->fplaces = 1;
-	SetColor(0.0, 0);
-	for(i = 0; i < npts; i++)
-	  {
-	    if(optionflags[PLOTFLIP] && i >= plot->nstim[2])
-	      j = plot->nstim[2] + plot->nstim[0] * i;
-	    else
-	      j = i;
-	    x[0] = CalcXPos(plot,j);
-	    x[1] = plot->pos[1]-cw;
-	    //Ali MakePlotLabel(plot,s,j,optionflags[PLOTFLIP]);
-	    x[0] -= ((strlen(s) * cw)/2);
-	    if(optionflags[CONTOUR_PLOT])
-	      x[0] -= plot->size[0]/(2 * (plot->nstim[0]+plot->nstim[2]));
-	    mycmv(x);
-	    printString(s,0);
-	  }
-	if(optionflags[CONTOUR_PLOT]){
-	    x[1] = plot->pos[1]-(cw * 2.5);
-	    x[0] = plot->pos[0] + plot->size[0]/2;;
-	    mycmv(x);
-	    printString(serial_names[expt.mode],1);
-	    x[0] = plot->pos[0]- (cw*10);
-	    x[1] = plot->pos[1] + plot->size[1]/2;;
-	    mycmv(x);
-	    printString(serial_names[expt.type2],1);
-	}
-/*
- * if adding EXPT2, then show another set of labels in case the range
- * is different. Make the color match the line too
- */
-	if(expt.type2 != EXPTYPE_NONE && expt.flag & ADD_EXPT2)
-	  {
-	    SetColor(1.0, 0);
-	    for(i = (plot->nstim[0]+plot->nstim[2]);i < (plot->nstim[0]+plot->nstim[2] + plot->nstim[1]); i++)
-	      {
-		x[0] = CalcXPos(plot,i);
-		x[1] = plot->pos[1]-2.5*cw;
-		//Ali MakePlotLabel(plot,s,i,0);
-		x[0] -= ((strlen(s) * cw)/2);
-		mycmv(x);
-		printString(s,0);
-	  }
-	  }
-	SetColor(1.0, 0);
-
-	totalreps = 0;
-	nstims = 0;
-	for(alli = 0;alli < (plot->nstim[5]); alli++)
-	  {
-	    i = alli% plot->nstim[3];
-	    nlin = i;
-	    if(i > n){
-	      j = (i - (plot->nstim[0]+plot->nstim[2]))%plot->nstim[0];
-	      nlin = 2 + (i- (plot->nstim[0]+plot->nstim[2]))/plot->nstim[0];
-	      x[0] = (plot->size[0] * j)/n + plot->pos[0];
-	    }
-	    else{
-	      nlin = 1;
-	      x[0] = (plot->size[0] * (i+plot->nstim[2]))/n + plot->pos[0];
-	      x[0] = (plot->size[0] * i)/n + plot->pos[0];
-	    }
-	    SetColor(symbcolor[nlin-1], 0);
-	    x[1] = plot->pos[1]+(cw * 2 * nlin);
-	    if(plot->stims[i].nreps[plotcluster][0] == plot->stims[i].nsaved[plotcluster])
-	      sprintf(s,"%d",plot->stims[i].nreps[plotcluster][0]);
-	    else
-	    sprintf(s,"%d(%d)",plot->stims[i].nreps[plotcluster][0],
-		    plot->stims[i].nsaved[plotcluster]);
-	    totalreps +=  plot->stims[i].nsaved[plotcluster];
-	    nstims++;
-	    mycmv(x);
-	    printString(s,0);
-	  }
-	if(nstims)
-	  expt.nsaved = rint(totalreps/nstims);
-	else
-	  expt.nsaved = 0;
-	x[0] = plot->pos[0] - cw *3;
-	x[1] = plot->pos[1];
-        mycmv(x);
-	printString("0",0);
-	x[1] = plot->pos[1];
-        mycmv(x);
-	if(plot->maxrate == 0 && SACCREQD(afc_s)){
-	  sprintf(s,"100%% D/R");
-	  x[0] = plot->pos[0] - cw *8;
-	}
-	else
-	  sprintf(s,"%.0f",plot->maxrate);
-	x[1] = plot->pos[1] + plot->size[1];
-        mycmv(x);
-	printString(s,0);
-	glBegin(GL_LINE_STRIP);
-	x[0] = plot->pos[0]-PLOTMARGIN;
-	x[1] = plot->pos[1];
-	myvx(x);
-	x[0] = plot->size[0] + plot->pos[0]+PLOTMARGIN;
-	x[1] = plot->pos[1];
-	myvx(x);
-	x[1] = plot->size[1] + plot->pos[1];
-	myvx(x);
-	x[0] = plot->pos[0]-PLOTMARGIN;
-	myvx(x);
-	x[1] = plot->pos[1];
-	myvx(x);
-	glEnd();
-}
 
 void record_setup(int index, int store)
 {
@@ -5499,7 +5779,6 @@ void record_setup(int index, int store)
   if(store)
     savevals[index][MAXTOTALCODES] = 100;
   else
-    //Ali SetAllPanel(&expt);
       printf("nothing!!");
 }
 
@@ -5526,6 +5805,30 @@ void ResetExpt()
   expt.vals[EXPT1_MAXSIG] = 0;
   expt.biasedreward = 0;  
   afc_s.proportion = 0.5;
+}
+
+
+void checkstimbuffers(int nstim, int nreps)
+{
+    int *temp;
+    
+    if(nstim+1 > nisset)
+    {
+        temp = (int *)malloc(sizeof(int) * nisset);
+        memcpy(temp, isset, sizeof(int) * nisset);
+        nisset = nstim+1;
+        isset = (int *)malloc(sizeof(int) * nisset);
+        memcpy(isset, temp, sizeof(int) * nisset);
+        
+    }
+    if(nstim*(nreps+1) > nstimorder)
+    {
+        temp = (int *)malloc(sizeof(int) * nstimorder);
+        memcpy(temp, stimorder, sizeof(int) * nstimorder);
+        nstimorder = nstim * (nreps+1);
+        stimorder = (int *)malloc(sizeof(int) * nstimorder);
+        memcpy(stimorder, temp, sizeof(int) * nstimorder);
+    }
 }
 
 /*
@@ -5781,7 +6084,7 @@ void setstimulusorder(int warnings)
 
 
 	if(seroutfile) fprintf(seroutfile,"#SO Plot n set to %d\n",nstim);
-	//Ali checkstimbuffers(nstimtotal, nreps);
+	checkstimbuffers(nstimtotal, nreps);
 	for(i = 0; i < nstimtotal; i++){
 		isset[i] = 0;
 		uncompleted[i] = nreps/2;
@@ -6324,8 +6627,7 @@ void setstimuli(int flag)
 	if(expt.nstim[4] < 1)
 	  expt.nstim[4] = 1;
 
-	if(!(mode & RUNNING))
-	  return;
+
 	PlotAlloc(&expt);
 
 	if(expt.type2 != EXPTYPE_NONE && (expt.flag & ADD_EXPT2))
@@ -6669,7 +6971,6 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 	    {
 	      mode &= (~SAVE_UNITLOG);
 	    }	
-	  //Ali SetRunButton(NULL);
 	}
 	}
 		else 
@@ -7143,6 +7444,90 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 	  }
 	return(ret);
 }
+
+int confirm_no(char *s, *help)
+{
+    return(1);   
+}
+
+int confirm_yes(char *s, *help)
+{
+    return(1);   
+}
+
+void runexpt(int w, Stimulus *st, int *cbs)
+{
+    int oldflag = optionflag,old2flag = option2flag;
+    if(expt.st->mode & EXPTPENDING)
+    {
+        expt_over(CANCEL_EXPT);
+        return;
+    }
+    if(option2flag & PSYCHOPHYSICS_BIT)
+    {
+        PlotClear(expt.plot);
+        psychclear(expt.plot,1);
+    }
+    optionflag |= GO_BIT;
+    monkeypress = 0;
+    setextras();
+    if(optionflag & STORE_WURTZ_BIT && !testflags[PLAYING_EXPT]) /* make sure its not silly */
+    {
+        oldflag = optionflag;
+        old2flag = option2flag;
+        if(optionflag & SEARCH_MODE_BIT && confirm_no("Sure You Don't want random Order?",NULL))
+            optionflag &= (~SEARCH_MODE_BIT);
+        if(option2flag & EXPT_INTERACTIVE && confirm_no("Sure You want interactive Expt?",NULL))
+            option2flag &= (~EXPT_INTERACTIVE);
+        if(SACCREQD(afc_s) && !(option2flag & AFC) && confirm_no("Sure You Don't want AFC?",NULL))
+            option2flag |= (AFC);
+        if(optionflags[FAST_SEQUENCE] && expt.stimpertrial > 1){
+            if(confirm_no("Sure you want Nper > 1? (Fast Seq is ON)",NULL))
+                return;
+        }
+        if(!(optionflag & FIXATION_CHECK) && confirm_no("Sure You Don't want Fixation check?",NULL))
+            optionflag |= FIXATION_CHECK;
+        if(optionflag != oldflag || option2flag != old2flag) /* was a mistake */
+        {
+            statusline("Expt Not run");
+            return;
+        }
+    }
+    if(expt.type2 == BACKGROUND_IMAGE || expt.type2 == BACKGROUND_MOVIE ||
+       expt.mode == BACKGROUND_IMAGE || expt.mode == BACKGROUND_MOVIE)
+    {
+        LoadBackgrounds();
+    }
+    if(expt.mode == END_OFFSET || expt.mode == SIDE_OFFSET && !(rdspair(expt.st)))
+        SetProperty(&expt,expt.st,ORIENTATION,expt.rf->angle);
+    ListExpStims(NULL);
+    expt.plot->trialctr = 0;
+    expt.laststim = -1;
+    expt.st->mode |= EXPTPENDING;
+    expt.st->fix.state = FIX_IS_OFF;
+    expt.st->fixcolor = expt.st->fix.offcolor;
+	stimno = NEW_EXPT;
+    statusline("Expt Starting..");
+    SaveExptFile("./front.ebstim",1);
+    afc_s.lasttrial = -(BAD_TRIAL);
+    firststimno = stimno;
+    SerialSignal(BW_IS_READY);
+    CheckBW(BW_IS_READY,"Expt Start");
+    StopGo(GO);
+    expt.st->mode |= EXPTPENDING;
+    if(framebuf != NULL)
+    {
+        free(framebuf);
+        framebuf = NULL;
+    }
+    if(seroutfile)
+        fprintf(seroutfile,"#Start Expt at %d %sx%s %d%c%d (%d)\n",
+                ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
+                expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
+    InitExpt();
+}
+
+
 
 char *SerialSend(int code)
 {
@@ -10924,7 +11309,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
 	    }
 	}
 	}
-
+        ReadInputPipe();
 //Ali	if(n >= MAXFRAMES && XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){	}
 //Ali	i = CheckKeyboard(D, allframe);
 //Ali	j = CheckKeyboard(D, stepform);
@@ -11085,8 +11470,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
       if(optionflags[CHECK_FRAMECOUNTS] < 2){
 	  sprintf(buf,"Only completed %d/%d frames. Continue Checking?",framesdone,n);
-	  //Ali if(!confirm_yes(buf,NULL) )
-	  //Ali  optionflags[CHECK_FRAMECOUNTS] = 0;
+	  if(!confirm_yes(buf,NULL) )
+	    optionflags[CHECK_FRAMECOUNTS] = 0;
       }
       else if (stimno ==  0){
 	  sprintf(buf,"Only completed %d/%d frames. Will not Check again.",framesdone,n);
@@ -11120,9 +11505,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){ 
     if(optionflags[CHECK_FRAMECOUNTS] < 2){
     sprintf(buf,"%d frames took %.1f. Continue Checking?",framesdone,frametimes[framesdone-1]);
-    //Ali if(!confirm_yes(buf,NULL)){
-    //  optionflags[CHECK_FRAMECOUNTS] = 0;
-	//}  
+    if(!confirm_yes(buf,NULL)){
+      optionflags[CHECK_FRAMECOUNTS] = 0;
+	}  
     }
     else if (stimno == 0){
     sprintf(buf,"%d frames took %.1f. Won't check again",framesdone,frametimes[framesdone-1]);
@@ -11503,11 +11888,10 @@ int ReplayExpt(char *name)
       acknowledge(buf,NULL);
     }
     else if(!strncmp(buf,"Expt ",5) && vval < 4.27)
-      //Ali runexpt(NULL,NULL,NULL);
-        printf("noothing!!");
+      runexpt(NULL,NULL,NULL);
     else if(!strncmp(buf,"#Start Expt",9)){
       expt.st->mode &= (~EXPTPENDING);
-      //Ali runexpt(NULL,NULL,NULL);
+      runexpt(NULL,NULL,NULL);
     }
     else if(!strncmp(buf,"et at",5))
       expt_over(1);
@@ -11521,7 +11905,6 @@ int ReplayExpt(char *name)
       estim.vals[0] = GetProperty(&expt,expt.st,expt.mode);
       estim.vals[1] = GetProperty(&expt,expt.st,expt.type2);
       strcpy(stimbuf,&buf[4]);
-      //Ali SetAllPanel(&expt);
       ShowStimVals(&estim);
       sprintf(buf,"Line %d %s st = %s id%d",linectr,stimbuf,stimulus_names[expt.st->type],expt.allstimid);
 
@@ -11708,11 +12091,6 @@ int ReadExptFile(char *name, int new, int show, int reset)
 		  mode &= (~AUTO_NEXT_EXPT);
 		}
 	      
-		if(show){
-		//Ali SetExpPanel(&expt);
-		//Ali SetWPanel();
-		//Ali SetStimPanel(expt.st);
-		}
 		if(!setseed && expt.st->left->baseseed < 1001)
 		  NewSeed(expt.st);
 		if(new == 2){
@@ -11766,13 +12144,7 @@ int ReadExptFile(char *name, int new, int show, int reset)
 	  else if(!reading_quickexp)
 	    //make_quickmenu();
           printf("nothing!");
-	  if(newtoggles)
-	  //Ali MakeMainToggle();
-//Ali	SetAllPanel(&expt);
-//	SetWPanel();
-//	SetStimPanel(expt.st);
 	SendAll();
-//Ali	showallexpts(allframe);
 	SerialSend(SEND_CLEAR);
 	}
 	reading_quickexp = 0;
@@ -12473,20 +12845,18 @@ int CheckOption(int i)
     case INTERLEAVE_ZERO_ALL:
       PlotAlloc(&expt);
       setstimuli(1);
-      //Ali ListExpStims(NULL);
+      ListExpStims(NULL);
       break;
     case STEREO_GLASSES:
       if(optionflags[flag]){
 	glEnable(GL_STEREO);
 	glEnable(GL_BLEND);
 	glGetBooleanv(GL_STEREO, &isstereo);
-	//Ali set_run(NULL,"reset");
 	printf("Stereo On\n");
       }
       else{
 	glDisable(GL_STEREO);
 	glDisable(GL_BLEND);
-	//Ali set_run(NULL,"reset");
       }
       break;
 
@@ -12505,27 +12875,7 @@ int ChangeFlag(char *s)
   int bit = 0, bit2 = 0,i = 0;
 
   s++;
-  /* first check to see if this is an instruction from Brainwave */
-//Ali  while(bwtoggle_codes[i] != NULL)
-//  {
-//    if(!strncasecmp(s,bwtoggle_codes[i],2))
-//      {
-//	switch(i)
-//	  {
-//	  case BW_UFF_IS_OPEN:
-//	    if(c == '+'){
-//		  mode |= UFF_FILE_OPEN;
-//		  CheckPenetration();
-//	    }
-//	    else
-//	      mode &= (~UFF_FILE_OPEN);
-//	    //Ali SetRunButton(NULL);
-//	    break;
-//	  }	
-//	return(0);
-//      }
-//    i++;
-//  }
+
   i = 0;
   while(toggle_codes[i] != NULL)
   {
@@ -12820,10 +13170,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	  }
 	  *s = 0;
 	}
-	if(!strncmp(line,"popup",5) && (s = strchr(line,'=')) != 0){
-	  //Ali SetPopup(&s[1],POPUP);
-	  return(0);
-	}
+
 	else if(!strncmp(line,"HeadStrain",10)){
 	   if(seroutfile)
 		fprintf(seroutfile,"HeadStrain\n");
@@ -12845,15 +13192,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 		  }
 	   return(0);
 	}
-	else if(!strncmp(line,"popdown",5) && (s = strchr(line,'=')) != 0){
-	  //Ali SetPopup(&s[1],POPDOWN);
-	  return(0);
-	}
-	else if(!strncmp(line,"eslider",6) && (s = strchr(line,'=')) != 0)
-	  {
-	    //Ali SetPopup(&s[1],NALLSLIDERS);
-	    return(0);
-	  }	
+	
 	else if(!strncmp(line,"stepper",6)  && (s = strchr(line,'=')) != 0){
 	  sscanf(++s,"%d %d",&x,&y);
 	  winposns[STEPPER_WIN].x = x;
@@ -12983,12 +13322,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	  {
 	    sscanf(++s,"%s",buf);
 	    ReadMonitorSetup(buf);
-	    return(-1);
-	  }
-	else if(!strncmp(line,"slider",5) && (s = strchr(line,'=')) != 0)
-	  {
-	    sscanf(line,"slider%d",&ival);
-	    //Ali SetPopup(&s[1],ival);
 	    return(-1);
 	  }
 	else if(!strncmp(line,"clearquick",7)){
@@ -13172,7 +13505,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 		  mode |= CUSTOM_EXPVAL;
 		}
 	      }
-	    //Ali ListExpStims(NULL);
+	    ListExpStims(NULL);
 	    return(MAXTOTALCODES);
 	  }
 	else if(line[0] == 'E' && line[1] == 'C' && isdigit(line[2])){
@@ -13185,7 +13518,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	    expt.exp3vals[i] = dval;
 	    optionflags[CUSTOM_EXPVALC] = 1;
 		 }
-	    //Ali ListExpStims(NULL);
+	    ListExpStims(NULL);
 	    code = EXPT3_NSTIM;
 	}
 	else if(line[0] == 'E' && line[1] == 'B' && isdigit(line[2]))
@@ -13198,7 +13531,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	    sscanf(s,"%lf",&expval[expt.nstim[0]+i+expt.nstim[2]]);
 	    optionflags[CUSTOM_EXPVALB] = 1;
 		 }
-	    //Ali ListExpStims(NULL);
+	    ListExpStims(NULL);
 	  }
 	else switch(code)
 	{

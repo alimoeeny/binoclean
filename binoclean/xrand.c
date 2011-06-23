@@ -50,7 +50,7 @@
 #define LC_C 3907864577                    /* result of a long trial & error series    */
 
 #define Xrnd(x) (x * LC_A + LC_C)   /* the LC polynomial                       */
-                       
+
 static unsigned long Fib[55];      /* will use X(n) = X(n-55) - X(n-24)        */
 static int Fib_ind;                /* current index in circular buffer         */
 static unsigned long Xrnd_var;     /* LCA - recurrence variable                */
@@ -60,17 +60,17 @@ static unsigned long prmtab[64] = { /* spatial permutation table               *
     0x0000ffff, 0x00ff0000,  0x00000000,  0xff000000,  /* 2310 */
     0xff0000ff, 0x0000ff00,  0x00000000,  0x00ff0000,  /* 3120 */
     0x00ff00ff, 0x00000000,  0xff00ff00,  0x00000000,  /* 1230 */
-
+    
     0xffff0000, 0x000000ff,  0x00000000,  0x0000ff00,  /* 3201 */
     0x00000000, 0x00ff00ff,  0x00000000,  0xff00ff00,  /* 2301 */
     0xff000000, 0x00000000,  0x000000ff,  0x00ffff00,  /* 3102 */
     0x00000000, 0x00000000,  0x00000000,  0xffffffff,  /* 2103 */
-
+    
     0xff00ff00, 0x00000000,  0x00ff00ff,  0x00000000,  /* 3012 */
     0x0000ff00, 0x00000000,  0x00ff0000,  0xff0000ff,  /* 2013 */
     0x00000000, 0x00000000,  0xffffffff,  0x00000000,  /* 1032 */
     0x00000000, 0x0000ff00,  0xffff0000,  0x000000ff,  /* 1023 */
-
+    
     0x00000000, 0xffffffff,  0x00000000,  0x00000000,  /* 0321 */
     0x00ffff00, 0xff000000,  0x00000000,  0x000000ff,  /* 0213 */
     0x00000000, 0xff000000,  0x0000ffff,  0x00ff0000,  /* 0132 */
@@ -93,48 +93,48 @@ rnd_init (unsigned seed)                            /* modified: seed 0-31 use p
     register int i;
     double x, y;
     union hack t;
-
+    
     static unsigned seed_tab[32] = {
-               0xbdcc47e5, 0x54aea45d, 0xec0df859, 0xda84637b,
-               0xc8c6cb4f, 0x35574b01, 0x28260b7d, 0x0d07fdbf,
-               0x9faaeeb0, 0x613dd169, 0x5ce2d818, 0x85b9e706,
-               0xab2469db, 0xda02b0dc, 0x45c60d6e, 0xffe49d10,
-               0x7224fea3, 0xf9684fc9, 0xfc7ee074, 0x326ce92a,
-               0x366d13b5, 0x17aaa731, 0xeb83a675, 0x7781cb32,
-               0x4ec7c92d, 0x7f187521, 0x2cf346b4, 0xad13310f,
-               0xb89cff2b, 0x12164de1, 0xa865168d, 0x32b56cdf  };
-
+        0xbdcc47e5, 0x54aea45d, 0xec0df859, 0xda84637b,
+        0xc8c6cb4f, 0x35574b01, 0x28260b7d, 0x0d07fdbf,
+        0x9faaeeb0, 0x613dd169, 0x5ce2d818, 0x85b9e706,
+        0xab2469db, 0xda02b0dc, 0x45c60d6e, 0xffe49d10,
+        0x7224fea3, 0xf9684fc9, 0xfc7ee074, 0x326ce92a,
+        0x366d13b5, 0x17aaa731, 0xeb83a675, 0x7781cb32,
+        0x4ec7c92d, 0x7f187521, 0x2cf346b4, 0xad13310f,
+        0xb89cff2b, 0x12164de1, 0xa865168d, 0x32b56cdf  };
+    
     if (seed < 32)
-       u = seed_tab[seed];
+        u = seed_tab[seed];
     else
-       u = seed ^ seed_tab[seed & 31];
-
+        u = seed ^ seed_tab[seed & 31];
+    
     for (i = 55; i--;)             /* set up Fibonacci additive congruential   */
-       Fib[i] = u = Xrnd(u);
-
+        Fib[i] = u = Xrnd(u);
+    
     for (i = 256; i--;)
-       auxtab[i] = u = Xrnd(u);
-
+        auxtab[i] = u = Xrnd(u);
+    
     Fib_ind = u % 55;              /* select a starting point                  */
-
+    
     Xrnd_var = u;
-
+    
     if (sizeof(x) != 2 * sizeof(unsigned long)) {
-       x = 0.0;
-       y = 1.0;
-       y /= x;                     /*** intentional divide by 0: rnd_01d will
-                                        not work because a double doesn't fit
-                                        in 2 unsigned longs on your machine! ***/
+        x = 0.0;
+        y = 1.0;
+        y /= x;                     /*** intentional divide by 0: rnd_01d will
+                                     not work because a double doesn't fit
+                                     in 2 unsigned longs on your machine! ***/
     };
-
+    
     x = 1.0;
     y = 0.5;
     do {                           /* find largest fp-number < 2.0             */
-       t.d = x;
-       x += y;
-       y *= 0.5;
+        t.d = x;
+        x += y;
+        y *= 0.5;
     } while (x != t.d && x < 2.0);
-
+    
     man.d = 1.0;
     man.u[0] ^= t.u[0];
     man.u[1] ^= t.u[1];                    /* man is now 1 for each mantissa bit       */
@@ -146,23 +146,23 @@ long rnd_i ()
  */
 { 
     register unsigned long i, j, *t = Fib;
-
+    
     i = Fib_ind;
     j = t[i];                              /* = X(n-55) */
     j -= (i >= 24) ? t[i - 24] : t[i + 21]; /* = X(n-24) */
     t[i] = j;
     if (++i >= 55) i = 0;
     Fib_ind = i;
-
-    t = &auxtab[(j > 24) & 0xff];
+    
+    t = &auxtab[(j >> 24) & 0xff];
     i = *t;
     Xrnd_var = *t = Xrnd(Xrnd_var);
     t = &prmtab[j & 0x3c];
-
+    
     j =  *t++ & i;
-    j |= *t++ & ((i << 24) | ((i >  8) & 0x00ffffff));
-    j |= *t++ & ((i << 16) | ((i > 16) & 0x0000ffff));
-    j |= *t   & ((i <<  8) | ((i > 24) & 0x000000ff));
+    j |= *t++ & ((i << 24) | ((i >>  8) & 0x00ffffff));
+    j |= *t++ & ((i << 16) | ((i >> 16) & 0x0000ffff));
+    j |= *t   & ((i <<  8) | ((i >> 24) & 0x000000ff));
     
     return j & 0x7fffffff;
 }
@@ -173,23 +173,23 @@ unsigned long rnd_u ()
  */
 { 
     register unsigned long i, j, *t = Fib;
-
+    
     i = Fib_ind;
     j = t[i];                              /* = X(n-55) */
     j -= (i >= 24) ? t[i - 24] : t[i + 21]; /* = X(n-24) */
     t[i] = j;
     if (++i >= 55) i = 0;
     Fib_ind = i;
-
-    t = &auxtab[(j > 24) & 0xff];
+    
+    t = &auxtab[(j >> 24) & 0xff];
     i = *t;
     Xrnd_var = *t = Xrnd(Xrnd_var);
     t = &prmtab[j & 0x3c];
-
+    
     j =  *t++ & i;
-    j |= *t++ & ((i << 24) | ((i >  8) & 0x00ffffff));
-    j |= *t++ & ((i << 16) | ((i > 16) & 0x0000ffff));
-    j |= *t   & ((i <<  8) | ((i > 24) & 0x000000ff));
+    j |= *t++ & ((i << 24) | ((i >>  8) & 0x00ffffff));
+    j |= *t++ & ((i << 16) | ((i >> 16) & 0x0000ffff));
+    j |= *t   & ((i <<  8) | ((i >> 24) & 0x000000ff));
     
     return j;
 }
@@ -201,11 +201,11 @@ long rnd_ri (long rng)
  */
 {
     register unsigned long  r, a;
-
+    
     do {
-       r = rnd_i();
-       a = (r / rng) + 1;
-       a *= rng;
+        r = rnd_i();
+        a = (r / rng) + 1;
+        a *= rng;
     } while (a >= 0x7ffffff);
     
     a--;
@@ -222,12 +222,12 @@ double rnd_01d ()
  */
 {
     union hack t;
-
+    
     t.d = 1.0;
-
+    
     t.u[0] |= rnd_u() & man.u[0];            /* munch in 1st part   */
     t.u[1] |= rnd_u() & man.u[1];            /* munch in 2nd part   */
-
+    
     return t.d - 1.0;
 }
 
@@ -242,11 +242,11 @@ double rnd_ned (double lam)
  */
 {
     union hack t;
-
+    
     t.d = 1.0;
-
+    
     t.u[0] |= rnd_u() & man.u[0];            /* munch in 1st part   */
     t.u[1] |= rnd_u() & man.u[1];            /* munch in 2nd part   */
-
+    
     return -log(2.0 - t.d) / lam;
 }

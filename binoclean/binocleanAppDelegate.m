@@ -9,10 +9,25 @@
 #import "binocleanAppDelegate.h"
 
 Stimulus *TheStim;
+Expt expt;
+int stimstate;
+BOOL dataReadyInInputPipe;
+char * inputLineChars = NULL;
 
 void TESTRefresh()
 {
     [[NSOpenGLContext currentContext] flushBuffer];
+}
+
+void ReadInputPipe()
+{
+    if(dataReadyInInputPipe)
+    {
+        InterpretLine(inputLineChars, &expt, 0);
+        //free(inputLineChars);
+        inputLineChars = NULL;
+        dataReadyInInputPipe = NO;
+    }
 }
 
 @implementation binocleanAppDelegate
@@ -22,11 +37,36 @@ void TESTRefresh()
 @synthesize runButton;
 @synthesize mainTimer;
 @synthesize counter;
+@synthesize inputPipe;
+@synthesize inputLine;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Insert code here to initialize your application
+    unlink("/tmp/binocpipe");
+    if (mkfifo("/tmp/binocpipe", S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
+        NSLog(@"Can't create the pipe");
+        [NSAlert alertWithMessageText:@"Can't create the pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the pipe. You can try to remove it manually by rm /tmp/binocpipe "];   
+        abort();
+    }
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
+    inputPipe = [NSFileHandle fileHandleForReadingAtPath:@"/tmp/binocpipe"];
+    [inputPipe readInBackgroundAndNotify];
 }
+
+- (void) dataReadyToRead:(NSNotification *) notification
+{
+    NSString * s = [[NSString alloc] initWithData:[[notification userInfo] objectForKey:NSFileHandleNotificationDataItem] encoding:NSASCIIStringEncoding];
+    NSLog(@"Input Pipe: %@",s);
+    if (inputLineChars)
+        inputLineChars = [[NSString stringWithFormat:@"%s%s", inputLineChars, [s UTF8String]] UTF8String];
+    else
+        inputLineChars = [s UTF8String];
+    dataReadyInInputPipe = YES;
+    [inputPipe readInBackgroundAndNotify];
+    printf(inputLineChars);
+}
+
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
 {
@@ -37,6 +77,12 @@ void TESTRefresh()
 {
     StopGo(0);
 }
+
+-(IBAction) setState:(id)Sender
+{
+    runexpt(NULL,NULL,NULL);
+}
+
 
 - (IBAction) runClicked:(id)sender
 {
@@ -55,6 +101,7 @@ void TESTRefresh()
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     counter = [NSNumber numberWithInt:0];
+    StartRunning();
     StopGo(1);
     
 }

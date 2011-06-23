@@ -11,8 +11,9 @@
 #import "commdefs.h"
 #import "stimuli.h"
 #import "sprotos.h"
-//#import <OpenGL/OpenGL.h>
 #import <AppKit/AppKit.h>
+#import <sys/types.h>
+#import <sys/stat.h>
 
 void TESTRefresh();
 
@@ -25,6 +26,9 @@ void TESTRefresh();
     IBOutlet NSButton * runButton;
     NSTimer * mainTimer;
     NSNumber * counter;
+    NSFileHandle * inputPipe;
+    NSString * inputLine;
+    
 }
 
 @property (retain) IBOutlet NSWindow *window;
@@ -32,10 +36,13 @@ void TESTRefresh();
 @property (nonatomic, retain) IBOutlet NSButton * runButton;
 @property (retain) NSTimer * mainTimer;
 @property (retain) NSNumber * counter;
+@property (retain) NSFileHandle * inputPipe;
+@property (retain) NSString * inputLine;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication;
 - (IBAction) stopClicked:(id)sender;
 - (IBAction) runClicked:(id)sender;
 - (void) mainTimerFire:(NSTimer *)timer;
+-(IBAction) setState:(id)Sender;
 
 @end
