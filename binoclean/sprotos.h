@@ -296,7 +296,6 @@ void StopGo(int go);
 void SetStopButton(int onoff);
 void exit_program();
 void Box(int a, int b, int c, int d, float color);
-void binocLine(int a, int b, int c, int d, float color);
 void VisLine(int a, int b, int c, int d, float color);
 float getangle(vcoord *wp, vcoord *sp);
 void win2stim(vcoord *wp, vcoord *sp, float angle, vcoord *result);
@@ -453,4 +452,7 @@ int paint_image(Stimulus *st, Substim *sst);
 void runexpt(int w, Stimulus *st, int *cbs);
 void setexp(int w, int id, int val);
 void setsecondexp(int w, int id, int val);
+int HandleMouse(WindowEvent e);
+int MyLine(int a, int b, int c, int d, float color);
+
 #endif

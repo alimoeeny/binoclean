@@ -603,3 +603,35 @@ float pix2degy(float val);
 
 #define BRAINWAVE 0
 #define SPIKE2 1
+
+
+
+#define ButtonRelease 1
+#define ButtonPress 2
+#define MotionNotify 3
+
+#define Button1 1
+#define Button2 2
+#define Button3 3
+#define Button4 4
+#define Button5 5
+
+#define ShiftMask 1
+#define ControlMask 2
+#define AltMask 4
+
+#ifndef WindowEventdefined 
+
+typedef struct windowevent{
+    int eventType;
+    int mouseX; 
+    int mouseY; 
+    int mouseButton;
+    int modifierKey;
+} WindowEvent;
+
+#define WindowEventdefined 1
+
+#endif
+
+

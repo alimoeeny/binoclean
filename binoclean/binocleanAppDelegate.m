@@ -13,6 +13,7 @@ Expt expt;
 int stimstate;
 BOOL dataReadyInInputPipe;
 char * inputLineChars = NULL;
+int winsiz [2];
 
 void TESTRefresh()
 {
@@ -28,6 +29,11 @@ void ReadInputPipe()
         inputLineChars = NULL;
         dataReadyInInputPipe = NO;
     }
+}
+
+void WriteOutputPipe(char * s)
+{
+    
 }
 
 @implementation binocleanAppDelegate
@@ -49,6 +55,13 @@ void ReadInputPipe()
         abort();
     }
 
+    if (mkfifo("/tmp/binocpipe", S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
+        NSLog(@"Can't create the pipe");
+        [NSAlert alertWithMessageText:@"Can't create the pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the pipe. You can try to remove it manually by rm /tmp/binocpipe "];   
+        abort();
+    }
+
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
     inputPipe = [NSFileHandle fileHandleForReadingAtPath:@"/tmp/binocpipe"];
     [inputPipe readInBackgroundAndNotify];
@@ -88,7 +101,7 @@ void ReadInputPipe()
 {
     NSLog(@"run clicked");
     monkeyWindow = [[NSWindow alloc]
-                        initWithContentRect:NSRectFromCGRect(CGRectMake(0, -200, 1280, 1024))
+                        initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2))
                         styleMask:NSBorderlessWindowMask
                         backing:NSBackingStoreBuffered
                         defer:YES
@@ -100,7 +113,7 @@ void ReadInputPipe()
     //[[monkeyWindow contentView] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil]; 
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
-    counter = [NSNumber numberWithInt:0];
+    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
     
@@ -112,7 +125,9 @@ void ReadInputPipe()
     //NSLog(@" Counter: %d", [counter intValue]);
     //printf("counter %d\r\n",[counter intValue]);
     //NSLog(@"ali");
-    glOrtho(-640.0f, 640.0f, -512.0f, 512.0f, 0, 0);
+    //glOrtho(-640.0f, 640.0f, -512.0f, 512.0f, 0, 0);
+    //glOrtho(-winsiz[0], winsiz[0], -winsiz[1], winsiz[1], 0, 0);
+
     event_loop();
     //[[monkeyWindow contentView] setNeedsDisplay:YES];
     //glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

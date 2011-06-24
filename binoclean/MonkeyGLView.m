@@ -10,9 +10,10 @@
 #import "GLCheck.h"
 #import "trackball.h"
 #import "drawinfo.h"
+#import "stimdefs.h"
 
 Stimulus *TheStim;
-
+int winsiz [2];
 
 // ==================================
 
@@ -175,37 +176,37 @@ static void drawCube (GLfloat fSize)
 // update the projection matrix based on camera and view info
 - (void) updateProjection
 {
-	GLdouble ratio, radians, wd2;
-	GLdouble left, right, top, bottom, near, far;
-    
-    [[self openGLContext] makeCurrentContext];
-    
-	// set projection
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity ();
-//Ali 20/6/2011
-//    near = -camera.viewPos.z - shapeSize * 0.5;
-//	if (near < 0.00001)
-//		near = 0.00001;
-//	far = -camera.viewPos.z + shapeSize * 0.5;
-//	if (far < 1.0)
-//		far = 1.0;
-//	radians = 0.0174532925 * camera.aperture / 2; // half aperture degrees to radians 
-//	wd2 = near * tan(radians);
-//	ratio = camera.viewWidth / (float) camera.viewHeight;
-	if (ratio >= 1.0) {
-		left  = -ratio * wd2;
-		right = ratio * wd2;
-		top = wd2;
-		bottom = -wd2;	
-	} else {
-		left  = -wd2;
-		right = wd2;
-		top = wd2 / ratio;
-		bottom = -wd2 / ratio;	
-	}
-	glFrustum (left, right, bottom, top, near, far);
-	[self updateCameraString];
+//	GLdouble ratio, radians, wd2;
+//	GLdouble left, right, top, bottom, near, far;
+//    
+//    [[self openGLContext] makeCurrentContext];
+//    
+//	// set projection
+//	glMatrixMode (GL_PROJECTION);
+//	glLoadIdentity ();
+////Ali 20/6/2011
+////    near = -camera.viewPos.z - shapeSize * 0.5;
+////	if (near < 0.00001)
+////		near = 0.00001;
+////	far = -camera.viewPos.z + shapeSize * 0.5;
+////	if (far < 1.0)
+////		far = 1.0;
+////	radians = 0.0174532925 * camera.aperture / 2; // half aperture degrees to radians 
+////	wd2 = near * tan(radians);
+////	ratio = camera.viewWidth / (float) camera.viewHeight;
+//	if (ratio >= 1.0) {
+//		left  = -ratio * wd2;
+//		right = ratio * wd2;
+//		top = wd2;
+//		bottom = -wd2;	
+//	} else {
+//		left  = -wd2;
+//		right = wd2;
+//		top = wd2 / ratio;
+//		bottom = -wd2 / ratio;	
+//	}
+//	glFrustum (left, right, bottom, top, near, far);
+//	[self updateCameraString];
 }
 
 // ---------------------------------
@@ -552,74 +553,104 @@ static void drawCube (GLfloat fSize)
 
 - (void)mouseDown:(NSEvent *)theEvent // trackball
 {
+	NSPoint location = [theEvent locationInWindow];
+    WindowEvent e;
+    e.eventType = ButtonPress;
+    e.mouseX = location.x;
+    e.mouseY = location.y;
+    e.modifierKey = 0;
     if ([theEvent modifierFlags] & NSControlKeyMask) // send to pan
-		[self rightMouseDown:theEvent];
-	else if ([theEvent modifierFlags] & NSAlternateKeyMask) // send to dolly
-		[self otherMouseDown:theEvent];
-	else {
-		NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+        e.modifierKey = ControlMask;
+    else if ([theEvent modifierFlags] & NSShiftKeyMask) // send to pan
+        e.modifierKey = ShiftMask;
+    else if ([theEvent modifierFlags] & NSAlternateKeyMask) // send to pan
+        e.modifierKey = AltMask;
+    
+    e.mouseButton = Button1;
+    
+    HandleMouse(e);
+
+//    if ([theEvent modifierFlags] & NSControlKeyMask) // send to pan
+//		[self rightMouseDown:theEvent];
+//	else if ([theEvent modifierFlags] & NSAlternateKeyMask) // send to dolly
+//		[self otherMouseDown:theEvent];
+//	else {
+//		NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 //		location.y = camera.viewHeight - location.y;
 //		gDolly = GL_FALSE; // no dolly
 //		gPan = GL_FALSE; // no pan
 //		gTrackball = GL_TRUE;
 //		startTrackball (location.x, location.y, 0, 0, camera.viewWidth, camera.viewHeight);
 //		gTrackingViewInfo = self;
-	}
+//	}
 }
 
 // ---------------------------------
 
 - (void)rightMouseDown:(NSEvent *)theEvent // pan
 {
-	NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-//	location.y = camera.viewHeight - location.y;
-	if (gTrackball) { // if we are currently tracking, end trackball
-		if (gTrackBallRotation[0] != 0.0)
-//			addToRotationTrackball (gTrackBallRotation, worldRotation);
-		gTrackBallRotation [0] = gTrackBallRotation [1] = gTrackBallRotation [2] = gTrackBallRotation [3] = 0.0f;
-	}
-	gDolly = GL_FALSE; // no dolly
-	gPan = GL_TRUE; 
-	gTrackball = GL_FALSE; // no trackball
-	gDollyPanStartPoint[0] = location.x;
-	gDollyPanStartPoint[1] = location.y;
-	gTrackingViewInfo = self;
+    NSPoint location = [theEvent locationInWindow];
+    WindowEvent e;
+    e.eventType = ButtonPress;
+    e.mouseX = location.x;
+    e.mouseY = location.y;
+    e.modifierKey = 0;
+    if ([theEvent modifierFlags] & NSControlKeyMask) // send to pan
+        e.modifierKey = ControlMask;
+    else if ([theEvent modifierFlags] & NSShiftKeyMask) // send to pan
+        e.modifierKey = ShiftMask;
+    else if ([theEvent modifierFlags] & NSAlternateKeyMask) // send to pan
+        e.modifierKey = AltMask;
+
+    e.mouseButton = Button3;
+    HandleMouse(e);
 }
 
 // ---------------------------------
 
 - (void)otherMouseDown:(NSEvent *)theEvent //dolly
 {
-	NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-//	location.y = camera.viewHeight - location.y;
-	if (gTrackball) { // if we are currently tracking, end trackball
-		if (gTrackBallRotation[0] != 0.0)
-//			addToRotationTrackball (gTrackBallRotation, worldRotation);
-		gTrackBallRotation [0] = gTrackBallRotation [1] = gTrackBallRotation [2] = gTrackBallRotation [3] = 0.0f;
-	}
-	gDolly = GL_TRUE;
-	gPan = GL_FALSE; // no pan
-	gTrackball = GL_FALSE; // no trackball
-	gDollyPanStartPoint[0] = location.x;
-	gDollyPanStartPoint[1] = location.y;
-	gTrackingViewInfo = self;
+    NSPoint location = [theEvent locationInWindow];
+    WindowEvent e;
+    e.eventType = ButtonPress;
+    e.mouseX = location.x;
+    e.mouseY = location.y;
+    e.modifierKey = 0;
+    if ([theEvent modifierFlags] & NSControlKeyMask) // send to pan
+        e.modifierKey = ControlMask;
+    else if ([theEvent modifierFlags] & NSShiftKeyMask) // send to pan
+        e.modifierKey = ShiftMask;
+    else if ([theEvent modifierFlags] & NSAlternateKeyMask) // send to pan
+        e.modifierKey = AltMask;
+
+    e.mouseButton = Button2;
+    HandleMouse(e);
 }
 
 // ---------------------------------
 
 - (void)mouseUp:(NSEvent *)theEvent
 {
-	if (gDolly) { // end dolly
-		gDolly = GL_FALSE;
-	} else if (gPan) { // end pan
-		gPan = GL_FALSE;
-	} else if (gTrackball) { // end trackball
-		gTrackball = GL_FALSE;
-		if (gTrackBallRotation[0] != 0.0)
-//			addToRotationTrackball (gTrackBallRotation, worldRotation);
-		gTrackBallRotation [0] = gTrackBallRotation [1] = gTrackBallRotation [2] = gTrackBallRotation [3] = 0.0f;
-	} 
-	gTrackingViewInfo = NULL;
+	NSPoint location = [theEvent locationInWindow];
+    WindowEvent e;
+    e.eventType = ButtonRelease;
+    e.mouseX = location.x;
+    e.mouseY = location.y;
+    e.modifierKey = 0;
+    e.mouseButton = Button1;
+    HandleMouse(e);
+	
+//    if (gDolly) { // end dolly
+//		gDolly = GL_FALSE;
+//	} else if (gPan) { // end pan
+//		gPan = GL_FALSE;
+//	} else if (gTrackball) { // end trackball
+//		gTrackball = GL_FALSE;
+//		if (gTrackBallRotation[0] != 0.0)
+////			addToRotationTrackball (gTrackBallRotation, worldRotation);
+//		gTrackBallRotation [0] = gTrackBallRotation [1] = gTrackBallRotation [2] = gTrackBallRotation [3] = 0.0f;
+//	} 
+//	gTrackingViewInfo = NULL;
 }
 
 // ---------------------------------
@@ -640,37 +671,46 @@ static void drawCube (GLfloat fSize)
 
 - (void)mouseDragged:(NSEvent *)theEvent
 {
-	NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+	NSPoint location = [theEvent locationInWindow];
+    WindowEvent e;
+    e.eventType = MotionNotify;
+    e.mouseX = location.x;
+    e.mouseY = location.y;
+    e.modifierKey = 0;
+    e.mouseButton = Button1;
+    HandleMouse(e);
+    
+//	NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 //	location.y = camera.viewHeight - location.y;
-	if (gTrackball) {
-		rollToTrackball (location.x, location.y, gTrackBallRotation);
-		[self setNeedsDisplay: YES];
-	} else if (gDolly) {
-		[self mouseDolly: location];
-		[self updateProjection];  // update projection matrix (not normally done on draw)
-		[self setNeedsDisplay: YES];
-	} else if (gPan) {
-		[self mousePan: location];
-		[self setNeedsDisplay: YES];
-	}
+//	if (gTrackball) {
+//		rollToTrackball (location.x, location.y, gTrackBallRotation);
+//		[self setNeedsDisplay: YES];
+//	} else if (gDolly) {
+//		[self mouseDolly: location];
+//		[self updateProjection];  // update projection matrix (not normally done on draw)
+//		[self setNeedsDisplay: YES];
+//	} else if (gPan) {
+//		[self mousePan: location];
+//		[self setNeedsDisplay: YES];
+//	}
 }
 
 // ---------------------------------
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-	float wheelDelta = [theEvent deltaX] +[theEvent deltaY] + [theEvent deltaZ];
-	if (wheelDelta)
-	{
-//		GLfloat deltaAperture = wheelDelta * -camera.aperture / 200.0f;
-//		camera.aperture += deltaAperture;
-//		if (camera.aperture < 0.1) // do not let aperture <= 0.1
-//			camera.aperture = 0.1;
-//		if (camera.aperture > 179.9) // do not let aperture >= 180
-//			camera.aperture = 179.9;
-		[self updateProjection]; // update projection matrix
-		[self setNeedsDisplay: YES];
-	}
+//	float wheelDelta = [theEvent deltaX] +[theEvent deltaY] + [theEvent deltaZ];
+//	if (wheelDelta)
+//	{
+////		GLfloat deltaAperture = wheelDelta * -camera.aperture / 200.0f;
+////		camera.aperture += deltaAperture;
+////		if (camera.aperture < 0.1) // do not let aperture <= 0.1
+////			camera.aperture = 0.1;
+////		if (camera.aperture > 179.9) // do not let aperture >= 180
+////			camera.aperture = 179.9;
+//		[self updateProjection]; // update projection matrix
+//		[self setNeedsDisplay: YES];
+//	}
 }
 
 // ---------------------------------
@@ -703,8 +743,8 @@ static void drawCube (GLfloat fSize)
 //	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   	glLoadIdentity ();
-    glOrtho(-640.0,640.0,-512.0,512.0,-1.0,1.0);
-
+    //glOrtho((GLdouble)(-winsiz[0]) , (GLdouble)(winsiz[0]) , (GLdouble)(-winsiz[1]) , (GLdouble)(winsiz[1]) , 0, 0);
+    glOrtho(-winsiz[0],winsiz[0],-winsiz[1],winsiz[1],-1.0,1.0);
 	// model view and projection matricies already set
     
 //	drawCube (1.5f); // draw scene
@@ -753,8 +793,8 @@ static void drawCube (GLfloat fSize)
 //	shapeSize = 7.0f; // max radius of of objects
     
     //Ali 
-    glOrtho(-640.0f, 640.0f, -512.0f, 512.0f, 0, 0);
-    
+    //glOrtho((GLdouble)(-winsiz[0]) , (GLdouble)(winsiz[0]) , (GLdouble)(-winsiz[1]) , (GLdouble)(winsiz[1]) , 0, 0);    
+    //glOrtho(-640.0f,640.0f,-512.0f,512.0f,0,0);
     
 	// init fonts for use with strings
 	NSFont * font =[NSFont fontWithName:@"Helvetica" size:12.0];

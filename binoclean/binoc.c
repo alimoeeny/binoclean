@@ -114,7 +114,7 @@ int freezestimulus = 0;
 
 int winsiz[2] = {0,0}; /* let X decide */
 
-int winpos[2] = {0};
+//Ali int winpos[2] = {0};
 int fwinsiz[2],fwinoff[2];
 vcoord psychoff[2];
 static vcoord endpt[2];
@@ -1036,9 +1036,6 @@ binocmain(argc, argv)
 	      s = strchr(buf,'+');
 	      if(s){
 		i = sscanf(++s,"%d %d",&w,&h);
-		winpos[0] = w;
-		if(i > 1)
-		  winpos[1] = h;
 	      }
 	    }
 	    else if(!strncmp(buf,"tty1",4) && s){
@@ -1163,7 +1160,6 @@ expt.mon = &mon;
 		    i--;
 		  }
 		  else if(strncmp(argv[i],"-position",6) ==  0){
-			sscanf(argv[i+1],"%d+%d",&winpos[0],&winpos[1]);
 			argv++; argc--;
 			argv++; argc--;
 			i--;
@@ -1625,6 +1621,555 @@ void StopGo(int go)
     }
 }
 
+void ButtonDrag(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    Locator *pos = &TheStim->pos;
+    double scale;
+    
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    
+    if(mode & PLACE_PLOT_BIT && eventstate & LBUTTON)
+    {
+        StartOverlay();
+        Box(start[0],start[1],end[0],end[1],TheStim->gammaback);
+        Box(start[0],start[1],mpos[0],mpos[1],PLOT_COLOR);
+        EndOverlay();
+        glFinish();
+        end[0] = mpos[0];
+        end[1] = mpos[1];
+    }
+    /*
+     * in psychophysics mode, the mouse controls stimulus times, not location
+     * so dont process drags. If you want to drag a stimulus around interactively
+     * turn off stimulus_in_wurtz.
+     */
+    
+    if(option2flag & PSYCHOPHYSICS_BIT && (optionflag & STIM_IN_WURTZ_BIT))
+    {
+        if(!(eventstate & (RBUTTON | LBUTTON | MBUTTON))) // no mouse button down
+        {
+            if(isharris(altstimmode) && stimstate == WAIT_FOR_RESPONSE){
+                mpos[0] = e.mouseX;
+                mpos[1] = e.mouseY;
+                glLineWidth(2.0);
+                VisLine(0,0,end[0],end[1],TheStim->gammaback);
+                if(altstimmode == HARRIS_TASK_ANGLE){
+                    scale = 100/sqrt(sqr(mpos[0] - winsiz[0])+sqr(mpos[1]-winsiz[1]));
+                    end[0] = winsiz[0] + (mpos[0]-winsiz[0]) * scale;
+                    end[1] = winsiz[1] + (mpos[1]-winsiz[1]) * scale;
+                }
+                else{
+                    end[0] = mpos[0];
+                    end[1] = mpos[1];
+                }
+                VisLine(0,0,end[0],end[1],1.0);
+                glDrawBuffer(GL_FRONT_AND_BACK);
+            }
+        }
+        return;
+    }
+    if(eventstate & LBUTTON)
+    {
+        stmode |= (MOVED_STIMULUS | DRAG_STIMULUS);
+        LocateStimulus(stimptr, e.mouseX, e.mouseY);
+        sprintf(mssg,"at %.2f,%.2f\n",StimulusProperty(stimptr,SETZXOFF),
+                StimulusProperty(stimptr,SETZYOFF));
+        glstatusline(mssg,2);
+    }
+    else if(eventstate & MBUTTON)
+    {
+    }
+    if(eventstate & RBUTTON)
+    {
+        stmode |= (MOVED_STIMULUS | DRAG_STIMULUS);
+        RotateStimulus(e.mouseX,e.mouseY);
+        sprintf(mssg,"Orientation %.1f\n",StimulusProperty(stimptr,ORIENTATION));
+        glstatusline(mssg,2);
+    }
+}
+
+void CntrlDrag(vcoord *start, vcoord *end,  WindowEvent e)
+{
+    vcoord mpos[2];
+    float val;
+    char s[256];
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    StartOverlay();
+    if(eventstate & LBUTTON)
+    {
+        ShowBox(expt.rf, TheStim->gammaback);
+        expt.rf->pos[0] = mpos[0]-winsiz[0];
+        expt.rf->pos[1] = mpos[1]-winsiz[1];
+        ShowBox(expt.rf, 1.0);
+    }
+    else if(eventstate & MBUTTON)
+    {
+        ShowBox(expt.rf,TheStim->gammaback);
+        win2stim(mpos,expt.rf->pos,expt.rf->angle,end);
+        expt.rf->size[0] = end[0] < 0 ? -2 * end[0] : 2 * end[0];
+        expt.rf->size[1] = end[1] < 0 ? -2 * end[1] : 2 * end[1];
+        ShowBox(expt.rf,1.0);
+    }
+    else if(eventstate & RBUTTON)
+    {
+        ShowBox(expt.rf,TheStim->gammaback);
+        win2stim(mpos,expt.rf->pos,0.,end);
+        val = atan2((double)(expt.rf->size[1]),(double)(expt.rf->size[0]));
+        expt.rf->angle = (atan2((float)end[1],(float)end[0])-val) * 180/M_PI;
+        ShowBox(expt.rf,1.0);
+    }
+    sprintf(s,"RF: %.2f,%.2f: %.2fx%.2f, %.2f deg",
+            pix2deg(expt.rf->pos[0]),
+            pix2deg(expt.rf->pos[1]),
+            pix2deg(expt.rf->size[0]),
+            pix2deg(expt.rf->size[1]),
+            expt.rf->angle);
+    glstatusline(s,2);
+    EndOverlay();
+    glFinish();
+}
+
+void ShiftDrag(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    Expstim *es,*esp;
+    short *pl;
+    int nstim;
+    
+    es = expt.plot->stims;
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    if(eventstate & LBUTTON)
+    {
+        MyLine(start[0],start[1],end[0],end[1],TheStim->gammaback);
+        end[0] = mpos[0];
+        end[1] = mpos[1];
+        MyLine(start[0],start[1],end[0],end[1],1.0);
+    }
+    if(eventstate & MBUTTON)
+    {
+        StimLine(start,es,TheStim->gammaback);
+        StimLine(mpos,es,BOX_COLOR);
+        start[0] = e.mouseX;
+        start[1] = e.mouseY;
+    }
+}
+
+
+void ButtonReleased(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    char s[256];
+    
+    if(mode & PLACE_PLOT_BIT)
+    {
+        mode &= (~PLACE_PLOT_BIT);
+        StartOverlay();
+        SetGrey(0.0);
+        expt.plot->pos[0] = start[0] - winsiz[0];
+        expt.plot->pos[1] = winsiz[1] - start[1];
+        expt.plot->size[0] = end[0] - start[0];
+        expt.plot->size[1] = start[1]-end[1];
+        Box(start[0],start[1],end[0],end[1],0);
+        SetColor(PLOT_COLOR,0);
+        EndOverlay();
+        glFinish();
+    }
+    else if(fixstate == 0 && !(option2flag & PSYCHOPHYSICS_BIT)){
+        /*
+         * ? allow middle button press to simulate fixation? 
+         * OK if a real bad fixation signal back from BW cancels trial....
+         */
+        if(e.mouseButton == Button2){
+            stimstate = PREFIXATION;
+            GotChar(START_STIM);
+            mimic_fixation |= MIMIC_FIXATION;
+        }
+    }
+    else if(fixstate == WAIT_FOR_MOUSE){
+        fixstate = RESPONDED;
+        if(e.mouseButton == Button1){
+            GotChar(WURTZ_OK);
+        }
+        if(e.mouseButton == Button2){
+            GotChar(WURTZ_LATE);
+        }
+        if(e.mouseButton == Button3){
+            GotChar(WURTZ_OK_W);
+        }
+        fixstate = RESPONDED;
+        stimstate = WAIT_FOR_RESPONSE;
+    }
+    else if(!(option2flag & PSYCHOPHYSICS_BIT))
+    {
+        if(e.mouseButton == Button1 || e.mouseButton == Button3)
+        {
+            stmode |= MOVED_STIMULUS;
+            mode |= NEWPOS;
+            sprintf(mssg,"At %.2f, %.2f, Ori %.1f",StimulusProperty(stimptr,SETZXOFF),
+                    StimulusProperty(stimptr,SETZYOFF),
+                    StimulusProperty(stimptr,ORIENTATION));
+            glstatusline(mssg,2);
+        }
+    }
+    if(e.mouseButton == Button2 && TheStim->type == STIM_NONE){
+        RewardOn(0);
+    }
+}
+
+void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    char s[256];
+    Locator *pos = &TheStim->pos;
+    int next,up,id;
+    float pause = 0;
+    
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    gettimeofday(&now, NULL);
+    pause = timediff(&now,&firstframetime);
+    //  printf("B%d at %.3f\n",e.mouseButton,pause);
+    
+    
+    if(e.mouseButton == Button4 || e.mouseButton == Button5)
+        return;
+    if(eventstate & LBUTTON && mode & PLACE_PLOT_BIT)
+    {
+        end[0] = start[0] = mpos[0];
+        end[1] = start[1] = mpos[1];
+    }
+    else if(option2flag & PSYCHOPHYSICS_BIT) switch(stimstate)
+    {
+        case INSTIMULUS:
+        case POSTSTIMULUS:
+            stimstate = POSTPOSTSTIMULUS;
+            next_frame(TheStim);
+        case WAIT_FOR_RESPONSE:
+            if(e.mouseButton == Button2){
+                if(freezeexpt){
+                    stimstate = POSTTRIAL;
+                    fixstate =RESPONDED;
+                }
+                if(stimstate != INSTIMULUS || pause > 0.2)
+                    stimstate = WAIT_FOR_RESPONSE;
+                if(optionflag & SEARCH_MODE_BIT){
+                    stimstate = PREFIXATION;
+                    stimstate = POSTTRIAL;
+                    TurnBackStim(expt.st);
+                }
+            }
+            else if(e.mouseButton == Button1 || e.mouseButton == Button3)
+                
+            {
+                endpt[0] -= winsiz[0];
+                endpt[1] -= winsiz[1];
+                up = ButtonResponse(e.mouseButton,0,endpt);
+                stimstate = INTERTRIAL;
+                stimstate = POSTTRIAL;
+                fixstate = RESPONDED;
+                if(option2flag & STAIRCASE){
+                    SetPsychStair(up,0);
+                }
+                stimno++;
+            }
+            break;
+        case INTERTRIAL:
+            if(e.mouseButton == Button2){
+                stimstate = PREFIXATION;
+                gettimeofday(&now, NULL);
+                if(seroutfile)
+                    fprintf(seroutfile,"Trial Start %u\n",ufftime(&now));
+            }
+            else if(!optionflags[FEEDBACK])
+            /*
+             * only allow revision of choices if there is no feedback
+             */
+            {
+                if(e.mouseButton == Button1 || e.mouseButton == Button3){
+                    up = ButtonResponse(e.mouseButton,1,endpt);
+                    if(option2flag & STAIRCASE && stimno >=0){
+                        SetPsychStair(up,1);
+                    }
+                }
+            }
+            break;
+    }
+    else if(fixstate != WAIT_FOR_MOUSE)
+    {
+        if(e.mouseButton == Button1)
+        {
+            stmode |= MOVED_STIMULUS;
+            LocateStimulus(stimptr, e.mouseX,e.mouseY);
+            sprintf(s,"At %.2f,%.2f (%d,%d)",
+                    pix2deg(pos->xy[0]),
+                    pix2deg(pos->xy[1]),
+                    e.mouseX,e.mouseY);
+            statusline(s);
+        }
+        else if(e.mouseButton == Button3)
+        {
+            RotateStimulus(e.mouseX,e.mouseY);
+            stmode |= MOVED_STIMULUS;
+        }
+    }
+}
+
+void CntrlButtonDown(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    float val;
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    eventstate |= CNTLKEY;
+    
+    StartOverlay();
+    if(e.mouseButton == Button1)
+    {
+        ShowBox(expt.rf,TheStim->gammaback);
+        expt.rf->pos[0] = mpos[0]-winsiz[0];
+        expt.rf->pos[1] = mpos[1]-winsiz[1];
+        ShowBox(expt.rf,RF_COLOR);
+    }
+    if(e.mouseButton == Button2)
+    {
+        ShowBox(expt.rf,TheStim->gammaback);
+        win2stim(mpos,expt.rf->pos,expt.rf->angle,end);
+        expt.rf->size[0] = end[0] < 0 ? -2 * end[0] : 2 * end[0];
+        expt.rf->size[1] = end[1] < 0 ? -2 * end[1] : 2 * end[1];
+        ShowBox(expt.rf,RF_COLOR);
+    }
+    if(e.mouseButton == Button3)
+    {
+        val = atan2((double)(expt.rf->size[1]),(double)(expt.rf->size[0]));
+        ShowBox(expt.rf,TheStim->gammaback);
+        win2stim(mpos,expt.rf->pos,0,end);
+        expt.rf->angle = (atan2((float)end[1],(float)end[0])-val) * 180/M_PI;
+        ShowBox(expt.rf,RF_COLOR);
+    }
+    if(e.mouseButton == Button4)
+    {
+        ShowBox(expt.rf,TheStim->gammaback);
+        expt.rf->size[0] = expt.rf->size[0] + 10;
+        expt.rf->size[1] = expt.rf->size[1] + 10;
+        ShowBox(expt.rf,RF_COLOR);
+    }
+    if(e.mouseButton == Button5)
+    {
+        ShowBox(expt.rf,TheStim->gammaback);
+        expt.rf->size[0] = expt.rf->size[0] - 10;
+        expt.rf->size[1] = expt.rf->size[1] - 10;
+        ShowBox(expt.rf,RF_COLOR);
+    }
+    EndOverlay();
+    glFlush();
+    glFinish();
+}
+
+
+void CntrlButtonRelease(vcoord *start, vcoord *end, WindowEvent e)
+{			    
+    char s[256],*ss;
+    
+    sprintf(s,"RF: %.2f,%.2f: %.2fx%.2f, %.2f deg",
+            pix2deg(expt.rf->pos[0]),
+            pix2deg(expt.rf->pos[1]),
+            pix2deg(expt.rf->size[0]),
+            pix2deg(expt.rf->size[1]),
+            expt.rf->angle);
+    
+    statusline(s);
+    glstatusline(s,2);
+    ss = SerialSend(RF_DIMENSIONS);
+    if(penlog)
+        fprintf(penlog,"%s\n",ss);
+}
+
+
+void ShiftButtonDown(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    Expstim *es,*esp;
+    short *pl;
+    int nstim, i = 0;
+    
+    es = expt.plot->stims;
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    eventstate |= SHIFTKEY;
+    
+    StartOverlay();
+    if(e.mouseButton == Button1)
+    {
+        end[0] = start[0] = mpos[0];
+        end[1] = start[1] = mpos[1];
+    }
+    if(e.mouseButton == Button2)
+    {
+        esp = NULL;
+        es = expt.plot->stims;
+        start[0] = e.mouseX;
+        start[1] = e.mouseY;
+        nstim = expt.plot->nstim[0];
+        while(i < nstim)
+        {
+            if(es->flag & BOX_ON)
+            {
+                if(es->flag & PHASEMARKER_ON && esp == NULL)
+                    esp = es;
+                else 
+                    break;
+            }
+            es++,i++;
+        }
+        if(i < nstim || esp != NULL)
+        {
+            if(i >= nstim)
+                es = esp;
+            StimLine(start,es,BOX_COLOR);
+        }
+    }
+}
+
+
+
+void ShiftButtonRelease(vcoord *start, vcoord *end, WindowEvent e)
+{
+    vcoord mpos[2];
+    Expstim *es;
+    short *pl;
+    
+    es = expt.plot->stims;
+    mpos[0] = e.mouseX;
+    mpos[1] = e.mouseY;
+    StartOverlay();
+    if(e.mouseButton == Button1)
+    {
+        MyLine(start[0],start[1],end[0],end[1],expt.overlay_color);
+        end[0] = mpos[0];
+        end[1] = mpos[1];
+        MyLine(start[0],start[1],end[0],end[1],LINES_COLOR);
+        if(expt.nlines < MAXUSERLINES)
+        {
+            pl = &expt.plot->linedata[expt.nlines*4];
+            *pl++ = start[0];
+            *pl++ = start[1];
+            *pl++ = end[0];
+            *pl++ = end[1];
+            expt.nlines++;
+            ClearStimLine(expt.nlines);
+        }
+    }
+    else if(e.mouseButton == Button2)
+    {
+        StimLine(start,es,expt.overlay_color);
+        es->phasemark = StimLine(mpos,es,BOX_COLOR);
+        es->flag |= PHASEMARKER_ON;
+    }
+    EndOverlay();
+    glFinish();
+    eventstate &= (~SHIFTKEY);
+}
+
+
+int HandleMouse(WindowEvent e)
+{
+    int i, j, mask,ctr,nstim,estim = 0,handle,res = 0,nf;
+    static vcoord start[2];
+    short rgbvec[3],*pl;
+    char c,s[256];
+    float angle = 90;
+    float aval;
+    Expstim *es,*esp;
+    Locator *pos = &TheStim->pos;
+
+    char cbuf[256];
+    static char instring[256];
+    static int sctr = 0;
+    
+    /* we only use events in the display window, except 
+     *   F6 whcich sends  a free reward 
+     *   F1 which runs one trial
+     * and we want to intercept these anywhere
+     */
+    i = 0;
+    handle = 0;
+    
+ 
+        switch (e.eventType) {
+            case ButtonRelease:
+                if(eventstate & SHIFTKEY)
+                    ShiftButtonRelease(start, endpt, e);
+                else if(eventstate & CNTLKEY)
+                    CntrlButtonRelease(start, endpt, e);
+                else 
+                    ButtonReleased(start, endpt, e);
+                eventstate = 0;
+                break;
+            case ButtonPress:
+                eventstate = 0;
+                if(e.mouseButton == Button1)
+                    eventstate |= LBUTTON;
+                if(e.mouseButton == Button2){
+                    eventstate |= MBUTTON;
+                    if(TheStim->type == STIM_NONE && !(e.modifierKey & ShiftMask) && 
+                       !(e.modifierKey & ControlMask))
+                        RewardOn(1);
+                }
+                if(e.mouseButton == Button3)
+                    eventstate |= RBUTTON;
+                if(e.modifierKey & ShiftMask)
+                    ShiftButtonDown(start, endpt, e);
+                else if(e.modifierKey & ControlMask)
+                    CntrlButtonDown(start, endpt, e);
+                else
+                    ButtonDown(start, endpt, e);
+                /*
+                 * in darwin can get erroneous Button4 events from a middle mouse press
+                 */
+                if(e.mouseButton == Button4)
+                    TheStim->pos.angle += 0.02;
+                if(e.mouseButton == Button5)
+                    TheStim->pos.angle -= 0.02;
+
+                break;
+            case MotionNotify:
+                /*
+                 * N.B. Motion events are processed according to the cntrl/shiftkey status at the
+                 * time thhe button was first pressed, using eventstate. This way releasing the
+                 * shift key during a drag doesn't cause problems
+                 */
+                if(eventstate & SHIFTKEY){
+                    ShiftDrag(start, endpt, e);
+                    if(expt.nlines < MAXUSERLINES)
+                    {
+                        pl = &expt.plot->linedata[expt.nlines*4];
+                        *pl++ = start[0];
+                        *pl++ = start[1];
+                        *pl++ = endpt[0];
+                        *pl++ = endpt[1];
+                    }
+                }
+                else if(eventstate & CNTLKEY)
+                    CntrlDrag(start, endpt, e);
+                else if(e.modifierKey & ControlMask)
+                    ShowPos(e.mouseX,e.mouseY);
+                else if(e.modifierKey & ShiftMask)
+                    ShowDataPos(expt.plot, e.mouseX,e.mouseY);
+                else
+                    ButtonDrag(start, endpt, e);
+                break;
+        }
+   
+    
+    return(res);
+}
+
+
+
 void RunOneTrial(){
   states[ONE_TRIAL] = 1;
   StopGo(GO);
@@ -1705,21 +2250,7 @@ void Box(int a, int b, int c, int d, float color)
   glEnd();
 }
 
-void binocLine(int a, int b, int c, int d, float color)
-{
-  vcoord pt[2];
-  /*  glDrawBuffer(GL_FRONT_AND_BACK);*/
-  setmask(OVERLAY);
-  SetGrey(color);
-  glBegin(GL_LINE_STRIP);
-  pt[0] = a-winsiz[0];
-  pt[1] = winsiz[1] - b;
-  myvx(pt);
-  pt[0] = c - winsiz[0]; 
-  pt[1] = winsiz[1] - d;
-  myvx(pt);
-  glEnd();
-}
+
 
 void VisLine(int a, int b, int c, int d, float color)
 {
@@ -1735,7 +2266,7 @@ void VisLine(int a, int b, int c, int d, float color)
     pt[0] = c - winsiz[0]; 
   else
     pt[0] =  winsiz[0]-c; 
-  pt[1] = winsiz[1] - d;
+  pt[1] = d - winsiz[1];
   myvx(pt);
   glEnd();
 }
@@ -1743,7 +2274,7 @@ void VisLine(int a, int b, int c, int d, float color)
 float getangle(vcoord *wp, vcoord *sp)
 {
   float sx,sy,res;
-  sy = (winsiz[1]-wp[1])-sp[1];
+  sy = (wp[1]-winsiz[1])-sp[1];
   sx  = (wp[0]-winsiz[0])-sp[0];
   res = atan2(sy,sx);
   return(res);
@@ -1754,7 +2285,7 @@ void win2stim(vcoord *wp, vcoord *sp, float angle, vcoord *result)
   int sx,sy;
   float cx,cy,sina,cosa;
 
-  sy = (winsiz[1]-wp[1])-sp[1];
+  sy = (wp[1]-winsiz[1])-sp[1];
   sx  = (wp[0]-winsiz[0])-sp[0];
   sina = sin(angle*M_PI/180);
   cosa = cos(angle*M_PI/180);
@@ -1763,6 +2294,23 @@ void win2stim(vcoord *wp, vcoord *sp, float angle, vcoord *result)
   result[0] = (vcoord)cx;
   result[1] = (vcoord)cy;
 }
+
+int MyLine(int a, int b, int c, int d, float color)
+{
+    vcoord pt[2];
+    /*  glDrawBuffer(GL_FRONT_AND_BACK);*/
+    setmask(OVERLAY);
+    SetGrey(color);
+    glBegin(GL_LINE_STRIP);
+    pt[0] = a-winsiz[0];
+    pt[1] = b-winsiz[1];
+    myvx(pt);
+    pt[0] = c - winsiz[0]; 
+    pt[1] = d -winsiz[1];
+    myvx(pt);
+    glEnd();
+}
+
 
 vcoord StimLine(vcoord *pos, Expstim *es, float color)
 {
@@ -1792,7 +2340,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
 
 
 
-void RewardOn(int onoff){
+int RewardOn(int onoff){
   char buf[256];
 
   sprintf(buf,"%2s%c\n",serial_strings[REWARD_SIZE],onoff?'+':'-');
@@ -1811,7 +2359,7 @@ void TurnBackStim(Stimulus *st)
 
 
 
-void ClearStimLine(int n){
+int ClearStimLine(int n){
   short *pl;
 
   pl = &expt.plot->linedata[n*4];
@@ -2015,7 +2563,7 @@ void event_loop()
 
 void SetDelay(Locator *pos)
 {
-	int y = winsiz[1]-pos->xy[1],i;
+	int y = pos->xy[1]-winsiz[1],i;
 
 	/* image big enough to need some delay when y is small */
 	i = pos->imsize[0] * pos->imsize[1] * 0.008 - 180;
@@ -2219,7 +2767,7 @@ void RotateStimulus(int x, int y)
 
 
 	mode |= NEED_REPAINT;
-	h = winsiz[1]-y - pos->xy[1];
+	h = y-winsiz[1] - pos->xy[1];
 	w  = x-winsiz[0] - pos->xy[0];
 	stimptr->pos.angle = atan2(h,w);
 	CheckRect(stimptr);
@@ -2230,13 +2778,13 @@ void LocateStimulus(Stimulus *st, vcoord x, vcoord y)
 	Locator *pos = &st->pos;
 
 
-	pos->xy[1] = winsiz[1]-y;
+	pos->xy[1] = y-winsiz[1];
 	pos->xy[0]  = x-winsiz[0];
       	if(!(optionflag & BACKGROUND_FIXED_BIT))
 	{
 		if(st->next != NULL)
 		{
-			st->next->pos.xy[1] = winsiz[1]-y;
+			st->next->pos.xy[1] = y-winsiz[1];
 			st->next->pos.xy[0] = x-winsiz[0];
 		}
 	}
@@ -2330,7 +2878,7 @@ void redraw_overlay(struct plotdata  *plot)
       ShowBox(es, BOX_COLOR);
   if((pl = plot->linedata) != NULL)
     for(i = 0; i <= expt.nlines; i++,pl+=4)
-      binocLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
+      MyLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
   for(i = 0; i < rfctr; i++)
       ShowBox(&oldrfs[i],0.2);
     
@@ -2480,6 +3028,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 //            expt.nextval = val;
 //        
 //    }
+    if (event == 0)
+        up = 1;
 	if(st == NULL)
         st = TheStim;
 	switch(code)
@@ -3793,11 +4343,11 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             break;
         case SETZXOFF:
             fval = deg2pix(val);
-            LocateStimulus(st, fval+winsiz[0],winsiz[1]-pos->xy[1]);
+            LocateStimulus(st, fval+winsiz[0],pos->xy[1]+winsiz[1]);
             break;
         case SETZYOFF:
             fval = deg2pix(val);
-            LocateStimulus(st, pos->xy[0]+winsiz[0],winsiz[1]-fval);
+            LocateStimulus(st, pos->xy[0]+winsiz[0],fval+winsiz[1]);
             break;
         case SETOVERLAYCOLOR:
             expt.overlay_color = val;
@@ -5373,7 +5923,7 @@ int next_frame(Stimulus *st)
       if(newtimeout < 5){
 	redraw_overlay(expt.plot);
 	if(debug) glstatusline("Stopped",3);
- 	//mySwapBuffers();
+          glSwapAPPLE();
       }
       gettimeofday(&now,NULL);
       if(timediff(&now,&alarmstart) >  1){
@@ -9044,10 +9594,47 @@ void printString(char *s, int size)
 
 void BigString(char *s)
 {
-    glPushAttrib(GL_LIST_BIT);
-    glListBase(bigbase);
-    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
-    glPopAttrib();
+//    glPushAttrib(GL_LIST_BIT);
+//    glListBase(bigbase);
+//    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
+//    glPopAttrib();
+//    
+//    //Ali Draw text
+//    GLuint texName;
+//    glPushAttrib(GL_TEXTURE_BIT);
+//    if (0 == texName) glGenTextures (1, &texName);
+//    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
+//    glTexSubImage2D GL_TEXTURE_RECTANGLE_EXT,0,0,0,100,20, 1 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,bitmapData);
+//    glPopAttrib();
+//
+//    
+//    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT); // GL_COLOR_BUFFER_BIT for glBlendFunc, GL_ENABLE_BIT for glEnable / glDisable
+//    
+//    glDisable (GL_DEPTH_TEST); // ensure text is not remove by depth buffer test.
+//    glEnable (GL_BLEND); // for text fading
+//    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
+//    glEnable (GL_TEXTURE_RECTANGLE_EXT);	
+//    
+//    //glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
+//    glBegin (GL_QUADS);
+//    glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
+//    glVertex2f (0, 0);
+//	
+//    glTexCoord2f (0.0f, 20.0f); // draw lower left in world coordinates
+//    glVertex2f (0, 0 + 10);
+//	
+//    glTexCoord2f (100, 20); // draw upper right in world coordinates
+//    glVertex2f (0 + 100, 0 + 20);
+//	
+//    glTexCoord2f (100.f, 0.0f); // draw lower right in world coordinates
+//    glVertex2f (0 + 100, 0);
+//    glEnd ();
+//    
+//    glPopAttrib();
+//	
+//    glFinishRenderAPPLE();
+//    glSwapAPPLE();
+    
 }
 
 void WriteFrameData()

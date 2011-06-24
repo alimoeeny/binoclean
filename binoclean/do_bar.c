@@ -182,7 +182,6 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
   glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     }
   glPopMatrix();
-
   for(i = 0; i < sst->nbars; i++){
     glPushMatrix();
     glTranslatef(sst->xpos[i],sst->ypos[i],0);
@@ -201,8 +200,10 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
   myvx(x);
   glEnd();
     glPopMatrix();
-    if(debug)
+      if(debug){
       glFlushRenderAPPLE();
+          glSwapAPPLE();
+      }
   }
 
 }

@@ -4099,8 +4099,14 @@ int ReadCommand(char *s)
   else if(!strncasecmp(s,"go",2)){
     StopGo(GO);
   }
+  else if(!strncasecmp(s,"estop",5)){
+      expt_over(0);
+  }
+  else if(!strncasecmp(s,"ecancel",7)){
+      expt_over(CANCEL_EXPT);
+  }
   else if(!strncasecmp(s,"expt",4)){
-    runexpt(NULL,NULL,NULL);
+      runexpt(NULL,NULL,NULL);
   }
   else if(!strncasecmp(s,"clear",4)){
     //expbuttons(NULL, (XtPointer)(CLEAR_EXPT), NULL);
@@ -4303,8 +4309,8 @@ void setexp(int w, int id, int val)
     }
     PlotAlloc(&expt);
     plot = expt.plot;
-    for(i = 0; i < plot->nstim[0]; i++)
-        plot->stims[i].flag &= (~BOX_ON);
+//    for(i = 0; i < plot->nstim[0]; i++)
+//        plot->stims[i].flag &= (~BOX_ON);
 //    if(val != TF && expt.mode == TF && exframe != NULL)
 //    {
 //		item = FindWidgetChild(exframe,NFRAMES_CODE);
@@ -11082,7 +11088,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
 //Ali	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){	    }
 //	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))
 //	      {
-//		if(e.xbutton.button == Button1 ||		   e.xbutton.button == Button2 ||		   e.xbutton.button == Button3){		realframes = getframecount();		finished=RESPONDED;}
+//		if(e.mouseButton == Button1 ||		   e.mouseButton == Button2 ||		   e.mouseButton == Button3){		realframes = getframecount();		finished=RESPONDED;}
 //	      }
 	  }
 	while((c = ReadSerial(0)) != MYEOF)
@@ -13170,7 +13176,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	  }
 	  *s = 0;
 	}
-
+   else if(line[0] == '\\'){
+        ReadCommand(&line[1]);
+    }
 	else if(!strncmp(line,"HeadStrain",10)){
 	   if(seroutfile)
 		fprintf(seroutfile,"HeadStrain\n");

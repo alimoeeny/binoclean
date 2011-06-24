@@ -96,7 +96,7 @@
 		419DCE1613A133B3004E8464 /* binoclean-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "binoclean-Prefix.pch"; sourceTree = "<group>"; };
 		419DCE1813A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		419DCE1A13A133B3004E8464 /* binocleanAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binocleanAppDelegate.h; sourceTree = "<group>"; };
-		419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = binocleanAppDelegate.m; sourceTree = "<group>"; };
+		419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = binocleanAppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		419DCE1E13A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		419DCE2513A133B3004E8464 /* binocleanTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = binocleanTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		419DCE2613A133B3004E8464 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -108,8 +108,8 @@
 		41AA181D13AA71D7009AC8E2 /* ni_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ni_dio.c; sourceTree = "<group>"; };
 		41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NIDAQmxBase.h; sourceTree = "<group>"; };
 		41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = nidaqmxbaselv; path = /Library/Frameworks/nidaqmxbaselv.framework/Versions/A/nidaqmxbaselv; sourceTree = "<absolute>"; };
-		41BF8DEB13A174FE00C8B6BA /* expop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = expop.c; sourceTree = "<group>"; };
-		41BF8DEC13A174FE00C8B6BA /* binoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = binoc.c; sourceTree = "<group>"; };
+		41BF8DEB13A174FE00C8B6BA /* expop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = expop.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		41BF8DEC13A174FE00C8B6BA /* binoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = binoc.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8DED13A174FE00C8B6BA /* xrand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xrand.c; sourceTree = "<group>"; };
 		41BF8DEE13A174FE00C8B6BA /* wurtz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wurtz.c; sourceTree = "<group>"; };
 		41BF8DEF13A174FE00C8B6BA /* stimulus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stimulus.c; sourceTree = "<group>"; };
@@ -131,7 +131,7 @@
 		41BF8DFF13A174FE00C8B6BA /* do_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_test.c; sourceTree = "<group>"; };
 		41BF8E0013A174FE00C8B6BA /* do_image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_image.c; sourceTree = "<group>"; };
 		41BF8E0113A174FE00C8B6BA /* cyber.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cyber.c; sourceTree = "<group>"; };
-		41BF8E0313A174FE00C8B6BA /* sprotos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sprotos.h; sourceTree = "<group>"; };
+		41BF8E0313A174FE00C8B6BA /* sprotos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = sprotos.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		41BF8E0413A174FE00C8B6BA /* confirm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = confirm.c; sourceTree = "<group>"; };
 		41BF8E0513A174FE00C8B6BA /* miscw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = miscw.c; sourceTree = "<group>"; };
 		41BF8E0613A174FE00C8B6BA /* miscw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miscw.h; sourceTree = "<group>"; };
@@ -141,7 +141,7 @@
 		41BF8E0A13A174FE00C8B6BA /* fpslider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fpslider.h; sourceTree = "<group>"; };
 		41BF8E0B13A174FE00C8B6BA /* commdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commdefs.h; sourceTree = "<group>"; };
 		41BF8E0C13A174FE00C8B6BA /* useenv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = useenv.c; sourceTree = "<group>"; };
-		41BF8E0D13A174FE00C8B6BA /* glx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glx.c; sourceTree = "<group>"; };
+		41BF8E0D13A174FE00C8B6BA /* glx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = glx.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8E0E13A174FE00C8B6BA /* myscopy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myscopy.c; sourceTree = "<group>"; };
 		41BF8E0F13A174FE00C8B6BA /* serial.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = serial.c; sourceTree = "<group>"; };
 		41BF8E1013A174FE00C8B6BA /* WinDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WinDefs.h; sourceTree = "<group>"; };
@@ -612,6 +612,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -629,6 +630,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

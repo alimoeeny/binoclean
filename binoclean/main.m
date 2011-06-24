@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 //    StimulusType(TheStim, STIM_GRATING);    
 //    ExptInit(&expt, TheStim, &mon);
     //InitExpt();
-    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+//    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
 //    InitExpt();
 //    SetStimulus(TheStim, (float)4.0f, STIM_SIZE, 0);
 //    SetStimulus(TheStim, (float)1.0f, SETCONTRAST, 0);
