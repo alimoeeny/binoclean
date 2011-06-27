@@ -95,7 +95,7 @@
 		419DCE1413A133B3004E8464 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		419DCE1613A133B3004E8464 /* binoclean-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "binoclean-Prefix.pch"; sourceTree = "<group>"; };
 		419DCE1813A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		419DCE1A13A133B3004E8464 /* binocleanAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binocleanAppDelegate.h; sourceTree = "<group>"; };
+		419DCE1A13A133B3004E8464 /* binocleanAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = binocleanAppDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = binocleanAppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		419DCE1E13A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		419DCE2513A133B3004E8464 /* binocleanTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = binocleanTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };

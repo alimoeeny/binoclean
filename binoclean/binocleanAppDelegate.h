@@ -15,7 +15,10 @@
 #import <sys/types.h>
 #import <sys/stat.h>
 
-void TESTRefresh();
+#define OUT_PIPE "/tmp/binocoutputpipe"
+#define IN_PIPE "/tmp/binocinputpipe"
+
+void WriteToOutputPipe(char * s);
 
 
 @interface binocleanAppDelegate : NSObject <NSApplicationDelegate> {
@@ -25,19 +28,20 @@ void TESTRefresh();
     
     IBOutlet NSButton * runButton;
     NSTimer * mainTimer;
-    NSNumber * counter;
+
     NSFileHandle * inputPipe;
     NSString * inputLine;
-    
+    NSFileHandle * outputPipe;
 }
 
 @property (retain) IBOutlet NSWindow *window;
 @property (nonatomic, retain) NSWindow * monkeyWindow;
 @property (nonatomic, retain) IBOutlet NSButton * runButton;
 @property (retain) NSTimer * mainTimer;
-@property (retain) NSNumber * counter;
+
 @property (retain) NSFileHandle * inputPipe;
 @property (retain) NSString * inputLine;
+@property (retain) NSFileHandle * outputPipe;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication;
 - (IBAction) stopClicked:(id)sender;

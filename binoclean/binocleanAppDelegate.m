@@ -14,11 +14,7 @@ int stimstate;
 BOOL dataReadyInInputPipe;
 char * inputLineChars = NULL;
 int winsiz [2];
-
-void TESTRefresh()
-{
-    [[NSOpenGLContext currentContext] flushBuffer];
-}
+int outPipe = 0;
 
 void ReadInputPipe()
 {
@@ -31,9 +27,14 @@ void ReadInputPipe()
     }
 }
 
-void WriteOutputPipe(char * s)
+void WriteToOutputPipe(char * s)
 {
-    
+    if (outPipe==0)
+    {
+        outPipe = open(OUT_PIPE, O_WRONLY);
+    }
+    write(outPipe, s, strlen(s));
+    //close(outPipe);
 }
 
 @implementation binocleanAppDelegate
@@ -42,29 +43,53 @@ void WriteOutputPipe(char * s)
 @synthesize monkeyWindow;
 @synthesize runButton;
 @synthesize mainTimer;
-@synthesize counter;
+
 @synthesize inputPipe;
 @synthesize inputLine;
+@synthesize outputPipe;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    unlink("/tmp/binocpipe");
-    if (mkfifo("/tmp/binocpipe", S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
+    unlink(IN_PIPE);
+    if (mkfifo(IN_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
         NSLog(@"Can't create the pipe");
-        [NSAlert alertWithMessageText:@"Can't create the pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the pipe. You can try to remove it manually by rm /tmp/binocpipe "];   
+        [NSAlert alertWithMessageText:@"Can't create the input pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the input pipe. You can try to remove it manually by rm /tmp/binocinputpipe "];   
         abort();
     }
 
-    if (mkfifo("/tmp/binocpipe", S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
-        NSLog(@"Can't create the pipe");
-        [NSAlert alertWithMessageText:@"Can't create the pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the pipe. You can try to remove it manually by rm /tmp/binocpipe "];   
+    unlink(OUT_PIPE);
+    if (mkfifo(OUT_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
+        NSLog(@"Can't create the output pipe");
+        [NSAlert alertWithMessageText:@"Can't create the output pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the output pipe. You can try to remove it manually by rm /tmp/binocoutputpipe "];   
         abort();
     }
+
+    open(IN_PIPE, O_RDWR); 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
+    inputPipe = [[NSFileHandle fileHandleForReadingAtPath:@IN_PIPE] retain];
+    [inputPipe readInBackgroundAndNotify];
+    outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
+    [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
+    
+    NSLog(@"");
+    monkeyWindow = [[NSWindow alloc]
+                    initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2))
+                    styleMask:NSBorderlessWindowMask
+                    backing:NSBackingStoreBuffered
+                    defer:YES
+                    screen:[self.window screen]];
+    [monkeyWindow setLevel:NSFloatingWindowLevel];
+    [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
+    [monkeyWindow setTitle:[self.window title]];
+    [monkeyWindow makeKeyAndOrderFront:nil];
+    //[[monkeyWindow contentView] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil]; 
+    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
+    
+    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+    StartRunning();
+    StopGo(1);
 
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
-    inputPipe = [NSFileHandle fileHandleForReadingAtPath:@"/tmp/binocpipe"];
-    [inputPipe readInBackgroundAndNotify];
 }
 
 - (void) dataReadyToRead:(NSNotification *) notification
@@ -99,23 +124,23 @@ void WriteOutputPipe(char * s)
 
 - (IBAction) runClicked:(id)sender
 {
-    NSLog(@"run clicked");
-    monkeyWindow = [[NSWindow alloc]
-                        initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2))
-                        styleMask:NSBorderlessWindowMask
-                        backing:NSBackingStoreBuffered
-                        defer:YES
-                        screen:[self.window screen]];
-    [monkeyWindow setLevel:NSFloatingWindowLevel];
-    [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-    [monkeyWindow setTitle:[self.window title]];
-    [monkeyWindow makeKeyAndOrderFront:nil];
-    //[[monkeyWindow contentView] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil]; 
-    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
-    
-    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
-    StartRunning();
-    StopGo(1);
+//    NSLog(@"run clicked");
+//    monkeyWindow = [[NSWindow alloc]
+//                        initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2))
+//                        styleMask:NSBorderlessWindowMask
+//                        backing:NSBackingStoreBuffered
+//                        defer:YES
+//                        screen:[self.window screen]];
+//    [monkeyWindow setLevel:NSFloatingWindowLevel];
+//    [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
+//    [monkeyWindow setTitle:[self.window title]];
+//    [monkeyWindow makeKeyAndOrderFront:nil];
+//    //[[monkeyWindow contentView] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil]; 
+//    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
+//    
+//    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+//    StartRunning();
+//    StopGo(1);
     
 }
 
@@ -134,6 +159,14 @@ void WriteOutputPipe(char * s)
     //[[NSOpenGLContext currentContext] flushBuffer];
 //    NSOpenGLContext.currentContext()] flushBuffer];
     
+}
+
+- (void) dealloc
+{
+    if (outPipe!=0) {
+        close(outPipe);
+        //outPipe = 0;
+    }
 }
 
 @end
