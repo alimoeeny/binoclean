@@ -3436,6 +3436,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
 	case INITIAL_DISPARITY:
 	case INITIAL_MOVEMENT:
 	case INITIAL_APPLY_MAX:
+            
 	case UNIT_BINWIDTH:
 	case FP_MOVE_DIR:
 	case FP_MOVE_SIZE:
@@ -13543,6 +13544,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	  }
 	else switch(code)
 	{
+            
+        case ELECTRODE_DEPTH:
+            if (*s == '+'){
+                sscanf(s,"%f",&fval);
+                stepproc(fval);
+                sprintf(buf,"%2s=%.3fmore characters to flush\r\n\0",serial_strings[code],expt.vals[ELECTRODE_DEPTH]);
+                WriteToOutputPipe(buf);
+                WriteToOutputPipe("Ready\n");
+            }
+            break;
 	  
 	case UFF_TIME:
 	  {

@@ -14,6 +14,8 @@
 #import <AppKit/AppKit.h>
 #import <sys/types.h>
 #import <sys/stat.h>
+#import <sys/ioctl.h>
+#import <sys/termios.h>
 
 #define OUT_PIPE "/tmp/binocoutputpipe"
 #define IN_PIPE "/tmp/binocinputpipe"

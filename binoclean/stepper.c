@@ -466,6 +466,12 @@ void steptest_button()
   printf("Done\n");
 }
 
+void stepproc(float step)
+{
+    
+    NewPosition(electrodeDepth+(int)(step * 1000));
+}
+
 
 float StepProperty(int code)
 {

@@ -34,6 +34,12 @@ void WriteToOutputPipe(char * s)
         outPipe = open(OUT_PIPE, O_WRONLY);
     }
     write(outPipe, s, strlen(s));
+    write(outPipe, 0x3, sizeof(char));
+    write(outPipe, 0x4, sizeof(char));
+    write(outPipe, 0x19, sizeof(char));
+    write(outPipe, 0x17, sizeof(char));
+    ioctl(outPipe,TCOFLUSH);
+    NSLog(@"Output Pipe: %s", s);
     //close(outPipe);
 }
 
@@ -88,6 +94,7 @@ void WriteToOutputPipe(char * s)
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
+    WriteToOutputPipe("Ready\n");
 
     
 }
