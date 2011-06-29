@@ -1402,26 +1402,22 @@ void PrintCodes(int mode)
     {
       if(serial_strings[i] == NULL)
 	return;
-      if(mode == POPUP_CODES)
-	showcode = 1;
-      else if(mode == POPUP_MYCODES && showcodes[i])
-	showcode = 2;
-      else
-	showcode = 0;
       if(serial_names[i] == NULL){
-      sprintf(tmp,"%s %d\n",serial_strings[i],i);
-      fprintf(stdout,"%s %d No name\n",serial_strings[i],i);
+      sprintf(tmp,"CODE %s %d none\n",serial_strings[i],i);
       }
       else{
-      sprintf(tmp,"%s %s\n",serial_strings[i],serial_names[i]);
-      fprintf(stdout,"%s %d %s\n",serial_strings[i],i,serial_names[i]);
+      sprintf(tmp,"CODE %s %d %s\n",serial_strings[i],i,serial_names[i]);
       }
-      if(showcode)
-	strcat(s,tmp);
+        notify(tmp);
     }
-  fprintf(stdout,"LAST_STIMULUS %d MAXSERIAL %d MAXTOTAL %d\n",LAST_STIMULUS_CODE,
-	 MAXSERIALCODES,MAXTOTALCODES);
-  PrintToggles(stdout);
+    sprintf(s,"Expts1 ");
+    for (i = 0; i < NEXPTS1; i++){
+        sprintf(tmp,"%d ",firstmenu[i].val);
+        strcat(s,tmp);
+    }
+    strcat(s,"\n");
+    notify(s);
+//    PrintToggles(stdout);
 }
 
 void PrintPenLog(int scroll)
@@ -1960,7 +1956,7 @@ struct plotdata *ReadPlot(char *s)
 void ListExpStims(int w)
 {
     int i;
-    char buf[256];
+    char buf[256],cbuf[256];
 //    XmString str;
     Expstim *es;
     struct plotdata *plot = expt.plot;
@@ -1985,7 +1981,9 @@ void ListExpStims(int w)
         plot->fplaces = 3;
     for(i = 0; i < (plot->nstim[0]+plot->nstim[2]); i++, es++)
     {
-
+        MakePlotLabel(plot, cbuf, i, 0);
+        sprintf(buf, "E%d %s\n",i,cbuf);
+        notify(buf);
     }
     /*  str = XmStringCreateSimple("end");
      XmListAddItemUnselected(w, str, i+1);
@@ -3112,7 +3110,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
 		  }
 		setstimuli(1);
 		PlotSet(exp,exp->plot);
-	         //Ali ListExpStims(NULL);
+        ListExpStims(NULL);
 		break;
 	case CLAMP_DISPARITY_CODE:
 		exp->clamp = exp->cclamp = val;
@@ -12262,7 +12260,7 @@ void SetPlotLabels(struct plotdata *plot)
 	    else
 	      sprintf(buf,"%s=%.2f%s",serial_strings[expt.type2],plot->stims[j].x[1],abuf);
 	  }
-	//	MakePlotLabel(plot, buf, j);
+	   MakePlotLabel(plot, buf, j, 0);
 	
 	k = i + n4 * expt.nstim[1];
 	if(k < plot->nlabels) // Can be violated with PLOTFLIP
@@ -12280,6 +12278,69 @@ void SetPlotLabels(struct plotdata *plot)
       plot->label[1] = myscopy(plot->label[1],"Neg Clamp");
       plot->label[2] = myscopy(plot->label[2],"Pos Fix");
       plot->label[3] = myscopy(plot->label[3],"Pos Clamp");
+    }
+}
+
+void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip)
+{
+    int j;
+    float val;
+	if(i < expt.nstim[2])
+	    sprintf(s,"%s",extralabels[i]);
+	else
+    {
+	    if(expval[i] == INTERLEAVE_EXPT_UNCORR)
+            sprintf(s,"xUncorr");
+	    else if(plot->flag & TIMES_EXPT2 && (j = i-(plot->nstim[0]+plot->nstim[2])) >= 0) // expt2
+        {
+            if(!flip)
+                i = plot->nstim[2] + j *  plot->nstim[0];
+            if(expt.type2 == STIMULUS_TYPE_CODE)
+            {
+                j = (int)(plot->stims[i].x[1]);
+                if(j < N_STIMULUS_TYPES)
+                    sprintf(s,"%s",stimulus_names[j]);
+                else if(j == STIM_SUBGRATING1)
+                    sprintf(s,"sf%.1f",expt.stimvals[SF]);
+                else if(j == STIM_SUBGRATING2)
+                    sprintf(s,"sf%.1f",expt.stimvals[SF2]);
+                else
+                    sprintf(s,"??");
+            }
+            else if(expt.type2 == MONOCULARITY_EXPT){
+                if((val=plot->stims[i].x[1]) < -0.4)
+                    sprintf(s,"Left");
+                else if(val > 0.4)
+                    sprintf(s,"Right");
+                else 
+                    sprintf(s,"Binoc");
+            }
+            else if((expt.type2 == DISP_P2 || expt.type2 == CONTRAST_RATIO)
+                    && plot->stims[i].x[1] < -1000)
+            {
+                if(plot->stims[i].x[1] == -1003)
+                    sprintf(s,"SF %.2f",StimulusProperty(expt.st,SF));
+                if(plot->stims[i].x[1] == -1004)
+                    sprintf(s,"SF %.2f",StimulusProperty(expt.st,SF2));
+                
+            }
+            else{
+                if(optionflags[PLOTFLIP])
+                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[1]);
+                else
+                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[1]);
+            }
+        }
+	    else{ //expt
+            if(plot->stims[i].x[0] <= INTERLEAVE_EXPT)
+                sprintf(s,"0");
+            else{
+                if(flip)
+                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[1]);
+                else
+                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[0]);
+            }
+	    }
     }
 }
 
@@ -13189,6 +13250,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	  expt.hemisphere = 1;
 	  return(0);
 	}
+	else if(!strncmp(line,"NewMatlab",9)){
+        PrintCodes(0);
+        return(0);
+	}
 	else if(!strncmp(line,"monkeyshake",10)){
 		  if(expt.vals[SHAKE_TIMEOUT_DURATION] > 0){
 	   if(seroutfile)
@@ -13549,9 +13614,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             if (*s == '+'){
                 sscanf(s,"%f",&fval);
                 stepproc(fval);
-                sprintf(buf,"%2s=%.3fmore characters to flush\r\n\0",serial_strings[code],expt.vals[ELECTRODE_DEPTH]);
-                WriteToOutputPipe(buf);
-                WriteToOutputPipe("Ready\n");
+                sprintf(buf,"%2s=%.3fmore characters to flush\n",serial_strings[code],expt.vals[ELECTRODE_DEPTH]);
+                notify(buf);
             }
             break;
 	  

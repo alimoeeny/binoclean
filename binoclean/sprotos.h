@@ -454,5 +454,6 @@ void setexp(int w, int id, int val);
 void setsecondexp(int w, int id, int val);
 int HandleMouse(WindowEvent e);
 int MyLine(int a, int b, int c, int d, float color);
+void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip);
 
 #endif

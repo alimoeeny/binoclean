@@ -16,20 +16,16 @@ char * inputLineChars = NULL;
 int winsiz [2];
 int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
-static NSMutableArray * outputPipeBuffer;
-int outputPipeBufferPointer = 0;
-
+NSString * outputPipeBuffer;
 
 void sendNotification()
 {
-    NSString * s = [NSString stringWithFormat:@"sending%06d", outputPipeBufferPointer - 1];
+    NSString * s = [NSString stringWithFormat:@"sending%06d\n", [outputPipeBuffer length]];
     WriteToOutputPipe([s UTF8String]);
-    
-    for (int i = 0; i < outputPipeBufferPointer; i ++) {
-        WriteToOutputPipe([outputPipeBuffer objectAtIndex:i]);
+    if ([outputPipeBuffer length]>0) {
+        WriteToOutputPipe([outputPipeBuffer UTF8String]);
+        outputPipeBuffer = [[[NSString alloc] init] retain];
     }
-    
-    outputPipeBufferPointer = 0;
 }
 
 void ReadInputPipe()
@@ -56,21 +52,21 @@ void WriteToOutputPipe(char * s)
     {
         outPipe = open(OUT_PIPE, O_WRONLY);
     }
-    write(outPipe, s, strlen(s));
-    ioctl(outPipe,TCOFLUSH);
-    NSLog(@"Output Pipe: %s", s);
+    dispatch_queue_t q = dispatch_queue_create("writequeue",0);
+    dispatch_async(q, ^{
+        write(outPipe, s, strlen(s));
+        ioctl(outPipe,TCOFLUSH);
+        NSLog(@"Output Pipe: %s", s);
+    });
     //close(outPipe);
 }
 
 void notify(char * s)
 {
-    if (!outputPipeBuffer)
-    {
-        outputPipeBuffer = [[NSMutableSet alloc] initWithCapacity:10000];
-        outputPipeBufferPointer = 0;
+    if (!outputPipeBuffer) {
+        outputPipeBuffer = [[NSString alloc] init];
     }
-    [outputPipeBuffer insertObject:s atIndex:outputPipeBufferPointer];
-    outputPipeBufferPointer ++;
+       outputPipeBuffer = [[NSString stringWithFormat:@"%@%s", outputPipeBuffer, s] retain];
 }
 
 
@@ -126,9 +122,8 @@ void notify(char * s)
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
-    WriteToOutputPipe("Ready\n");
+    WriteToOutputPipe("sending000001\n\n");
 
-    
 }
 
 - (void) dataReadyToRead:(NSNotification *) notification
@@ -210,6 +205,7 @@ void notify(char * s)
         close(outPipe);
         //outPipe = 0;
     }
+    [outputPipeBuffer dealloc];
 }
 
 @end
