@@ -15,14 +15,37 @@ BOOL dataReadyInInputPipe;
 char * inputLineChars = NULL;
 int winsiz [2];
 int outPipe = 0;
+static NSMutableArray * inputPipeBuffer;
+static NSMutableArray * outputPipeBuffer;
+int outputPipeBufferPointer = 0;
+
+
+void sendNotification()
+{
+    NSString * s = [NSString stringWithFormat:@"sending%06d", outputPipeBufferPointer - 1];
+    WriteToOutputPipe([s UTF8String]);
+    
+    for (int i = 0; i < outputPipeBufferPointer; i ++) {
+        WriteToOutputPipe([outputPipeBuffer objectAtIndex:i]);
+    }
+    
+    outputPipeBufferPointer = 0;
+}
 
 void ReadInputPipe()
 {
     if(dataReadyInInputPipe)
     {
-        InterpretLine(inputLineChars, &expt, 0);
-        //free(inputLineChars);
+        for (int i = 0; i < inputPipeBuffer.count; i++) 
+        {
+            inputLineChars = [[inputPipeBuffer objectAtIndex:i] UTF8String];
+            if (strncmp(inputLineChars, "whatsup", 7) == 0) 
+                sendNotification();
+            else
+                InterpretLine(inputLineChars, &expt, 0);
+        }
         inputLineChars = NULL;
+        [inputPipeBuffer removeAllObjects];
         dataReadyInInputPipe = NO;
     }
 }
@@ -34,14 +57,23 @@ void WriteToOutputPipe(char * s)
         outPipe = open(OUT_PIPE, O_WRONLY);
     }
     write(outPipe, s, strlen(s));
-    write(outPipe, 0x3, sizeof(char));
-    write(outPipe, 0x4, sizeof(char));
-    write(outPipe, 0x19, sizeof(char));
-    write(outPipe, 0x17, sizeof(char));
     ioctl(outPipe,TCOFLUSH);
     NSLog(@"Output Pipe: %s", s);
     //close(outPipe);
 }
+
+void notify(char * s)
+{
+    if (!outputPipeBuffer)
+    {
+        outputPipeBuffer = [[NSMutableSet alloc] initWithCapacity:10000];
+        outputPipeBufferPointer = 0;
+    }
+    [outputPipeBuffer insertObject:s atIndex:outputPipeBufferPointer];
+    outputPipeBufferPointer ++;
+}
+
+
 
 @implementation binocleanAppDelegate
 
@@ -102,14 +134,18 @@ void WriteToOutputPipe(char * s)
 - (void) dataReadyToRead:(NSNotification *) notification
 {
     NSString * s = [[NSString alloc] initWithData:[[notification userInfo] objectForKey:NSFileHandleNotificationDataItem] encoding:NSASCIIStringEncoding];
-    NSLog(@"Input Pipe: %@",s);
-    if (inputLineChars)
-        inputLineChars = [[NSString stringWithFormat:@"%s%s", inputLineChars, [s UTF8String]] UTF8String];
-    else
-        inputLineChars = [s UTF8String];
+    NSLog(@"Input Pipe: %@", s);
+    if (!inputPipeBuffer) {
+        inputPipeBuffer = [[NSMutableArray alloc] init];
+    }
+    [inputPipeBuffer addObject:s];
+//    if (inputLineChars)
+//        inputLineChars = [[NSString stringWithFormat:@"%s%s", inputLineChars, [s UTF8String]] UTF8String];
+//    else
+//        inputLineChars = [s UTF8String];
     dataReadyInInputPipe = YES;
     [inputPipe readInBackgroundAndNotify];
-    printf(inputLineChars);
+//    printf(inputLineChars);
 }
 
 
