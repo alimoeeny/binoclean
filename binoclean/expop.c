@@ -1417,6 +1417,21 @@ void PrintCodes(int mode)
     }
     strcat(s,"\n");
     notify(s);
+    sprintf(s,"Expts2 ");
+    for (i = 0; i < NEXPTS2; i++){
+        sprintf(tmp,"%d ",secondmenu[i].val);
+        strcat(s,tmp);
+    }
+    strcat(s,"\n");
+    notify(s);
+    sprintf(s,"Expts3 ");
+    for (i = 0; i < NEXPTS3; i++){
+        sprintf(tmp,"%d ",thirdmenu[i].val);
+        strcat(s,tmp);
+    }
+    strcat(s,"\n");
+    notify(s);
+
 //    PrintToggles(stdout);
 }
 
@@ -13241,6 +13256,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
    else if(line[0] == '\\'){
         ReadCommand(&line[1]);
     }
+   else if(!strcmp(line,"whatsup")){
+       sendNotification();
+   }
 	else if(!strncmp(line,"HeadStrain",10)){
 	   if(seroutfile)
 		fprintf(seroutfile,"HeadStrain\n");
