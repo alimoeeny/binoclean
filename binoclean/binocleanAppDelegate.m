@@ -133,14 +133,12 @@ void notify(char * s)
     if (!inputPipeBuffer) {
         inputPipeBuffer = [[NSMutableArray alloc] init];
     }
-    [inputPipeBuffer addObject:s];
-//    if (inputLineChars)
-//        inputLineChars = [[NSString stringWithFormat:@"%s%s", inputLineChars, [s UTF8String]] UTF8String];
-//    else
-//        inputLineChars = [s UTF8String];
+    NSArray * sLines = [s componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r\n"]];
+    for (int i = 0; i < [sLines count]; i++) {
+        [inputPipeBuffer addObject:[sLines objectAtIndex:i]];
+    }
     dataReadyInInputPipe = YES;
     [inputPipe readInBackgroundAndNotify];
-//    printf(inputLineChars);
 }
 
 

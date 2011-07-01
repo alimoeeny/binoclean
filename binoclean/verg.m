@@ -1,6 +1,7 @@
 function binoc(varargin)
 %binoc
 %GUI for running binoclean via pipe.
+% making a change to see if source control works
 
 if length(varargin) && ishandle(varargin{1})
     f = varargin{1};
