@@ -20,7 +20,7 @@ NSString * outputPipeBuffer;
 
 void sendNotification()
 {
-    NSString * s = [NSString stringWithFormat:@"sending%06d\n", [outputPipeBuffer length]];
+    NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
     WriteToOutputPipe([s UTF8String]);
     if ([outputPipeBuffer length]>0) {
         WriteToOutputPipe([outputPipeBuffer UTF8String]);
@@ -122,7 +122,7 @@ void notify(char * s)
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
-    WriteToOutputPipe("sending000001\n\n");
+    WriteToOutputPipe("SENDINGstart1\n");
 
 }
 

@@ -253,6 +253,7 @@ float pix2degy(float val);
 /* flags used for MakeString */
 #define TO_BW 0
 #define TO_FILE 1
+#define TO_GUI 2
 
 /*
 *  these Constants depend upon the strings defined in
@@ -409,6 +410,8 @@ float pix2degy(float val);
 #define SHOWSTIMBOXES (LAST_CODED_OPTION+15)
 #define CUSTOM_EXPVALC (LAST_CODED_OPTION+16)
 #define MAXALLFLAGS (LAST_CODED_OPTION+17)
+
+#define MAXTOGGLES (MAXALLFLAGS + MAXOPTIONBITS)
 
 #define ADAPTER_TOGGLE (MAXALLFLAGS+1)
 #define RHEMISPHERE_TOGGLE (MAXALLFLAGS+2)

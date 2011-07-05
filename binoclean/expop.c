@@ -1410,6 +1410,29 @@ void PrintCodes(int mode)
       }
         notify(tmp);
     }
+    SendExptTypesToGui();
+    SendToggleCodesToGui();
+}
+
+
+int SendToggleCodesToGui()
+{
+    int i;
+    char buf[BUFSIZ],tmp[BUFSIZ];
+    
+    for (i = 0; i < MAXTOGGLES-1; i++){
+        sprintf(buf,"TOGGLE %s %s\n",toggle_codes[i],toggle_strings[i]);
+        notify(buf);
+    }
+        
+}
+// sends list of available expt types
+//not current exot vals
+int SendExptTypesToGui()
+{
+    int i;
+    char s[BUFSIZ],tmp[BUFSIZ];
+
     sprintf(s,"Expts1 ");
     for (i = 0; i < NEXPTS1; i++){
         sprintf(tmp,"%d ",firstmenu[i].val);
@@ -1994,20 +2017,26 @@ void ListExpStims(int w)
         plot->fplaces = 1;
     if(plot->fplaces > 3)
         plot->fplaces = 3;
+    notify("ECLEAR\n");
     for(i = 0; i < (plot->nstim[0]+plot->nstim[2]); i++, es++)
     {
         MakePlotLabel(plot, cbuf, i, 0);
         sprintf(buf, "E%d %s\n",i,cbuf);
         notify(buf);
     }
-    /*  str = XmStringCreateSimple("end");
-     XmListAddItemUnselected(w, str, i+1);
-     XmStringFree(str);
-     */
+
+    notify("EBCLEAR\n");
         for(i = plot->nstim[0]+plot->nstim[2]; i < (plot->nstim[0]+plot->nstim[2]+plot->nstim[1]) ; i++, es++)
         {
+            MakePlotLabel(plot, cbuf, i, 0);
+            sprintf(buf, "EB%d %s\n",i,cbuf);
+            notify(buf);
 
         }
+    notify("ECCLEAR\n");
+    for(i = 0; i < expt.nstim[4]; i++){
+        sprintf(buf,"EC%d %.2f\n",i,expt.exp3vals[i]);
+    }
 }
 
 
@@ -3218,7 +3247,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
 	  if(old != val)
 	    psychclear(expt.plot,1);
 	        setstimuli(1);
-		//Ali ListExpStims(NULL);
+		ListExpStims(NULL);
 		SetTargets();
 		break;
 	case UNIT_BINWIDTH:
@@ -4112,6 +4141,9 @@ int ReadCommand(char *s)
   }
   else if(!strncasecmp(s,"go",2)){
     StopGo(GO);
+  }
+  else if(!strncasecmp(s,"stop",2)){
+      StopGo(STOP);
   }
   else if(!strncasecmp(s,"estop",5)){
       expt_over(0);
@@ -6900,7 +6932,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 	time_t tval;
 	char *t,*r,c = ' ';
 
-	strcpy(temp,cbuf);
+	sprintf(temp,"=");
 	switch(code)
 	  {
 	  case CYBER_CHANNELS:
@@ -7187,7 +7219,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 * and the SGI has 32-bits. Most of the bites in optionflag can be
 * ignored by BW, so need to covert the parts we need
 */
-		if(flag == TO_FILE)
+		if(flag == TO_FILE || flag == TO_GUI)
 		  {
 			sprintf(cbuf,"%s%s",scode,temp);
 			i = 0;
@@ -7462,6 +7494,9 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 		}
 		break;
 	  }
+    if (flag == TO_GUI) {
+        strcat(cbuf,"\n");
+    }
 	return(ret);
 }
 
@@ -10109,7 +10144,7 @@ int ExpStimOver(int retval, int lastchar)
 {
   int i;
   int ntotal;
-  char c,buf[256];
+  char c,buf[BUFSIZ];
   Expstim *es,*exs;
   struct plotdata *plot;
 
@@ -10209,6 +10244,7 @@ int ExpStimOver(int retval, int lastchar)
 	  ReplayExpt(NULL);
  */
 	SerialString("EndStim\n",0);
+    SendTrialCount();
 	return(retval);
 }
 
@@ -12865,7 +12901,7 @@ int ShowFlag(char *s, int flag)
   i = 0;
   while(toggle_codes[i] != NULL)
   {
-  if(!strncmp(s,toggle_codes[i],2))
+  if(!strncmp(s,toggle_codes[i],strlen(toggle_codes[i])))
     break;
   i++;
   }
@@ -12968,7 +13004,7 @@ int ChangeFlag(char *s)
  * Changed to case sensitive, July 2002
   if(!strncasecmp(s,toggle_codes[i],2))
 */
-    if(!strncmp(s,toggle_codes[i],2))
+    if(!strncmp(s,toggle_codes[i],strlen(toggle_codes[i])))
       break;
     i++;
   }
@@ -13270,6 +13306,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	}
 	else if(!strncmp(line,"NewMatlab",9)){
         PrintCodes(0);
+        return(0);
+	}
+	else if(!strncmp(line,"QueryState",9)){
+        SendAllToGui(0);
         return(0);
 	}
 	else if(!strncmp(line,"monkeyshake",10)){
@@ -14447,7 +14487,7 @@ char *DescribeStim(Stimulus *st)
   sprintf(dbuf,"%s %s=%.3f (%.0f frames %.2f)",stimulus_names[st->type],serial_strings[STIMULUS_DURATION_CODE],GetProperty(&expt,st,STIMULUS_DURATION_CODE),GetProperty(&expt,st,NFRAMES_CODE),val);
   if(optionflag & SQUARE_RDS)
     {
-      sprintf(buf,"+%2s",toggle_codes[5]);
+      sprintf(buf,"+%s",toggle_codes[5]);
       strcat(dbuf,buf);
     }
   strcat(dbuf,",");

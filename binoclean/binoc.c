@@ -247,15 +247,20 @@ char *toggle_strings[] = {
 	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
 	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
 	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
-	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias",NULL,
+	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3","AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
+    "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
+    "Show Stim Boxes",
+    NULL,
 };
+
+
 
 char *toggle_codes[] = {
 "gs","di",
 "ft", //Frame test
 "do", //Go/Stop
 "aa", // AntiAliasing
-"sq","72",
+"sq","xx",
 "cr", // Contrast reversing
 "se", // S.E.M. 
 "bf", // Background Fixed
@@ -264,7 +269,7 @@ char *toggle_codes[] = {
 "rh","co","fl","ei","xx", "te","ia","ic","ir","im",
 "iu","cs","py","pa","ra",
 "sc", // Staircase
-"2a",
+"afc",
 "pp", // Show Performance String
 "if", // IFC
 "fe", // Feedback
@@ -276,8 +281,8 @@ char *toggle_codes[] = {
 "bm", // Binocular Fixation point
 "rc", // Reverse Correlation 
 "iz", // Interleave Zero
-"0s", // Hide Status
-"0m", // No Mirrors (for initial training)
+"s0", // Hide Status
+"m0", // No Mirrors (for initial training)
 "mr", // Move RF with Conjpos Eye tracking
 "gm", // Grey Monoc (grey field for 'occluded' eye) 
 "cn", // Contour Plot
@@ -321,7 +326,7 @@ char *toggle_codes[] = {
 "ao", // Auto Store Online Data Files
 "pf", // Flip Expts 1/2 on plot
 "fS", //Fast Sequence
-"4a", // 4 choice targets, for gambling
+"af4", // 4 choice targets, for gambling
 "tl", // Paint stim 3 last
 "U0", // microstim zero trials only
 "rC", // random contrast
@@ -1451,6 +1456,27 @@ expt.mon = &mon;
 //	event_loop();
 }
 
+
+int SendTrialCount()
+{
+    char buf[BUFSIZ];
+    
+    sprintf(buf,"STIMC %d %d %d %d\n",goodtrials, totaltrials,stimno,expt.nreps*expt.nstim[5]);
+    notify(buf);
+}
+
+
+void SendAllToGui()
+{
+    int i;
+    time_t tval;
+    char buf[BUFSIZ];
+    for(i = 0; i < MAXSERIALCODES; i++){
+        MakeString(i, buf, &expt, expt.st,TO_GUI);
+        notify(buf);
+    }
+    ListExpStims(NULL);
+}
 
 void SendAll()
 {
@@ -6475,6 +6501,7 @@ int next_frame(Stimulus *st)
 	    fixstate = WURTZ_LATE;
 	    SerialSignal(END_TRIAL);
 	    fixstate = RESPONDED;
+        notify("TRES L\n");
 	    change_frame();
 	    oldstimpos[0] = TheStim->pos.xy[0];
 	    oldstimpos[1] = TheStim->pos.xy[1];
@@ -9055,7 +9082,8 @@ int GotChar(char c)
 			else
 			  result = '?'; /* shouldn't happen */
 
-			
+                sprintf(buf,"TRES %c\n",result);
+                notify(buf);
 			trialdur = down = timediff(&now,&wurtzframetime);
 			start = timediff(&now,&progstarttime);
 /* 
