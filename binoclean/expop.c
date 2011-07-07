@@ -1424,6 +1424,10 @@ int SendToggleCodesToGui()
         sprintf(buf,"TOGGLE %s %s\n",toggle_codes[i],toggle_strings[i]);
         notify(buf);
     }
+    for (i = 0; i < N_STIMULUS_TYPES; i++){
+        sprintf(buf,"STIMTYPE %d %s\n",i,stimulus_names[i]);
+        notify(buf);
+    }
         
 }
 // sends list of available expt types
@@ -2018,18 +2022,18 @@ void ListExpStims(int w)
     if(plot->fplaces > 3)
         plot->fplaces = 3;
     notify("ECLEAR\n");
-    for(i = 0; i < (plot->nstim[0]+plot->nstim[2]); i++, es++)
+    for(i = 0; i < (expt.nstim[0]+expt.nstim[2]); i++, es++)
     {
-        MakePlotLabel(plot, cbuf, i, 0);
+        MakePlotLabel(&expt, cbuf, i, 0);
         sprintf(buf, "E%d %s\n",i,cbuf);
         notify(buf);
     }
 
     notify("EBCLEAR\n");
-        for(i = plot->nstim[0]+plot->nstim[2]; i < (plot->nstim[0]+plot->nstim[2]+plot->nstim[1]) ; i++, es++)
+        for(i = expt.nstim[0]+expt.nstim[2]; i < (expt.nstim[0]+expt.nstim[2]+expt.nstim[1]) ; i++, es++)
         {
-            MakePlotLabel(plot, cbuf, i, 0);
-            sprintf(buf, "EB%d %s\n",i,cbuf);
+            MakePlotLabel(&expt, cbuf, i, 0);
+            sprintf(buf, "EB%d %s\n",i-(expt.nstim[0]+expt.nstim[2]),cbuf);
             notify(buf);
 
         }
@@ -3281,7 +3285,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
 	      psychclear(expt.plot,1);
 	    }
 	        setstimuli(1);
-		  //Ali ListExpStims(NULL);
+        ListExpStims(NULL);
 		break;
 	      case TIMEOUT_CODE:
 		if(val > 500) // must be ms, intended for brainwave
@@ -4553,8 +4557,6 @@ void setexp(int w, int id, int val)
     expt.nextval = expt.mean;
     PlotAlloc(&expt);
     plot = expt.plot;
-    for(i = 0; i < plot->nstim[0]; i++)
-        plot->stims[i].flag &= (~BOX_ON);
     /*  plot->fplaces = fplaces(expt.incr,2);*/
     plot->fplaces = nfplaces[val];
     if(plot->fplaces > 10)
@@ -12342,13 +12344,13 @@ void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip)
     {
 	    if(expval[i] == INTERLEAVE_EXPT_UNCORR)
             sprintf(s,"xUncorr");
-	    else if(plot->flag & TIMES_EXPT2 && (j = i-(plot->nstim[0]+plot->nstim[2])) >= 0) // expt2
+	    else if(expt.flag & TIMES_EXPT2 && (j = i-(expt.nstim[0]+expt.nstim[2])) >= 0) // expt2
         {
             if(!flip)
-                i = plot->nstim[2] + j *  plot->nstim[0];
+                i = expt.nstim[2] + j *  expt.nstim[0];
             if(expt.type2 == STIMULUS_TYPE_CODE)
             {
-                j = (int)(plot->stims[i].x[1]);
+                j = (int)(expt.st->type);
                 if(j < N_STIMULUS_TYPES)
                     sprintf(s,"%s",stimulus_names[j]);
                 else if(j == STIM_SUBGRATING1)
@@ -12359,7 +12361,7 @@ void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip)
                     sprintf(s,"??");
             }
             else if(expt.type2 == MONOCULARITY_EXPT){
-                if((val=plot->stims[i].x[1]) < -0.4)
+                if((val=expval[i]) < -0.4)
                     sprintf(s,"Left");
                 else if(val > 0.4)
                     sprintf(s,"Right");
@@ -12367,29 +12369,23 @@ void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip)
                     sprintf(s,"Binoc");
             }
             else if((expt.type2 == DISP_P2 || expt.type2 == CONTRAST_RATIO)
-                    && plot->stims[i].x[1] < -1000)
+                    && expval[i] < -1000)
             {
-                if(plot->stims[i].x[1] == -1003)
+                if(expval[i] == -1003)
                     sprintf(s,"SF %.2f",StimulusProperty(expt.st,SF));
                 if(plot->stims[i].x[1] == -1004)
                     sprintf(s,"SF %.2f",StimulusProperty(expt.st,SF2));
                 
             }
             else{
-                if(optionflags[PLOTFLIP])
-                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[1]);
-                else
-                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[1]);
+                    sprintf(s,"%.*f",nfplaces[expt.mode],expval[i]);
             }
         }
 	    else{ //expt
-            if(plot->stims[i].x[0] <= INTERLEAVE_EXPT)
+            if(expval[i] <= INTERLEAVE_EXPT)
                 sprintf(s,"0");
             else{
-                if(flip)
-                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[1]);
-                else
-                    sprintf(s,"%.*f",plot->fplaces,plot->stims[i].x[0]);
+                sprintf(s,"%.*f",nfplaces[expt.mode],expval[i]);
             }
 	    }
     }

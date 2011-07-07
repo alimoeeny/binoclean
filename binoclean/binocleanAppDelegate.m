@@ -56,7 +56,7 @@ void WriteToOutputPipe(char * s)
     dispatch_async(q, ^{
         write(outPipe, s, strlen(s));
         ioctl(outPipe,TCOFLUSH);
-        NSLog(@"Output Pipe: %s", s);
+        NSLog(@"Output Pipe:%d: %s", strlen(s),s);
     });
     //close(outPipe);
 }

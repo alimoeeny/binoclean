@@ -61,6 +61,10 @@ for j = 1:length(strs{1})
             DATA.optionflags.(cc) = 0;
         end
         DATA.optionstrings.(cc) = s(id(2)+1:end);
+    elseif strncmp(s,'STIMTYPE',6)
+        id = strfind(s,' ');
+        code = str2num(s(id(1)+1:id(2)-1))+1;
+        DATA.stimulusnames{code} = s(id(2)+1:end);
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
@@ -115,8 +119,11 @@ for j = 1:length(strs{1})
         DATA.mean(2) = sscanf(s,'m2=%d');
     elseif strncmp(s,'m3',2)
         DATA.mean(3) = sscanf(s,'m3=%d');
-    elseif strmatch(s,{DATA.comcodes.code})
-        id = strmatch(s,{DATA.comcodes.code});
+    elseif strncmp(s, 'st', 2)
+        id = strmatch(s(4:end),DATA.stimulusnames,'exact');
+        DATA.stimtype(1) = id;
+    elseif strncmp(s, 'bs', 2)
+             DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
     elseif s(1) == 'E'
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
@@ -148,6 +155,8 @@ for j = 1:length(strs{1})
                 DATA.exptstimlist{1} = {};
             end
         end
+    elseif strmatch(s,{DATA.comcodes.code})
+        id = strmatch(s,{DATA.comcodes.code});
     else
         id = strfind(s,'=');
         if id
@@ -216,6 +225,10 @@ DATA.extypes{3} = [1];
 DATA.exptype{1} = 'e0';
 DATA.exptype{2} = 'e0';
 DATA.exptype{3} = 'e0';
+DATA.stimtype(1) = 1;
+DATA.stimtype(2) = 1;
+DATA.mean = [0 0 0];
+DATA.incr = [0 0 0];
 DATA = ReadStimFile(DATA, '/local/verg.setup');
 
 for j = 1:3 
@@ -351,6 +364,22 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.01;
     bp(2) = bp(2)+bp(4);
     bp(3) = 0.1;
+    uicontrol(gcf,'style','text','string','Mean',  'units', 'norm', 'position',bp);
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.3;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.mean(1)), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt1Mean','callback',{@TextGui, 'em'});
+    bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.mean(2)), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt2Mean','callback',{@TextGui, 'm2'});
+    bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.mean(3)), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt3Mean','callback',{@TextGui, 'm3'});
+
+    
+    bp(1) = 0.01;
+    bp(2) = bp(2)+bp(4);
+    bp(3) = 0.1;
     
     uicontrol(gcf,'style','pushbutton','string','Run', ...
         'Callback', {@RunButton, 'l'}, 'Tag','RunButton',...
@@ -365,7 +394,20 @@ function DATA = InitInterface(DATA)
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','pop','string',DATA.expstrs{3}, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt3List','callback',{@SetExpt, 3});
-     
+    
+    bp(1) = 0.01;
+    bp(2) = bp(2)+bp(4);
+    bp(3) = 0.1;
+    uicontrol(gcf,'style','text','string','Fore',  'units', 'norm', 'position',bp);
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.3;
+    uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
+        'units', 'norm', 'position',bp,'value',DATA.stimtype(1),'Tag','ForeGroundType','callback',{@SetExpt, 4});
+    bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
+        'units', 'norm', 'position',bp,'value',DATA.stimtype(2),'Tag','BackGroundType','callback',{@SetExpt, 5});
+
+    
     bp(1) = 0.01;
     bp(2) = 0.99-1/nr;
     bp(3) = 1/nc;
@@ -419,6 +461,10 @@ function DATA = InitInterface(DATA)
         fprintf(DATA.outid,'e2=%s\n',DATA.comcodes(DATA.expmenuvals{2}(val)).code);
     elseif type == 3
         fprintf(DATA.outid,'e2=%s\n',DATA.comcodes(DATA.expmenuvals{3}(val)).code);
+    elseif type == 4
+        fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{val});
+    elseif type == 5
+        fprintf(DATA.outid,'bs=%s\n',DATA.stimulusnames{val});
     end
      
  function TextGui(a,b, type)
@@ -439,28 +485,32 @@ function DATA = InitInterface(DATA)
              ReadFromBinoc(DATA);
          case 'em'
              DATA.mean(1) = str2num(str);
-             fprintf(DATA.outid,'nt=%d\n',DATA.mean(1));
+             fprintf(DATA.outid,'em=%.8f\n',DATA.mean(1));
              ReadFromBinoc(DATA);
          case 'm2'
              DATA.mean(2) = str2num(str);
-             fprintf(DATA.outid,'n2=%d\n',DATA.mean(2));
+             fprintf(DATA.outid,'m2=%.8f\n',DATA.mean(2));
              ReadFromBinoc(DATA);
          case 'm3'
              DATA.mean(3) = str2num(str);
-             fprintf(DATA.outid,'n3=%d\n',DATA.mean(3));
+             fprintf(DATA.outid,'m3=%.8f\n',DATA.mean(3));
              ReadFromBinoc(DATA);
          case 'ei'
              DATA.incr(1) = str2num(str);
-             fprintf(DATA.outid,'nt=%d\n',DATA.incr(1));
+             fprintf(DATA.outid,'ei=%.8f\n',DATA.incr(1));
              ReadFromBinoc(DATA);
          case 'i2'
              DATA.incr(2) = str2num(str);
-             fprintf(DATA.outid,'n2=%d\n',DATA.incr(2));
+             fprintf(DATA.outid,'i2=%.8f\n',DATA.incr(2));
              ReadFromBinoc(DATA);
          case 'i3'
              DATA.incr(3) = str2num(str);
-             fprintf(DATA.outid,'n3=%d\n',DATA.incr(3));
+             fprintf(DATA.outid,'i3=%.8f\n',DATA.incr(3));
              ReadFromBinoc(DATA);
+         case 'st'
+             DATA.stimtype(1) = strmatch(str,DATA.stimulusnames);
+         case 'bs'
+             DATA.stimtype(2) = strmatch(str,DATA.stimulusnames);
          otherwise
              DATA.binoc.(type) = str2num(str);
              fprintf(DATA.outid,'%s=%s\n',type,str);
@@ -530,9 +580,11 @@ function CheckInput(a,b, fig, varargin)
          end
          j = j+1;
      end
+     fprintf('%s:',datestr(now))
      fprintf(DATA.outid,'whatsup\n');
      a = fread(DATA.inid,14);
      nbytes = sscanf(char(a'),'SENDING%d');
+     fprintf('Need %d bytes\n',nbytes);
      if strncmp(char(a'),'SENDINGstart1',12)
         a = fread(DATA.inid,14);
         nbytes = sscanf(char(a'),'SENDING%d');
@@ -546,9 +598,10 @@ function CheckInput(a,b, fig, varargin)
              set(DATA.toplevel,'UserData',DATA);
          end
      elseif ~strncmp(char(a'),'SENDING000000',12) %means nbytes == 0 is an error
-         s = [];
-         fprintf('No Bytes %s\n',char(a'));
-         while char(a) ~= 'G'  & strcmp(s(end-6:end),'SENDIN') == 0
+         s = char(a');
+         fprintf('No Bytes %s\n',s);
+         a = s(end);
+         while char(a) ~= 'G' | strcmp(s(end-6:end),'SENDIN') == 0
             a = fread(DATA.inid,1);
             s = [s char(a)];
          end
