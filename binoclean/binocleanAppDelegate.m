@@ -21,11 +21,14 @@ NSString * outputPipeBuffer;
 void sendNotification()
 {
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
-    WriteToOutputPipe([s UTF8String]);
+//    WriteToOutputPipe(s);
     if ([outputPipeBuffer length]>0) {
-        WriteToOutputPipe([outputPipeBuffer UTF8String]);
+        NSLog(@"%d : %@", strlen([outputPipeBuffer UTF8String]), outputPipeBuffer);
+        WriteToOutputPipe([NSString stringWithFormat:@"%@%@", s, outputPipeBuffer]);
         outputPipeBuffer = [[[NSString alloc] init] retain];
     }
+    else
+        WriteToOutputPipe(s);        
 }
 
 void ReadInputPipe()
@@ -46,17 +49,17 @@ void ReadInputPipe()
     }
 }
 
-void WriteToOutputPipe(char * s)
+void WriteToOutputPipe(NSString * ns)
 {
     if (outPipe==0)
     {
         outPipe = open(OUT_PIPE, O_WRONLY);
     }
-    dispatch_queue_t q = dispatch_queue_create("writequeue",0);
+    dispatch_queue_t q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, NULL);
     dispatch_async(q, ^{
-        write(outPipe, s, strlen(s));
+        write(outPipe, [ns UTF8String], strlen([ns UTF8String]));
         ioctl(outPipe,TCOFLUSH);
-        NSLog(@"Output Pipe:%d: %s", strlen(s),s);
+        NSLog(@"Output Pipe:%d: %s", strlen([ns UTF8String]), [ns UTF8String]);
     });
     //close(outPipe);
 }
@@ -122,7 +125,7 @@ void notify(char * s)
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
-    WriteToOutputPipe("SENDINGstart1\n");
+    WriteToOutputPipe(@"SENDINGstart1\n");
 
 }
 

@@ -20,7 +20,7 @@
 #define OUT_PIPE "/tmp/binocoutputpipe"
 #define IN_PIPE "/tmp/binocinputpipe"
 
-void WriteToOutputPipe(char * s);
+void WriteToOutputPipe(NSString * ns);
 
 
 @interface binocleanAppDelegate : NSObject <NSApplicationDelegate> {

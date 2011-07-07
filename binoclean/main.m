@@ -10,6 +10,8 @@
 #import "commdefs.h"
 #import "stimuli.h"
 #import "protos.h"
+#import <sys/time.h>
+#include <sys/resource.h>
 
 Stimulus *TheStim, tempstim,*stimptr,*ChoiceStima,*ChoiceStimb;
 Expt expt;
@@ -19,6 +21,7 @@ int binocmain(int argc, char * argv[]);
 
 int main(int argc, char *argv[])
 {
+    setpriority(PRIO_PROCESS, 0, -10);
     binocmain(argc, argv);
 //    TheStim = NewStimulus(NULL);
 //    ChoiceStima = NewStimulus(NULL);
