@@ -285,7 +285,9 @@ end
 function ShowStatus(DATA)
 
 s = sprintf('Trials %d/%d Ex:%d/%d',DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4));
+if isfield(DATA,'toplevel')
 set(DATA.toplevel,'Name',s);
+end
 fprintf('%s\n',s);
 
 function DATA = InitInterface(DATA)
@@ -568,44 +570,64 @@ end
 
 function CheckInput(a,b, fig, varargin)
     DATA = get(fig,'UserData');
-    ReadFromBinoc(DATA);
+    ReadFromBinoc(DATA, 'auto');
+    fprintf('Timer read over at %s\n',datestr(now));
     
  
  function DATA = ReadFromBinoc(DATA, varargin)
-     vebose = 0;
+     global lastcalled;
+     
+     verbose = 0;
+     autocall = 0;
      j = 1;
      while j <= length(varargin)
          if strncmpi(varargin{j},'verbose',5)
              verbose = 1;
+         elseif strncmpi(varargin{j},'auto',4)
+             autocall = 1;
+         elseif ischar(varargin{j})
+             fprintf('%s',varargin{j});
+             lastcalled = now;
          end
          j = j+1;
      end
+     ts = now;
+     if autocall && ts - lastcalled < 3/(24 * 60 * 60);
+         fprintf('Calls at %s and %s\n',datestr(ts),datestr(lastcalled));
+         return;
+     elseif autocall == 0
+         lastcalled = now;
+     end
+         
      fprintf('%s:',datestr(now))
      fprintf(DATA.outid,'whatsup\n');
      a = fread(DATA.inid,14);
-     nbytes = sscanf(char(a'),'SENDING%d');
-     fprintf('Need %d bytes\n',nbytes);
      if strncmp(char(a'),'SENDINGstart1',12)
         a = fread(DATA.inid,14);
         nbytes = sscanf(char(a'),'SENDING%d');
-     end
-     if nbytes > 0
-         a = fread(DATA.inid,nbytes);
-         fprintf('%s',char(a'));
-         fprintf('Read %d bytes\n',length(a));
-         DATA = InterpretLine(DATA,char(a'));
-         if isfield(DATA,'toplevel')
-             set(DATA.toplevel,'UserData',DATA);
-         end
-     elseif ~strncmp(char(a'),'SENDING000000',12) %means nbytes == 0 is an error
+     elseif strncmp(char(a'),'SENDING',7)
+         nbytes = sscanf(char(a'),'SENDING%d');
+     else
          s = char(a');
          fprintf('No Bytes %s\n',s);
          a = s(end);
-         while char(a) ~= 'G' | strcmp(s(end-6:end),'SENDIN') == 0
+         while char(a) ~= 'G' | strcmp(s(end-6:end),'SENDING') == 0
             a = fread(DATA.inid,1);
             s = [s char(a)];
          end
+         a = fread(DATA.inid,7);
+         nbytes = sscanf(char(a'),'%d');
          fprintf('Read %s\n',s);
+     end
+     fprintf('Need %d bytes\n',nbytes);
+     if nbytes > 0
+         a = fread(DATA.inid,nbytes);
+         fprintf('%s',char(a'));
+         fprintf('Read %d bytes took %.2f\n',length(a),mytoc(ts));
+         DATA = InterpretLine(DATA,char(a'));
+         if isfield(DATA,'toplevel')
+%             set(DATA.toplevel,'UserData',DATA);
+         end
      end
          
 function RunButton(a,b, type)
@@ -747,4 +769,4 @@ n = size(a,1);
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
-ReadFromBinoc(DATA);
+ReadFromBinoc(DATA,'from TextEntered ');
