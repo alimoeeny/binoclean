@@ -9846,6 +9846,7 @@ void expt_over(int flag)
   if(optionflag & FRAME_ONLY_BIT)
     WriteFrameData();
   SaveExptFile("./front.eostim",SAVE_STATE);
+    notify("EXPTOVER\n");
 }
 
 void Stim2PsychFile()

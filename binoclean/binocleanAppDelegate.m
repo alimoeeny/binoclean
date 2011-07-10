@@ -41,7 +41,7 @@ void ReadInputPipe()
             if (strncmp(inputLineChars, "whatsup", 7) == 0) 
                 sendNotification();
             else
-                InterpretLine(inputLineChars, &expt, 0);
+                InterpretLine(inputLineChars, &expt, 2);
         }
         inputLineChars = NULL;
         [inputPipeBuffer removeAllObjects];
