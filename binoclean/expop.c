@@ -2615,7 +2615,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
 	case UFF_PREFIX:
 		expt.bwptr->prefix = (char *)myscopy(expt.bwptr->prefix,nonewline(s));
 		expname = (char *)myscopy(expname,nonewline(s));
-		//Ali t = getfilename(expt.bwptr->prefix);
+		t = getfilename(expt.bwptr->prefix);
 		
 
 		if(!(option2flag & PSYCHOPHYSICS_BIT) && pcmode != SPIKE2){
@@ -7223,7 +7223,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 */
 		if(flag == TO_FILE || flag == TO_GUI)
 		  {
-			sprintf(cbuf,"%s%s",scode,temp);
+			sprintf(cbuf,"%s=0",scode);
 			i = 0;
 			while(toggle_codes[i] != NULL)
 			  {
@@ -7581,6 +7581,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
         fprintf(seroutfile,"#Start Expt at %d %sx%s %d%c%d (%d)\n",
                 ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
                 expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
+    notify("EXPTSTART\n");
     InitExpt();
 }
 
@@ -13252,6 +13253,13 @@ int LabelAndPath(char *s, char *sublabel, char *path, char *name)
   return(ret);
 }
 
+/*
+* Interpretline pases text strings from files, the serial line, and the GUI input pipe;
+* frompc = 1 mean it came form the serial line
+* frompc = 2 means it came from the GUI input line
+*/
+
+
 int InterpretLine(char *line, Expt *ex, int frompc)
 {
   int i,len,ival,total,j,vals[MAXBINS],k,code,oldmode,x,y;
@@ -13618,8 +13626,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 		s++;
 	j = 0;
 	i = 0;
-	if(strlen(s) == 0 && code < MAXTOTALCODES)
+ // string with no value means report back current value
+  
+	if(strlen(s) == 0 && code < MAXTOTALCODES){
+        MakeString(code,buf,&expt, expt.st, TO_GUI);
+        notify(buf);
 	  return(code);
+    }
+    if (strcmp(line,"EDONE") == NULL)
+        ListExpStims(NULL);
+        
 	if(line[0] == 'E' && isdigit(line[1]))
 	  {
 	    sscanf(&line[1],"%d",&i);
@@ -13633,7 +13649,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 		  mode |= CUSTOM_EXPVAL;
 		}
 	      }
+          if (frompc < 2)
 	    ListExpStims(NULL);
+          
 	    return(MAXTOTALCODES);
 	  }
 	else if(line[0] == 'E' && line[1] == 'C' && isdigit(line[2])){
@@ -13646,6 +13664,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	    expt.exp3vals[i] = dval;
 	    optionflags[CUSTOM_EXPVALC] = 1;
 		 }
+        if (frompc < 2)
 	    ListExpStims(NULL);
 	    code = EXPT3_NSTIM;
 	}
@@ -13659,6 +13678,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	    sscanf(s,"%lf",&expval[expt.nstim[0]+i+expt.nstim[2]]);
 	    optionflags[CUSTOM_EXPVALB] = 1;
 		 }
+          if (frompc < 2)
 	    ListExpStims(NULL);
 	  }
 	else switch(code)
