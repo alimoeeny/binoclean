@@ -449,7 +449,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
     uimenu(hm,'Label','NewStart','Callback',{@ReadIO, 3});
-    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
+    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',1,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);

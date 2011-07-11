@@ -87,6 +87,8 @@
 		41520B7013A25BF6006CE4A7 /* drawInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawInfo.h; sourceTree = "<group>"; };
 		4156A61113C5FDD2002DC9AA /* GetDataFromFig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetDataFromFig.m; sourceTree = "<group>"; };
 		4156A61213C5FDD2002DC9AA /* isfigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = isfigure.m; sourceTree = "<group>"; };
+		4178897913C75EEA00EE70C6 /* mytoc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mytoc.m; sourceTree = "<group>"; };
+		4178897A13C75EEA00EE70C6 /* CloseTag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloseTag.m; sourceTree = "<group>"; };
 		419DCE0413A133B3004E8464 /* binoclean.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = binoclean.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		419DCE0813A133B3004E8464 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		419DCE0B13A133B3004E8464 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -273,6 +275,8 @@
 		4156A61613C5FDDB002DC9AA /* Matlab */ = {
 			isa = PBXGroup;
 			children = (
+				4178897913C75EEA00EE70C6 /* mytoc.m */,
+				4178897A13C75EEA00EE70C6 /* CloseTag.m */,
 				4156A61113C5FDD2002DC9AA /* GetDataFromFig.m */,
 				4156A61213C5FDD2002DC9AA /* isfigure.m */,
 				C9BE961C13BBD1F300180D36 /* verg.m */,
