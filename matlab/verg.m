@@ -57,6 +57,9 @@ for j = 1:length(strs{1})
         DATA.comcodes(a).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(a).label = s(id(2)+1:end);
         DATA.comcodes(a).const = a;
+    elseif strncmp(s,'electrdode',6)
+        estr = s(eid(1)+1:end);
+        DATA.electrodestrings = {DATA.electrodestrings{:} estr};
     elseif strncmp(s,'TOGGLE',6)
         id = strfind(s,' ');
         cc = s(id(1)+1:id(2)-1);
@@ -266,6 +269,10 @@ DATA.showflags.wt = 1;
 DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
+DATA.electrodestrings = {};
+DATA.electrodestring = 'default';
+DATA.monkey = 'lem';
+DATA.penid = 0;
 
 DATA.comcodes = [];
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
@@ -623,6 +630,19 @@ end
 
      fprintf('%d:%s\n',id,str{id});
      
+function MenuGui(a,b)
+     DATA = GetDataFromFig(a);
+     strs = get(a,'string');
+     val = get(a,'value');
+     str = strs{val};
+     tag = get(a,'Tag');
+     switch tag
+         case 'ElectrodeType'
+             DATA.electrodestring = str;
+     end
+     set(DATA.toplevel,'UserData',DATA);
+     
+     
  function TextGui(a,b, type)
      DATA = GetDataFromFig(a);
      str = get(a,'string');
@@ -864,10 +884,20 @@ if length(DATA.winpos{3}) ~= 4
 end
 cntrl_box = figure('Position', DATA.winpos{3},...
         'NumberTitle', 'off', 'Tag',DATA.tag.penlog,'Name','Penetration Log','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
 
     nr = 10;
     nc = 6;
     bp = [0.01 0.99-1/nr 1./nc 1./nr];
+    uicontrol(gcf,'style','pushbutton','string','Apply', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Penset','callback',@OpenPenLog);
+    bp(1) = bp(1)+bp(3)+0.01;
+   uicontrol(gcf,'style','pop','string',DATA.electrodestrings, ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','ElectrodeType','callback',{@MenuGui});
+ 
+    
+    bp(1) = 0.01;
+    bp(2) = bp(2)-1./nr;
     uicontrol(gcf,'style','text','string','#', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
 
@@ -890,6 +920,9 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     uicontrol(gcf,'style','edit','string','0', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'py'});
 
+    bp(1) = 0.01;
+    bp(2) = bp(2)-1./nr;
+    
 
 function OptionPopup(a,b)
   DATA = GetDataFromFig(a);
@@ -970,6 +1003,10 @@ function Stepper(a,b, step, type)
         s = sprintf('ed-%.3f\n',DATA.stepsize(type));
     end
     fprintf(DATA.outid,'%s\n',s);
+    if DATA.penid > 0
+        fprintf(DATA.penid,'%s\n',s);
+    end
+        
     ReadFromBinoc(DATA);
     
 function val = Menu2Val(it)
@@ -981,6 +1018,20 @@ j = get(it(1),'value');
 s = get(it(1),'string');
 val = str2num(s(j,:));
 
+
+function OpenPenLog(a,b)
+    DATA = GetDataFromFig(a);
+    if DATA.penid > 0
+        fclose(DATA.penid);
+    end
+    name = sprintf('/local/%s/pen%d.log',DATA.monkey,DATA.binoc.pe);
+    DATA.penid = fopen(name,'a');
+    fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc.pe,DATA.binoc.px,DATA.binoc.py,datestr(now));
+    fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);
+    set(DATA.toplevel,'UserData',DATA);
+    
+    
+    
 function val = Text2Val(it)
 val = NaN;
 if isempty(it)
