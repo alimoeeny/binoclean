@@ -294,7 +294,7 @@ float *rotatefactor, float *hdotsize, int aa)
 		    continue;
 		}
 	    }
-	    if(((balls[i].lrnd >16) & 0xff) > st->dotfrac*255)
+	    if(((balls[i].lrnd >>16) & 0xff) > st->dotfrac*255)
 		    mycolor(vcolor);      
 		else
 		    mycolor(bcolor);
@@ -320,7 +320,7 @@ float *rotatefactor, float *hdotsize, int aa)
 		}
 	    }
 	    if(balls[i].left_right == JONRIGHT){
-	      if(((balls[i].lrnd >16) & 0xff) > st->dotfrac * 255)
+	      if(((balls[i].lrnd >>16) & 0xff) > st->dotfrac * 255)
 		    mycolor(vcolor);      
 		else
 		    mycolor(bcolor);
@@ -347,7 +347,7 @@ float *rotatefactor, float *hdotsize, int aa)
 		}
 	    }
 	    if(balls[i].left_right == JONLEFT){
-	      if(((balls[i].lrnd >16) & 0xff) > st->dotfrac*255)
+	      if(((balls[i].lrnd >>16) & 0xff) > st->dotfrac*255)
 		mycolor(vcolor);      
 	    else
 		mycolor(bcolor);

@@ -47,16 +47,16 @@ function DATA = InterpretLine(DATA, line)
 
 strs = textscan(line,'%s','delimiter','\n');
 for j = 1:length(strs{1})
-    s = strs{1}{j};
+    s = regexprep(strs{1}{j},'\s+\#.*$','');
     eid = strfind(s,'=');
     if length(s) == 0
     elseif s(1) == '#' %defines stim code/label
         [a,b] = sscanf(s,'#%d %s');
-        a = a(1);
-        id = find(s == ' ');
-        DATA.comcodes(a).code = s(id(1)+1:id(2)-1);
-        DATA.comcodes(a).label = s(id(2)+1:end);
-        DATA.comcodes(a).const = a;
+%        a = a(1);
+%        id = find(s == ' ');
+%        DATA.comcodes(a).code = s(id(1)+1:id(2)-1);
+%        DATA.comcodes(a).label = s(id(2)+1:end);
+%        DATA.comcodes(a).const = a;
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
         DATA.electrodestrings = {DATA.electrodestrings{:} estr};
@@ -121,7 +121,12 @@ for j = 1:length(strs{1})
         DATA.trialcounts = sscanf(s(7:end),'%d');
         ShowStatus(DATA);
     elseif strncmp(s,'qe=',3)
+        id = strfind(s,'"');
+        if length(id)
+            s = s(id(end)+1:end);
+        else
         s = s(4:end);
+        end
         [a,b] = fileparts(s);
         n = length(DATA.quickexpts)+1;
         DATA.quickexpts(n).name = b;
@@ -166,16 +171,23 @@ for j = 1:length(strs{1})
         
         for j= 1:length(id)-1
             code = strmatch(s(id(j)+1:id(j+1)-1),f);
-            if s(id(j)) == '+'
+            if isempty(code)
+                fprintf('No Code for %s\n,',s(id(j):end));
+            elseif s(id(j)) == '+'
             DATA.optionflags.(f{code}) = 1;
             else
             DATA.optionflags.(f{code}) = 0;
             end
         end
+    elseif strncmp(s, 'stepperxy', 8)
+    elseif strncmp(s, 'penwinxy', 8)
+    elseif strncmp(s, 'optionwinxy', 8)
+    elseif strncmp(s, 'psychfile', 8)
+
     elseif strncmp(s, 'st', 2)
         id = strmatch(s(4:end),DATA.stimulusnames,'exact');
         DATA.stimtype(1) = id;
-    elseif strncmp(s, 'bs', 2)
+    elseif strncmp(s, 'Bs', 2)
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
     elseif s(1) == 'E'
         if strncmp(s,'EBCLEAR',5)
@@ -230,7 +242,7 @@ tline = fgets(fid);
 while ischar(tline)
     DATA = InterpretLine(DATA,tline);
     if DATA.outid > 0
-    fprintf(DATA.outid,[tline '\n']);
+    fprintf(DATA.outid,tline);
     end
     tline = fgets(fid);
 end
@@ -266,13 +278,30 @@ DATA.optionflags.ts = 0;
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
-DATA.verbose = 0;
+DATA.verbose = 1;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
 DATA.electrodestring = 'default';
 DATA.monkey = 'lem';
 DATA.penid = 0;
+DATA.stimulusnames{1} = 'none';
+DATA.stimulusnames{4} = 'grating';
+DATA.stimulusnames{3} = 'rds';
+DATA.stimulusnames{2} = 'gabor';
+DATA.stimulusnames{5} = 'bar';
+DATA.stimulusnames{6} = 'circle';
+DATA.stimulusnames{7} = 'rectangle';
+DATA.stimulusnames{8} = 'test';
+DATA.stimulusnames{9} = 'square';
+DATA.stimulusnames{10} = 'probe';
+DATA.stimulusnames{11} = '2grating';
+DATA.stimulusnames{12} = 'cylinder';
+DATA.stimulusnames{13} = 'corrug';
+DATA.stimulusnames{14} = 'sqcorrug';
+DATA.stimulusnames{15} = 'twobar';
+DATA.stimulusnames{16} = 'rls';
+
 
 DATA.comcodes = [];
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
@@ -553,7 +582,9 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
     uimenu(hm,'Label','NewStart','Callback',{@ReadIO, 3});
-    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',1,'executionmode','fixedspacing');
+    uimenu(hm,'Label','Stop Timer','Callback',{@ReadIO, 4});
+    uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5});
+    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
@@ -938,12 +969,13 @@ nr = ceil(length(f)/nc);
 scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
         'NumberTitle', 'off', 'Tag',DATA.tag.options,'Name','Options','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
 bp = [0.01 0.99-1/nr 1./nc 1./nr];
 for j = 1:length(f)
     bp(1) = floor(j/nr) .* 1./nc;
     bp(2) = 1- (rem(j,nr) .* 1./nr);
     uicontrol(gcf,'style','checkbox','string',DATA.optionstrings.(f{j}), ...
-        'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, DATA.optionflags.(f{j})});
+        'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
 end
     
 function StepperPopup(a,b)
@@ -1052,7 +1084,7 @@ function HitToggle(a,b, flag)
     DATA = GetDataFromFig(a);
 %    flag = get(a,'Tag');
     DATA.optionflags.(flag) = get(a,'value');
-    s = 'op=0\nop=';
+    s = 'op=';
     f = fields(DATA.optionflags);
     for j = 1:length(f)
         if DATA.optionflags.(f{j})
@@ -1061,8 +1093,8 @@ function HitToggle(a,b, flag)
 %            s = [s '-' f{j}];
         end
     end
-    fprintf('%s\n',s);
-    fprintf(DATA.outid,s);
+    fprintf('op=0\n%s\n',s);
+    fprintf(DATA.outid,'op=0\n%s\n',s);
     ReadFromBinoc(DATA);
  
 function TextEntered(a,b)
@@ -1079,7 +1111,7 @@ a =  get(DATA.txtrec,'string');
 n = size(a,1);
 if txt(end) == '='
     code = txt(1:end-1);
-    txt = ['?' txt '?' num2str(DATA.binoc.(code))];
+    txt = ['?' txt '?' num2str(DATA.binoc.(code)')];
 end
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);

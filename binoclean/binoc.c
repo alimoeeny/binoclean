@@ -21,6 +21,7 @@
 #import <OpenGL/gl.h>
 #define CHARCODES_DEFINE 1
 #define STAIROUT 1
+#define NIDAQ 1
 
 #import "commdefs.h"
 #import "stimuli.h" 
@@ -1243,9 +1244,11 @@ expt.mon = &mon;
 	  DIOClose();
 	  exit(1);
 	}
-    DIOWrite(0x0);
-    DIOWrite(0xF);
-    
+    else if (useDIO)
+    {
+        DIOWrite(0x0);
+        DIOWrite(0xF);
+    }
 #endif
 	OpenPenetrationLog(0); /* open a dummy so ed is ALWAYS saved */
 
@@ -6506,7 +6509,8 @@ int next_frame(Stimulus *st)
 	    oldstimpos[0] = TheStim->pos.xy[0];
 	    oldstimpos[1] = TheStim->pos.xy[1];
 	    ResetExpStim(1); //before stimno is incremented
-	    ShuffleStimulus(WURTZ_LATE);
+        if (mode & EXPTPENDING)
+            ShuffleStimulus(WURTZ_LATE);
 	}
 #if defined(Linux) || defined(WIN32)
 	else
@@ -9609,6 +9613,7 @@ void makeRasterFont(void)
 
 void printString(char *s, int size)
 {
+     displayOnMonkeyView(s);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)
       glListBase(mediumbase);

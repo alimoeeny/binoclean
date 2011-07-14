@@ -25,10 +25,7 @@ void WriteToOutputPipe(NSString * ns);
 
 @interface binocleanAppDelegate : NSObject <NSApplicationDelegate> {
     NSWindow *_window;
-    
     NSWindow * monkeyWindow;
-    
-    IBOutlet NSButton * runButton;
     NSTimer * mainTimer;
 
     NSFileHandle * inputPipe;
@@ -38,7 +35,6 @@ void WriteToOutputPipe(NSString * ns);
 
 @property (retain) IBOutlet NSWindow *window;
 @property (nonatomic, retain) NSWindow * monkeyWindow;
-@property (nonatomic, retain) IBOutlet NSButton * runButton;
 @property (retain) NSTimer * mainTimer;
 
 @property (retain) NSFileHandle * inputPipe;
@@ -46,9 +42,7 @@ void WriteToOutputPipe(NSString * ns);
 @property (retain) NSFileHandle * outputPipe;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication;
-- (IBAction) stopClicked:(id)sender;
-- (IBAction) runClicked:(id)sender;
 - (void) mainTimerFire:(NSTimer *)timer;
--(IBAction) setState:(id)Sender;
+
 
 @end

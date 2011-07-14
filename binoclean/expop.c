@@ -87,7 +87,7 @@
 //Ali
 #define NOEVENT 0
 #define ZERO 0
-#define MANUALEVENT 0
+#define MANUALEVENT 1
 #define TRUE 1
 #import "stimuli.h"
 
@@ -2718,8 +2718,10 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
 	  break;
       case CHANNEL_CODE:
 		sscanf(s,"%d",&chan);
-//Ali		if((t = strchr(s,'+')) != NULL || (t = strchr(s,'-')) != NULL)
-//		  SetBWChannel(chan,t);
+		if((t = strchr(s,'+')) != NULL || (t = strchr(s,'-')) != NULL)
+		  SetBWChannel(chan,t);
+            sprintf(buf,"ch%s\n",s);
+            SerialString(buf,NULL);
 		t = strchr(s,',');
 		while(t && *t){
 		  InterpretChannelLine(++t,chan);
@@ -4121,6 +4123,7 @@ int ReadCommand(char *s)
   int retval = 0, line, start, stop,i,ival;
   char *r,buf[BUFSIZ],command_result[BUFSIZ];
   char imname[BUFSIZ];
+    float val;
 
   sprintf(command_result,"");
   if(!strncasecmp(s,"quit",4))
@@ -4145,6 +4148,10 @@ int ReadCommand(char *s)
   }
   else if(!strncasecmp(s,"go",2)){
     StopGo(GO);
+  }
+  else if(!strncasecmp(s,"reopenserial",10)){
+      ReopenSerial();
+      SendAll();
   }
   else if(!strncasecmp(s,"stop",2)){
       StopGo(STOP);
@@ -4182,6 +4189,11 @@ int ReadCommand(char *s)
   }
   else if(!strncasecmp(s,"rndinit",4)){
     InitRndArray(expt.st->left->baseseed,10000000);
+  }
+  else if(!strncasecmp(s,"xyfsd",5)){
+      sscanf(s,"xyfsd%f",&val);
+      sprintf(buf,"ch10+,fs%.3f\n",val);
+      SerialString(buf,NULL);
   }
   else if(!strncasecmp(s,"debug",4)){
     sscanf(s,"%*s %d",&debug);
@@ -6934,7 +6946,12 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 	time_t tval;
 	char *t,*r,c = ' ';
 
+    
+    if (flag == TO_GUI || flag == TO_FILE)
 	sprintf(temp,"=");
+    else
+        sprintf(temp,"");
+    
 	switch(code)
 	  {
 	  case CYBER_CHANNELS:
@@ -13276,6 +13293,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	char *sublabel,qlabel[BUFSIZ],qpath[BUFSIZ],qname[BUFSIZ];
 	PGM *pgm;
 	time_t nowtime;
+                    
 	float fxpos[4];
 	double dval;
 	
@@ -14052,6 +14070,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 	case USERID:
 	case BACKGROUND_IMAGE: 
 		SetExptString(ex, TheStim, code, s);
+            SerialSend(code);
 		break;
 	 case QUERY_STATE:
 		gettimeofday(&now,NULL);

@@ -443,7 +443,7 @@ double SetFreqOnOff(Substim *sst, int nc)
     rnd = rnd_u();
     bit = 0;
     for(j = 0; j < nc; j++){
-      rem = (rnd > bit) % 3;
+      rem = (rnd >> bit) % 3;
       if(rem > 1)
 	sst->powers[j] = 1.0;
       else if(rem > 0)

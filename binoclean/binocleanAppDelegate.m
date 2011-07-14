@@ -18,6 +18,18 @@ int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 
+void displayOnMonkeyView(char *s)
+{
+//    NSMutableDictionary *bold12Attribs = [NSMutableDictionary dictionary];
+//    [bold12Attribs setObject: [NSFont fontWithName: @"Helvetica-Bold" size: 32.0f] forKey: NSFontAttributeName];
+//    [bold12Attribs setObject: [NSColor whiteColor] forKey: NSForegroundColorAttributeName];
+//    
+//    NSMutableAttributedString * outString = [[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%s",s] attributes:bold12Attribs] autorelease];
+//    GLString * messageTexture = [[GLString alloc] initWithString:@"Test String" withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
+//    
+//    [messageTexture drawAtPoint:NSMakePoint(100, 100)];
+}
+
 void sendNotification()
 {
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
@@ -78,7 +90,6 @@ void notify(char * s)
 
 @synthesize window = _window;
 @synthesize monkeyWindow;
-@synthesize runButton;
 @synthesize mainTimer;
 
 @synthesize inputPipe;
@@ -87,6 +98,23 @@ void notify(char * s)
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    int useDIO = 1;
+    if(useDIO)
+        printf("Starting DIO\n");
+	/* Try twice - it sometimes fails */
+	if(useDIO && DIOInit() < 0){
+        acknowledge("Can't Open DIO - Restart Binoc","/bgc/bgc/c/binoc/help/DIOerr");
+        fprintf(stderr,"Use binoc -noDIO to ingore this error\n");
+        DIOClose();
+        exit(1);
+	}
+    else if (useDIO)
+    {
+        DIOWrite(0x0);
+        DIOWrite(0xF);
+    }
+
+    
     unlink(IN_PIPE);
     if (mkfifo(IN_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
         NSLog(@"Can't create the pipe");
@@ -105,12 +133,13 @@ void notify(char * s)
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
     inputPipe = [[NSFileHandle fileHandleForReadingAtPath:@IN_PIPE] retain];
     [inputPipe readInBackgroundAndNotify];
+
+    open(OUT_PIPE, O_RDWR); 
     outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
     [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
     
-    NSLog(@"");
     monkeyWindow = [[NSWindow alloc]
-                    initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2))
+                    initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, 0, 0)) // winsiz[0]*2, winsiz[1]*2))
                     styleMask:NSBorderlessWindowMask
                     backing:NSBackingStoreBuffered
                     defer:YES
@@ -119,14 +148,13 @@ void notify(char * s)
     [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
     [monkeyWindow setTitle:[self.window title]];
     [monkeyWindow makeKeyAndOrderFront:nil];
-    //[[monkeyWindow contentView] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil]; 
+    [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] lastObject] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
-
 }
 
 - (void) dataReadyToRead:(NSNotification *) notification
@@ -150,63 +178,23 @@ void notify(char * s)
 	return YES;
 }
 
-- (IBAction) stopClicked:(id)sender
-{
-    StopGo(0);
-}
-
--(IBAction) setState:(id)Sender
-{
-    runexpt(NULL,NULL,NULL);
-}
-
-
-- (IBAction) runClicked:(id)sender
-{
-//    NSLog(@"run clicked");
-//    monkeyWindow = [[NSWindow alloc]
-//                        initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2))
-//                        styleMask:NSBorderlessWindowMask
-//                        backing:NSBackingStoreBuffered
-//                        defer:YES
-//                        screen:[self.window screen]];
-//    [monkeyWindow setLevel:NSFloatingWindowLevel];
-//    [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-//    [monkeyWindow setTitle:[self.window title]];
-//    [monkeyWindow makeKeyAndOrderFront:nil];
-//    //[[monkeyWindow contentView] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil]; 
-//    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
-//    
-//    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
-//    StartRunning();
-//    StopGo(1);
-    
-}
-
 - (void) mainTimerFire:(NSTimer *)timer
 {
-    //counter = [NSNumber numberWithInt:1 + [counter intValue]];
-    //NSLog(@" Counter: %d", [counter intValue]);
-    //printf("counter %d\r\n",[counter intValue]);
-    //NSLog(@"ali");
-    //glOrtho(-640.0f, 640.0f, -512.0f, 512.0f, 0, 0);
-    //glOrtho(-winsiz[0], winsiz[0], -winsiz[1], winsiz[1], 0, 0);
-
     event_loop();
-    //[[monkeyWindow contentView] setNeedsDisplay:YES];
-    //glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //[[NSOpenGLContext currentContext] flushBuffer];
-//    NSOpenGLContext.currentContext()] flushBuffer];
-    
 }
 
-- (void) dealloc
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
+    NSLog(@"Going down, down ...");
+    DIOClose();
     if (outPipe!=0) {
         close(outPipe);
         //outPipe = 0;
     }
-    [outputPipeBuffer dealloc];
+    [outputPipeBuffer dealloc];    
+    NSLog(@"Gone!");
+    return NSTerminateNow;
 }
+
 
 @end
