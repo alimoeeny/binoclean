@@ -64,7 +64,7 @@ static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
 
 static int useDIO = 1;
-int twomonitors = 1;
+int fullscreenmode = 0;
 
 double oldvelocity = 0;
 int oldsoftoff[6] = {0};
@@ -995,256 +995,259 @@ float GetFrameRate(void)
 
 
 binocmain(argc, argv)
-     int argc;
-     char **argv;
+int argc;
+char **argv;
 {
-  char *cl_str_var = NULL,c;
-  int priority = (NDPNORMMAX+NDPNORMMIN)/2;
-  char *ptr,*windowname;
-
-  int i,n = 0,nfiles = 0,k;
-  FILE *p,*fd;
-  float framerate,val;
-  char *command,result[BUFSIZ],buf[BUFSIZ],*s;
-  time_t tval; 
-  int stereo,reset = 0;
-  int nf = 0,w,h;
-  char estring[BUFSIZ];
-
-
-/* 
-* set up process with a non-degrading proiority, so that
-* a fast timer can be used, and set up the fast timer
-*/
-
+    char *cl_str_var = NULL,c;
+    int priority = (NDPNORMMAX+NDPNORMMIN)/2;
+    char *ptr,*windowname;
+    
+    int i,n = 0,nfiles = 0,k;
+    FILE *p,*fd;
+    float framerate,val;
+    char *command,result[BUFSIZ],buf[BUFSIZ],*s;
+    time_t tval; 
+    int stereo,reset = 0;
+    int nf = 0,w,h;
+    char estring[BUFSIZ];
+    
+    
+    /* 
+     * set up process with a non-degrading proiority, so that
+     * a fast timer can be used, and set up the fast timer
+     */
+    
 	if((i = CheckStrings()) != 0)
 		exit(0);
-
-
-/*
- * read in setup parameters for this machine
- * serial port names, screen size and location
- */
+    
+    
+    /*
+     * read in setup parameters for this machine
+     * serial port names, screen size and location
+     */
 	if((fd = fopen("/local/binoc.setup","r")) != NULL)
-	  {
+    {
 	    while(fgets(buf, BUFSIZ, fd) != NULL){
-	      s = strchr(buf,'=');
-	    if (!strncmp(buf,"winsize",6) && s){
-	      if(strchr(s,'x'))
-		sscanf(++s,"%dx%d",&w,&h);
-	      else
-		sscanf(++s,"%d %d",&w,&h);
-	      expt.winsiz[0] = w/2;
-	      expt.winsiz[1] = h/2;
-	      winsiz[0] = w/2;
-	      winsiz[1] = h/2;
-	      s = strchr(buf,'+');
-	      if(s){
-		i = sscanf(++s,"%d %d",&w,&h);
-              winpos[0] = w;
-              if (i > 1)
-                  winpos[1] = h;
-	      }
+            s = strchr(buf,'=');
+            if (!strncmp(buf,"winsize",6) && s){
+                if(strchr(s,'x'))
+                    sscanf(++s,"%dx%d",&w,&h);
+                else
+                    sscanf(++s,"%d %d",&w,&h);
+                expt.winsiz[0] = w/2;
+                expt.winsiz[1] = h/2;
+                winsiz[0] = w/2;
+                winsiz[1] = h/2;
+                s = strchr(buf,'+');
+                if(s){
+                    i = sscanf(++s,"%d %d",&w,&h);
+                    winpos[0] = w;
+                    if (i > 1)
+                        winpos[1] = h;
+                }
+            }
+            else if(!strncmp(buf,"fullscreen",6) && s){
+                sscanf(++s,"%d",&fullscreenmode);
+            }
+            else if(!strncmp(buf,"tty1",4) && s){
+                sscanf(++s,"%s",theport);
+            }
+            else if(!strncmp(buf,"tty2",4) && s){
+                sscanf(++s,"%s",stepperport);
+            }
+            else if(!strncmp(buf,"noDIO",5)){
+                useDIO = 0;
+            }
+            else if(!strncmp(buf,"stepperid",8) && s){
+                sscanf(++s,"%d",&i);
+                SetMotorId(i-1); 
+            }
+            else if(!strncmp(buf,"electrode",8) && s){
+                strcpy(estring,++s);
+                AddElectrodeString(estring);
+            }
+            else if(!strncmp(buf,"user",4) && s){
+                sscanf(++s,"%s",estring);
+                AddUserString(estring);
+            }
 	    }
-	    else if(!strncmp(buf,"tty1",4) && s){
-	      sscanf(++s,"%s",theport);
-	    }
-	    else if(!strncmp(buf,"tty2",4) && s){
-	      sscanf(++s,"%s",stepperport);
-	    }
-	    else if(!strncmp(buf,"noDIO",5)){
-	      useDIO = 0;
-	    }
-	    else if(!strncmp(buf,"stepperid",8) && s){
-	      sscanf(++s,"%d",&i);
-	      SetMotorId(i-1); 
-	    }
-	    else if(!strncmp(buf,"electrode",8) && s){
-	      strcpy(estring,++s);
-	      AddElectrodeString(estring);
-	    }
-	    else if(!strncmp(buf,"user",4) && s){
-	      sscanf(++s,"%s",estring);
-	      AddUserString(estring);
-	    }
-	    }
-	  }
-expt.mon = &mon;
+    }
+    expt.mon = &mon;
 	i = 1;
 	psychoff[0] = winsiz[0]/2;
 	psychoff[1] = 0;
-/*
- * first pass through argv leave any stimfiles named in argv
- */
-		  printf("VERSION %s compiled %s\n",VERSION_NUMBER,CMPTIME);
+    /*
+     * first pass through argv leave any stimfiles named in argv
+     */
+    printf("VERSION %s compiled %s\n",VERSION_NUMBER,CMPTIME);
 	while(i < argc)
 	{
 		if(argv[i][0] == '-'){
-		  if(strncmp(argv[i],"-seed",4) ==  0){
-			argc--; 
-			argv++;
-		    sscanf(argv[i],"%u",&expseed);
-			argc--;
-			argv++;
-		  }
-		  else if(strncmp(argv[i],"-codes",3) ==  0){
-		    PrintCodes(0);
-		    fflush(stdout);
+            if(strncmp(argv[i],"-seed",4) ==  0){
+                argc--; 
+                argv++;
+                sscanf(argv[i],"%u",&expseed);
+                argc--;
+                argv++;
+            }
+            else if(strncmp(argv[i],"-codes",3) ==  0){
+                PrintCodes(0);
+                fflush(stdout);
 #ifdef NIDAQ
-		    DIOClose();
-		    _Exit(0);
+                DIOClose();
+                _Exit(0);
 #else
-		    exit(0);
+                exit(0);
 #endif
-		  }
-		  else if(strncmp(argv[1],"-demo",4) ==  0){
-			argc--; 
-			argv++;
-		    forcestart = 1;
-		    demomode = 1;
-		    mode |= NO_SERIAL_PORT;
-		  }
-		  else if(strncmp(argv[i],"-debug",3) ==  0){
-			argc--; 
-			argv++;
-			sscanf(argv[i],"%d",&debug);
-			argc--; 
-			argv++;
-		  }
-		  else if(strncmp(argv[i],"-mimic",6) ==  0){
-		    mimic_fixation = 1;
-		    mode |= NO_SERIAL_PORT;
-		    if(strncmp(argv[i],"-mimicbias",8) ==  0)
-		      mimic_bias = 1;
-			argc--; 
-			argv++;
-			k = sscanf(argv[i],"%f",&val);
-			if(k  > 0){
-			argc--; 
-			argv++;
-			  mimicbadfix = val;
-			  printf("Mimic %.2f Bad fixatoins\n",mimicbadfix);
-			}
-			
-		  }
-		  else if(strncasecmp(argv[i],"-nodio",5) ==  0){
-		    useDIO = 0;
-			argc--; 
-			argv++;
-			i--;
-		  }
-		  else if(strncmp(argv[i],"-noserial",5) ==  0){
-		    mode |= NO_SERIAL_PORT;
-			argc--; 
-			argv++;
-			i--;
-		  }
-		  else if(strncmp(argv[i],"-framepause",6) ==  0){
-			argc--; 
-			argv++;
-			sscanf(argv[i],"%f",&framehold);
-			argc--; 
-			argv++;
-		  }
-		  else if(strncmp(argv[i],"-reset",5) ==  0){
+            }
+            else if(strncmp(argv[1],"-demo",4) ==  0){
+                argc--; 
+                argv++;
+                forcestart = 1;
+                demomode = 1;
+                mode |= NO_SERIAL_PORT;
+            }
+            else if(strncmp(argv[i],"-debug",3) ==  0){
+                argc--; 
+                argv++;
+                sscanf(argv[i],"%d",&debug);
+                argc--; 
+                argv++;
+            }
+            else if(strncmp(argv[i],"-mimic",6) ==  0){
+                mimic_fixation = 1;
+                mode |= NO_SERIAL_PORT;
+                if(strncmp(argv[i],"-mimicbias",8) ==  0)
+                    mimic_bias = 1;
+                argc--; 
+                argv++;
+                k = sscanf(argv[i],"%f",&val);
+                if(k  > 0){
+                    argc--; 
+                    argv++;
+                    mimicbadfix = val;
+                    printf("Mimic %.2f Bad fixatoins\n",mimicbadfix);
+                }
+                
+            }
+            else if(strncasecmp(argv[i],"-nodio",5) ==  0){
+                useDIO = 0;
+                argc--; 
+                argv++;
+                i--;
+            }
+            else if(strncmp(argv[i],"-noserial",5) ==  0){
+                mode |= NO_SERIAL_PORT;
+                argc--; 
+                argv++;
+                i--;
+            }
+            else if(strncmp(argv[i],"-framepause",6) ==  0){
+                argc--; 
+                argv++;
+                sscanf(argv[i],"%f",&framehold);
+                argc--; 
+                argv++;
+            }
+            else if(strncmp(argv[i],"-reset",5) ==  0){
 		        reset = 1;
-		  }
-		  else if(strncmp(argv[i],"-replay",3) ==  0){
-			argc--; 
-			argv++;
-			replay_expt = myscopy(replay_expt,argv[i]);
-			argc--; 
-			argv++;
-		  }
-		  else if(strncmp(argv[i],"-stereo",3) ==  0){
-			stereo = 1;
-			argc--; 
-			argv++;
-		  }
-		  else if(strncmp(argv[i],"-po",3) ==  0){
-		    argc--;  argv++;
-		    sscanf(argv[i],"%f,%f",&psychoff[0],&psychoff[1]);
-		    argc--;  argv++;
-		    i--;
-		  }
-		  else if(strncmp(argv[i],"-position",6) ==  0){
-			argv++; argc--;
-			argv++; argc--;
-			i--;
-		  }
-		  else if(strncmp(argv[i],"-codes",6) ==  0){
-		    PrintCodes(0);
-		    if(argc ==2)
+            }
+            else if(strncmp(argv[i],"-replay",3) ==  0){
+                argc--; 
+                argv++;
+                replay_expt = myscopy(replay_expt,argv[i]);
+                argc--; 
+                argv++;
+            }
+            else if(strncmp(argv[i],"-stereo",3) ==  0){
+                stereo = 1;
+                argc--; 
+                argv++;
+            }
+            else if(strncmp(argv[i],"-po",3) ==  0){
+                argc--;  argv++;
+                sscanf(argv[i],"%f,%f",&psychoff[0],&psychoff[1]);
+                argc--;  argv++;
+                i--;
+            }
+            else if(strncmp(argv[i],"-position",6) ==  0){
+                argv++; argc--;
+                argv++; argc--;
+                i--;
+            }
+            else if(strncmp(argv[i],"-codes",6) ==  0){
+                PrintCodes(0);
+                if(argc ==2)
 #ifdef NIDAQ
-		    DIOClose();
-		    _Exit(0);
+                    DIOClose();
+                _Exit(0);
 #else
-		    exit(0);
+                exit(0);
 #endif
-		  }
-		  else if(strncmp(argv[1],"-testl",6) ==  0){
-		    argc--; 
-		    argv++;
-		    sscanf(argv[1],"%d",&forcestart);
-		    argc--; 
-		    argv++;
-		  }
-		  else switch(argv[i][1])
-		{
-		case 's':
-		case 'S':
-			argc--; 
-			argv++;
-			strcpy(theport,argv[1]);
-			argv++; argc--;
-			break;
-		case 'v':
-		case 'V':
-			if(argc ==2)
+            }
+            else if(strncmp(argv[1],"-testl",6) ==  0){
+                argc--; 
+                argv++;
+                sscanf(argv[1],"%d",&forcestart);
+                argc--; 
+                argv++;
+            }
+            else switch(argv[i][1])
+            {
+                case 's':
+                case 'S':
+                    argc--; 
+                    argv++;
+                    strcpy(theport,argv[1]);
+                    argv++; argc--;
+                    break;
+                case 'v':
+                case 'V':
+                    if(argc ==2)
 #ifdef NIDAQ
-		    DIOClose();
-		    _Exit(0);
+                        DIOClose();
+                    _Exit(0);
 #else
-		    exit(0);
+                    exit(0);
 #endif
-			break;
-		case 'w':
-		case 'W':
-			sscanf(argv[i+1],"%dx%d",&winsiz[0],&winsiz[1]);
-			winsiz[0] /= 2;
-			winsiz[1] /= 2;
-			argv++; argc--;
-			expt.winsiz[0] = winsiz[0];
-			expt.winsiz[1] = winsiz[1];
-			argv++; argc--;
-			break;
-		       
-		}
-		  i++;
+                    break;
+                case 'w':
+                case 'W':
+                    sscanf(argv[i+1],"%dx%d",&winsiz[0],&winsiz[1]);
+                    winsiz[0] /= 2;
+                    winsiz[1] /= 2;
+                    argv++; argc--;
+                    expt.winsiz[0] = winsiz[0];
+                    expt.winsiz[1] = winsiz[1];
+                    argv++; argc--;
+                    break;
+                    
+            }
+            i++;
 		}
 		else
-		  i++;
+            i++;
 	}
-
+    
 	initial_setup();
 	n = 0;
-
+    
 	expt.polygonsmooth = 1;
-
-
-
+    
+    
+    
 	if((i = OpenSerial(theport)) <= 0)
 		mode |= NO_SERIAL_PORT;
-
+    
 #ifdef NIDAQ
 	if(useDIO)
-	  printf("Starting DIO\n");
+        printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
 	if(useDIO && DIOInit() < 0){
-	  acknowledge("Can't Open DIO - Restart Binoc","/bgc/bgc/c/binoc/help/DIOerr");
-	  fprintf(stderr,"Use binoc -noDIO to ingore this error\n");
-	  DIOClose();
-	  exit(1);
+        acknowledge("Can't Open DIO - Restart Binoc","/bgc/bgc/c/binoc/help/DIOerr");
+        fprintf(stderr,"Use binoc -noDIO to ingore this error\n");
+        DIOClose();
+        exit(1);
 	}
     else if (useDIO)
     {
@@ -1253,195 +1256,195 @@ expt.mon = &mon;
     }
 #endif
 	OpenPenetrationLog(0); /* open a dummy so ed is ALWAYS saved */
-
+    
 	while(argc >1)
 	{
-	  if(argv[1][0] == '-'){
-		  if(strncmp(argv[1],"-seed",4) ==  0){
-			argc--; 
-			argv++;
-		    sscanf(argv[1],"%u",&expseed);
-		  }
-		  if(strncmp(argv[1],"-fixframes",6) ==  0){
-		    optionflags[FIXNUM_PAINTED_FRAMES] = 1;
-		  }
-		  else if(strncmp(argv[1],"-go",3) ==  0){
-		    forcestart = 1;
-		    if(strncmp(argv[1],"-gotest",3) ==  0)
-		      mode |= TEST_PENDING;
-
-		  }
-		  else if(strncmp(argv[1],"-demo",4) ==  0){
-		    forcestart = 1;
-		    demomode = 1;
-		  }
-		  else if(strncmp(argv[1],"-blendonly",7) ==  0){
-		    expt.polygonsmooth = 0;
-		  }
-		  else if(strncmp(argv[1],"-testrc",6) ==  0){
-		    testflags[TEST_RC] = 1;
-		  }
-		  else if(strncmp(argv[1],"-fakespikes",6) ==  0){
-		    testflags[FAKE_SPIKES] = 1;
-		  }
-		  else if(strncmp(argv[1],"-anaglyph",6) ==  0){
-		    testflags[ANAGLYPH] = 1;
-		  }
-		  else if(strncmp(argv[1],"-saveim",6) ==  0){
-		    testflags[SAVE_IMAGES] = 1;
-		    argc--; 
-		    argv++;
-		    strcpy(ImageOutDir,argv[1]);
-		    sprintf(buf,"%s/pgm.idx",ImageOutDir);
-		    imidxfd = fopen(buf,"w");
-		  }
-		  else switch(argv[1][1])
-		{
-		      case 'd':
-			argc--; 
-			argv++;
-			sscanf(argv[1],"%d",&debug);
-			break;
-		      case 'b':
-			option2flag ^= PRETRIAL_BRIGHT;
-			break;
-		case 'e':
-		case 'E':
-			argc--; 
-			argv++;
-			loadfiles[0] = myscopy(loadfiles[0],argv[1]);
-			afc_s.stairhist = newstairstruct(); /* calculates correct starting value and sets up histogram structure */
-			break;
-		case 'g':
-			if(strncmp(argv[1],"-gamma",4) == 0)
-			  {
-			argc--; 
-			argv++;
-			sscanf(argv[1],"%lf",&gammaval);
-		      }
-			break;
-		case 'l':
-		case 'L':
-			argc--; 
-			argv++;
-			logname = argv[1];
-			if((logfd = fopen(argv[1],"a")) == NULL)
-			  fprintf(stderr,"Can't open %s for log\n",argv[1]);
-			else{
-			  tval = time(NULL);
-			  fprintf(logfd,"Start %s",ctime(&tval));
-			}
-		  break;
-		case 'm':
-		case 'M':
-		  i = 2;
-		  while(argv[1][i] != 0)
-		    {
-		      if(argv[1][i] == 'p')
-			option2flag |= PSYCHOPHYSICS_BIT;
-		      if(argv[1][i] == 'c'){
-			optionflags[STIMULUS_IN_OVERLAY] = 1;
-		      }
-		      if(argv[1][i] == 'l'){
-			PrintCodes(0);
+        if(argv[1][0] == '-'){
+            if(strncmp(argv[1],"-seed",4) ==  0){
+                argc--; 
+                argv++;
+                sscanf(argv[1],"%u",&expseed);
+            }
+            if(strncmp(argv[1],"-fixframes",6) ==  0){
+                optionflags[FIXNUM_PAINTED_FRAMES] = 1;
+            }
+            else if(strncmp(argv[1],"-go",3) ==  0){
+                forcestart = 1;
+                if(strncmp(argv[1],"-gotest",3) ==  0)
+                    mode |= TEST_PENDING;
+                
+            }
+            else if(strncmp(argv[1],"-demo",4) ==  0){
+                forcestart = 1;
+                demomode = 1;
+            }
+            else if(strncmp(argv[1],"-blendonly",7) ==  0){
+                expt.polygonsmooth = 0;
+            }
+            else if(strncmp(argv[1],"-testrc",6) ==  0){
+                testflags[TEST_RC] = 1;
+            }
+            else if(strncmp(argv[1],"-fakespikes",6) ==  0){
+                testflags[FAKE_SPIKES] = 1;
+            }
+            else if(strncmp(argv[1],"-anaglyph",6) ==  0){
+                testflags[ANAGLYPH] = 1;
+            }
+            else if(strncmp(argv[1],"-saveim",6) ==  0){
+                testflags[SAVE_IMAGES] = 1;
+                argc--; 
+                argv++;
+                strcpy(ImageOutDir,argv[1]);
+                sprintf(buf,"%s/pgm.idx",ImageOutDir);
+                imidxfd = fopen(buf,"w");
+            }
+            else switch(argv[1][1])
+            {
+                case 'd':
+                    argc--; 
+                    argv++;
+                    sscanf(argv[1],"%d",&debug);
+                    break;
+                case 'b':
+                    option2flag ^= PRETRIAL_BRIGHT;
+                    break;
+                case 'e':
+                case 'E':
+                    argc--; 
+                    argv++;
+                    loadfiles[0] = myscopy(loadfiles[0],argv[1]);
+                    afc_s.stairhist = newstairstruct(); /* calculates correct starting value and sets up histogram structure */
+                    break;
+                case 'g':
+                    if(strncmp(argv[1],"-gamma",4) == 0)
+                    {
+                        argc--; 
+                        argv++;
+                        sscanf(argv[1],"%lf",&gammaval);
+                    }
+                    break;
+                case 'l':
+                case 'L':
+                    argc--; 
+                    argv++;
+                    logname = argv[1];
+                    if((logfd = fopen(argv[1],"a")) == NULL)
+                        fprintf(stderr,"Can't open %s for log\n",argv[1]);
+                    else{
+                        tval = time(NULL);
+                        fprintf(logfd,"Start %s",ctime(&tval));
+                    }
+                    break;
+                case 'm':
+                case 'M':
+                    i = 2;
+                    while(argv[1][i] != 0)
+                    {
+                        if(argv[1][i] == 'p')
+                            option2flag |= PSYCHOPHYSICS_BIT;
+                        if(argv[1][i] == 'c'){
+                            optionflags[STIMULUS_IN_OVERLAY] = 1;
+                        }
+                        if(argv[1][i] == 'l'){
+                            PrintCodes(0);
 #ifdef NIDAQ
-		    DIOClose();
+                            DIOClose();
 #endif
-			exit(0);
-		      }
-		      if(argv[1][i] == 'c')
-			ttys[0] = -1;
-		      i++;
-		    }
-		  break;
-		case 'p':
-		case 'P':
-		  if(strncmp(argv[0],"-po",3) ==  0)
-		    sscanf(argv[1],"%f,%f",&psychoff[0],&psychoff[1]);
-		  else
-		    priority = atoi(argv[1]);
-		  argc--; 
-		  argv++;
-		  break;
-		case 't':
-		case 'T':
-			argc--; 
-			argv++;
-			if(argv[1][0] == '-')
-			  {
-			  testfd = stderr;
-			  fprintf(stderr,"Messages to stderr\n");
-			}
-			else if((testfd = fopen(argv[1],"w")) != NULL)
-			fprintf(stderr,"Messages to %s\n",argv[1]);
-			else
-			fprintf(stderr,"Can't open %s\n",argv[1]);
-			break;
-		case 'v':
-		  verbose = 1;
-		  while(argv[1][verbose] == 'v')
-		    verbose++;
-		  verbose--;
-		  printf("Verbose %d\n",verbose);
-		  break;
-		default:
-			break;
-		}
-	  }
-	  else
+                            exit(0);
+                        }
+                        if(argv[1][i] == 'c')
+                            ttys[0] = -1;
+                        i++;
+                    }
+                    break;
+                case 'p':
+                case 'P':
+                    if(strncmp(argv[0],"-po",3) ==  0)
+                        sscanf(argv[1],"%f,%f",&psychoff[0],&psychoff[1]);
+                    else
+                        priority = atoi(argv[1]);
+                    argc--; 
+                    argv++;
+                    break;
+                case 't':
+                case 'T':
+                    argc--; 
+                    argv++;
+                    if(argv[1][0] == '-')
+                    {
+                        testfd = stderr;
+                        fprintf(stderr,"Messages to stderr\n");
+                    }
+                    else if((testfd = fopen(argv[1],"w")) != NULL)
+                        fprintf(stderr,"Messages to %s\n",argv[1]);
+                    else
+                        fprintf(stderr,"Can't open %s\n",argv[1]);
+                    break;
+                case 'v':
+                    verbose = 1;
+                    while(argv[1][verbose] == 'v')
+                        verbose++;
+                    verbose--;
+                    printf("Verbose %d\n",verbose);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
 	    {
-	      if(verbose)
-		printf("Reading %s....\n",argv[1]);
-	      loadfiles[nfiles] = myscopy(loadfiles[nfiles],argv[1]);
-	      afc_s.stairhist = newstairstruct(); 
-	      if(verbose)
-		printf("Reading %d....\n",loadfiles[nfiles]);
-	      if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
-		fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
-		exit_program();
-	      }
-
-	      nfiles++;
-/* 
- * the exptfile will be re-read after the interface is made below.
- * that is the time to execute any commands. Without this a trailing "\quit"
- * causes an exit on the next call to ReadExptFile
- */
-	      command_pending = 0;
+            if(verbose)
+                printf("Reading %s....\n",argv[1]);
+            loadfiles[nfiles] = myscopy(loadfiles[nfiles],argv[1]);
+            afc_s.stairhist = newstairstruct(); 
+            if(verbose)
+                printf("Reading %d....\n",loadfiles[nfiles]);
+            if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
+                fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
+                exit_program();
+            }
+            
+            nfiles++;
+            /* 
+             * the exptfile will be re-read after the interface is made below.
+             * that is the time to execute any commands. Without this a trailing "\quit"
+             * causes an exit on the next call to ReadExptFile
+             */
+            command_pending = 0;
 	    }
-	  argc--; 
-	  argv++;
-
+        argc--; 
+        argv++;
+        
 	}
-
-
+    
+    
 	gettimeofday(&timeb,NULL);
 	if(verbose)
-	  printf("Initializing...\n");
+        printf("Initializing...\n");
 	init_stimulus(TheStim);
 	if(TheStim->next != NULL)
 		init_stimulus(TheStim->next);
 	if(verbose)
-	  printf("Interface....\n");
-
-
+        printf("Interface....\n");
+    
+    
 	for(i = 0; i < nfiles; i++){
-/*
- * ReadExptFile may already have been called above. Reset anything here that
- * should be in a fixed state a program start.
- */
-	  if(i == 0){
-		rfctr = 0;
-	  }
-	  if(ReadExptFile(loadfiles[i],1,1,!nfiles) < 0)
-	  {
-	    fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[i]);
+        /*
+         * ReadExptFile may already have been called above. Reset anything here that
+         * should be in a fixed state a program start.
+         */
+        if(i == 0){
+            rfctr = 0;
+        }
+        if(ReadExptFile(loadfiles[i],1,1,!nfiles) < 0)
+        {
+            fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[i]);
 #ifdef NIDAQ
 		    DIOClose();
 #endif
-	      exit_program();
-	      //	    exit(0);
-	  }
+            exit_program();
+            //	    exit(0);
+        }
 	}
 	//Ali SetPanelColor(TheStim->gammaback);
 	//Ali SetStimPanel(TheStim);
@@ -1451,14 +1454,14 @@ expt.mon = &mon;
 	SetPriority(priority);
 	MakeConnection(0);
 	//Ali SetAllPanel(&expt);
-	  gettimeofday(&progstarttime,NULL);
+    gettimeofday(&progstarttime,NULL);
 	
 	framerate = mon.framerate;
 	mon.framerate = GetFrameRate();
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
-//	event_loop();
+    //	event_loop();
 }
 
 

@@ -15,6 +15,8 @@ BOOL dataReadyInInputPipe;
 char * inputLineChars = NULL;
 int winsiz [2];
 int winpos [2];
+int fullscreenmode;
+
 int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
@@ -144,9 +146,9 @@ void notify(char * s)
     
     // if wisize read from binoc.setup is 0,0 then do a fullscreen otherwise use the winsize
     CGRect r;
-    if (winsiz[0] && winsiz[1])
+    if (fullscreenmode==0)
     {
-        r = CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2);
+        r = CGRectMake(winpos[0], winpos[1], winsiz[0]*2, winsiz[1]*2);
         monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
                                                    styleMask:NSBorderlessWindowMask
                                                      backing:NSBackingStoreBuffered
@@ -170,16 +172,8 @@ void notify(char * s)
         [monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
         
-        // if winpos which is set by reading the binoc.setup file is has a nonzero X offset 
-        // then                             ` `use the second (last) screen as the fullscreen target otherwise use the primary 
-        int scrn = 0;
-        if (winpos[0])
-            scrn = [[NSScreen screens] count] -1;
-
-        [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:scrn] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
-        NSRect screenFrame = [[[NSScreen screens] objectAtIndex:scrn] frame];
-        winsiz[0] = screenFrame.size.width;
-        winsiz[1] = screenFrame.size.height;
+        [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
+        NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
     }
     
 
