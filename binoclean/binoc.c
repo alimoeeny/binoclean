@@ -114,8 +114,7 @@ int freezestimulus = 0;
 #define DEBUG_CONJ_TIME (1<<1)
 
 int winsiz[2] = {0,0}; /* let X decide */
-
-//Ali int winpos[2] = {0};
+int winpos[2] = {0};
 int fwinsiz[2],fwinoff[2];
 vcoord psychoff[2];
 static vcoord endpt[2];
@@ -1042,6 +1041,9 @@ binocmain(argc, argv)
 	      s = strchr(buf,'+');
 	      if(s){
 		i = sscanf(++s,"%d %d",&w,&h);
+              winpos[0] = w;
+              if (i > 1)
+                  winpos[1] = h;
 	      }
 	    }
 	    else if(!strncmp(buf,"tty1",4) && s){
@@ -9613,7 +9615,7 @@ void makeRasterFont(void)
 
 void printString(char *s, int size)
 {
-     displayOnMonkeyView(s);
+    displayOnMonkeyView(s, -500, -450);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)
       glListBase(mediumbase);

@@ -14,20 +14,24 @@ int stimstate;
 BOOL dataReadyInInputPipe;
 char * inputLineChars = NULL;
 int winsiz [2];
+int winpos [2];
 int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
+NSMutableDictionary *bold12Attribs;
 
-void displayOnMonkeyView(char *s)
+void displayOnMonkeyView(char *s, int x, int y)
 {
-//    NSMutableDictionary *bold12Attribs = [NSMutableDictionary dictionary];
-//    [bold12Attribs setObject: [NSFont fontWithName: @"Helvetica-Bold" size: 32.0f] forKey: NSFontAttributeName];
-//    [bold12Attribs setObject: [NSColor whiteColor] forKey: NSForegroundColorAttributeName];
-//    
-//    NSMutableAttributedString * outString = [[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%s",s] attributes:bold12Attribs] autorelease];
-//    GLString * messageTexture = [[GLString alloc] initWithString:@"Test String" withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
-//    
-//    [messageTexture drawAtPoint:NSMakePoint(100, 100)];
+    if (!bold12Attribs) {
+        bold12Attribs = [[NSMutableDictionary dictionary] retain];
+        [bold12Attribs setObject: [NSFont fontWithName: @"Helvetica" size: 20.0f] forKey: NSFontAttributeName];
+        [bold12Attribs setObject: [NSColor whiteColor] forKey: NSForegroundColorAttributeName];
+    }
+    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithFormat:@"%s", s] withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
+    if (x && y)
+        [messageTexture drawAtPoint:NSMakePoint(x, y)];        
+    else
+        [messageTexture drawAtPoint:NSMakePoint(-500, -450)];
 }
 
 void sendNotification()
@@ -138,17 +142,47 @@ void notify(char * s)
     outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
     [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
     
-    monkeyWindow = [[NSWindow alloc]
-                    initWithContentRect:NSRectFromCGRect(CGRectMake(0, 0, 0, 0)) // winsiz[0]*2, winsiz[1]*2))
-                    styleMask:NSBorderlessWindowMask
-                    backing:NSBackingStoreBuffered
-                    defer:YES
-                    screen:[self.window screen]];
-    [monkeyWindow setLevel:NSFloatingWindowLevel];
-    [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-    [monkeyWindow setTitle:[self.window title]];
-    [monkeyWindow makeKeyAndOrderFront:nil];
-    [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] lastObject] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
+    // if wisize read from binoc.setup is 0,0 then do a fullscreen otherwise use the winsize
+    CGRect r;
+    if (winsiz[0] && winsiz[1])
+    {
+        r = CGRectMake(0, 0, winsiz[0]*2, winsiz[1]*2);
+        monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
+                                                   styleMask:NSBorderlessWindowMask
+                                                     backing:NSBackingStoreBuffered
+                                                       defer:YES
+                                                      screen:[self.window screen]];
+        [monkeyWindow setLevel:NSFloatingWindowLevel];
+        [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
+        [monkeyWindow setTitle:[self.window title]];
+        [monkeyWindow makeKeyAndOrderFront:nil];
+    }
+    else
+    {   
+        r = CGRectMake(0, 0, 0, 0);
+        monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
+                                                   styleMask:NSBorderlessWindowMask
+                                                     backing:NSBackingStoreBuffered
+                                                       defer:YES
+                                                      screen:[self.window screen]];
+        [monkeyWindow setLevel:NSFloatingWindowLevel];
+        [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
+        [monkeyWindow setTitle:[self.window title]];
+        [monkeyWindow makeKeyAndOrderFront:nil];
+        
+        // if winpos which is set by reading the binoc.setup file is has a nonzero X offset 
+        // then                             ` `use the second (last) screen as the fullscreen target otherwise use the primary 
+        int scrn = 0;
+        if (winpos[0])
+            scrn = [[NSScreen screens] count] -1;
+
+        [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:scrn] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
+        NSRect screenFrame = [[[NSScreen screens] objectAtIndex:scrn] frame];
+        winsiz[0] = screenFrame.size.width;
+        winsiz[1] = screenFrame.size.height;
+    }
+    
+
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
