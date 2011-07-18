@@ -384,21 +384,21 @@
 		glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
 		glEnable (GL_TEXTURE_RECTANGLE_EXT);	
 		
-		glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
+        glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
 		glBegin (GL_QUADS);
-			glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
-			glVertex2f (bounds.origin.x, bounds.origin.y);
-	
-			glTexCoord2f (0.0f, texSize.height); // draw lower left in world coordinates
-			glVertex2f (bounds.origin.x, bounds.origin.y + bounds.size.height);
-	
-			glTexCoord2f (texSize.width, texSize.height); // draw upper right in world coordinates
-			glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y + bounds.size.height);
-	
-			glTexCoord2f (texSize.width, 0.0f); // draw lower right in world coordinates
-			glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
+        glTexCoord2f (0.0f, texSize.height); // draw upper left in world coordinates
+        glVertex2f (bounds.origin.x, bounds.origin.y);
+        
+        glTexCoord2f (0.0f, 0.0f); // draw lower left in world coordinates
+        glVertex2f (bounds.origin.x, bounds.origin.y + bounds.size.height);
+        
+        glTexCoord2f (texSize.width, 0.0f); // draw upper right in world coordinates
+        glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y + bounds.size.height);
+        
+        glTexCoord2f (texSize.width, texSize.height); // draw lower right in world coordinates
+        glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
 		glEnd ();
-		
+        
 		glPopAttrib();
 	}
 }
