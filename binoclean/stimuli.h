@@ -409,7 +409,7 @@ float *rcvals;
   int stimmode,ncalc,noverflow; 
   int fastextras,driveadapter;
   float fixpos[2];
-  int softoff[6];
+  float softoff[6];
   int hemisphere,electrode;
   double minval, fastincr;
   int nfast;

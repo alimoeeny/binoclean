@@ -63,7 +63,7 @@ int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
 
-static int useDIO = 1;
+int useDIO = 1;
 int fullscreenmode = 0;
 
 double oldvelocity = 0;
@@ -498,6 +498,7 @@ static int width = 300,height= 400;
 extern int *framebuf,framebufctr;
 extern float frameseq[];
 extern int frameiseqp[];
+extern char *quicknames[];
 
 AppResources app_resources;
 int framesdone = 0;
@@ -607,7 +608,11 @@ void ShowTime()
 //Ali
 void acknowledge(char * a ,int b)
 {
+    char buf[BUFSIZ];
+    
     printf("Acknowledge! %s", a);
+    sprintf(buf,"ACK:%s\n",a);
+    notify(buf);
 }
 
 
@@ -1070,7 +1075,9 @@ char **argv;
                 sscanf(++s,"%s",estring);
                 AddUserString(estring);
             }
-	    }
+            else
+                InterpretLine(buf,&expt,0);
+        }
     }
     expt.mon = &mon;
 	i = 1;
@@ -1230,6 +1237,8 @@ char **argv;
 	}
     
 	initial_setup();
+    ReadExptFile("/local/binoc.defaults", 1, 0, 0);
+
 	n = 0;
     
 	expt.polygonsmooth = 1;
@@ -1474,6 +1483,15 @@ int SendTrialCount()
 }
 
 
+void SendToGui(int code)
+{
+    char buf[BUFSIZ];
+    
+    MakeString(code, buf, &expt, expt.st,TO_GUI);
+    notify(buf);
+
+}
+
 void SendAllToGui()
 {
     int i;
@@ -1481,6 +1499,10 @@ void SendAllToGui()
     char buf[BUFSIZ];
     for(i = 0; i < MAXSERIALCODES; i++){
         MakeString(i, buf, &expt, expt.st,TO_GUI);
+        notify(buf);
+    }
+    for (i = 0; i < nquickexpts; i++){
+        sprintf(buf,"qe=%s\n",quicknames[i]);
         notify(buf);
     }
     ListExpStims(NULL);
@@ -1527,10 +1549,13 @@ void MakeConnection()
 void glstatusline(char *s, int line)
 {
   static char *lines[10] = {NULL};
-  vcoord x[2];
+  int x[2];
 
   if(!(mode & RUNNING) || (optionflags[HIDE_STATUS]))
     return;
+//    else
+ //       return;
+        
   x[0] = -winsiz[0];
   x[1] = -winsiz[1] + (25 * line);
   if(line < 10 && s != NULL)
@@ -1546,18 +1571,14 @@ void glstatusline(char *s, int line)
 	SetGrey(1.0);
 	mycmv(x);
 	if(s != NULL)
-	  printString(s,1);
+       displayOnMonkeyView(s, x[0], x[1]);
 	else if(lines[line] != NULL)
-	  printString(lines[line],1);
+        displayOnMonkeyView(lines[line], x[0], x[1]);
 	if(states[EXPT_PAUSED]){
-	  x[1] = -winsiz[1] + 150;
-	  mycmv(x);
-	  BigString("Paused");
+      displayOnMonkeyView("Paused", 0,150);
 	}
 	if(freezeexpt){
-	  x[1] = -winsiz[1] + 150;
-	  mycmv(x);
-	  BigString("Expt Frozen");
+        displayOnMonkeyView("Frozen", 0,150);
 	}
       glDrawBuffer(GL_BACK);
 }
@@ -3203,6 +3224,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case JVELOCITY:
             /*  Cylinder velocity is in degrees of rotation
              per second, converted to radians per frame*/
+            printf("Velocity %.4f\n",val);
             if(st->type == STIM_CYLINDER)
                 st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
             if(st->type == STIM_RDS || st->type == STIM_RLS){
@@ -6509,7 +6531,8 @@ int next_frame(Stimulus *st)
 	    fixstate = WURTZ_LATE;
 	    SerialSignal(END_TRIAL);
 	    fixstate = RESPONDED;
-        notify("TRES L\n");
+        sprintf(buf,"TRES L %d\n",expt.allstimid);
+        notify(buf);
 	    change_frame();
 	    oldstimpos[0] = TheStim->pos.xy[0];
 	    oldstimpos[1] = TheStim->pos.xy[1];
@@ -9091,8 +9114,6 @@ int GotChar(char c)
 			else
 			  result = '?'; /* shouldn't happen */
 
-                sprintf(buf,"TRES %c\n",result);
-                notify(buf);
 			trialdur = down = timediff(&now,&wurtzframetime);
 			start = timediff(&now,&progstarttime);
 /* 
@@ -9314,6 +9335,7 @@ int GotChar(char c)
 			    afccounters(stim_direction, jonresult);
 			  }
 			    else{
+                    monkey_dir = monkey_dir * 2;
 			      if(seroutfile)
 				fprintf(seroutfile,"MX %d\n",afc_s.loopstate);
 			    }
@@ -9335,6 +9357,8 @@ int GotChar(char c)
 			    /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
 			}
 			res = (int)c;
+            sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,expt.allstimid);
+            notify(buf);
 
 /*
  * if the monkey gets n right in a row, put up the
@@ -9857,6 +9881,7 @@ void expt_over(int flag)
     WriteFrameData();
   SaveExptFile("./front.eostim",SAVE_STATE);
     notify("EXPTOVER\n");
+    SendToGui(OPTION_CODE);
 }
 
 void Stim2PsychFile()

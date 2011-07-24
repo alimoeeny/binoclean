@@ -18,6 +18,7 @@ int winpos [2];
 int fullscreenmode;
 
 int outPipe = 0;
+int useDIO;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
@@ -104,7 +105,7 @@ void notify(char * s)
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    int useDIO = 1;
+
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
@@ -219,6 +220,8 @@ void notify(char * s)
         close(outPipe);
         //outPipe = 0;
     }
+    unlink(IN_PIPE); // remove these so matlab can tell if binoclean is running
+    unlink(OUT_PIPE);
     [outputPipeBuffer dealloc];    
     NSLog(@"Gone!");
     return NSTerminateNow;
