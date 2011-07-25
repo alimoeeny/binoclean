@@ -763,7 +763,11 @@ function DATA = InitInterface(DATA)
     elseif strmatch(type,'e3')
         fprintf(DATA.outid,'e3=%s\n',DATA.comcodes(DATA.expmenuvals{3}(val)).code);
     elseif strmatch(type,'fsd')
+        if iscellstr(str)
         fprintf(DATA.outid,'\\xyfsd=%s\n',str{val});
+    else
+        fprintf(DATA.outid,'\\xyfsd=%s\n',str(val,:));
+        end
     elseif strmatch(type,{'st' 'bs'})
         id = strmatch(type,{'st' 'bs'});
         DATA.stimtype(id) = val;

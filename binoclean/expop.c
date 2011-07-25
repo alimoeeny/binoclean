@@ -4205,7 +4205,7 @@ int ReadCommand(char *s)
     InitRndArray(expt.st->left->baseseed,10000000);
   }
   else if(!strncasecmp(s,"xyfsd",5)){
-      sscanf(s,"xyfsd%f",&val);
+      sscanf(s,"xyfsd=%f",&val);
       sprintf(buf,"ch10+,fs%.3f\n",val);
       SerialString(buf,NULL);
   }

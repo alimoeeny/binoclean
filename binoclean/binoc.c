@@ -1075,8 +1075,8 @@ char **argv;
                 sscanf(++s,"%s",estring);
                 AddUserString(estring);
             }
-            else
-                InterpretLine(buf,&expt,0);
+//            else
+//                InterpretLine(buf,&expt,0);
         }
     }
     expt.mon = &mon;
@@ -1470,6 +1470,8 @@ char **argv;
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
+    	  mode &= (~ANIMATE_BIT);
+    stimstate = STIMSTOPPED;
     //	event_loop();
 }
 

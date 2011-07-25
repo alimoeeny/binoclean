@@ -180,7 +180,7 @@ void notify(char * s)
 
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
-    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+    // ReadExptFile("/local/binoc.start", 1, 0, 0);
     StartRunning();
     StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
