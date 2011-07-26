@@ -143,7 +143,7 @@ void notify(char * s)
 
     open(OUT_PIPE, O_RDWR); 
     outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
-    [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
+    [outputPipe writeData:[@"binocstop" dataUsingEncoding:NSASCIIStringEncoding]];
     
     // if wisize read from binoc.setup is 0,0 then do a fullscreen otherwise use the winsize
     CGRect r;
@@ -182,7 +182,6 @@ void notify(char * s)
     
     // ReadExptFile("/local/binoc.start", 1, 0, 0);
     StartRunning();
-    StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
 }
 

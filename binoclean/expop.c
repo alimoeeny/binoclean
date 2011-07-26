@@ -13299,6 +13299,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
    else if(!strcmp(line,"whatsup")){
        sendNotification();
    }
+   else if(!strcmp(line,"binocstop")){
+       stimstate = STIMSTOPPED;
+   }
 	else if(!strncmp(line,"HeadStrain",10)){
 	   if(seroutfile)
 		fprintf(seroutfile,"HeadStrain\n");

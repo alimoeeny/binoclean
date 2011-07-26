@@ -153,6 +153,22 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'mo=ChoiceD',10)
         DATA.currentstim = 4;
         
+    elseif strncmp(s,'pf=',3)
+        DATA.currentstim = 4;
+        s = [s '+'];
+        id = regexp(s,'[+-]');
+        f = fields(DATA.optionflags);
+
+        for j= 1:length(id)-1
+            code = strmatch(s(id(j)+1:id(j+1)-1),f);
+            if isempty(code)
+                fprintf('No Code for %s\n,',s(id(j):end));
+            elseif s(id(j)) == '+'
+                DATA.showflags.(f{code}) = 1;
+            else
+                DATA.showflags.(f{code}) = 0;
+            end
+        end
     elseif strncmp(s,'qe=',3)
         
         id = strfind(s,'"');
@@ -389,12 +405,15 @@ DATA.nt = 1;
 DATA.exptype = [];
 DATA.nexpts = 0;
 DATA.Expts = {};
+DATA.showxy = [1 1 1]; %XY L, R, Conjugate crosses
 DATA.currentstim = 1;  %foregr/backgre/Choice Targest
 DATA.xyfsdvals = [1 2 5 10 20 40];
 DATA.optionflags.ts = 0;
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
+DATA.stimflags.pc = 1;
+DATA.stimflags.nc = 1;
 DATA.verbose = 1;
 DATA.inexpt = 0;
 DATA.datafile = [];
@@ -539,8 +558,13 @@ function DATA = InitInterface(DATA)
     scrsz = get(0,'Screensize');
     cntrl_box = figure('Position', DATA.winpos{1},...
         'NumberTitle', 'off', 'Tag',DATA.tag.top,'Name',DATA.name,'menubar','none');
-    nr = 20;
+    
+    if isfield(DATA.showflags,'do')
+    DATA.showflags = rmfield(DATA.showflags,'do');
+    end
+    f = fields(DATA.showflags);
     nc = 5;
+    nr = 19 + length(f)./nc;
     cw = 0.99/nc;
     DATA.toplevel = cntrl_box;
     lst = uicontrol(gcf, 'Style','edit','String', '',...
@@ -567,6 +591,12 @@ function DATA = InitInterface(DATA)
     bp(1) = bp(1)+bp(3);
     uicontrol(gcf,'style','pop','string',num2str(DATA.xyfsdvals'), ...
         'units', 'norm', 'position',bp,'value',j,'Tag','FSD','callback',{@SetExpt, 'fsd'});
+
+    bp(1) = bp(1)+bp(3);
+    uicontrol(gcf,'style','checkbox','string','XYL',  'value', DATA.showxy(1), 'units', 'norm', 'position',bp);
+    
+    bp(1) = bp(1)+bp(3);
+    uicontrol(gcf,'style','checkbox','string','XYR', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp);
 
     
     bp(1) = 0.01;
@@ -705,12 +735,12 @@ function DATA = InitInterface(DATA)
             str = num2str(j);
         end
         bp(1) = bp(1)+bp(3);
-        uicontrol(gcf,'style','checkbox','string',str, ...
-            'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
-        if bp(1)+bp(3)*2 > 1
+        if bp(1) > 1
             bp(1) = 0.01;
             bp(2) = bp(2) - 1./nr;
         end
+        uicontrol(gcf,'style','checkbox','string',str, ...
+            'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
 
     end
     bp(3) = 1/nc;
@@ -834,7 +864,11 @@ function MenuGui(a,b)
      DATA = GetDataFromFig(a);
      strs = get(a,'string');
      val = get(a,'value');
+     if iscellsr(strs)
      str = strs{val};
+     else
+     str = strs(val,:);
+     end
      tag = get(a,'Tag');
      switch tag
          case 'ElectrodeType'
@@ -1163,7 +1197,7 @@ if length(DATA.winpos{2}) ~= 4
 end
 f = fields(DATA.optionflags);
 nc = 4;
-nr = ceil(length(f)/nc);
+nr = ceil((length(f)+2)/nc);
 scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
         'NumberTitle', 'off', 'Tag',DATA.tag.options,'Name','Options','menubar','none');
@@ -1175,6 +1209,18 @@ for j = 1:length(f)
     uicontrol(gcf,'style','checkbox','string',DATA.optionstrings.(f{j}), ...
         'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
 end
+nf = j;
+f = fields(DATA.stimflags);
+for j = 1:length(f)
+    str = f{j};
+    k = nf+j; 
+    bp(1) = floor(k/nr) .* 1./nc;
+    bp(2) = 1- (rem(k,nr) .* 1./nr);
+    uicontrol(gcf,'style','checkbox','string',str, ...
+        'units', 'norm', 'position',bp,'value',DATA.stimflags.(f{j}),'Tag',f{j},'callback',{@StimToggle, f{j}});
+
+    end
+
     
 function StepperPopup(a,b)
   DATA = GetDataFromFig(a);
@@ -1295,6 +1341,37 @@ function HitToggle(a,b, flag)
     fprintf(DATA.outid,'op=0\n%s\n',s);
     ReadFromBinoc(DATA);
  
+function StimToggle(a,b, flag)       
+    DATA = GetDataFromFig(a);
+%    flag = get(a,'Tag');
+    DATA.optionflags.(flag) = get(a,'value');
+    s = 'fl=';
+    f = fields(DATA.stimflags);
+    for j = 1:length(f)
+        if DATA.optionflags.(f{j})
+            s = [s '+' f{j}];
+        else
+%            s = [s '-' f{j}];
+        end
+    end
+    fprintf(DATA.outid,'%s\n',s);
+    ReadFromBinoc(DATA);
+
+function OtherToggles(a,b,flag)
+
+    v= get(a,'value');
+    if v
+       c = '+';
+        else
+      c = '-';
+    end
+    if strcmp(flag,'XYL')
+        fprintf(DATA.outid,'ch12%c\n',c);
+    elseif strcmp(flag,'XYL')
+        fprintf(DATA.outid,'ch12%c\n',c);
+    end        
+    
+    
 function TextEntered(a,b)
     DATA = GetDataFromFig(a);
 txt = get(a,'string');

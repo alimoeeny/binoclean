@@ -2930,9 +2930,7 @@ void redraw_overlay(struct plotdata  *plot)
   if(stimstate == STIMSTOPPED)
     ShowTime();
   es = plot->stims;
-  for(i = 0; i < plot->nstim[0]; i++,es++)
-    if(es->flag & BOX_ON)
-      ShowBox(es, BOX_COLOR);
+
   if((pl = plot->linedata) != NULL)
     for(i = 0; i <= expt.nlines; i++,pl+=4)
       MyLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
