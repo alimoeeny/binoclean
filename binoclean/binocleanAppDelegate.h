@@ -16,6 +16,7 @@
 #import <sys/stat.h>
 #import <sys/ioctl.h>
 #import <sys/termios.h>
+#import "mainGUI.h"
 
 #define OUT_PIPE "/tmp/binocoutputpipe"
 #define IN_PIPE "/tmp/binocinputpipe"
@@ -24,7 +25,7 @@ void WriteToOutputPipe(NSString * ns);
 
 
 @interface binocleanAppDelegate : NSObject <NSApplicationDelegate> {
-    NSWindow *_window;
+    mainGUI *_window;
     NSWindow * monkeyWindow;
     NSTimer * mainTimer;
 
@@ -33,7 +34,7 @@ void WriteToOutputPipe(NSString * ns);
     NSFileHandle * outputPipe;
 }
 
-@property (retain) IBOutlet NSWindow *window;
+@property (retain) IBOutlet mainGUI *window;
 @property (nonatomic, retain) NSWindow * monkeyWindow;
 @property (retain) NSTimer * mainTimer;
 
