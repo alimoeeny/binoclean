@@ -13,6 +13,11 @@
 		41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6A13A25BB3006CE4A7 /* GLCheck.c */; };
 		41520B6E13A25BD7006CE4A7 /* trackball.c in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6D13A25BD7006CE4A7 /* trackball.c */; };
 		41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6F13A25BF6006CE4A7 /* drawInfo.m */; };
+		417AEA8513DE21BB006F7A77 /* playButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8113DE21BB006F7A77 /* playButton.png */; };
+		417AEA8613DE21BB006F7A77 /* playButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8213DE21BB006F7A77 /* playButtonSilver.png */; };
+		417AEA8713DE21BB006F7A77 /* playsweet.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8313DE21BB006F7A77 /* playsweet.png */; };
+		417AEA8813DE21BB006F7A77 /* playsweeti.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8413DE21BB006F7A77 /* playsweeti.png */; };
+		417AEA8C13DE225F006F7A77 /* pauseButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */; };
 		419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0813A133B3004E8464 /* Cocoa.framework */; };
 		419DCE1313A133B3004E8464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1113A133B3004E8464 /* InfoPlist.strings */; };
 		419DCE1513A133B3004E8464 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE1413A133B3004E8464 /* main.m */; };
@@ -28,6 +33,9 @@
 		41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A8ED2513AA832F00C9EAAC /* nidaqmxbase */; };
 		41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41AA181D13AA71D7009AC8E2 /* ni_dio.c */; };
 		41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */; };
+		41B1211813DF6E21008869E3 /* counterButtonDown114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211613DF6E21008869E3 /* counterButtonDown114.png */; };
+		41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211713DF6E21008869E3 /* counterButtonUP114.png */; };
+		41B1212713DF795C008869E3 /* mainGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B1212613DF795C008869E3 /* mainGUI.m */; };
 		41BF8E1E13A174FE00C8B6BA /* expop.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEB13A174FE00C8B6BA /* expop.c */; };
 		41BF8E1F13A174FE00C8B6BA /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
 		41BF8E2013A174FE00C8B6BA /* xrand.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DED13A174FE00C8B6BA /* xrand.c */; };
@@ -89,6 +97,11 @@
 		4156A61213C5FDD2002DC9AA /* isfigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = isfigure.m; sourceTree = "<group>"; };
 		4178897913C75EEA00EE70C6 /* mytoc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mytoc.m; sourceTree = "<group>"; };
 		4178897A13C75EEA00EE70C6 /* CloseTag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloseTag.m; sourceTree = "<group>"; };
+		417AEA8113DE21BB006F7A77 /* playButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playButton.png; sourceTree = "<group>"; };
+		417AEA8213DE21BB006F7A77 /* playButtonSilver.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playButtonSilver.png; sourceTree = "<group>"; };
+		417AEA8313DE21BB006F7A77 /* playsweet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweet.png; sourceTree = "<group>"; };
+		417AEA8413DE21BB006F7A77 /* playsweeti.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweeti.png; sourceTree = "<group>"; };
+		417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pauseButtonSilver.png; sourceTree = "<group>"; };
 		419DCE0413A133B3004E8464 /* binoclean.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = binoclean.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		419DCE0813A133B3004E8464 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		419DCE0B13A133B3004E8464 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -112,6 +125,10 @@
 		41AA181D13AA71D7009AC8E2 /* ni_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ni_dio.c; sourceTree = "<group>"; };
 		41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NIDAQmxBase.h; sourceTree = "<group>"; };
 		41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = nidaqmxbaselv; path = /Library/Frameworks/nidaqmxbaselv.framework/Versions/A/nidaqmxbaselv; sourceTree = "<absolute>"; };
+		41B1211613DF6E21008869E3 /* counterButtonDown114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = counterButtonDown114.png; sourceTree = "<group>"; };
+		41B1211713DF6E21008869E3 /* counterButtonUP114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = counterButtonUP114.png; sourceTree = "<group>"; };
+		41B1212513DF795C008869E3 /* mainGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mainGUI.h; sourceTree = "<group>"; };
+		41B1212613DF795C008869E3 /* mainGUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mainGUI.m; sourceTree = "<group>"; };
 		41BF8DEB13A174FE00C8B6BA /* expop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = expop.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8DEC13A174FE00C8B6BA /* binoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = binoc.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8DED13A174FE00C8B6BA /* xrand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xrand.c; sourceTree = "<group>"; };
@@ -285,6 +302,20 @@
 			name = Matlab;
 			sourceTree = "<group>";
 		};
+		417AEA8A13DE21C1006F7A77 /* Graphics */ = {
+			isa = PBXGroup;
+			children = (
+				41B1211613DF6E21008869E3 /* counterButtonDown114.png */,
+				41B1211713DF6E21008869E3 /* counterButtonUP114.png */,
+				417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */,
+				417AEA8113DE21BB006F7A77 /* playButton.png */,
+				417AEA8213DE21BB006F7A77 /* playButtonSilver.png */,
+				417AEA8313DE21BB006F7A77 /* playsweet.png */,
+				417AEA8413DE21BB006F7A77 /* playsweeti.png */,
+			);
+			name = Graphics;
+			sourceTree = "<group>";
+		};
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
@@ -331,11 +362,14 @@
 		419DCE0E13A133B3004E8464 /* binoclean */ = {
 			isa = PBXGroup;
 			children = (
+				417AEA8A13DE21C1006F7A77 /* Graphics */,
 				4156A61613C5FDDB002DC9AA /* Matlab */,
 				41520B6813A25B79006CE4A7 /* GLUtils */,
 				41520B5F13A258F1006CE4A7 /* Binoc */,
 				419DCE1A13A133B3004E8464 /* binocleanAppDelegate.h */,
 				419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */,
+				41B1212513DF795C008869E3 /* mainGUI.h */,
+				41B1212613DF795C008869E3 /* mainGUI.m */,
 				419DCE1D13A133B3004E8464 /* MainMenu.xib */,
 				41520B6213A259C7006CE4A7 /* MonkeyGLView.h */,
 				41520B6313A259C8006CE4A7 /* MonkeyGLView.m */,
@@ -451,6 +485,13 @@
 				419DCE1913A133B3004E8464 /* Credits.rtf in Resources */,
 				419DCE1F13A133B3004E8464 /* MainMenu.xib in Resources */,
 				41520B6113A25981006CE4A7 /* MonkeyWindow.xib in Resources */,
+				417AEA8513DE21BB006F7A77 /* playButton.png in Resources */,
+				417AEA8613DE21BB006F7A77 /* playButtonSilver.png in Resources */,
+				417AEA8713DE21BB006F7A77 /* playsweet.png in Resources */,
+				417AEA8813DE21BB006F7A77 /* playsweeti.png in Resources */,
+				417AEA8C13DE225F006F7A77 /* pauseButtonSilver.png in Resources */,
+				41B1211813DF6E21008869E3 /* counterButtonDown114.png in Resources */,
+				41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,6 +567,7 @@
 				41520B6E13A25BD7006CE4A7 /* trackball.c in Sources */,
 				41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */,
 				41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */,
+				41B1212713DF795C008869E3 /* mainGUI.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
