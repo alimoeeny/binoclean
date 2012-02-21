@@ -42,7 +42,8 @@ void WriteToOutputPipe(NSString * ns);
 @property (retain) NSString * inputLine;
 @property (retain) NSFileHandle * outputPipe;
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication;
+- (void) applicationDidFinishLaunching:(NSNotification *)aNotification;
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication;
 - (void) mainTimerFire:(NSTimer *)timer;
 
 

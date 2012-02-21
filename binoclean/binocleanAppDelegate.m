@@ -18,6 +18,7 @@ int winpos [2];
 int fullscreenmode;
 
 int outPipe = 0;
+int useDIO;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
@@ -102,9 +103,9 @@ void notify(char * s)
 @synthesize inputLine;
 @synthesize outputPipe;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
+- (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    int useDIO = 1;
+    int useDIO = 0;
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
@@ -142,7 +143,7 @@ void notify(char * s)
 
     open(OUT_PIPE, O_RDWR); 
     outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
-    [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
+    [outputPipe writeData:[@"binocstop" dataUsingEncoding:NSASCIIStringEncoding]];
     
     // if wisize read from binoc.setup is 0,0 then do a fullscreen otherwise use the winsize
     CGRect r;
@@ -156,7 +157,7 @@ void notify(char * s)
                                                       screen:[self.window screen]];
         [monkeyWindow setLevel:NSFloatingWindowLevel];
         [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-        [monkeyWindow setTitle:[self.window title]];
+        //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
     }
     else
@@ -169,7 +170,7 @@ void notify(char * s)
                                                       screen:[self.window screen]];
         [monkeyWindow setLevel:NSFloatingWindowLevel];
         [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-        [monkeyWindow setTitle:[self.window title]];
+        //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
         
         [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
@@ -179,9 +180,8 @@ void notify(char * s)
 
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
-    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+    // ReadExptFile("/local/binoc.start", 1, 0, 0);
     StartRunning();
-    StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
 }
 
@@ -219,6 +219,8 @@ void notify(char * s)
         close(outPipe);
         //outPipe = 0;
     }
+    unlink(IN_PIPE); // remove these so matlab can tell if binoclean is running
+    unlink(OUT_PIPE);
     [outputPipeBuffer dealloc];    
     NSLog(@"Gone!");
     return NSTerminateNow;
