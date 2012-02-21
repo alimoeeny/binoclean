@@ -36,7 +36,6 @@
 		41B1211813DF6E21008869E3 /* counterButtonDown114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211613DF6E21008869E3 /* counterButtonDown114.png */; };
 		41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211713DF6E21008869E3 /* counterButtonUP114.png */; };
 		41B1212713DF795C008869E3 /* mainGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B1212613DF795C008869E3 /* mainGUI.m */; };
-		41BF8E1E13A174FE00C8B6BA /* expop.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEB13A174FE00C8B6BA /* expop.c */; };
 		41BF8E1F13A174FE00C8B6BA /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
 		41BF8E2013A174FE00C8B6BA /* xrand.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DED13A174FE00C8B6BA /* xrand.c */; };
 		41BF8E2113A174FE00C8B6BA /* wurtz.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEE13A174FE00C8B6BA /* wurtz.c */; };
@@ -69,6 +68,7 @@
 		41BF8E3D13A174FE00C8B6BA /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1B13A174FE00C8B6BA /* misc.c */; };
 		41BF8E3E13A174FE00C8B6BA /* myfree.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1D13A174FE00C8B6BA /* myfree.c */; };
 		41BF8E4013A1753B00C8B6BA /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BF8E3F13A1753B00C8B6BA /* OpenGL.framework */; };
+		C9E0021F14F41F9700E33579 /* expop.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E0021E14F41F9700E33579 /* expop.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -129,7 +129,6 @@
 		41B1211713DF6E21008869E3 /* counterButtonUP114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = counterButtonUP114.png; sourceTree = "<group>"; };
 		41B1212513DF795C008869E3 /* mainGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mainGUI.h; sourceTree = "<group>"; };
 		41B1212613DF795C008869E3 /* mainGUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mainGUI.m; sourceTree = "<group>"; };
-		41BF8DEB13A174FE00C8B6BA /* expop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = expop.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8DEC13A174FE00C8B6BA /* binoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = binoc.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8DED13A174FE00C8B6BA /* xrand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xrand.c; sourceTree = "<group>"; };
 		41BF8DEE13A174FE00C8B6BA /* wurtz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wurtz.c; sourceTree = "<group>"; };
@@ -182,6 +181,7 @@
 		41BF8E3F13A1753B00C8B6BA /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
+		C9E0021E14F41F9700E33579 /* expop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = expop.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,9 +214,9 @@
 			children = (
 				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
 				41AA181D13AA71D7009AC8E2 /* ni_dio.c */,
-				41BF8DEB13A174FE00C8B6BA /* expop.c */,
 				41BF8DEC13A174FE00C8B6BA /* binoc.c */,
 				41BF8DED13A174FE00C8B6BA /* xrand.c */,
+				C9E0021E14F41F9700E33579 /* expop.c */,
 				41BF8DEE13A174FE00C8B6BA /* wurtz.c */,
 				41BF8DEF13A174FE00C8B6BA /* stimulus.c */,
 				41BF8DF013A174FE00C8B6BA /* stepper.c */,
@@ -530,7 +530,6 @@
 				419DCE1513A133B3004E8464 /* main.m in Sources */,
 				41BF8E1F13A174FE00C8B6BA /* binoc.c in Sources */,
 				419DCE1C13A133B3004E8464 /* binocleanAppDelegate.m in Sources */,
-				41BF8E1E13A174FE00C8B6BA /* expop.c in Sources */,
 				41BF8E2013A174FE00C8B6BA /* xrand.c in Sources */,
 				41BF8E2113A174FE00C8B6BA /* wurtz.c in Sources */,
 				41BF8E2213A174FE00C8B6BA /* stimulus.c in Sources */,
@@ -568,6 +567,7 @@
 				41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */,
 				41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */,
 				41B1212713DF795C008869E3 /* mainGUI.m in Sources */,
+				C9E0021F14F41F9700E33579 /* expop.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

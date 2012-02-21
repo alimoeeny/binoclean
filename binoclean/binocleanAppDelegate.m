@@ -18,6 +18,7 @@ int winpos [2];
 int fullscreenmode;
 
 int outPipe = 0;
+int useDIO;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
@@ -142,7 +143,7 @@ void notify(char * s)
 
     open(OUT_PIPE, O_RDWR); 
     outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
-    [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
+    [outputPipe writeData:[@"binocstop" dataUsingEncoding:NSASCIIStringEncoding]];
     
     // if wisize read from binoc.setup is 0,0 then do a fullscreen otherwise use the winsize
     CGRect r;
@@ -179,9 +180,8 @@ void notify(char * s)
 
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
-    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+    // ReadExptFile("/local/binoc.start", 1, 0, 0);
     StartRunning();
-    StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
 }
 
@@ -219,6 +219,8 @@ void notify(char * s)
         close(outPipe);
         //outPipe = 0;
     }
+    unlink(IN_PIPE); // remove these so matlab can tell if binoclean is running
+    unlink(OUT_PIPE);
     [outputPipeBuffer dealloc];    
     NSLog(@"Gone!");
     return NSTerminateNow;
