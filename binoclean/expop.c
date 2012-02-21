@@ -305,7 +305,7 @@ int nsubexpts[MAXQUICK_SUB] = {0};
 int nallsubs = 0;
 int nsubmenus = 0;
 static int quicksubid[MAXQUICKEXP] = {-1};
-static char *quicknames[MAXQUICKEXP] = {NULL};
+char *quicknames[MAXQUICKEXP] = {NULL};
 static char *quicksubnames[MAXQUICKEXP] = {NULL};
 static char *defaultexps[6] = {"none","flash_bar","move_bar","qrds","qsine","monocd"};
 
