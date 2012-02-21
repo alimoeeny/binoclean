@@ -18,6 +18,7 @@ Expt expt;
 Monitor mon;
 int binocmain(int argc, char * argv[]);
 
+//This line is added by ali on behalf of bruce
 // this is just to make sure you have the latest version.
 int main(int argc, char *argv[])
 {
