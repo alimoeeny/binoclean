@@ -18,6 +18,7 @@ Expt expt;
 Monitor mon;
 int binocmain(int argc, char * argv[]);
 
+//this is Ali's final working version
 int main(int argc, char *argv[])
 {
     setpriority(PRIO_PROCESS, 0, -10);
