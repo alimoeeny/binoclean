@@ -1346,7 +1346,7 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSTabView" id="782296348">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">8</int>
+							<int key="NSvFlags">-2147483640</int>
 							<string key="NSFrame">{{13, 231}, {594, 349}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -3974,7 +3974,7 @@
 						</object>
 						<object class="NSButton" id="471439844">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{246, 214}, {91, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4000,7 +4000,7 @@
 						</object>
 						<object class="NSButton" id="668434663">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{246, 192}, {91, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4022,7 +4022,7 @@
 						</object>
 						<object class="NSButton" id="830530158">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{345, 214}, {91, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4044,7 +4044,7 @@
 						</object>
 						<object class="NSButton" id="377557477">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{345, 192}, {91, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4066,7 +4066,7 @@
 						</object>
 						<object class="NSButton" id="95445957">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{444, 214}, {62, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4088,7 +4088,7 @@
 						</object>
 						<object class="NSButton" id="712105068">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{444, 192}, {62, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4110,7 +4110,7 @@
 						</object>
 						<object class="NSButton" id="715344592">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{509, 214}, {91, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
@@ -4132,7 +4132,7 @@
 						</object>
 						<object class="NSButton" id="420352880">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{509, 192}, {91, 19}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
