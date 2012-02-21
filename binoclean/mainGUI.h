@@ -11,7 +11,7 @@
 #import "commdefs.h"
 #import "stimuli.h"
 
-@interface mainGUI : NSWindow <NSTextFieldDelegate>{
+@interface mainGUI : NSWindow{
     NSButton * playButton;
     
     NSTextField * commandHistoryTextField;
@@ -80,6 +80,5 @@
 - (IBAction) brucesButton:(id)sender;
 - (IBAction) brucesNumbers:(id)sender;
 - (IBAction) textCommand:(id)sender;
-//- (BOOL) commandTextField:(NSControl *)control textShouldBeginEditing:(NSText *)fieldEditor;
 
 @end

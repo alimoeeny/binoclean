@@ -73,10 +73,5 @@ Expt expt;
     NSLog(@"Command: %@", [sender stringValue]);
 }
 
-- (BOOL) commandTextField:(NSControl *)control textShouldBeginEditing:(NSText *)fieldEditor
-{
-    NSLog(@"%@", fieldEditor);
-    return YES;
-}
 
 @end
