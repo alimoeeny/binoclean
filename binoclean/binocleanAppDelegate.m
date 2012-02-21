@@ -103,9 +103,9 @@ void notify(char * s)
 @synthesize inputLine;
 @synthesize outputPipe;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
+- (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-
+    int useDIO = 0;
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
@@ -157,7 +157,7 @@ void notify(char * s)
                                                       screen:[self.window screen]];
         [monkeyWindow setLevel:NSFloatingWindowLevel];
         [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-        [monkeyWindow setTitle:[self.window title]];
+        //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
     }
     else
@@ -170,7 +170,7 @@ void notify(char * s)
                                                       screen:[self.window screen]];
         [monkeyWindow setLevel:NSFloatingWindowLevel];
         [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
-        [monkeyWindow setTitle:[self.window title]];
+        //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
         
         [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 

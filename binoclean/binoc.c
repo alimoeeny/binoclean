@@ -114,7 +114,7 @@ int freezestimulus = 0;
 #define DEBUG_CONJ_TIME (1<<1)
 
 int winsiz[2] = {0,0}; /* let X decide */
-int winpos[2] = {0};
+int winpos[2] = {0,0};
 int fwinsiz[2],fwinoff[2];
 vcoord psychoff[2];
 static vcoord endpt[2];
@@ -1087,8 +1087,9 @@ char **argv;
      * first pass through argv leave any stimfiles named in argv
      */
     printf("VERSION %s compiled %s\n",VERSION_NUMBER,CMPTIME);
-	while(i < argc)
-	{
+	
+    while(i < argc) //Ali: for some reason xcode passes these additional arguments that messes up things.
+    {
 		if(argv[i][0] == '-'){
             if(strncmp(argv[i],"-seed",4) ==  0){
                 argc--; 
@@ -1408,11 +1409,12 @@ char **argv;
             afc_s.stairhist = newstairstruct(); 
             if(verbose)
                 printf("Reading %d....\n",loadfiles[nfiles]);
-            if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
+            //Ali: for some reason xcode passes these additional arguments that messes up things.
+            /*if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
                 fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
                 exit_program();
-            }
-            
+            } 
+             */
             nfiles++;
             /* 
              * the exptfile will be re-read after the interface is made below.
@@ -1445,6 +1447,8 @@ char **argv;
         if(i == 0){
             rfctr = 0;
         }
+        //Ali: for some reason xcode passes these additional arguments that messes up things.
+        /*Ali
         if(ReadExptFile(loadfiles[i],1,1,!nfiles) < 0)
         {
             fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[i]);
@@ -1454,6 +1458,7 @@ char **argv;
             exit_program();
             //	    exit(0);
         }
+        */
 	}
 	//Ali SetPanelColor(TheStim->gammaback);
 	//Ali SetStimPanel(TheStim);

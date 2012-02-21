@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
 #import "commdefs.h"
+#import "stimuli.h"
 
 @interface mainGUI : NSWindow{
     NSButton * playButton;
@@ -78,5 +79,6 @@
 - (IBAction) playButtonPress:(id) sender;
 - (IBAction) brucesButton:(id)sender;
 - (IBAction) brucesNumbers:(id)sender;
+- (IBAction) textCommand:(id)sender;
 
 @end
