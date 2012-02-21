@@ -9,8 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
 #import "commdefs.h"
+#import "stimuli.h"
 
-@interface mainGUI : NSWindow{
+@interface mainGUI : NSWindow <NSTextFieldDelegate>{
     NSButton * playButton;
     
     NSTextField * commandHistoryTextField;
@@ -78,5 +79,7 @@
 - (IBAction) playButtonPress:(id) sender;
 - (IBAction) brucesButton:(id)sender;
 - (IBAction) brucesNumbers:(id)sender;
+- (IBAction) textCommand:(id)sender;
+//- (BOOL) commandTextField:(NSControl *)control textShouldBeginEditing:(NSText *)fieldEditor;
 
 @end

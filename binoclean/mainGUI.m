@@ -9,6 +9,7 @@
 #import "mainGUI.h"
 
 char * stimulus_names [];
+Expt expt;
 
 @implementation mainGUI
 
@@ -64,6 +65,18 @@ char * stimulus_names [];
     else
         NSLog(@"DONT RUN");
     
+}
+
+- (IBAction) textCommand:(id)sender
+{
+    InterpretLine([[sender stringValue] UTF8String], &expt, 2);
+    NSLog(@"Command: %@", [sender stringValue]);
+}
+
+- (BOOL) commandTextField:(NSControl *)control textShouldBeginEditing:(NSText *)fieldEditor
+{
+    NSLog(@"%@", fieldEditor);
+    return YES;
 }
 
 @end
