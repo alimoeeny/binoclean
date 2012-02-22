@@ -18,7 +18,7 @@ if isempty(it)
     DATA = SetDefaults(DATA);
 %open pipes to binoc and read status from there before reading stimfile and sending
 %changes to binoc
-    DATA = OpenPipes(DATA);
+    DATA = OpenPipes(DATA, 1);
     if length(varargin) && exist(varargin{1},'file')
         DATA = ReadStimFile(DATA,varargin{1});
         fprintf(DATA.outid,'QueryState\n');
@@ -332,12 +332,36 @@ else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
 end
 
+function SendState(DATA)
+    f = fields(DATA.binoc{2});
+    fprintf(DATA.outid,'mo=back\n');
+    fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
 
-function DATA = OpenPipes(DATA)
+    for j = 1:length(f)
+        fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{2}.(f{j}));
+    end
+    
+    
+    fprintf(DATA.outid,'mo=fore\n');
+    fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
+    f = fields(DATA.binoc{1});
+    for j = 1:length(f)
+        fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{1}.(f{j}));
+    end
+        
+
+
+function DATA = OpenPipes(DATA, readflag)
         
 DATA.outpipe = '/tmp/binocinputpipe';
 DATA.inpipe = '/tmp/binocoutputpipe';
 
+if DATA.outid > 0
+    fclose(DATA.outid);
+end
+if DATA.inid > 0
+    fclose(DATA.inid);
+end
 if exist(DATA.outpipe)
 DATA.outid = fopen(DATA.outpipe,'w');
 else
@@ -350,8 +374,10 @@ else
 end
 fprintf(DATA.outid,'NewMatlab\n');
 DATA = ReadFromBinoc(DATA,'reset');
+if readflag
 fprintf(DATA.outid,'QueryState\n');
 DATA = ReadFromBinoc(DATA);
+end
 SetGui(DATA);
         
 
@@ -412,9 +438,9 @@ DATA.optionflags.ts = 0;
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
-DATA.stimflags.pc = 1;
-DATA.stimflags.nc = 1;
-DATA.verbose = 1;
+DATA.stimflags{1}.pc = 1;
+DATA.stimflags{1}.nc = 1;
+DATA.verbose = 2;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
@@ -446,6 +472,7 @@ DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [];
 DATA.outid = 0;
+DATA.inid = 0;
 DATA.incr = [0 0 0];
 DATA.nstim = [0 0 0];
 DATA.quickexpts = [];
@@ -772,6 +799,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','NewStart','Callback',{@ReadIO, 3});
     uimenu(hm,'Label','Stop Timer','Callback',{@ReadIO, 4});
     uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5});
+    uimenu(hm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
@@ -955,6 +983,9 @@ function MenuGui(a,b)
          stop(DATA.timerobj)
      elseif flag == 5
         start(DATA.timerobj);
+     elseif flag == 6
+         OpenPipes(DATA, 0);
+         SendState(DATA);
      else
         DATA = ReadFromBinoc(DATA);   
         SetGui(DATA);
@@ -1060,6 +1091,9 @@ function CheckInput(a,b, fig, varargin)
      end
      fprintf(DATA.outid,'whatsup\n');
      a = fread(DATA.inid,14);
+     if DATA.verbose >1
+         fprintf('OK\n');
+     end
      if strncmp(char(a'),'SENDINGstart1',12)
         a = fread(DATA.inid,14);
         nbytes = sscanf(char(a'),'SENDING%d');
@@ -1068,6 +1102,7 @@ function CheckInput(a,b, fig, varargin)
      else
          s = char(a');
          fprintf('No Bytes %s\n',s);
+         if length(s)
          a = s(end);
          while char(a) ~= 'G' | strcmp(s(end-6:end),'SENDING') == 0
             a = fread(DATA.inid,1);
@@ -1076,6 +1111,9 @@ function CheckInput(a,b, fig, varargin)
          a = fread(DATA.inid,7);
          nbytes = sscanf(char(a'),'%d');
          fprintf('Read %s\n',s);
+         else
+             nbytes = 0;
+         end
      end
      if DATA.verbose > 1
      fprintf('Need %d bytes\n',nbytes);
@@ -1121,7 +1159,7 @@ function RunButton(a,b, type)
  %       end
         %fclose('all');
         if ~isfield(DATA,'outpipe')
-            DATA = OpenPipes(DATA);
+            DATA = OpenPipes(DATA, 1);
         end
         if DATA.outid <= 0
         DATA.outid = fopen(DATA.outpipe,'w');
@@ -1210,14 +1248,14 @@ for j = 1:length(f)
         'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
 end
 nf = j;
-f = fields(DATA.stimflags);
+f = fields(DATA.stimflags{1});
 for j = 1:length(f)
     str = f{j};
     k = nf+j; 
     bp(1) = floor(k/nr) .* 1./nc;
     bp(2) = 1- (rem(k,nr) .* 1./nr);
     uicontrol(gcf,'style','checkbox','string',str, ...
-        'units', 'norm', 'position',bp,'value',DATA.stimflags.(f{j}),'Tag',f{j},'callback',{@StimToggle, f{j}});
+        'units', 'norm', 'position',bp,'value',DATA.stimflags{1}.(f{j}),'Tag',f{j},'callback',{@StimToggle, f{j}});
 
     end
 
@@ -1344,11 +1382,11 @@ function HitToggle(a,b, flag)
 function StimToggle(a,b, flag)       
     DATA = GetDataFromFig(a);
 %    flag = get(a,'Tag');
-    DATA.optionflags.(flag) = get(a,'value');
+    DATA.stimflags{1}.(flag) = get(a,'value');
     s = 'fl=';
-    f = fields(DATA.stimflags);
+    f = fields(DATA.stimflags{1});
     for j = 1:length(f)
-        if DATA.optionflags.(f{j})
+        if DATA.stimflags{1}.(f{j})
             s = [s '+' f{j}];
         else
 %            s = [s '-' f{j}];
