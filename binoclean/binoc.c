@@ -63,7 +63,7 @@ int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
 
-static int useDIO = 1;
+int useDIO = 1;
 int fullscreenmode = 0;
 
 double oldvelocity = 0;
@@ -1240,22 +1240,7 @@ char **argv;
 	if((i = OpenSerial(theport)) <= 0)
 		mode |= NO_SERIAL_PORT;
     
-#ifdef NIDAQ
-	if(useDIO)
-        printf("Starting DIO\n");
-	/* Try twice - it sometimes fails */
-	if(useDIO && DIOInit() < 0){
-        acknowledge("Can't Open DIO - Restart Binoc","/bgc/bgc/c/binoc/help/DIOerr");
-        fprintf(stderr,"Use binoc -noDIO to ingore this error\n");
-        DIOClose();
-        exit(1);
-	}
-    else if (useDIO)
-    {
-        DIOWrite(0x0);
-        DIOWrite(0xF);
-    }
-#endif
+
 	OpenPenetrationLog(0); /* open a dummy so ed is ALWAYS saved */
     
 	while(argc >1)

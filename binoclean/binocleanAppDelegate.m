@@ -16,6 +16,7 @@ char * inputLineChars = NULL;
 int winsiz [2];
 int winpos [2];
 int fullscreenmode;
+extern int useDIO;
 
 int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
@@ -104,7 +105,7 @@ void notify(char * s)
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    int useDIO = 0;
+//    int useDIO = 1;
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
