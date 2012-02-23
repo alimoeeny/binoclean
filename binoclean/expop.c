@@ -4066,28 +4066,28 @@ void CheckExpts()
     }
 }
 
-//  GLubyte *GetStimImage(int x, int y, int w, int h, char eye)
-//  {
-//    static GLubyte *pix = NULL;
-//    int i,len,j,size;
-//
-//    glReadBuffer(GL_FRONT);
-//    /*
-//     * just alloc once, and make it big enough for any image;
-//     */
-//
-//    if(pix == NULL){
-//      size = expt.winsiz[0] * expt.winsiz[1] * 4 * sizeof(GLubyte);
-//      pix = (GLubyte *)malloc(size);
-//    }
-//    if(pix != NULL){
-//      if(eye == 'L')
-//        glReadPixels(x, y, w, h, GL_RED, GL_UNSIGNED_BYTE, pix);
-//      if(eye == 'R')
-//        glReadPixels(x, y, w, h, GL_BLUE, GL_UNSIGNED_BYTE, pix);
-//    }
-//    return(pix);
-//  }
+  GLubyte *GetStimImage(int x, int y, int w, int h, char eye)
+  {
+    static GLubyte *pix = NULL;
+    int i,len,j,size;
+
+    glReadBuffer(GL_FRONT);
+    /*
+     * just alloc once, and make it big enough for any image;
+     */
+
+    if(pix == NULL){
+      size = expt.winsiz[0] * expt.winsiz[1] * 4 * sizeof(GLubyte);
+      pix = (GLubyte *)malloc(size);
+    }
+    if(pix != NULL){
+      if(eye == 'L')
+        glReadPixels(x, y, w, h, GL_RED, GL_UNSIGNED_BYTE, pix);
+      if(eye == 'R')
+        glReadPixels(x, y, w, h, GL_BLUE, GL_UNSIGNED_BYTE, pix);
+    }
+    return(pix);
+  }
 
 /*
  * SaveImage saves the current stimulus image. 

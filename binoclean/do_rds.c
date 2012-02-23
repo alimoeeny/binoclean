@@ -1030,7 +1030,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
             }
           }
         }
-    
+    }
     else{
         for(i = 0; i < sst->nw; i++){
             for(j = 0; j < sst->nh; j++){
