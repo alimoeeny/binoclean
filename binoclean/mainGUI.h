@@ -80,5 +80,6 @@
 - (IBAction) brucesButton:(id)sender;
 - (IBAction) brucesNumbers:(id)sender;
 - (IBAction) textCommand:(id)sender;
+- (IBAction) FreePipeButton:(id)sender;
 
 @end

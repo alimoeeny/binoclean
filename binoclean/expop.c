@@ -11734,7 +11734,8 @@ Thisstim *getexpval(int stimi)
         if(seroutfile)
             fprintf(seroutfile,"#du%.3f(%.3f)",frametimes[framesdone],(n-0.5)/expt.mon->framerate);
             if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){ 
-                fprintf(seroutfile," #long(%d)",n);
+                if (seroutfile)
+                    fprintf(seroutfile," #long(%d)",n);
                 if (retval != BAD_TRIAL){
                     sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
                     for( i = 1; i < framesdone-1; i++){
@@ -11770,6 +11771,7 @@ Thisstim *getexpval(int stimi)
                     fprintf(seroutfile,"\n");
                 }
             }
+        
             /*
              * also check if frames all done, but took too long (in case forcing all frames
              */

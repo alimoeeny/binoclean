@@ -17,6 +17,7 @@ int winsiz [2];
 int winpos [2];
 int fullscreenmode;
 extern int useDIO;
+int freeToGo = 1;
 
 int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
@@ -59,6 +60,16 @@ void ReadInputPipe()
             inputLineChars = [[inputPipeBuffer objectAtIndex:i] UTF8String];
             if (strncmp(inputLineChars, "whatsup", 7) == 0) 
                 sendNotification();
+            else if (strncmp(inputLineChars, "eventpause", 10) == 0) 
+            {
+                NSLog(@"PAUSED");
+                freeToGo = 0;
+            }
+            else if (strncmp(inputLineChars, "eventcontinue", 10) == 0) 
+            {
+                NSLog(@"FREE TO GO Again");
+                freeToGo = 1;
+            }
             else
                 InterpretLine(inputLineChars, &expt, 2);
         }
@@ -209,7 +220,13 @@ void notify(char * s)
 
 - (void) mainTimerFire:(NSTimer *)timer
 {
-    event_loop();
+    if (freeToGo) {
+        event_loop();
+    }
+    else
+    {    
+        ReadInputPipe();
+    }
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender

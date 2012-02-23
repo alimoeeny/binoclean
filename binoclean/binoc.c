@@ -9770,6 +9770,8 @@ void makeRasterFont(void)
 
 void printString(char *s, int size)
 {
+    return;
+    
     displayOnMonkeyView(s, -500, -450);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)

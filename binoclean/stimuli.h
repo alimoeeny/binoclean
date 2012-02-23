@@ -295,6 +295,7 @@ struct STIMULUS{
   int npix;
   float tf,stimversion;
   float pix2deg, imsd,corrmix,dotfrac;
+    int calculated, painted;
 };
 
 typedef struct STIMULUS Stimulus;

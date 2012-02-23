@@ -1954,6 +1954,8 @@ void calc_stimulus(Stimulus *st)
 	if(backdone == 0)
 		calc_stimulus(st->next);
       }
+    st->calculated = 1;
+    st->painted = 0;
 }
 
 
@@ -2556,6 +2558,9 @@ void paint_stimulus(Stimulus *st)
       glFlushRenderAPPLE();
   if(st->next != NULL && st->next->type == STIM_PROBE)
     paint_stimulus(st->next);
+    
+    st->calculated = 0;
+    st->painted = 1;
 }
 
 void optimize_stimulus(Stimulus *st)

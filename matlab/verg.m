@@ -310,6 +310,9 @@ function DATA = ReadStimFile(DATA, name)
         
 fid = fopen(name,'r');
 if fid > 0
+    if DATA.outid > 0
+    fprintf(DATA.outid,'eventpause\n');
+    end
     tline = fgets(fid);
     while ischar(tline)
         DATA = InterpretLine(DATA,tline);
@@ -320,7 +323,9 @@ if fid > 0
         tline = fgets(fid);
     end
     fclose(fid);
-
+    if DATA.outid > 0
+        fprintf(DATA.outid,'eventcontinue\n');
+    end
     for ex = 1:3
         if length(DATA.expts{ex})
             id = find(~ismember(DATA.expmenuvals{ex}, DATA.expts{ex}));
@@ -334,6 +339,8 @@ end
 
 function SendState(DATA)
     f = fields(DATA.binoc{2});
+    
+    fprintf(DATA.outid,'eventpause\n');
     fprintf(DATA.outid,'mo=back\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
 
@@ -348,7 +355,7 @@ function SendState(DATA)
     for j = 1:length(f)
         fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{1}.(f{j}));
     end
-        
+    fprintf(DATA.outid,'eventcontinue\n');
 
 
 function DATA = OpenPipes(DATA, readflag)

@@ -57,6 +57,14 @@ Expt expt;
         NSLog(@"DONT RUN");
 }
 
+- (IBAction) FreePipeButton:(id)sender
+{
+    NSLog(@"Freeing the Pipe!");
+    (@"Freeing Pipe for Matlab");
+    notify("Freeing the Pipe for MATLAB");  
+    sendNotification();
+}
+
 - (IBAction) brucesNumbers:(id)sender
 {
     if ([[(NSTextField *)sender text] isEqualToString:@"Run"]) {
