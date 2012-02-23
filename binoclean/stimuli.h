@@ -74,6 +74,7 @@ typedef struct WURTZ{
   float rwsize;
   vcoord origfixpos[2];
   float stairfactor; /*j usually set to ROOT2*/
+  float fixcolors[5]; /* for special tasks */
 }Wurtz;
 
 typedef struct NEWGABOR{
@@ -229,6 +230,7 @@ typedef struct SUBSTIM{
   float wedge_angle;
   double freqs[MAXFREQS];
   double phases[MAXFREQS];
+  double incrs[MAXFREQS];
   double powers[MAXFREQS];
   float gammaback;
   char id[5];
@@ -420,6 +422,7 @@ float *rcvals;
   int biasedreward;
   int cmdtype;
   int stflag;
+  int hightype;
 };
 
 typedef struct EXPERIMENT Expt;

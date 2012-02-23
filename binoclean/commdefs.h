@@ -263,10 +263,11 @@
 #define REWARD_BIAS (LAST_STIMULUS_CODE+152)
 #define TARGET_XOFFSET  (LAST_STIMULUS_CODE+153)
 #define TARGET_YOFFSET  (LAST_STIMULUS_CODE+154)
-#define MIXAC (LAST_STIMULUS_CODE+155)
-#define TONETIME (LAST_STIMULUS_CODE+156)
+#define TARGET2_POS  (LAST_STIMULUS_CODE+155)
+#define MIXAC (LAST_STIMULUS_CODE+156)
+#define TONETIME (LAST_STIMULUS_CODE+157)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+157) /* 197 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 197 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
@@ -366,7 +367,7 @@
 #define UNCORR_P MAXSERIALCODES +93
 #define ONETARGET_P MAXSERIALCODES+94
 #define STIMORTHOG_POS MAXSERIALCODES+95
-#define DXDY MAXSERIALCODES+96
+#define PLAID_RATIO MAXSERIALCODES+96
 #define NSPIKE_PRINT MAXSERIALCODES+97
 #define PRINTYSCALE MAXSERIALCODES+98
 #define NSPIKE_SKIP MAXSERIALCODES+99
@@ -442,7 +443,8 @@
 // Codes after this are convenience only - no need to store
 // their value. But they need a serial-string so that they can be set
 // Since they are not send to PC, they can be > 2 chars long
-#define MAXSAVECODES MAXSERIALCODES+161 //357
+#define HIGHXTYPE MAXSERIALCODES+161
+#define MAXSAVECODES MAXSERIALCODES+162 //357
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -457,8 +459,10 @@
 #define TWOCYL_DISP MAXSAVECODES+10
 #define RANDOM_CONTRAST_EXPT MAXSAVECODES+11
 #define FRAME_DISPLACEMENT MAXSAVECODES+12
+#define ABS_ORTHOG_POS MAXSAVECODES+13
+#define ABS_PARA_POS MAXSAVECODES+14
 
-#define MAXTOTALCODES (MAXSAVECODES+13)  //369
+#define MAXTOTALCODES (MAXSAVECODES+15)  //372
 
 
 /*
@@ -498,6 +502,7 @@
 #define FLUID_TEXT MAXTOTALCODES+19
 #define STIM_PERIOD MAXTOTALCODES+20
 #define RF_DIMENSIONS MAXTOTALCODES +21
+#define STIMULUS_LABEL_WIDGET MAXTOTALCODES+22
 #define WAIT_FOR_RESPONSE MAXTOTALCODES+23
 #define RESPONDED MAXTOTALCODES+24
 #define SETOVERLAYCOLOR MAXTOTALCODES+25
@@ -839,6 +844,7 @@ char *serial_strings[NCODES+1] = {
   "rb", /* Reward Bias*/
    "Tx", /* Target X Offset */
    "Ty", /* Target Y Offset */
+   "T2", /* Target 2 direction(file), position (spike2) */
   "mixac", /* mix corr, AC, dots */
   "Tt", /* Tonetime */
 #ifdef DOSVERSION
@@ -941,7 +947,7 @@ char *serial_strings[NCODES+1] = {
   "pU", /* pUncorr */
   "pT", /* p(Target Ratio = 0)*/
   "sO", /* pos orthog to stimulus axis */
-  "xx", /* Hdisp x Vdisp expt */
+  "pR", /* Plaid Contrast Ratio */
   "xx", /* Spikes to print */
   "xx", /* print scale */
   "xx", /* spike skip */
@@ -970,7 +976,7 @@ char *serial_strings[NCODES+1] = {
   "As", /* Alternative Stimulus modes */
   "Us", /* Microstim Expt */
   "T1", /* Test Value 1, for various tests */
-  "T2",/* Test Value 1, for various tests */
+  "TB",/* Test Value 2, for various tests */
   "Ba",/* Size to add for background */
   "b+",/* */
   "Pn", /* penetration number */
@@ -1006,6 +1012,7 @@ char *serial_strings[NCODES+1] = {
   "dS", /* dummy stimulation */
   "FakeSig", /* dummy stimulation magnitude*/
   "pBlack", /* fraction of black dots*/
+  "hxtype", /* control +hx interleave */
 
 // these codes are all ones that do not need to be saved
   "ar", /* Aspect Ratio */
@@ -1021,6 +1028,8 @@ char *serial_strings[NCODES+1] = {
   "TwoCylDisp", /* Disparity for cylinder pair */
   "rC", /*random contrast expt */
   "posinc", /* specify frame displacement, not velocity */
+    "aOp", // Opos in absolute units (not relative to RF( 
+    "aPp", // Opos in absolute units (not relative to RF( 
 NULL
 };
 
@@ -1051,6 +1060,7 @@ char *mode_names[] = {
   "Orthog UC",
   "Orthog Lines Off",
   "TwoCyl AND Idisp",
+  "RDS-sl1/RLS-sl0",
   NULL
 };
 
@@ -1254,6 +1264,7 @@ char *serial_names[] = {
   "Reward Bias",
   "Target X off",
   "Target Y off",
+  "Target 2 pos",
 "AC Mixture",
 "Tone time",
 //Max serialcodes
@@ -1354,7 +1365,7 @@ char *serial_names[] = {
   "p(Uncorr)",
   "p(One Target)",
   "StimOrthog Pos",
-  "hdisp x vdisp",
+  "Plaid Contrast Ratio",
   "N spikes to print",
   "Print Scale",
   "Spike skip",
@@ -1419,6 +1430,7 @@ char *serial_names[] = {
 "FakeStim Expt", 
 "FakeStim Signal", 
 "p(black dot)", 
+"High X type",
 
   "Aspect Ratio",
   "Hidden Codes",
@@ -1433,6 +1445,8 @@ char *serial_names[] = {
 "TwoCyl Disp",
 "Random Contrasts",
 "Position Displacement per frame",
+"absolute OrthoPos",
+"absolute ParaPos",
 NULL};
 
 char *jumpnames[] = {
@@ -1629,7 +1643,7 @@ extern char *jumpnames[];
 
 #define val_affects_fixn(x) (x == MONOCULARITY_EXPT || x == STATIC_VERGENCE || x == STATIC_CONJUGATE || x == FIXPOS_X || x== FIXPOS_Y)
 
-#define VERSION_NUMBER "5.08" /* binoc version */
+#define VERSION_NUMBER "5.15" /* binoc version */
 #define MAXFRAMES 500
 
 

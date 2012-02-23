@@ -1,7 +1,7 @@
 #define NOTSET -10000
 #define SCREENW 400
 #define SCREENH 512
-#define MAXFRAMES 500
+#define MAXFRAMES 700
 
 #define INTERLEAVE_EXPT -1000
 #define INTERLEAVE_EXPT_LEFT -1001
@@ -247,6 +247,8 @@ float pix2degy(float val);
 #define ORTHOG_UC 22
 #define ORTHOG_BLANK 23
 #define TWOCYL_ANDIDISP 24
+#define RDSRLSSETSL 25
+#define BUTTSEXPT 26
 
 #define issfrc(x) (x == RANDOM_ONOFF || x == RANDOM_ONOFF_LOG || x == INDEP_ONOFF || x == INDEP_ONOFF_LOG || x == BINOC_INDEP_ONOFF_LOG || x== THREE_CONTRAST_LEVEL || x == BINOC_INDEP_ONOFF)
 

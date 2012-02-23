@@ -127,12 +127,15 @@ int find_direction(float expval)
 }
 
 /********************************************************************************/
-int monkey_direction(int response, float *sacval)
+int monkey_direction(int response, AFCstructure afc_s)
 {
     int monkey_direction;
     int direction;
-    
-    if(fabs(sacval[0]) > fabs(sacval[1]))
+    float *sacval = afc_s.sacval;
+
+    if(afc_s.newdirs)
+      direction = -afc_s.stimsign;
+    else if(fabs(sacval[0]) > fabs(sacval[1]))
       direction = find_direction(sacval[0] * afc_s.abssac[0]);
     else
       direction = find_direction(sacval[1] * afc_s.abssac[1]);

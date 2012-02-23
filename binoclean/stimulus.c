@@ -6,6 +6,7 @@
 #import "mymath.h"
 #import "miscw.h"
 #import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 #import "fpslider.h"
 #import <unistd.h>
 #import "commdefs.h"
@@ -1186,6 +1187,9 @@ void calc_stimulus(Stimulus *st)
        }
 
 
+       if(expt.stimmode == BUTTSEXPT){
+	 expt.st->mode |= STIMULUS_NEEDS_CLEAR;
+       }
     switch(st->type)
     {
     case STIM_PROBE:

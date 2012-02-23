@@ -275,6 +275,8 @@ void calc_image(Stimulus *st, Substim *sst)
 
     if(sst->orbw > MAXORBW)
       sprintf(impref,"%s/orinf/sf%.2f/sz%.2f",st->imprefix,sst->pos.sf,sst->size);
+    else if(sst->orbw < 0)
+      sprintf(impref,"%s/or%.0f/sf%.2f/sz%.2f/bw%.0f",st->imprefix,ori,sst->pos.sf,sst->size,fabs(sst->orbw));
     else if(sst->orbw < 1)
       sprintf(impref,"%s/or%.0f/sf%.2f/sz%.2f/bw10",st->imprefix,ori,sst->pos.sf,sst->size);
     else

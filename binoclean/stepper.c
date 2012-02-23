@@ -16,7 +16,7 @@
 #include "mymath.h" 
 #include "myview.h"
 #include "misc.h"
-#include <OpenGL/OpenGL.h>
+#import <OpenGL/OpenGL.h>
 #include "serial.h"
 #include "commdefs.h"
 #include "stimuli.h"

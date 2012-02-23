@@ -438,7 +438,7 @@ int calc_rds(Stimulus *st, Substim *sst)
      * be made in the background
      */
     offset[0] = offset[1] = 0;
-    if(st->prev != NULL)
+  if(st->prev != NULL)
     {
         if(optionflag & BACKGROUND_FIXED_BIT)
         {
@@ -880,6 +880,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
     double contrast2 = pos->contrast2;
     double xv[1024],yv[1024],yenv[1024],xenv[1024];
     double ysd,r,xm, cscale = 2,xsd,xdisp;
+  double asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2],eh = 0;
     int disp; 
     
     
@@ -928,21 +929,30 @@ void calc_rds_check(Stimulus *st, Substim *sst)
     
     rnd_init(sst->baseseed);
     rnd = rnd_u();
+  
+    
+    if(!(optionflag & SQUARE_RDS))
+    {
+      asq = pos->radius[0] * pos->radius[0];
+      bsq = pos->radius[1] * pos->radius[1];
+    }
+    
     p = sst->im;
     if(st->left->ptr->sx > 0.01){
-        xsd = deg2pix(sst->ptr->sx);
+    xsd = deg2pix(sst->ptr->sx)/sst->dotsiz[0];
         xsd = 2 * xsd * xsd;
     }
     else
         xsd = 0;
     if(st->left->ptr->sy > 0.01){
-        ysd = deg2pix(sst->ptr->sx);
+    ysd = deg2pix(sst->ptr->sx)/sst->dotsiz[1];
         ysd = 2 * ysd * ysd;
     }
     else
         ysd = 0;
     
     q = sst->imb;
+  p = sst->im;
     xm = sst->nw/2;
     if(twod){
         bit = 1;
@@ -954,6 +964,8 @@ void calc_rds_check(Stimulus *st, Substim *sst)
                 r = sqr(j -xm)/xsd;
                 xenv[j] = exp(-r);
             }
+    else if (bsq > 0)
+      xenv[j] = sqr((j-xm) * sst->dotsiz[0]);
             else
                 xenv[j] = 1;
             
@@ -982,6 +994,8 @@ void calc_rds_check(Stimulus *st, Substim *sst)
                 r = sqr(i -xm)/ysd;
                 yenv[i] = exp(-r);
             }
+    else if (bsq > 0)
+      yenv[i] = sqr((i-xm) * sst->dotsiz[1]);
             else
                 yenv[i] = 1;
             if(expt.stimmode == PARALLEL_UC && sst->mode == RIGHTMODE)
@@ -996,17 +1010,27 @@ void calc_rds_check(Stimulus *st, Substim *sst)
                 if(rnd & bit)
                     yv[i] = sst->lum[3];
                 else
-                    yv[i] = sst->lum[2];
+                  yv[i] = sst->lum[2];
             }
             rnd = rnd_u();
         }
-        for(i = 0; i < sst->nw; i++){
+        p = sst->im;
+        if(bsq > 0){
+          for(i = 0; i < sst->nw; i++){
             for(j = 0; j < sst->nh; j++){
-                *q = st->background+(xv[i]+yv[j])*xenv[i]*yenv[j]/(2);
-                q++;
+              if(xenv[i] + yenv[j] > bsq){
+                *q = st->background;
+                *p = 0;
+              }
+              else{
+                *q = st->background+(xv[i]+yv[j])/(2);
+                *p |= (RIGHTDOT | LEFTDOT);
+              }
+              p++,q++;
             }
+          }
         }
-    }
+    
     else{
         for(i = 0; i < sst->nw; i++){
             for(j = 0; j < sst->nh; j++){

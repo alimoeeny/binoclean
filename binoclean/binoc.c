@@ -163,11 +163,11 @@ int wurtzctr = 0, wurtzbufferlen = 512,lasteyecheck;
 float clearcolor = 0;
 float lasttf = -1, lastsz = -1, lastsf = -1,lastor=0;
 float markercolor = 1.0;
-float trialdur = 0;
+float trialdur = 0,trialdursum=0;
 float *stimtimes = NULL, *downtimes = NULL, *starttimes = NULL;
 int *fixed = 0;
 float *fixx = NULL, *fixy = NULL;
-int goodtrials = 0, totaltrials = 0, premtrials = 0, fixtrials = 0, wrongtrials = 0, afctrials = 0;
+int goodtrials = 0, totaltrials = 0, premtrials = 0, fixtrials = 0, wrongtrials = 0, afctrials = 0,latetrials=0;
 int avglen = 20,avctr = 0;
 float stopcriterion = 0.0;
 float cmarker_size = 15;
@@ -473,6 +473,7 @@ char fallback_resources[] = {"a", "b", "c", NULL};
 
 
 extern double fakestim;
+extern int usenewdirs;
 extern int dorpt,rcrpt , lastrpt;
 extern int *stimorder,demomode,covaryprop;
 //struct plotdata *expplots;
@@ -930,6 +931,7 @@ void initial_setup()
 		  case PURSUIT_INCREMENT:
 		  case JDEATH:
 	      case FAKESTIM_SIGNAL:
+	      case PLAID_RATIO:
 		nfplaces[i] = 4;
 		break;
 	      case EXPT2_NSTIM:
@@ -2982,7 +2984,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 	OneStim *psine;
 	Substim *rds,*lrds;
 	int oldflag = st->flag, ival = (int)val;
-	float bval, cval, dval, left, right, eccentricity, chord_scale;
+	float aval, bval, cval, dval, left, right, eccentricity, chord_scale;
 	double cosa,sina,meandisp,dm,a,b,total;
 	int oldoptionflag = optionflag;
 	static int laststimtype[2] = {STIM_NONE};
@@ -3896,6 +3898,15 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             SetStimulus(st,val,DISP_X,event);
             SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY] * -1);
             break;
+	case ABS_ORTHOG_POS:
+	  fval = GetProperty(&expt, st, PARA_POS);
+	  cosa = cos(expt.rf->angle * M_PI/180.0);
+	  sina = sin(expt.rf->angle * M_PI/180.0);
+	  bval = -(val * sina - fval * cosa);
+	  cval = (fval * sina + val * cosa);
+	  SetStimulus(st,bval,XPOS,event);
+	  SetStimulus(st,cval,YPOS,event);
+	  break;
         case ORTHOG_POS:
             fval = GetProperty(&expt, st, PARA_POS);
         case RF_ORTHO:
@@ -3942,6 +3953,15 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             cval = fval * sina + val * cosa;
             SetStimulus(st,bval,DISP_Y,event);
             SetStimulus(st,cval,DISP_X,event);
+            break;
+        case ABS_PARA_POS:
+            fval = GetProperty(&expt, st, ORTHOG_POS);
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            bval = -(val * sina - fval * cosa);
+            cval = (fval * sina + val * cosa);
+            SetStimulus(st,bval,XPOS,event);
+            SetStimulus(st,cval,YPOS,event);
             break;
         case DISP_X:
             if(val > INTERLEAVE_EXPT){
@@ -4117,6 +4137,22 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case CONTRAST2:
             pos->contrast2 = val;
             break;
+	case PLAID_RATIO:
+	  // ratio > 1 = contrast1 > contrast2
+	  bval = StimulusProperty(st, SETCONTRAST);
+	  dval = StimulusProperty(st, CONTRAST2);
+	  aval =  (bval > dval) ? bval : dval;
+	  if (val < 0){
+	    bval = aval + val;
+	    dval = aval;
+	  }
+	  else{
+	    bval = aval;
+	    dval = aval-val;
+	  }
+	  SetStimulus(st, bval, SETCONTRAST,  event);
+	  SetStimulus(st, dval, CONTRAST2,  event);
+	  break;
         case CONTRAST_RATIO:
             if(st->type == STIM_RDSSINE || st->type == STIM_RADIAL && st->prev == NULL){
                 expt.vals[CONTRAST_RATIO] = val;
@@ -4885,6 +4921,8 @@ void WriteSignal()
 	    DIOval = 0x4;
 	  DIOWrite(DIOval);
 #endif
+	  if(seroutfile)
+	    fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
 	}
 	if(mode & STIM_FRAME_BIT)
 	  {
@@ -5157,17 +5195,38 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 	  newx = oldfixpos[0];
 	  newy = oldfixpos[1];
 	  dx = dy = 0;
-	  if(optionflags[RAND_FP_DIR])
-	    expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+	  if(optionflags[RAND_FP_DIR]){
+	    do{
+	      expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+	      fval = expt.vals[FP_MOVE_DIR];
+	      dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
+	      dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
+	      newx = fixpos[0] + deg2pix(dx);
+	      newy = fixpos[1] + deg2pix(dy);
+	    }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+	  }
 	}
       else{
 	SerialSend(FP_MOVE_DIR);
-	fval = expt.vals[FP_MOVE_DIR];
-	dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
-	dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
-	newx = fixpos[0] + deg2pix(dx);
-	newy = fixpos[1] + deg2pix(dy);
+	if(optionflags[RAND_FP_DIR]){
+	  do{
+	    expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+	    fval = expt.vals[FP_MOVE_DIR];
+	    dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
+	    dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
+	    newx = fixpos[0] + deg2pix(dx);
+	    newy = fixpos[1] + deg2pix(dy);
+	  }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
 	}
+	else{
+	    fval = expt.vals[FP_MOVE_DIR];
+	    dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
+	    dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
+	    newx = fixpos[0] + deg2pix(dx);
+	    newy = fixpos[1] + deg2pix(dy);
+	}
+
+      }
       if(optionflags[SIMULATE_FP_MOVE]){
 	SetStimulus(stimptr,expt.stimvals[XPOS]+dx, XPOS,NULL);
 	SetStimulus(stimptr,expt.stimvals[YPOS]+dy, YPOS,NULL);
@@ -5441,8 +5500,14 @@ June 2 2010 - Never apply the Initial disp to the background. When would we want
 		}
 		else if (st->type == STIM_GRATINGN)
 		  {
-		  for(i = 0; i < st->nfreqs; i++)
-		    st->phases[i] += st->incr;
+		    if (st->left->ptr->velocity > 0){
+		      for(i = 0; i < st->nfreqs; i++)
+			st->phases[i] += st->left->incrs[i];
+		    }
+		    else{
+		      for(i = 0; i < st->nfreqs; i++)
+			st->phases[i] += st->incr;
+		    }
 		  }
 		else if (rdspair(st) && !optionflags[PAINT_BACKGROUND])
 		  {
@@ -5610,11 +5675,12 @@ void paint_frame(int type, int showfix)
   struct timeval atime,btime,ctime;
   
   gettimeofday(&atime, NULL);
-    mode |= NEED_REPAINT;
+   // mode |= NEED_REPAINT;
   if(!optionflags[CALCULATE_ONCE_ONLY])
     calc_stimulus(TheStim);
   gettimeofday(&calctime, NULL);
-  setmask(BOTHMODE);
+  setmask(ALLMODE);
+
 
   if(testflags[TEST_RC] && expt.st->type != STIM_IMAGE){
 
@@ -5642,6 +5708,7 @@ void paint_frame(int type, int showfix)
 
 /* if the middle button is down, dont paint - quick check for stim  effect */
 
+  setmask(BOTHMODE);
   if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
   if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
@@ -5800,6 +5867,21 @@ void testcolor()
 }
 
 
+float SetFixColor(Expt expt)
+{
+  
+      if (optionflags[SHOW_REWARD_BIAS])
+      	optionflag |= (SQUARE_FIXATION);
+      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+	expt.st->fixcolor = expt.st->fix.offcolor;
+      }
+      else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+	expt.st->fixcolor = expt.st->fix.fixcolors[0];
+	optionflag &= (~SQUARE_FIXATION);
+      }
+      else
+	expt.st->fixcolor = expt.st->fix.fixcolor;
+}
 
 int next_frame(Stimulus *st)
 {
@@ -5846,6 +5928,12 @@ int next_frame(Stimulus *st)
     {
       time(&t);
       ltime = localtime(&t);
+      if(ltime->tm_hour > 19){
+	printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
+      system("/bgc/bgc/etc/monkeywarn `hostname`");
+      memcpy(&endstimtime,&now,sizeof(struct timeval));
+      }
+
     }
   if(timeout_type == SHAKE_TIMEOUT)
     start_timeout(SHAKE_TIMEOUT);
@@ -6010,6 +6098,10 @@ int next_frame(Stimulus *st)
 	  }
 	  stimstate = INTERTRIAL;
 	}
+
+	SetFixColor(expt);
+
+
       if(rdspair(expt.st))
 	i = 0;
       setmask(bothmask);
@@ -6041,8 +6133,15 @@ int next_frame(Stimulus *st)
 	fprintf(seroutfile,"#Trial at %u (%d)\n",ufftime(&now),fixstate);
       if(testflags[PLAYING_EXPT])
 	fixstate = GOOD_FIXATION;
-      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0)
+      if (optionflags[SHOW_REWARD_BIAS])
+      	optionflag |= (SQUARE_FIXATION);
+      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
 	TheStim->fixcolor = TheStim->fix.offcolor;
+      }
+      else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+	TheStim->fixcolor = TheStim->fix.fixcolors[0];
+	optionflag &= (~SQUARE_FIXATION);
+      }
       else
 	TheStim->fixcolor = TheStim->fix.fixcolor;
       pursued = 0;
@@ -6056,6 +6155,7 @@ int next_frame(Stimulus *st)
 	  }
 	  stimstate = INTERTRIAL;
 	}
+	SetFixColor(expt);
 	if(demomode == 0)
 	  fixstate = 0;
 	mode |= WURTZ_FRAME_BIT;
@@ -6110,8 +6210,15 @@ int next_frame(Stimulus *st)
 	  
       if(debug) glstatusline("PreStim",3);
       clearcolor = TheStim->gammaback;
-      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0)
+      if (optionflags[SHOW_REWARD_BIAS])
+      	optionflag |= (SQUARE_FIXATION);
+      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
 	TheStim->fixcolor = TheStim->fix.offcolor;
+      }
+      else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+	TheStim->fixcolor = TheStim->fix.fixcolors[0];
+	optionflag &= (~SQUARE_FIXATION);
+      }
       else
 	TheStim->fixcolor = TheStim->fix.fixcolor;
       if(CheckFix() < 0)
@@ -6126,9 +6233,8 @@ int next_frame(Stimulus *st)
       }
       CheckFix();
 //Ali CheckKeyboard(D, allframe);
-//      if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
-//	 val > expt.vals[TRIAL_START_BLANK])
-            if(1)
+      if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
+	 val > expt.vals[TRIAL_START_BLANK])
 	{
 	  redraw_overlay(expt.plot);
 //Ali CheckKeyboard(D, allframe);
@@ -6355,7 +6461,8 @@ int next_frame(Stimulus *st)
       }
 #endif
       mode &= (~FIXATION_OFF_BIT);
-      TheStim->fixcolor = TheStim->fix.fixcolor;
+      if (!option2flag &AFC) // don't mess with color before response
+	TheStim->fixcolor = TheStim->fix.fixcolor;
       if(CheckFix() < 0)
 	break;
 	if((val = timediff(&now, &endstimtime)) > expt.postperiod)
@@ -6364,7 +6471,8 @@ int next_frame(Stimulus *st)
 	      stimstate = PRESTIMULUS;
 	    else{
 	      stimstate = POSTPOSTSTIMULUS;
-	      TheStim->fixcolor = TheStim->fix.offcolor;
+	      if (!option2flag &AFC) // don't mess with color before response
+		TheStim->fixcolor = TheStim->fix.offcolor;
 	      if(!(TheStim->mode & EXPTPENDING))
 		stimctr = 0;
 	    }
@@ -6391,8 +6499,10 @@ int next_frame(Stimulus *st)
 	if(seroutfile)
 	  fprintf(seroutfile,"#PostPoststim\n");
 #endif
-	glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
-	glClear(GL_COLOR_BUFFER_BIT);
+	if (expt.mode != BACKGROUND_IMAGE){
+	  glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
+	  glClear(GL_COLOR_BUFFER_BIT);
+	}
 	RunBetweenTrials(st, pos);
 	if(expt.vals[FIXATION_OVERLAP] > 10)
 	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
@@ -6504,7 +6614,6 @@ int next_frame(Stimulus *st)
 	    oldstimpos[0] = TheStim->pos.xy[0];
 	    oldstimpos[1] = TheStim->pos.xy[1];
 	    ResetExpStim(1); //before stimno is incremented
-        if (mode & EXPTPENDING)
             ShuffleStimulus(WURTZ_LATE);
 	}
 #if defined(Linux) || defined(WIN32)
@@ -6534,6 +6643,7 @@ int next_frame(Stimulus *st)
  */
 	if(!(option2flag & PSYCHOPHYSICS_BIT))
 	  ResetExpStim(1);
+	SetFixColor(expt);
 /*
  * This is where stimno is incremented for the last stim of the trial
  */
@@ -6582,6 +6692,7 @@ int next_frame(Stimulus *st)
 	  ResetExpStim(0);
 	  if(ExptIsRunning())
 	    PrepareExptStim(1,10);
+	  SetFixColor(expt);
 	  if(fixstate == BAD_FIXATION && TheStim->fix.timeout > 0){
 	    search_background();
 	    change_frame();
@@ -6658,7 +6769,7 @@ int next_frame(Stimulus *st)
 	afc_s.sacval[0] =  afc_s.abssac[0];
 	afc_s.sacval[1] =  afc_s.abssac[1];
 */
-	if(fixstate == BADFIX_STATE)
+	if(fixstate == BADFIX_STATE && TheStim->fix.timeout > 0)
 	    stimstate = IN_TIMEOUT;
 	else if(monkeypress == WURTZ_OK_W)
 	    stimstate = IN_TIMEOUT_W;
@@ -6703,7 +6814,8 @@ int next_frame(Stimulus *st)
 	    start_timeout(SHAKE_TIMEOUT_PART2);
 	  }
 	  else{
-	    end_timeout();
+	    if (duration > 0)
+	      end_timeout();
 	    stimstate = INTERTRIAL;
 	  }
 	  fctr = 0;
@@ -7471,6 +7583,13 @@ float StimulusProperty(Stimulus *st, int code)
 	  y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
 	  value = x * sina +  y * cosa;
 	  break;
+	case ABS_ORTHOG_POS:
+	  cosa = cos(expt.rf->angle * M_PI/180.0);
+	  sina = sin(expt.rf->angle * M_PI/180.0);
+	  x =  -StimulusProperty(st,XPOS);
+	  y = StimulusProperty(st,YPOS);
+	  value = x * sina +  y * cosa;
+	  break;
 	case STIMORTHOG_POS:
 	  x = StimulusProperty(st,ASPECT_RATIO);
 	  if(x > 1){
@@ -7497,6 +7616,13 @@ float StimulusProperty(Stimulus *st, int code)
 	  x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
 	  y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
 	  value = y * sina - x * cosa;
+	  break;
+	case ABS_PARA_POS:
+	  cosa = cos(expt.rf->angle * M_PI/180.0);
+	  sina = sin(expt.rf->angle * M_PI/180.0);
+	  x =  -StimulusProperty(st,XPOS);
+	  y = StimulusProperty(st,YPOS);
+	  value = y * sina -  x * cosa;
 	  break;
 	case FRAMEREPEAT:
 	  value = (float)(st->framerepeat);
@@ -7939,6 +8065,13 @@ float StimulusProperty(Stimulus *st, int code)
 	      value = 0;
 	    else
 	      value = -10000; /* should not happen */
+	  break;
+	case PLAID_RATIO:
+	  // ratio > 1 = contrast1 > contrast2
+	  // ratio > 0 = contrast1 > contrast2
+	  lval = StimulusProperty(st, SETCONTRAST);
+	  rval = StimulusProperty(st, CONTRAST2);
+	  value = lval - rval;
 	  break;
 	case CONTRAST_RATIO:
 	  if(st->type == STIM_RDSSINE || st->type == STIM_GRATING2)
@@ -8840,12 +8973,14 @@ int GotChar(char c)
 		    fputs(charbuf,seroutfile);
 		    fprintf(seroutfile," Sa%2f(%.2f),%.2f (%.2f,%d,%d)\n",sacsiz,sacth,sacdir,val,stimstate,expt.allstimid);
 		  }
-		  if(val > 0.2 && sacsiz > sacth && tansac  < 1 && stimstate == INSTIMULUS){
+// if experimenter is moving fixation point, don't punish saccades!
+		  if(val > 0.2 && sacsiz > sacth && tansac  < 1 && stimstate == INSTIMULUS && expt.vals[FP_MOVE_SIZE] == 0){
 		    if(seroutfile){
 		      fprintf(seroutfile,"#Saccade\n");
 		    }
 		    microsaccade = sacsiz;
 		    microsaccdir = sacdir;
+		    fixstate = SACCADE_DETECTED;
 		    c = BAD_FIXATION;
 		    write(ttys[0],&c,1);
 		    GotChar(BAD_FIXATION);
@@ -9052,6 +9187,11 @@ int GotChar(char c)
 			    }
 			  totaltrials++;
 			  srandom(totaltrials);
+			
+			trialdur = down = timediff(&now,&wurtzframetime);
+			trialdur = StimTime(&now);
+			trialdursum += trialdur;
+
 			if(c== WURTZ_OK){
 			    if(option2flag & AFC) 
 			      result = 'G';
@@ -9059,6 +9199,7 @@ int GotChar(char c)
 			      result = 'F';
 			    jonresult = CORRECT;
 			    presult = 1;
+			    trialdursum = 0;
 			}
 			else if(c==BAD_FIXATION){
 			  result = 'B';
@@ -9066,16 +9207,27 @@ int GotChar(char c)
 			  presult = 3;
 			  if(optionflags[COUNT_BADFIX_FOR_BONUS])
 			    afc_s.goodinarow = 0;
+			  val = expt.st->nframes/mon.framerate;
+			  if (trialdursum > val && expt.stimmode ==BUTTSEXPT){
+			    stimno++;
+			    if (seroutfile)
+			      fprintf(seroutfile,"Got %.2f sec. Moving on to %d\n",trialdursum,stimno);
+			    trialdursum = 0;
+			  }
 			}
 			else if(c== WURTZ_LATE || fixstate == WURTZ_LATE){
 				result = 'L';
 				jonresult = FOUL;
 				presult = 2;
+				latetrials++;
+			    trialdursum = 0;
+
 			}
 			else if(c== WURTZ_OK_W){
 				result = 'W';
 				jonresult = WRONG;
 				presult = 0;
+				trialdursum = 0;
 /*				start_timeout(c);*/
 			}
 			else
@@ -9094,7 +9246,10 @@ int GotChar(char c)
 
 			else
 			  aid = 1;
-			sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
+			if(afc_s.newdirs)
+			  sign = afc_s.stimsign;
+			else
+			  sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
 			if(sign < 0)
 			  sign = -1;
 			else if(sign > 0)
@@ -9238,7 +9393,7 @@ int GotChar(char c)
  * check for changes
  */
 			if(logfd){
-			  fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],binocTimeString());
+			  fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],TimeString());
 			  fflush(logfd);
 			  /*
 			  close(logfd);
@@ -9295,7 +9450,7 @@ int GotChar(char c)
 			    else
 			      stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
 
-			    monkey_dir = monkey_direction(jonresult, afc_s.sacval);
+			    monkey_dir = monkey_direction(jonresult, afc_s);
 			    if(seroutfile)
 			      fprintf(seroutfile,"MD %d %d %.1f %.3f",monkey_dir,jonresult,afc_s.sacval[1],timediff(&now,&endstimtime));
 			    if(afc_s.loopstate != CORRECTION_LOOP && (option2flag & AFC))
@@ -9328,12 +9483,15 @@ int GotChar(char c)
 
 /*
  * if the monkey gets n right in a row, put up the
+ * if show reward bias is set, biased reward may be an expt type
  * reward size
  */
 			oldrw = TheStim->fix.rwsize;
 			if(option2flag & AFC && expt.biasedreward == 0)
 			  {
-			    if(afc_s.goodinarow >= (afc_s.bonuslevel2) && afc_s.bonuslevel2 > 0)
+			    if(optionflags[SHOW_REWARD_BIAS])
+			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE3];
+			    else if(afc_s.goodinarow >= (afc_s.bonuslevel2) && afc_s.bonuslevel2 > 0)
 			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE3];		 
 			    else if(afc_s.goodinarow >= (afc_s.bonuslevel) && afc_s.bonuslevel > 0)
 			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE2];
@@ -9449,11 +9607,14 @@ void paint_target(float color, int flag)
 {
   float lcolor = color,contrast;
   float bcolor = 1-color;
-  int showa = 0,showb = 0;
+  int showa = 0,showb = 0,oldoption;
 
   if(flag)
     glDrawBuffer(GL_FRONT_AND_BACK);
-  
+
+  // Choice targets always boxes...  
+  oldoption = optionflag;
+  optionflag |= SQUARE_FIXATION;
   if(option2flag & AFC)
     showa = showb = 1;
   else if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
@@ -9486,18 +9647,19 @@ void paint_target(float color, int flag)
 
     lcolor = TheStim->background + (color - TheStim->background) * expt.vals[TARGET_RATIO];
     if(option2flag & AFC){
-	draw_fix(fixpos[0]-deg2pix(afc_s.sacval[0]-afc_s.sacval[2]),fixpos[1]-deg2pix(afc_s.sacval[1]-afc_s.sacval[3]), afc_s.targsize, lcolor);
+	draw_fix(fixpos[0]+deg2pix(afc_s.sacval[4]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[5]+afc_s.sacval[3]), afc_s.targsize, lcolor);
 	if(optionflags[FOUR_CHOICES]){
 	     draw_fix(fixpos[0]-deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]-deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, bcolor);
 	     draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]-afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]-afc_s.sacval[3]), afc_s.targsize, bcolor);
 	   }
-	if(optionflags[SHOW_REWARD_BIAS] && fabs(expt.biasedreward) > 0.1){
+	if(optionflags[SHOW_REWARD_BIAS] == 1 && fabs(expt.biasedreward) > 0.1){
 	  draw_fix(fixpos[0]+deg2pix(afc_s.abssac[0]+afc_s.abssac[2]),fixpos[1]+deg2pix(afc_s.abssac[1]+afc_s.abssac[3]), afc_s.targsize, 1.0);
 	  draw_fix(fixpos[0]-deg2pix(afc_s.abssac[0]-afc_s.abssac[2]),fixpos[1]-deg2pix(afc_s.abssac[1]-afc_s.abssac[3]), afc_s.targsize, 0.0);
 	}
     }
     if(flag)
       glDrawBuffer(GL_BACK);
+    optionflag = oldoption;
 }
 
 void ShowPerformanceString(int force)
@@ -9882,6 +10044,17 @@ void Stim2PsychFile()
 	    GetProperty(&expt,expt.st,BACK_ORI),
 	    GetProperty(&expt,expt.st,BACK_SIZE));
     fprintf(psychfile," %s=%.0f %s=%.2f\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+
+
+    fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
+	    serial_strings[VERSION_CODE],VERSION_NUMBER, 
+	    serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
+	    GetProperty(&expt,expt.st->next,YPOS));
+    fprintf(psychfile," 0 %.2f %.2f",
+	    GetProperty(&expt,expt.st,BACK_ORI),
+	    GetProperty(&expt,expt.st,BACK_SIZE));
+    fprintf(psychfile," %s=%.0f usenewdir=%d\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
+
 
     if(expt.st->next && expt.st->next->type != STIM_NONE){
       fprintf(psychfile,"R8 %s=%.2f %s=%.2f %s=%.2f",

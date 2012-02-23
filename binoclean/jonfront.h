@@ -68,8 +68,10 @@ typedef struct{
 
     AFC_tots totals;
     char *performance_1, *performance_2;
-    float sacval[4];
+    float sacval[6];
     float abssac[4];
+    float sacdir[4];
+  float newdirs,stimsign;
     float targsize; /*j fix criterion for saccade targets*/
     float sac_fix_crit;
     float maxstairvalue, minstairvalue, startvalue;
@@ -102,5 +104,4 @@ void stair_counters(stair_hist_s *shist, int response);
 int loopstate_counters(int direction, int response);
 stair_hist_s newstairstruct();
 void printstair(int staircounter,  int startbin,  int bincounter_min,  int bincounter_max, hist_structure *pstairbins);
-int monkey_direction(int response, float *sacval);
 
