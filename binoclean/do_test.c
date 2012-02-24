@@ -2,6 +2,7 @@
 #import <math.h>
 #import "mymath.h"
 #import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 #import <sys/time.h>
 #import "commdefs.h"
 #import "stimuli.h"

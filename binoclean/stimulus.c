@@ -5,7 +5,7 @@
 #import <math.h>
 #import "mymath.h"
 #import "miscw.h"
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
 #import <OpenGL/gl.h>
 #import "fpslider.h"
 #import <unistd.h>

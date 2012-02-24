@@ -2,6 +2,7 @@
 #import "mymath.h"
 #import <math.h>
 #import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 #import "commdefs.h"
 #import "stimuli.h"
 #import "sprotos.h"

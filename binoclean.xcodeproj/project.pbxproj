@@ -67,7 +67,7 @@
 		41BF8E3C13A174FE00C8B6BA /* stair.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1913A174FE00C8B6BA /* stair.c */; };
 		41BF8E3D13A174FE00C8B6BA /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1B13A174FE00C8B6BA /* misc.c */; };
 		41BF8E3E13A174FE00C8B6BA /* myfree.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1D13A174FE00C8B6BA /* myfree.c */; };
-		41BF8E4013A1753B00C8B6BA /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BF8E3F13A1753B00C8B6BA /* OpenGL.framework */; };
+		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -177,7 +177,7 @@
 		41BF8E1B13A174FE00C8B6BA /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = misc.c; sourceTree = "<group>"; };
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
-		41BF8E3F13A1753B00C8B6BA /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -187,9 +187,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */,
 				41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */,
 				41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */,
-				41BF8E4013A1753B00C8B6BA /* OpenGL.framework in Frameworks */,
 				419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */,
 				419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */,
 			);
@@ -336,9 +336,9 @@
 		419DCE0713A133B3004E8464 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41DB130A14F7F06100418C95 /* OpenGL.framework */,
 				41A8ED2513AA832F00C9EAAC /* nidaqmxbase */,
 				41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */,
-				41BF8E3F13A1753B00C8B6BA /* OpenGL.framework */,
 				419DCE0813A133B3004E8464 /* Cocoa.framework */,
 				419DCE2613A133B3004E8464 /* SenTestingKit.framework */,
 				419DCE0A13A133B3004E8464 /* Other Frameworks */,
@@ -453,7 +453,7 @@
 		419DCDFB13A133B2004E8464 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = 419DCDFE13A133B2004E8464 /* Build configuration list for PBXProject "binoclean" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -641,7 +641,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -660,7 +660,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

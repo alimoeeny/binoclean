@@ -14,6 +14,7 @@ Expt expt;
 @implementation mainGUI
 
 @synthesize playButton;
+@synthesize informationTextField;
 @synthesize commandHistoryTextField;
 @synthesize commandTextField;
 @synthesize stimulusValues;
@@ -28,8 +29,16 @@ Expt expt;
         for (int i = 0; i < N_STIMULUS_TYPES; i ++)
             [self.stimulusValues addObject:[NSString stringWithUTF8String:stimulus_names[i]]];
         self.electrodeTypes = [[NSArray arrayWithObjects:@"AlphaOmega", @"MicroProbe+polyamide", @"FHC-PtIR", nil] retain];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateInfoText:) name:@"updateinfotext" object:nil];
     }
     return self;
+}
+
+- (void) updateInfoText:(NSNotification *) aNotification
+{
+    [informationTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", 
+                                          [[aNotification userInfo] valueForKey:@"text"],
+                                          [informationTextField stringValue]]];
 }
 
 - (void) playButtonPress:(id) sender
@@ -78,7 +87,9 @@ Expt expt;
 - (IBAction) textCommand:(id)sender
 {
     InterpretLine([[sender stringValue] UTF8String], &expt, 2);
-    [commandHistoryTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", [commandHistoryTextField stringValue], [sender stringValue]]];
+    [commandHistoryTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", 
+                                              [sender stringValue],
+                                              [commandHistoryTextField stringValue]]];
     NSLog(@"Command: %@", [sender stringValue]);
 }
 

@@ -51,7 +51,7 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
 #import <OpenGL/CGLContext.h>
 
 @interface NSBezierPath (RoundRect)

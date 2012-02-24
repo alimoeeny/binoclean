@@ -1,4 +1,4 @@
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
 
 #define MAXFREQS 80
 #define MAXCHANS 20

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 #include "commdefs.h"
 #include "stimuli.h"
 #include "sprotos.h"

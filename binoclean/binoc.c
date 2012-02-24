@@ -9770,6 +9770,8 @@ void makeRasterFont(void)
 
 void printString(char *s, int size)
 {
+    // Ali: we decided that at least for now we display this info on the mainGUI not the monkey screen
+    updateInfoText(s);
     return;
     
     displayOnMonkeyView(s, -500, -450);

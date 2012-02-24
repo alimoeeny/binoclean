@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "mymath.h"
 #include <math.h>
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/OpenGL.h>
+#import <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
 #include "commdefs.h"
 #include "stimuli.h"
 #include "sprotos.h"

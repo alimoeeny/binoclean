@@ -1,6 +1,7 @@
 #import <stdio.h>
 #import <math.h>
 #import <stdlib.h>
+#import <OpenGL/gl.h>
 #import "commdefs.h"
 #import "stimuli.h"
 #import "sprotos.h"

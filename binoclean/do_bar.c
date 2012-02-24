@@ -8,6 +8,7 @@
 #import <sys/time.h>
 #endif
 #import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 #import "commdefs.h"
 #import "stimuli.h"
 #import "sprotos.h"

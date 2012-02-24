@@ -2,6 +2,7 @@
 #include "mymath.h"
 #include <math.h>
 #include "commdefs.h"
+#import <OpenGL/gl.h>
 #include "stimuli.h"
 //#include "sprotos.h"
 #include "myview.h"

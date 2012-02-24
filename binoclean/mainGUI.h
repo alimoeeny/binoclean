@@ -15,6 +15,7 @@
     NSButton * playButton;
     
     NSTextField * commandHistoryTextField;
+    NSTextField * informationTextField;
     NSTextField * commandTextField;
     
     int experiment1MeanValue;
@@ -67,6 +68,7 @@
 @property (nonatomic, readwrite) int experiment3CountValue;
 @property (nonatomic, retain) NSString * experiment3StimulusValue;
 
+@property (nonatomic, retain) IBOutlet NSTextField * informationTextField;
 @property (nonatomic, retain) IBOutlet NSTextField * commandHistoryTextField;
 @property (nonatomic, retain) IBOutlet NSTextField * commandTextField;
 @property (nonatomic, retain) NSMutableArray * stimulusValues;

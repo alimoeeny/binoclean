@@ -38,6 +38,11 @@ void displayOnMonkeyView(char *s, int x, int y)
         [messageTexture drawAtPoint:NSMakePoint(-500, -450)];
 }
 
+void updateInfoText(char *s)
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:s] forKey:@"text"]];
+}
+
 void sendNotification()
 {
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];

@@ -7,7 +7,7 @@
 #import "mymath.h"
 #import "misc.h"
 #import "myview.h"
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
 #import <OpenGL/gl.h>
 #import "commdefs.h"
 #import "stimuli.h"
