@@ -1,0 +1,16 @@
+Things that need fixing:
+* FSD drop down and XYL and XYR check boxes (problems seems to be in verge)
+* go check box seems to get out of date in verge or out of sync somehow
+- we get into this mode like an interleave blank after one trial and the stimulus turns back on (when we set it to none initially)
+* solved 2/24/12 - fixation point is turned off for unknown reasons
+* options popup must be set correctly otherwise unsets things if change
+- graticule on eye tracking  THis is a spike2 problem when it gets xylim = 0. Need to recalc grid each time maybe
+- integrate with psych mon
+* make the verge window size larger
+* jv keeps reseting to zero
+- save and save as in verg 
+- stepper in binoc lean
+- penetration log in binoc lean
+- information line (at the bottom of the main classic binoc window) should be moved both the verg and binoc lean
+* cancel button does not update at the end of an experiment
+* add ablksize control to verg. code is "bs"

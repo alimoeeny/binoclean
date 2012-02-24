@@ -121,6 +121,7 @@ void notify(char * s)
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    NSLog([[[NSFileManager alloc] init] currentDirectoryPath]);
     //    int useDIO = 1;
     if(useDIO)
         printf("Starting DIO\n");
@@ -196,7 +197,7 @@ void notify(char * s)
     
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
-    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
+//    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
     StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
@@ -225,12 +226,12 @@ void notify(char * s)
 
 - (void) mainTimerFire:(NSTimer *)timer
 {
+    ReadInputPipe();
     if (freeToGo) {
         event_loop();
     }
     else
     {    
-        ReadInputPipe();
     }
 }
 

@@ -2514,7 +2514,7 @@ void event_loop()
                 fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
         }
     }
-    ReadInputPipe();
+ //   ReadInputPipe();
     if(cleartime.tv_sec != 0){
         gettimeofday(&now,NULL);
         val = timediff(&now,&cleartime);
@@ -8375,7 +8375,7 @@ int BackupStimFile()
     int i = ctr;
     char cbuf[256];
     
-    sprintf(cbuf,"./front.%dstim",ctr);
+    sprintf(cbuf,"/local/front.%dstim",ctr);
     SaveExptFile(cbuf,SAVE_STATE);
     ctr = (ctr+1)%4;
     return(i);
@@ -9233,8 +9233,6 @@ int GotChar(char c)
                 else
                     result = '?'; /* shouldn't happen */
                 
-                sprintf(buf,"TRES %c\n",result);
-                notify(buf);
                 trialdur = down = timediff(&now,&wurtzframetime);
                 start = timediff(&now,&progstarttime);
                 /* 
@@ -9479,6 +9477,11 @@ int GotChar(char c)
                     }    	
                     /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
                 }
+                else
+                    monkey_dir = 0;
+                sprintf(buf,"TRES %c%d\n",result,monkey_dir);
+                notify(buf);
+
                 res = (int)c;
                 
                 /*
@@ -10011,7 +10014,7 @@ void expt_over(int flag)
     //Ali SetAllPanel(&expt);
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
-    SaveExptFile("./front.eostim",SAVE_STATE);
+    SaveExptFile("/local/front.eostim",SAVE_STATE);
     notify("EXPTOVER\n");
 }
 

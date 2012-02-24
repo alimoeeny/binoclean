@@ -16,13 +16,17 @@ if isempty(it)
     DATA.name = 'Binoc';
     DATA.tag.top = 'Binoc';
     DATA = SetDefaults(DATA);
-%open pipes to binoc and read status from there before reading stimfile and sending
-%changes to binoc
-    DATA = OpenPipes(DATA, 1);
+%open pipes to binoc 
+% if a file is named in teh command line, then take all setting from there.
+% Otherwise read from binoc
     if length(varargin) && exist(varargin{1},'file')
+        DATA = OpenPipes(DATA, 0);
+        DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1});
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
+    else
+        DATA = OpenPipes(DATA, 1);
     end
     
     DATA = InitInterface(DATA);
@@ -109,6 +113,7 @@ for j = 1:length(strs{1})
         DATA.inexpt = 1;
     elseif strncmp(s,'EXPTOVER',8)
         DATA.inexpt = 0;
+        SetGui(DATA);
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
         DATA.extypes{1} = DATA.extypes{1}+1;
@@ -220,6 +225,8 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'m3',2)
         DATA.mean(3) = ReadVal(s,DATA);
         DATA.binoc{1}.m3 = DATA.mean(3);
+    elseif strncmp(s,'uf=',3)
+        DATA.datafile = s(4:end);
     elseif strncmp(s,'op',2)
         f = fields(DATA.optionflags);
         if strncmp(s,'op=0',4) %everything else off
@@ -357,6 +364,26 @@ function SendState(DATA)
     end
     fprintf(DATA.outid,'eventcontinue\n');
 
+function SaveExpt(DATA, name)
+    fid = fopen(name,'w');
+    f = fields(DATA.binoc{2});
+    
+    fprintf(fid,'mo=back\n');
+    fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
+
+    for j = 1:length(f)
+        fprintf(fid,'%s=%.6f\n',f{j},DATA.binoc{2}.(f{j}));
+    end
+    
+    
+    fprintf(fid,'mo=fore\n');
+    fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
+    f = fields(DATA.binoc{1});
+    for j = 1:length(f)
+        fprintf(fid,'%s=%.6f\n',f{j},DATA.binoc{1}.(f{j}));
+    end
+    fclose(fid);
+    fprintf('Saved %s\n',name);
 
 function DATA = OpenPipes(DATA, readflag)
         
@@ -390,6 +417,7 @@ SetGui(DATA);
 
 function DATA = SetTrial(DATA, T)
     Trial = T;
+    T.Start = now;
     nt = DATA.nt;
     if length(T.sv) && isfield(DATA,'exptype')
     DATA.Trials(nt).(DATA.exptype{1}) = T.sv(1);
@@ -627,10 +655,10 @@ function DATA = InitInterface(DATA)
         'units', 'norm', 'position',bp,'value',j,'Tag','FSD','callback',{@SetExpt, 'fsd'});
 
     bp(1) = bp(1)+bp(3);
-    uicontrol(gcf,'style','checkbox','string','XYL',  'value', DATA.showxy(1), 'units', 'norm', 'position',bp);
+    uicontrol(gcf,'style','checkbox','string','XYL',  'value', DATA.showxy(1), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYL'});
     
     bp(1) = bp(1)+bp(3);
-    uicontrol(gcf,'style','checkbox','string','XYR', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp);
+    uicontrol(gcf,'style','checkbox','string','XYR', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYR'});
 
     
     bp(1) = 0.01;
@@ -781,6 +809,8 @@ function DATA = InitInterface(DATA)
     
     hm = uimenu(cntrl_box,'Label','File','Tag','BinocFileMenu');
     uimenu(hm,'Label','Close','Callback',{@verg, 'close'});
+    uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
+    uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     if isfield(DATA.quickexpts,'submenu')
     subs = unique({DATA.quickexpts.submenu});
@@ -840,6 +870,17 @@ function DATA = InitInterface(DATA)
     end
     set(DATA.toplevel,'UserData',DATA);
      
+    
+function SaveFile(a,b,type)
+
+    DATA = GetDataFromFig(a);
+    if strcmp(type,'current')
+        filename = DATA.stimfilename;
+        SaveExpt(DATA, filename)
+    elseif strcmp(type,'saveas')
+        [outname, path] = uiputfile(DATA.stimfilename, 'Save Expt As');
+        SaveExpt(DATA, [path '/' outname]);
+    end
     
  function EditList(a,b)
      id = get(a,'value');
@@ -1011,16 +1052,17 @@ function MenuGui(a,b)
     SetTextItem(DATA.toplevel,'Expt1Mean',DATA.mean(1));
     SetTextItem(DATA.toplevel,'Expt2Mean',DATA.mean(2));
     SetTextItem(DATA.toplevel,'Expt3Mean',DATA.mean(3));
+    SetTextItem(DATA.toplevel,'DataFileName',DATA.datafile);
     id = strmatch(DATA.exptype{1},DATA.expmenucodes{1});
     SetMenuItem(DATA.toplevel, 'Expt1List', id);
     id = strmatch(DATA.exptype{2},DATA.expmenucodes{2});
     SetMenuItem(DATA.toplevel, 'Expt2List', id);
     id = strmatch(DATA.exptype{3},DATA.expmenucodes{3});
     SetMenuItem(DATA.toplevel, 'Expt3ist', id);
-    it = findobj(DATA.toplevel,'Tag','RunButton');
     SetMenuItem(DATA.toplevel, 'ForegroundType', DATA.stimtype(1));
     SetMenuItem(DATA.toplevel, 'BackgroundType', DATA.stimtype(2));
 
+    it = findobj(DATA.toplevel,'Tag','RunButton');
     if DATA.inexpt
         set(it,'string','Cancel');
     elseif DATA.optionflags.ts
@@ -1046,7 +1088,11 @@ function MenuGui(a,b)
  function SetTextItem(top, tag, value, varargin)
  it = findobj(top,'Tag',tag);
  if ~isempty(it)
+     if ischar(value)
+     set(it,'string',value);
+     else
      set(it,'string',num2str(value));
+     end
  end
 
  function SetMenuItem(top, tag, value, varargin)
@@ -1146,9 +1192,14 @@ function RunButton(a,b, type)
             fprintf(DATA.outid,'\\expt\n');
             DATA.nexpts = DATA.nexpts+1;
             DATA.Expts{DATA.nexpts}.first = DATA.Trial.Trial;
+            DATA.Expts{DATA.nexpts}.Stimvals.et = DATA.exptype{1};
+            DATA.Expts{DATA.nexpts}.Stimvals.e2 = DATA.exptype{2};
+            DATA.Expts{DATA.nexpts}.Stimvals.e3 = DATA.exptype{3};
             else
                fprintf(DATA.outid,'\\ecancel\n');
             end
+            it = findobj(DATA.toplevel,'Tag','do');
+            set(it,'value',1);
             
         elseif type == 2
             fprintf(DATA.outid,'\\estop\n');
@@ -1404,6 +1455,7 @@ function StimToggle(a,b, flag)
 
 function OtherToggles(a,b,flag)
 
+    DATA = GetDataFromFig(a);
     v= get(a,'value');
     if v
        c = '+';
@@ -1411,8 +1463,8 @@ function OtherToggles(a,b,flag)
       c = '-';
     end
     if strcmp(flag,'XYL')
-        fprintf(DATA.outid,'ch12%c\n',c);
-    elseif strcmp(flag,'XYL')
+        fprintf(DATA.outid,'ch11%c\n',c);
+    elseif strcmp(flag,'XYR')
         fprintf(DATA.outid,'ch12%c\n',c);
     end        
     

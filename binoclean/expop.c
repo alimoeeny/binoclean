@@ -4238,7 +4238,7 @@ int ReadCommand(char *s)
         InitRndArray(expt.st->left->baseseed,10000000);
     }
     else if(!strncasecmp(s,"xyfsd",5)){
-        sscanf(s,"xyfsd%f",&val);
+        sscanf(s,"xyfsd=%f",&val);
         sprintf(buf,"ch10+,fs%.3f\n",val);
         SerialString(buf,NULL);
     }
@@ -7467,7 +7467,10 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
         case HIGHXTYPE:
             i = expt.vals[expt.hightype];
-            sprintf(cbuf,"%s%s%s",scode,temp,serial_strings[i]);
+            if (i > 0)
+                sprintf(cbuf,"%s%s%s",scode,temp,serial_strings[i]);
+            else
+                sprintf(cbuf,"%s%s0",scode,temp);
             break;
 #if defined(USING_SOLENOID)
         case REWARD_SIZE:
@@ -10180,6 +10183,7 @@ int PrepareExptStim(int show, int caller)
     
     sprintf(cbuf,"exvals %.4f %.4f %.4f %d\n",stp->vals[0],stp->vals[1],stp->vals[EXP_THIRD],expt.st->left->baseseed);
     SerialString(cbuf,0);
+    notify(cbuf);
     
     /*
      * if interleaving target offsets, change color and rewards accordingly.
@@ -13519,7 +13523,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strcmp(line,"whatsup")){
         sendNotification();
     }
-    else if(!strncmp(line,"centerxy",8)){
+    else if(!strncmp(line,"centerstim",8)){
+        SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));
+        SetProperty(&expt,expt.st,SETZYOFF,GetProperty(&expt,expt.st,RF_Y));
+       return;
+    }
+    else if(!strncmp(line,"centerxy",8) || !strncmp(line,"sonull",6)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
         return;
