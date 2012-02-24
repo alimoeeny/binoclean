@@ -29,7 +29,7 @@
     int experiment3StepValue;
     int experiment3CountValue;
     NSString * experiment3StimulusValue;
-
+    
     NSMutableArray * stimulusValues;
     NSMutableArray * electrodeTypes;
     NSString * electrodeValue;

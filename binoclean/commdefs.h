@@ -103,9 +103,9 @@
 
 
 /*
-* remaining codes refer to the experiment settings,
-* not individual stimulus components
-*/
+ * remaining codes refer to the experiment settings,
+ * not individual stimulus components
+ */
 #define PREPERIOD_CODE (LAST_STIMULUS_CODE+5)
 #define EXPTYPE_CODE (LAST_STIMULUS_CODE+6)
 #define FRAMERATE_CODE (LAST_STIMULUS_CODE+7)
@@ -116,10 +116,10 @@
 #define RAMP_VERGENCE_CODE (LAST_STIMULUS_CODE+12)
 #define NTRIALS_CODE (LAST_STIMULUS_CODE+13)
 /*
-* July 15 2002. NTRIALS and EXPTYPE codes swapped in order, so that
-* setting NTRIALS in the code when EXPTYPE is set does not override
-* NTRIALS
-*/
+ * July 15 2002. NTRIALS and EXPTYPE codes swapped in order, so that
+ * setting NTRIALS in the code when EXPTYPE is set does not override
+ * NTRIALS
+ */
 
 #define UFF_PREFIX (LAST_STIMULUS_CODE+14)
 #define HIGHX (LAST_STIMULUS_CODE+15)
@@ -412,7 +412,7 @@
 #define PENYPOS MAXSERIALCODES+130
 #define VWHERE MAXSERIALCODES+131
 #define IFCSCALE MAXSERIALCODES+132
- //+133 unused
+//+133 unused
 #define HEIGHT_L MAXSERIALCODES+134
 #define HEIGHT_R MAXSERIALCODES+135
 #define WIDTH_L MAXSERIALCODES+136
@@ -468,7 +468,7 @@
 /*
  *  MAXTOTALCODES is the total number of values with string codes
  * anything not needing a string (e.g. EARLY_RWSIZE) is > MAXTOTALCODES
-*/
+ */
 
 
 /* 
@@ -549,7 +549,7 @@
 /*
  *  TOTALCODES is the total numer of vals in Expt 
  * anything not needed in Expt is > TOTALCODES
-*/
+ */
 
 
 #define MYFLAGS_CODE TOTALCODES
@@ -578,8 +578,8 @@
 
 
 /*
-* Stimulus Types
-*/
+ * Stimulus Types
+ */
 #define STIM_NONE 0
 #define STIM_GABOR 1
 #define STIM_RDS 2
@@ -624,12 +624,12 @@
 
 
 /*
-* Each stimulus/Experimental Parameter has a 2 character code
-* for communication via the serial line
-* this file, common to BrainWave and the SG code,
-* lists the codes. The constants are all defined
-* in commdefs.h
-*/
+ * Each stimulus/Experimental Parameter has a 2 character code
+ * for communication via the serial line
+ * this file, common to BrainWave and the SG code,
+ * lists the codes. The constants are all defined
+ * in commdefs.h
+ */
 
 #ifdef CHARCODES_DEFINE
 
@@ -641,11 +641,11 @@
 
 
 /* codes for BW to tell Front things 
-* N.B. THESE CIDES MUST BE DIFFERNT FORM toggle_codes in front.c
-*/
+ * N.B. THESE CIDES MUST BE DIFFERNT FORM toggle_codes in front.c
+ */
 char *bwtoggle_codes[] = {
-"fo", /* file is open */
-NULL,
+    "fo", /* file is open */
+    NULL,
 };
 char *serial_strings[NCODES+1] = {
 	"xo", /* X offset, 0 */
@@ -704,7 +704,7 @@ char *serial_strings[NCODES+1] = {
 	"vr", /* RAMP_VERGENCE, 28 */
 	"nt",  /* NTRIALS, 22 */
 	"uf", /* Uff Prefix, 30 */
-        "hx", /* High X value for interleaving */
+    "hx", /* High X value for interleaving */
 	"sM", /* stimulus mode */
 	"wr", /* WURTZ task response period, 34 */
 	"mD", /* max dispartiy for initial disp manipulation, 35 */
@@ -759,44 +759,44 @@ char *serial_strings[NCODES+1] = {
 	"jt", /* saccade target size 97*/
 	"vs", /* vertical saccade val 98*/
 	"dd", /* dot density, 99*/
-   "Vs", /* VSR */
+    "Vs", /* VSR */
 	"cl", /* Clear Screen, 64 */
 	"e2", /* Extype 2 */
-"m2", /* mean2 */
-"e0", /* no expt */
-"n2", /* nstim2 */
-"i2", /* incr2 */
-"ac", /* anticorrelated expt */
-"cd", /* correlated disparity*/
-"Dm", /* Distribution Mean*/
-"np", /* NPLANES*/
-"me", /* monocularity Experiment */
-"cv", /* vergence Correction */
-"fh", /* fixation surround hole*/
-"bh", /* Background size */
-"fd", /* Fixation overlap duration */
-"fr", /* fraction rewarded */
-"aq", /*acquisition ON/OFF */
-"rd", /* relative disparity */
-"oL", /* LEFT ORI */
-"oR", /* RIGHT ORI */
-"ve", /*version number */
-"sz", /* STIM_SIZE +24 */
-"cb", /* Background Correlation +24 */
-"sd", /* Seed Delay */
-"1t", /* Trigger level 1 */
-"2t", /* Trigger level 2 */
-"3t", /* Trigger level 3 */
-"4t", /* Trigger level 4 */
-"cs", /* Seed for reverse correlation */
-"fn", /* frame repeat value for reverse correlation */
-"cx", /* stimchange code */
-"fp", /* fixpos, x and y for change in trial */
-"Ro", /* RF Ori */
-"Bs", /* Back Stim */
-  "Fs", /* FP move size */
-  "Fa", /* FP move angle*/
-  "ip", /* Initial Phase*/
+    "m2", /* mean2 */
+    "e0", /* no expt */
+    "n2", /* nstim2 */
+    "i2", /* incr2 */
+    "ac", /* anticorrelated expt */
+    "cd", /* correlated disparity*/
+    "Dm", /* Distribution Mean*/
+    "np", /* NPLANES*/
+    "me", /* monocularity Experiment */
+    "cv", /* vergence Correction */
+    "fh", /* fixation surround hole*/
+    "bh", /* Background size */
+    "fd", /* Fixation overlap duration */
+    "fr", /* fraction rewarded */
+    "aq", /*acquisition ON/OFF */
+    "rd", /* relative disparity */
+    "oL", /* LEFT ORI */
+    "oR", /* RIGHT ORI */
+    "ve", /*version number */
+    "sz", /* STIM_SIZE +24 */
+    "cb", /* Background Correlation +24 */
+    "sd", /* Seed Delay */
+    "1t", /* Trigger level 1 */
+    "2t", /* Trigger level 2 */
+    "3t", /* Trigger level 3 */
+    "4t", /* Trigger level 4 */
+    "cs", /* Seed for reverse correlation */
+    "fn", /* frame repeat value for reverse correlation */
+    "cx", /* stimchange code */
+    "fp", /* fixpos, x and y for change in trial */
+    "Ro", /* RF Ori */
+    "Bs", /* Back Stim */
+    "Fs", /* FP move size */
+    "Fa", /* FP move angle*/
+    "ip", /* Initial Phase*/
 	"bo", /*background orientation */
 	"Bt", /*background TF */
 	"Er", /* Early Reward */
@@ -822,82 +822,82 @@ char *serial_strings[NCODES+1] = {
 	"Dw", /* Distribution Width */
 	"fH", /* Fixwin H */
 	"i3", /* incr3 */
-  "Dc", /* Distribution Concentration */
-  "St", /* Saccade Threshold */
-  "Sa", /* Saccade Detected */
-  "Id", /* Initial Disparity */
-  "vv", /* Vertical vergence */
-  "px", /* pixel x +4*/
-  "py", /* pixel y +5*/
-  "vd", /* viewing disatnce + 1*/
+    "Dc", /* Distribution Concentration */
+    "St", /* Saccade Threshold */
+    "Sa", /* Saccade Detected */
+    "Id", /* Initial Disparity */
+    "vv", /* Vertical vergence */
+    "px", /* pixel x +4*/
+    "py", /* pixel y +5*/
+    "vd", /* viewing disatnce + 1*/
 	"sP", // Stim Pulses
 	"pw", // pulse width
-  "pi", /* pursuit increment */
-  "IB", /* Image dir for backgrounds */
-  "Br", /* background frame rpt */
-  "bz", /* Zoom for back images */
-  "rr", /* RC repeats - # of times to repeat each seed */
-   "ap", /* AFC proportion*/
-  "Im", /* Initial Movement */
-  "bO", /* backgr Opos */
-  "bP", /* backgr Ppos */
-  "rb", /* Reward Bias*/
-   "Tx", /* Target X Offset */
-   "Ty", /* Target Y Offset */
-   "T2", /* Target 2 direction(file), position (spike2) */
-  "mixac", /* mix corr, AC, dots */
-  "Tt", /* Tonetime */
+    "pi", /* pursuit increment */
+    "IB", /* Image dir for backgrounds */
+    "Br", /* background frame rpt */
+    "bz", /* Zoom for back images */
+    "rr", /* RC repeats - # of times to repeat each seed */
+    "ap", /* AFC proportion*/
+    "Im", /* Initial Movement */
+    "bO", /* backgr Opos */
+    "bP", /* backgr Ppos */
+    "rb", /* Reward Bias*/
+    "Tx", /* Target X Offset */
+    "Ty", /* Target Y Offset */
+    "T2", /* Target 2 direction(file), position (spike2) */
+    "mixac", /* mix corr, AC, dots */
+    "Tt", /* Tonetime */
 #ifdef DOSVERSION
 	NULL
 };
 #else
-  "iD", /* Opposite Delay */
-  "Fr", /* FAST_SEQUENCE rpt +1 */
-  "db", /* Wurtz Brightness Shift, +2 */
-  "tc", /* Timeout color, +3*/
-  "Dr",  /* dot repeat */
-  "sa", /* saccade amplitude */
-	"fo", /* Color when fixation "off"  +6*/
-	"lo", /* Logfile +7 */
-	"sc", /* stop criterion +8 */ 
-	"rl", /* running average length +9 */ 
-	"os", /* SIDE_OFFSET +10 */
-	"eo", /* END_OFFSET, +11 */
-	"xr", /* XMINSAMPLE_RATIO, +12 */
-	"he", /* helpfile */
-	"xm", /* XMAXSAMPLE_RATIO, +14 */	
-	"Sv", /* Stim Version + 15*/
-	"pe", /* PENETRATION, +16 */
-  "RP", /* RF PARALELL */
-  "pl", /* Size of Proximal Luminance Covariace */
-  "To", /* Target offset */
-	"di", /* DIRECTIONALIGY, +20 */
-	"ct", /* CELL_TYPE, +21 */
-	"fl", /* Stimulus Flag +22*/
-	"si", /* swap interval +23 */
-  "Tz", /*trapezoidal scaling for projectors */
-	"Rw", /* RF Width +25 */
-	"Rh", /* RF Height +26 */
-	"Rx", /* RF x +27 */
-	"Ry", /* RF y +28 */
-	"RO", /* RF ORTHO +29*/
-	"sg", /* Spike Gain +30 */
-        "Pw", /* Plot Width +31 */
-        "Ph", /* Plot Height +32 */
-        "Px", /* Plot X +33 */
-        "Py", /* Plot Y +34 */
-	"nT", /* Trial Count*/
-        "Tg", /* good trials +36 */
-        "Tb", /* bad trials +36 */
-        "dc", /* disp X as cycle of sinewave */
-        "qe", /* quickexp code */
-        "ga", /* gamma correction val */
-        "lc", /* monocularity Experiment */
-        "ec", /* monocularity Experiment */
-  "pb",
-        "cc", /* contrast/xpos covariance */
-        "bl", /* bonus level */
-        "b2", /* bonus level 2*/
+"iD", /* Opposite Delay */
+"Fr", /* FAST_SEQUENCE rpt +1 */
+"db", /* Wurtz Brightness Shift, +2 */
+"tc", /* Timeout color, +3*/
+"Dr",  /* dot repeat */
+"sa", /* saccade amplitude */
+"fo", /* Color when fixation "off"  +6*/
+"lo", /* Logfile +7 */
+"sc", /* stop criterion +8 */ 
+"rl", /* running average length +9 */ 
+"os", /* SIDE_OFFSET +10 */
+"eo", /* END_OFFSET, +11 */
+"xr", /* XMINSAMPLE_RATIO, +12 */
+"he", /* helpfile */
+"xm", /* XMAXSAMPLE_RATIO, +14 */	
+"Sv", /* Stim Version + 15*/
+"pe", /* PENETRATION, +16 */
+"RP", /* RF PARALELL */
+"pl", /* Size of Proximal Luminance Covariace */
+"To", /* Target offset */
+"di", /* DIRECTIONALIGY, +20 */
+"ct", /* CELL_TYPE, +21 */
+"fl", /* Stimulus Flag +22*/
+"si", /* swap interval +23 */
+"Tz", /*trapezoidal scaling for projectors */
+"Rw", /* RF Width +25 */
+"Rh", /* RF Height +26 */
+"Rx", /* RF x +27 */
+"Ry", /* RF y +28 */
+"RO", /* RF ORTHO +29*/
+"sg", /* Spike Gain +30 */
+"Pw", /* Plot Width +31 */
+"Ph", /* Plot Height +32 */
+"Px", /* Plot X +33 */
+"Py", /* Plot Y +34 */
+"nT", /* Trial Count*/
+"Tg", /* good trials +36 */
+"Tb", /* bad trials +36 */
+"dc", /* disp X as cycle of sinewave */
+"qe", /* quickexp code */
+"ga", /* gamma correction val */
+"lc", /* monocularity Experiment */
+"ec", /* monocularity Experiment */
+"pb",
+"cc", /* contrast/xpos covariance */
+"bl", /* bonus level */
+"b2", /* bonus level 2*/
 "bs", /* Blocksize for expt runs */
 "c0", /* left contrast */
 "c1",
@@ -927,544 +927,544 @@ char *serial_strings[NCODES+1] = {
 "cr", /* contrast ratio */
 "tx", /* Times/Add Extp2 */
 "ci", /*command in */
-  "gr", /* Grid size */
-  "dO", /* orhtog disp */
-  "dP", /*paralell disp */
-  "sr", /*rds-sine expt */
-  "ns", /* New seed */
-  "d1", /* Disparity 1 in sqcorrug */
-  "d2", /* Disparity 2 (in sqcorrug) */
-  "Ff", /* FP move frame */
-  "lX", /* Log Xpos */
-  "mx", /* L-R-B */
-  "LR", /* L-R */
-  "LB", /* L-B */
-  "RB", /* R-B */
-  "lS", /*SF lin */
-  "lT", /*TF lin */
-  "oS", /*log size */
-  "m3", /* mean expt 3*/
-  "pU", /* pUncorr */
-  "pT", /* p(Target Ratio = 0)*/
-  "sO", /* pos orthog to stimulus axis */
-  "pR", /* Plaid Contrast Ratio */
-  "xx", /* Spikes to print */
-  "xx", /* print scale */
-  "xx", /* spike skip */
-  "Al", /* Auto-Zero avg length */
-  "^d", /*OLD_ORHTO_DISP */
-  "|d", /*OLD_PARA_DISP */
-  "Op", /*Orthogonal Pos */
-  "Pp", /*Paralell Pos */
-  "lv", /*linear veloctiy */
-  "we", /* Weight */
-  "hr", /* Head restrained */
-  "r0", /*RdS x None backstim expt */
-  "Jt", /* Jump Type */
-  "tr", /* Target ratio (contrast) */
-  "hs", /* HIGHSF value */
-  "ht", /* HIGHTF value */
-  "cz", /* CONTRAST PAIRING */
-  "sL", /* Length of time to plot stepper position */
-  "Nf", /* Actual frames done */
-  "pC", /* Plot Cluster */
-  "r1", /* reward 1 */
-  "r2", /* reward 2 */
-  "r3", /* reward 3 */
-  "Tc", /* Timeout Contrast */
-  "nR", /* number of RC files so far */
-  "As", /* Alternative Stimulus modes */
-  "Us", /* Microstim Expt */
-  "T1", /* Test Value 1, for various tests */
-  "TB",/* Test Value 2, for various tests */
-  "Ba",/* Size to add for background */
-  "b+",/* */
-  "Pn", /* penetration number */
-  "Xp", /* Pen X */
-  "Yp",/* Pen y */
-  "Vn", /*Visual Area */
-  "Is", /* Scale factor for IFC expts */
-  "xx", 
-  "hL", /* Height in Left eye */
-  "hR", /* Height in Right eye */
-  "wL", /* Width in Left eye */
-  "wR", /* Width in Right eye */
-  "SL", /* Size in Left eye */
-  "SR", /* Size in Right eye */
-  "Sd", /* Size disparity */
-  "fm", /* FixPt monocularity */
-  "Sb", /* SD both axes */
-  "uk", /* Values for Uka/DeAngelis Staircase */
-  "Pr", /* phase disp in disparity units, applied as reldisp */
-  "PX", /* Panel X Position */
-  "rc", /* Relative Contrast */
-  "by", /* backgound vertical disparity */
-  "PY", /* Panel Y Position */
-  "sC", /* Set Counterphase */
-  "ui", /* User ID */
-  "Tw", /* Temporal Distribution Width */
-  "ts", /* timeout for shake */
-  "Ol", /* Left Orthog pos */
-  "Or", /* Right Orthog pos */
-  "Covariate", /* Thing that changes with psych variable */
-  "iF", /* Initial Frames (Duration)*/
-  "e1max", /* force max val for expt 1*/
-  "dS", /* dummy stimulation */
-  "FakeSig", /* dummy stimulation magnitude*/
-  "pBlack", /* fraction of black dots*/
-  "hxtype", /* control +hx interleave */
+"gr", /* Grid size */
+"dO", /* orhtog disp */
+"dP", /*paralell disp */
+"sr", /*rds-sine expt */
+"ns", /* New seed */
+"d1", /* Disparity 1 in sqcorrug */
+"d2", /* Disparity 2 (in sqcorrug) */
+"Ff", /* FP move frame */
+"lX", /* Log Xpos */
+"mx", /* L-R-B */
+"LR", /* L-R */
+"LB", /* L-B */
+"RB", /* R-B */
+"lS", /*SF lin */
+"lT", /*TF lin */
+"oS", /*log size */
+"m3", /* mean expt 3*/
+"pU", /* pUncorr */
+"pT", /* p(Target Ratio = 0)*/
+"sO", /* pos orthog to stimulus axis */
+"pR", /* Plaid Contrast Ratio */
+"xx", /* Spikes to print */
+"xx", /* print scale */
+"xx", /* spike skip */
+"Al", /* Auto-Zero avg length */
+"^d", /*OLD_ORHTO_DISP */
+"|d", /*OLD_PARA_DISP */
+"Op", /*Orthogonal Pos */
+"Pp", /*Paralell Pos */
+"lv", /*linear veloctiy */
+"we", /* Weight */
+"hr", /* Head restrained */
+"r0", /*RdS x None backstim expt */
+"Jt", /* Jump Type */
+"tr", /* Target ratio (contrast) */
+"hs", /* HIGHSF value */
+"ht", /* HIGHTF value */
+"cz", /* CONTRAST PAIRING */
+"sL", /* Length of time to plot stepper position */
+"Nf", /* Actual frames done */
+"pC", /* Plot Cluster */
+"r1", /* reward 1 */
+"r2", /* reward 2 */
+"r3", /* reward 3 */
+"Tc", /* Timeout Contrast */
+"nR", /* number of RC files so far */
+"As", /* Alternative Stimulus modes */
+"Us", /* Microstim Expt */
+"T1", /* Test Value 1, for various tests */
+"TB",/* Test Value 2, for various tests */
+"Ba",/* Size to add for background */
+"b+",/* */
+"Pn", /* penetration number */
+"Xp", /* Pen X */
+"Yp",/* Pen y */
+"Vn", /*Visual Area */
+"Is", /* Scale factor for IFC expts */
+"xx", 
+"hL", /* Height in Left eye */
+"hR", /* Height in Right eye */
+"wL", /* Width in Left eye */
+"wR", /* Width in Right eye */
+"SL", /* Size in Left eye */
+"SR", /* Size in Right eye */
+"Sd", /* Size disparity */
+"fm", /* FixPt monocularity */
+"Sb", /* SD both axes */
+"uk", /* Values for Uka/DeAngelis Staircase */
+"Pr", /* phase disp in disparity units, applied as reldisp */
+"PX", /* Panel X Position */
+"rc", /* Relative Contrast */
+"by", /* backgound vertical disparity */
+"PY", /* Panel Y Position */
+"sC", /* Set Counterphase */
+"ui", /* User ID */
+"Tw", /* Temporal Distribution Width */
+"ts", /* timeout for shake */
+"Ol", /* Left Orthog pos */
+"Or", /* Right Orthog pos */
+"Covariate", /* Thing that changes with psych variable */
+"iF", /* Initial Frames (Duration)*/
+"e1max", /* force max val for expt 1*/
+"dS", /* dummy stimulation */
+"FakeSig", /* dummy stimulation magnitude*/
+"pBlack", /* fraction of black dots*/
+"hxtype", /* control +hx interleave */
 
 // these codes are all ones that do not need to be saved
-  "ar", /* Aspect Ratio */
-  "Hi", /* Hidden Codes */
-  "nl", /* Number of Low F components */
-  "nh", /* Number of High F components */
-  "ls", /* Last Seed */
-  "dfx", /* change in fixpos x */
-  "ddx", /* change in disp x */
-  "backMov", /* background Movie */
-  "annTyp", /* Annulus type */
-  "StartDepth", /* Start Depth */
-  "TwoCylDisp", /* Disparity for cylinder pair */
-  "rC", /*random contrast expt */
-  "posinc", /* specify frame displacement, not velocity */
-    "aOp", // Opos in absolute units (not relative to RF( 
-    "aPp", // Opos in absolute units (not relative to RF( 
+"ar", /* Aspect Ratio */
+"Hi", /* Hidden Codes */
+"nl", /* Number of Low F components */
+"nh", /* Number of High F components */
+"ls", /* Last Seed */
+"dfx", /* change in fixpos x */
+"ddx", /* change in disp x */
+"backMov", /* background Movie */
+"annTyp", /* Annulus type */
+"StartDepth", /* Start Depth */
+"TwoCylDisp", /* Disparity for cylinder pair */
+"rC", /*random contrast expt */
+"posinc", /* specify frame displacement, not velocity */
+"aOp", // Opos in absolute units (not relative to RF( 
+"aPp", // Opos in absolute units (not relative to RF( 
 NULL
 };
 
 
 char *mode_names[] = {
-  "Balenced Dot Distribution",
-  "Fixed Random Dot Distribution",
-  "Frame Random Dot Dist",
-  "Un-normalized nsines",
-  "Random Power nsines",
+    "Balenced Dot Distribution",
+    "Fixed Random Dot Distribution",
+    "Frame Random Dot Dist",
+    "Un-normalized nsines",
+    "Random Power nsines",
     "4 Bit Noise",
-  "Random Component Nsines",
-  "Random Log Component Nsines",
-  "Indep Component Nsines",
-  "Indep Log Component Nsines",
-  "Binoc Indep Log Nsines",
-  "Indep Nsines 3 Contrasts",
-  "Binoc Indep Sines (Lin)",
-  "Four Phases",
-  "Two Phases",
-  "Remove Back Surface",
-  "Flat Cylinder",
-  "Normal Cylinder",
-  "Zero Dispartiy BackCyl",
-  "Parellel AC",
-  "Orthog AC",
-  "Parallel UC",
-  "Orthog UC",
-  "Orthog Lines Off",
-  "TwoCyl AND Idisp",
-  "RDS-sl1/RLS-sl0",
-  NULL
+    "Random Component Nsines",
+    "Random Log Component Nsines",
+    "Indep Component Nsines",
+    "Indep Log Component Nsines",
+    "Binoc Indep Log Nsines",
+    "Indep Nsines 3 Contrasts",
+    "Binoc Indep Sines (Lin)",
+    "Four Phases",
+    "Two Phases",
+    "Remove Back Surface",
+    "Flat Cylinder",
+    "Normal Cylinder",
+    "Zero Dispartiy BackCyl",
+    "Parellel AC",
+    "Orthog AC",
+    "Parallel UC",
+    "Orthog UC",
+    "Orthog Lines Off",
+    "TwoCyl AND Idisp",
+    "RDS-sl1/RLS-sl0",
+    NULL
 };
 
 char codesend[NCODES] = {
 	SEND_EXPLICIT};
 
 char *serial_names[] = {
-"X offset",
-"Y offset",
-"Stimulus Type ", 
-"Sigma X", 
-"Sigma Y", 
-"Diparate phase",
-"Disparity ",
-"Width ",
-"Height ",
-"Spatial Frequency",
-"X sampling",
-"Y Sampling",
-"Temporal Frequency", /*  12 */
-"Spatial Phase", /*  13 */
-"Orientation", /*  14 */
-"Seed Loop",
-"Seed",
-"Contrast ",
-"VDisp",
-"SF2",
-"TF2",/* 20*/
-"Phase2",
-"Plaid angle",
-"J velocity",
-"front intensity",
-"back intensity",
-"cyl num dots",
-"dotlife (cyl)",
-"death chance",
-"contrast 2",
-"delta contrast",
-"delta ori",
-"delta SF",
-"disp grad",
-"depth modulation",
-"twobar angle",
-"Disp Ramp",
-"pDisp 2",
-"Rel Phase",
-"Phase Disp as Disp",
-"Correlation",
-"Dot Width",
-"Fixation Color",
-"Zoom",
-"BackGround Color ",
-"Delay",
-"PREPERIOD", 
-"Expt1 Type", 
-"FRAMERATE", 
-"STIMULUS DURATION", 
-"CLAMP_DISPARITY", 
-"POSTPERIOD", 
-"Mode",
-"RAMP_VERGENCE",
-"N Stim (Expt 1)",
-"Uff Prefix",
-"High X Value for Interleaves",
-"Stimulus mode",
-"WURTZ task response period", 
-"Max disp Initial manip", 
-"optionflag setup", 
-"N Repetitions", /*  37 */
-"trigger level", /*  38 */
-"fixation window", /*  39 */
-"display flag",
-"channel Set code",
-"Static Vergence",
-"mean fixation period",
-"Replay End",
-"Background Contrast",
-"Expt incr", 
-"Expt Mean", 
-"ISI", 
-"bin width", 
-"binned unit data",
-"unit times",
-"N Frames",
-"backgound disparity", /*  53 */
-"ramp coefficient", /*  54 */
-"fixation x pos ",
-"fixation y pos ",
-"fixation size ",
-"mean conjugate",
-"Reward Size", /*  59 */
-"Vergence RAMP and Hold", /*  60 */
-"TIMEOUT",  /* 61 */
-"Software Offsets 62 ",
-"Query State", /*  63 */
-"Stop Button", /*  65 */
-"Ramp Amplitude", /*  66 */
-"Initial Blank Period", /*  67 */
-"UpLoad Directory*", /*  68 */
-"Vergence Window",
-"Short Prem Trial Length",
-"electrode depth", /*  71 */
-"Comment", /*  72 */
-"Seed Shift/UC gap", /*  73 */
-"Conjugate Position", /* 74 */
-"Deg2pix", /* 75 */
-"DRAGGED_POS",
-"optionflag2",
-"H Saccade Size",
-"WRONG_TIMEOUT",
-"STARTVAL",
-"MAXSTAIRVAL",
-"MINSTAIRVAL",
-"STANDING_DISP",
-"Saccade Box size",
-"SACTARGSIZE",
-"V Saccade Size",
-"DOT_DENSITY",
-"VSR",
-"SEND_CLEAR",
-"Expt 2 Type",
-"Expt 2 Mean",
-"EXPTYPE_NONE",
-"Expt 2 Nstims",
-"Expt 2 increment",
-"ANTICORRELATED_DISPARITY",
-"CORRELATED_DISPARITY",
-"Distribution Mean",
-"NPLANES",
-"MONOCULARITY_EXPT",
-"VERGENCE_CORRECTION",
-"FIXATION_SURROUND",
-"Back Size",
-"Fixation Overlap duration",
-"P(reward)",
-"Acquision ON/OFF",
-"Relative Disparity",
-"ORI_LEFT",
-"ORI_RIGHT",
-"Version",
-"Size (H and W)",
-"Backround Correlation",
-"Seed Delay",
-"Trigger 1",
-"Trigger 2",
-"Trigger 3",
-"Trigger 4",
-"RC seed",
-"frame repeat",
-"Change type",
-"NewFixPos",
-"RF Ori",
-"BackStim",
-  "FP Move Size",
-  "FP Move Dir",
-  "Starting Phase",
-  "BackGround Ori",
-  "BackGround TF",
-  "Early Reward Time",  
-  "N Extras",
-  "Manual TDR Entry",
-  "Expt 3",
-  "Modulation Frequency",
-  "Disparity of Fixpt",
-  "Relatve Vdisp",
-  "Vdisp mod",
-  "Length Disparity",
-  "Width Disparity",
-  "N Components",
-  "Stim ID",
-  "Ori 2",
-  "Nstim 3",
-  "Spin Rate",
-  "Back Width",
-  "Back Height",
-  "Dot X Pos",
-  "Orientation Bandwidth",
-  "Incr for FastSeq",
-  "Distribution Width",
-  "Fixwin Height",
-  "Incr 3",
-  "Distribution Conc",
-  "Saccade Threshold",
-  "Saccade Detected",
-  "Initial Disparity",
-  "Vertical Vergence",
-"XPixel Size (cm)",
-"YPIXEL_CODE",
-"VIEWD_CODE",
-  "Stim pulses",
-  "pulse width",
-"Pursuit Increment",
-"Backgr Image",
-"Fast Rpt B", 
-"Backgr Zoom",
-"Rc repeats",
-"AFC Proportion",
-  "Initial Movement",
-  "Backgr Ortho pos",
-  "Backgr Para pos",
-  "Reward Bias",
-  "Target X off",
-  "Target Y off",
-  "Target 2 pos",
-"AC Mixture",
-"Tone time",
-//Max serialcodes
-
- "Opposite Delay",
-"FastSeq Repeat",
-"BRIGHTSHIFT_CODE",
-"BLANKCOLOR_CODE",
-"Dot Sample Repeat",
-"Saccade Amplitude",
-"FIX_OFF_CODE",
-"LOGFILE_CODE",
-"STOP_CRITERION",
-"RUNAVERAGE_LENGTH",
-"SIDE_OFFSET",
-"END_OFFSET",
-"XMINSAMPLE_RATIO",
-"Help File",
-"XMAXSAMPLE_RATIO",
-"Stimulus Version",
-"PENETRATION_TEXT",
-"RF P shift",
-"PLC magnitude",
-"Target Offset",
-"DIRECTION_TEXT",
-"CELLTYPE_TEXT",
-"STIMULUS_FLAG",
-"SWAPINTERVAL",
-"trapezoidal scaling",
-"RF_WIDTH",
-"RF_HEIGHT",
-"RF_X",
-"RF_Y",
-"RF O shift",
-"SPIKE_GAIN",
-"PLOTW",
-"PLOTH",
-"PLOTX",
-"PLOTY",
-"Completed Trials",
-"GOODTRIALS",
-"BADTRIALS",
-"DISP_AS_CYCLES",
-"QUICKEXPT_CODE",
-"Gamma value",
-"CORRECTION_LEAVE_CRIT",
-"CORRECTION_ENTRY_CRIT",
-"P(blank)",
-"COVARY_XPOS",
-"BONUS_CRITERION",
-"BONUS2_CRITERION",
-"EXPT_BLKSIZ",
-"CONTRAST_LEFT",
-"CONTRAST_RIGHT",
-"Twobar sep",
-"Fixation Linw",
-"SETCLEARCOLOR",
-"BACKJUMP",
-"SF left",
-"SF Right",
-"X randomization",
-"Ori randomization",
-"dOri F+B",
-"dOri Back",
-"Stim eccentricity",
-"Polar Angle",
-"Old Lori",
-"Old Rori",
-"Cyberamp channels",
-"RF Sign",
-"End Length",
-"Line Width for online plott",
-"Plot Smoothing for online RC",
-"Flags Shown on panel",
-"Stimuli per fixation Trial",
-"RC delay",
-"PSTH smoothing",
-"Contrast Ratio",
-"fix linw",
-"Clear color",
-  "Grid Size",
-  "Orthog Disp",
-  "Paralell Disp",
-"RDS/Sine",
-  "Change Seed",
-  "Disparity 1",
-  "Disparity 2",
-  "FP Move Frame",
-  "Xpos (log)",
-  "L-R-Binoc",
-  "L-R-Monoc",
-  "L-Binoc",
-  "R-Binoc",
-  "SF-Lin",
-  "TF-Lin",
-  "Log Size",
-  "Expt 3 Mean",
-  "p(Uncorr)",
-  "p(One Target)",
-  "StimOrthog Pos",
-  "Plaid Contrast Ratio",
-  "N spikes to print",
-  "Print Scale",
-  "Spike skip",
-  "Avg Len for eyepos auto-zero",
-  "Old Orthog disp",
-  "Old Paralell disp",
-  "Orthog Offset",
-  "Paralell Offset",
-  "Linear Velocity expt",
-  "Weight",
-  "Head Restrained",
-  "Rds x None back",
-  "jump Type",
-  "Target Ratio",
-  "High SF val",
-  "High TF val",
-  "Contrast Pairs",
-  "Stepper Plot Length",
-  "True Nframes",
-  "Plot Cluster/Exp No.",
-  "Reward 1",
-  "Reward 2",
-  "Reward 3",
-  "Timeout Contrast",
-  "RC File Counter",
-  "Alternative Stimulus",
-  "Microstim Expt",
-  "Test value 1",
-  "Test value 2",
-  "Size to add for background",
-  "RC stimulus change",
-  "penetration number",
-  "Pen X",
-  "Pen y",
-  "Visual Area",
-  "Scale factor for IFC expts",
-  "unused",
-  "Height L",
-  "Height R",
-  "Width L",
-  "Width R",
-  "Size L",
-  "Size R",
-  "Size Disparity",
-  "FixPt Ocularity",
-  "Sigma X and Y",
-  "Uka Stair Coeffs",
-  "Phase Disp as RelDisp",
-  "Panel X position",
-  "Relative contrast",
-  "Background Vertical Disp",
-  "Panel Y position",
-  "Counterphase",
-  "User id",
-  "Time Ori BW",
-  "Shake Timeout",
-"Orthog Pos L",
-"Orthog Pos R",
-"Covariate",
-"Initial Frames (Duration)",
-"Expt1 Max",
-"FakeStim Expt", 
-"FakeStim Signal", 
-"p(black dot)", 
-"High X type",
-
-  "Aspect Ratio",
-  "Hidden Codes",
-  "N Low F Components",
-  "N High F Comonents",
-  "Final Seed",
-"fx change",
-"dx change",
-"Backgr Movie",
-"Annulus Type",
-"Start Depth",
-"TwoCyl Disp",
-"Random Contrasts",
-"Position Displacement per frame",
-"absolute OrthoPos",
-"absolute ParaPos",
-NULL};
+    "X offset",
+    "Y offset",
+    "Stimulus Type ", 
+    "Sigma X", 
+    "Sigma Y", 
+    "Diparate phase",
+    "Disparity ",
+    "Width ",
+    "Height ",
+    "Spatial Frequency",
+    "X sampling",
+    "Y Sampling",
+    "Temporal Frequency", /*  12 */
+    "Spatial Phase", /*  13 */
+    "Orientation", /*  14 */
+    "Seed Loop",
+    "Seed",
+    "Contrast ",
+    "VDisp",
+    "SF2",
+    "TF2",/* 20*/
+    "Phase2",
+    "Plaid angle",
+    "J velocity",
+    "front intensity",
+    "back intensity",
+    "cyl num dots",
+    "dotlife (cyl)",
+    "death chance",
+    "contrast 2",
+    "delta contrast",
+    "delta ori",
+    "delta SF",
+    "disp grad",
+    "depth modulation",
+    "twobar angle",
+    "Disp Ramp",
+    "pDisp 2",
+    "Rel Phase",
+    "Phase Disp as Disp",
+    "Correlation",
+    "Dot Width",
+    "Fixation Color",
+    "Zoom",
+    "BackGround Color ",
+    "Delay",
+    "PREPERIOD", 
+    "Expt1 Type", 
+    "FRAMERATE", 
+    "STIMULUS DURATION", 
+    "CLAMP_DISPARITY", 
+    "POSTPERIOD", 
+    "Mode",
+    "RAMP_VERGENCE",
+    "N Stim (Expt 1)",
+    "Uff Prefix",
+    "High X Value for Interleaves",
+    "Stimulus mode",
+    "WURTZ task response period", 
+    "Max disp Initial manip", 
+    "optionflag setup", 
+    "N Repetitions", /*  37 */
+    "trigger level", /*  38 */
+    "fixation window", /*  39 */
+    "display flag",
+    "channel Set code",
+    "Static Vergence",
+    "mean fixation period",
+    "Replay End",
+    "Background Contrast",
+    "Expt incr", 
+    "Expt Mean", 
+    "ISI", 
+    "bin width", 
+    "binned unit data",
+    "unit times",
+    "N Frames",
+    "backgound disparity", /*  53 */
+    "ramp coefficient", /*  54 */
+    "fixation x pos ",
+    "fixation y pos ",
+    "fixation size ",
+    "mean conjugate",
+    "Reward Size", /*  59 */
+    "Vergence RAMP and Hold", /*  60 */
+    "TIMEOUT",  /* 61 */
+    "Software Offsets 62 ",
+    "Query State", /*  63 */
+    "Stop Button", /*  65 */
+    "Ramp Amplitude", /*  66 */
+    "Initial Blank Period", /*  67 */
+    "UpLoad Directory*", /*  68 */
+    "Vergence Window",
+    "Short Prem Trial Length",
+    "electrode depth", /*  71 */
+    "Comment", /*  72 */
+    "Seed Shift/UC gap", /*  73 */
+    "Conjugate Position", /* 74 */
+    "Deg2pix", /* 75 */
+    "DRAGGED_POS",
+    "optionflag2",
+    "H Saccade Size",
+    "WRONG_TIMEOUT",
+    "STARTVAL",
+    "MAXSTAIRVAL",
+    "MINSTAIRVAL",
+    "STANDING_DISP",
+    "Saccade Box size",
+    "SACTARGSIZE",
+    "V Saccade Size",
+    "DOT_DENSITY",
+    "VSR",
+    "SEND_CLEAR",
+    "Expt 2 Type",
+    "Expt 2 Mean",
+    "EXPTYPE_NONE",
+    "Expt 2 Nstims",
+    "Expt 2 increment",
+    "ANTICORRELATED_DISPARITY",
+    "CORRELATED_DISPARITY",
+    "Distribution Mean",
+    "NPLANES",
+    "MONOCULARITY_EXPT",
+    "VERGENCE_CORRECTION",
+    "FIXATION_SURROUND",
+    "Back Size",
+    "Fixation Overlap duration",
+    "P(reward)",
+    "Acquision ON/OFF",
+    "Relative Disparity",
+    "ORI_LEFT",
+    "ORI_RIGHT",
+    "Version",
+    "Size (H and W)",
+    "Backround Correlation",
+    "Seed Delay",
+    "Trigger 1",
+    "Trigger 2",
+    "Trigger 3",
+    "Trigger 4",
+    "RC seed",
+    "frame repeat",
+    "Change type",
+    "NewFixPos",
+    "RF Ori",
+    "BackStim",
+    "FP Move Size",
+    "FP Move Dir",
+    "Starting Phase",
+    "BackGround Ori",
+    "BackGround TF",
+    "Early Reward Time",  
+    "N Extras",
+    "Manual TDR Entry",
+    "Expt 3",
+    "Modulation Frequency",
+    "Disparity of Fixpt",
+    "Relatve Vdisp",
+    "Vdisp mod",
+    "Length Disparity",
+    "Width Disparity",
+    "N Components",
+    "Stim ID",
+    "Ori 2",
+    "Nstim 3",
+    "Spin Rate",
+    "Back Width",
+    "Back Height",
+    "Dot X Pos",
+    "Orientation Bandwidth",
+    "Incr for FastSeq",
+    "Distribution Width",
+    "Fixwin Height",
+    "Incr 3",
+    "Distribution Conc",
+    "Saccade Threshold",
+    "Saccade Detected",
+    "Initial Disparity",
+    "Vertical Vergence",
+    "XPixel Size (cm)",
+    "YPIXEL_CODE",
+    "VIEWD_CODE",
+    "Stim pulses",
+    "pulse width",
+    "Pursuit Increment",
+    "Backgr Image",
+    "Fast Rpt B", 
+    "Backgr Zoom",
+    "Rc repeats",
+    "AFC Proportion",
+    "Initial Movement",
+    "Backgr Ortho pos",
+    "Backgr Para pos",
+    "Reward Bias",
+    "Target X off",
+    "Target Y off",
+    "Target 2 pos",
+    "AC Mixture",
+    "Tone time",
+    //Max serialcodes
+    
+    "Opposite Delay",
+    "FastSeq Repeat",
+    "BRIGHTSHIFT_CODE",
+    "BLANKCOLOR_CODE",
+    "Dot Sample Repeat",
+    "Saccade Amplitude",
+    "FIX_OFF_CODE",
+    "LOGFILE_CODE",
+    "STOP_CRITERION",
+    "RUNAVERAGE_LENGTH",
+    "SIDE_OFFSET",
+    "END_OFFSET",
+    "XMINSAMPLE_RATIO",
+    "Help File",
+    "XMAXSAMPLE_RATIO",
+    "Stimulus Version",
+    "PENETRATION_TEXT",
+    "RF P shift",
+    "PLC magnitude",
+    "Target Offset",
+    "DIRECTION_TEXT",
+    "CELLTYPE_TEXT",
+    "STIMULUS_FLAG",
+    "SWAPINTERVAL",
+    "trapezoidal scaling",
+    "RF_WIDTH",
+    "RF_HEIGHT",
+    "RF_X",
+    "RF_Y",
+    "RF O shift",
+    "SPIKE_GAIN",
+    "PLOTW",
+    "PLOTH",
+    "PLOTX",
+    "PLOTY",
+    "Completed Trials",
+    "GOODTRIALS",
+    "BADTRIALS",
+    "DISP_AS_CYCLES",
+    "QUICKEXPT_CODE",
+    "Gamma value",
+    "CORRECTION_LEAVE_CRIT",
+    "CORRECTION_ENTRY_CRIT",
+    "P(blank)",
+    "COVARY_XPOS",
+    "BONUS_CRITERION",
+    "BONUS2_CRITERION",
+    "EXPT_BLKSIZ",
+    "CONTRAST_LEFT",
+    "CONTRAST_RIGHT",
+    "Twobar sep",
+    "Fixation Linw",
+    "SETCLEARCOLOR",
+    "BACKJUMP",
+    "SF left",
+    "SF Right",
+    "X randomization",
+    "Ori randomization",
+    "dOri F+B",
+    "dOri Back",
+    "Stim eccentricity",
+    "Polar Angle",
+    "Old Lori",
+    "Old Rori",
+    "Cyberamp channels",
+    "RF Sign",
+    "End Length",
+    "Line Width for online plott",
+    "Plot Smoothing for online RC",
+    "Flags Shown on panel",
+    "Stimuli per fixation Trial",
+    "RC delay",
+    "PSTH smoothing",
+    "Contrast Ratio",
+    "fix linw",
+    "Clear color",
+    "Grid Size",
+    "Orthog Disp",
+    "Paralell Disp",
+    "RDS/Sine",
+    "Change Seed",
+    "Disparity 1",
+    "Disparity 2",
+    "FP Move Frame",
+    "Xpos (log)",
+    "L-R-Binoc",
+    "L-R-Monoc",
+    "L-Binoc",
+    "R-Binoc",
+    "SF-Lin",
+    "TF-Lin",
+    "Log Size",
+    "Expt 3 Mean",
+    "p(Uncorr)",
+    "p(One Target)",
+    "StimOrthog Pos",
+    "Plaid Contrast Ratio",
+    "N spikes to print",
+    "Print Scale",
+    "Spike skip",
+    "Avg Len for eyepos auto-zero",
+    "Old Orthog disp",
+    "Old Paralell disp",
+    "Orthog Offset",
+    "Paralell Offset",
+    "Linear Velocity expt",
+    "Weight",
+    "Head Restrained",
+    "Rds x None back",
+    "jump Type",
+    "Target Ratio",
+    "High SF val",
+    "High TF val",
+    "Contrast Pairs",
+    "Stepper Plot Length",
+    "True Nframes",
+    "Plot Cluster/Exp No.",
+    "Reward 1",
+    "Reward 2",
+    "Reward 3",
+    "Timeout Contrast",
+    "RC File Counter",
+    "Alternative Stimulus",
+    "Microstim Expt",
+    "Test value 1",
+    "Test value 2",
+    "Size to add for background",
+    "RC stimulus change",
+    "penetration number",
+    "Pen X",
+    "Pen y",
+    "Visual Area",
+    "Scale factor for IFC expts",
+    "unused",
+    "Height L",
+    "Height R",
+    "Width L",
+    "Width R",
+    "Size L",
+    "Size R",
+    "Size Disparity",
+    "FixPt Ocularity",
+    "Sigma X and Y",
+    "Uka Stair Coeffs",
+    "Phase Disp as RelDisp",
+    "Panel X position",
+    "Relative contrast",
+    "Background Vertical Disp",
+    "Panel Y position",
+    "Counterphase",
+    "User id",
+    "Time Ori BW",
+    "Shake Timeout",
+    "Orthog Pos L",
+    "Orthog Pos R",
+    "Covariate",
+    "Initial Frames (Duration)",
+    "Expt1 Max",
+    "FakeStim Expt", 
+    "FakeStim Signal", 
+    "p(black dot)", 
+    "High X type",
+    
+    "Aspect Ratio",
+    "Hidden Codes",
+    "N Low F Components",
+    "N High F Comonents",
+    "Final Seed",
+    "fx change",
+    "dx change",
+    "Backgr Movie",
+    "Annulus Type",
+    "Start Depth",
+    "TwoCyl Disp",
+    "Random Contrasts",
+    "Position Displacement per frame",
+    "absolute OrthoPos",
+    "absolute ParaPos",
+    NULL};
 
 char *jumpnames[] = {
-  "Fx Para",
-  "Fx Orhto",
-  "St Para",
-  "St Ortho",
-  "St Alter",
-  NULL};
+    "Fx Para",
+    "Fx Orhto",
+    "St Para",
+    "St Ortho",
+    "St Alter",
+    NULL};
 
 
 char *jumpstrings[] = {
-"fp", //
-  "fr", //fix return
-  "sm", //stim move
-  "sr", //stim return
-  "sa", //stim altered
-  NULL};
+    "fp", //
+    "fr", //fix return
+    "sm", //stim move
+    "sr", //stim return
+    "sa", //stim altered
+    NULL};
 #endif
 
 int nfplaces[MAXTOTALCODES] = {2};
@@ -1476,24 +1476,24 @@ char *stimulus_names[N_STIMULUS_TYPES] =
 	"rds" ,
 	"grating",
 	"bar",
-	  "circle",
+    "circle",
 	"rectangle",
-	  "test",
-	  "square",
-	  "probe",
-	  "2grating", 
-	  "cylinder",
-	  "corrug",
-	  "sqcorrug",
-	  "twobar",
-	  "rls",
-	  "annulus",
-	  "rdssine",
-	  "nsines",
-	  "rlssine",
-	  "radial",
-	  "image",
-	  "checker",
+    "test",
+    "square",
+    "probe",
+    "2grating", 
+    "cylinder",
+    "corrug",
+    "sqcorrug",
+    "twobar",
+    "rls",
+    "annulus",
+    "rdssine",
+    "nsines",
+    "rlssine",
+    "radial",
+    "image",
+    "checker",
 };
 
 
@@ -1569,7 +1569,7 @@ extern char *jumpnames[];
 
 /*
  * Bits set int TheStim->flag (Unix) and in stimflag (DOS)
-*/
+ */
 
 #define CONTRAST_POSITIVE 1
 #define CONTRAST_NEGATIVE (1<<1)

@@ -65,13 +65,13 @@ typedef struct{
 typedef struct{
     int loopstate,laststate,result;
     int sign;
-
+    
     AFC_tots totals;
     char *performance_1, *performance_2;
     float sacval[6];
     float abssac[4];
     float sacdir[4];
-  float newdirs,stimsign;
+    float newdirs,stimsign;
     float targsize; /*j fix criterion for saccade targets*/
     float sac_fix_crit;
     float maxstairvalue, minstairvalue, startvalue;
@@ -83,10 +83,10 @@ typedef struct{
     float proportion, ccvar; /* proportion L stimuli when Random */
     int correction_entry, correction_leave; /* correction loop criteria */
     int bonuslevel, goodinarow,bonuslevel2; /* increasing reward for good behaviour */
-  double gregvals[5];
-  double vals[2];
-  int stimid,type,magid,nmags,stairsign;
-  double jsignval;
+    double gregvals[5];
+    double vals[2];
+    int stimid,type,magid,nmags,stairsign;
+    double jsignval;
 }AFCstructure;
 
 #define SACCREQD(x) (x.abssac[0] != 0 || x.abssac[1] != 0)

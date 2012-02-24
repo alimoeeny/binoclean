@@ -1,6 +1,6 @@
 /*
-*  MYMATH.H - useful macros for math
-*/
+ *  MYMATH.H - useful macros for math
+ */
 
 #define sqr(x) (float)((x) * (x))
 #define dsqr(x) (double)((x) * (x))

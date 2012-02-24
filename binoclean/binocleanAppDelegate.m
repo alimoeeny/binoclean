@@ -41,7 +41,7 @@ void displayOnMonkeyView(char *s, int x, int y)
 void sendNotification()
 {
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
-//    WriteToOutputPipe(s);
+    //    WriteToOutputPipe(s);
     if ([outputPipeBuffer length]>0) {
         NSLog(@"%d : %@", strlen([outputPipeBuffer UTF8String]), outputPipeBuffer);
         WriteToOutputPipe([NSString stringWithFormat:@"%@%@", s, outputPipeBuffer]);
@@ -99,7 +99,7 @@ void notify(char * s)
     if (!outputPipeBuffer) {
         outputPipeBuffer = [[NSString alloc] init];
     }
-       outputPipeBuffer = [[NSString stringWithFormat:@"%@%s", outputPipeBuffer, s] retain];
+    outputPipeBuffer = [[NSString stringWithFormat:@"%@%s", outputPipeBuffer, s] retain];
 }
 
 
@@ -116,7 +116,7 @@ void notify(char * s)
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-//    int useDIO = 1;
+    //    int useDIO = 1;
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
@@ -131,7 +131,7 @@ void notify(char * s)
         DIOWrite(0x0);
         DIOWrite(0xF);
     }
-
+    
     
     unlink(IN_PIPE);
     if (mkfifo(IN_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
@@ -139,19 +139,19 @@ void notify(char * s)
         [NSAlert alertWithMessageText:@"Can't create the input pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the input pipe. You can try to remove it manually by rm /tmp/binocinputpipe "];   
         abort();
     }
-
+    
     unlink(OUT_PIPE);
     if (mkfifo(OUT_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
         NSLog(@"Can't create the output pipe");
         [NSAlert alertWithMessageText:@"Can't create the output pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the output pipe. You can try to remove it manually by rm /tmp/binocoutputpipe "];   
         abort();
     }
-
+    
     open(IN_PIPE, O_RDWR); 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
     inputPipe = [[NSFileHandle fileHandleForReadingAtPath:@IN_PIPE] retain];
     [inputPipe readInBackgroundAndNotify];
-
+    
     open(OUT_PIPE, O_RDWR); 
     outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
     [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
@@ -188,7 +188,7 @@ void notify(char * s)
         NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
     }
     
-
+    
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);

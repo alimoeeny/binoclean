@@ -1,13 +1,13 @@
 /*
-* Misc.c a set of miscellaneous routines
-* useful for many programs
-*
-*	strup(char *s) makes a string all upper case
-*	strflush(char *s) cleans out a string
-*	float set(float *f, int n, float val) sets n members
-*			of the float array f to val
-*	int_set(i,n,val) does the same for integers
-*/
+ * Misc.c a set of miscellaneous routines
+ * useful for many programs
+ *
+ *	strup(char *s) makes a string all upper case
+ *	strflush(char *s) cleans out a string
+ *	float set(float *f, int n, float val) sets n members
+ *			of the float array f to val
+ *	int_set(i,n,val) does the same for integers
+ */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -20,7 +20,7 @@ char *s;
 {
 	int i;
 	char c;
-
+    
 	for(i = 0; i < strlen(s); i++)
 		s[i] = (islower(s[i])) ? toupper(s[i]): s[i];
 	return(s);
@@ -45,7 +45,7 @@ float val;
 {
 	float *fp;
 	int i;
-
+    
 	fp = f;
 	for(i = 0; i < n; i++)
 		*fp++ = val;
@@ -58,7 +58,7 @@ int val;
 {
 	int *fp;
 	int i;
-
+    
 	fp = p;
 	for(i = 0; i < n; i++)
 		*fp++ = val;
@@ -76,13 +76,13 @@ int n;
 }
 
 /* returns the order (base 10) of x
-* i.e order 100 = 100, order 10 = 10, order 90 = 10
-*/
+ * i.e order 100 = 100, order 10 = 10, order 90 = 10
+ */
 float get_order(float x)
 {
 	int lg;
 	double temp,order;
-
+    
 	if(x == 0)	
 		return(0);
 	temp = log10(fabs(x*1.03));
@@ -93,15 +93,15 @@ float get_order(float x)
 
 
 /*
-* fplaces calculates the number of deimal places needed
-* for displaying a number to n sig. digits.
-*/
+ * fplaces calculates the number of deimal places needed
+ * for displaying a number to n sig. digits.
+ */
 int fplaces(float x, int n)
 {
 	int lg;
 	double temp,order;
 	int i;
-
+    
 	if(x == 0.)	
 		return(n);
 	temp = x;
@@ -114,15 +114,15 @@ int fplaces(float x, int n)
 }
 
 /* puts a string into s which appropriate
-*  for describing f		*/
+ *  for describing f		*/
 int fstrcpy(s,f)
 char *s;
 float f;
 {
-
+    
 	float lg;
 	int i;
-
+    
 	if(f == 0.0)
 	{
 		sprintf(s,"0");
@@ -145,7 +145,7 @@ FILE *fd;
 {
 	char c;
 	int i;
-
+    
 	if(fgets(s,n,fd) != NULL)
 	{
 		i = strlen(s) - 1;
@@ -165,7 +165,7 @@ float f;
 {
 	float ftmp;
 	char s[256];
-
+    
 	fgets(s, 256, stdin);
 	ftmp = (strlen(s) > 0)? atof(s) : f;
 	return(ftmp);
@@ -177,7 +177,7 @@ char *s;
 {
 	int i;
 	char c;
-
+    
 	if(fopen(s,"r") != NULL)
 	{
 		fprintf(stderr,"%s already exists - continue?\n",s);

@@ -4,8 +4,8 @@
 #define Position int
 #endif
 typedef struct winloc{
-  Position x,y;
-  char label[20];
+    Position x,y;
+    char label[20];
 }Winloc;
 
 #define NWINDOWS 10

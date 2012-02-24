@@ -17,28 +17,28 @@
 #define INTERLEAVE_EXPT_FLIP -1011
 #define DEG2INT (2048.0/10.0)
 /*
-* Stimulus Types. But should be defined in commdefs.h, hence removed, bgc 6/14/2004
-#define STIM_GABOR 1
-#define STIM_RDS 2
-#define STIM_GRATING 3
-#define STIM_BAR 4
-#define STIM_CIRCLE 5
-#define STIM_RECT 6
-#define STIM_TEST 7
-#define STIM_SQUARE 8
-#define STIM_PROBE 9
-#define STIM_GRATING2 10
-#define STIM_CYLINDER 11
-
-#define STIM_NONE 0
-*/
+ * Stimulus Types. But should be defined in commdefs.h, hence removed, bgc 6/14/2004
+ #define STIM_GABOR 1
+ #define STIM_RDS 2
+ #define STIM_GRATING 3
+ #define STIM_BAR 4
+ #define STIM_CIRCLE 5
+ #define STIM_RECT 6
+ #define STIM_TEST 7
+ #define STIM_SQUARE 8
+ #define STIM_PROBE 9
+ #define STIM_GRATING2 10
+ #define STIM_CYLINDER 11
+ 
+ #define STIM_NONE 0
+ */
 
 #define MAXMEM 25000000  /* 25 Meg or so for image allocation */
 #define MAXPLOTS 40
 
 /* 
-* bits set in mode (front.c)
-*/
+ * bits set in mode (front.c)
+ */
 
 #define NULLMODE 0
 #define ANIMATE_BIT 1
@@ -86,14 +86,14 @@
 #define DRAG_STIMULUS (1<<1)
 
 /*
-* bits set in lineflag (expop.c)
-*/
+ * bits set in lineflag (expop.c)
+ */
 
 #define BACKSTIM_BIT (1<<25)
 
 /*
-* bits set in TheStim->mode
-*/
+ * bits set in TheStim->mode
+ */
 
 #define DOUBLEBUFFERMODE (1)
 #define STIMULUS_NEEDS_CLEAR (1<<1)
@@ -112,7 +112,7 @@
 #define INTRIAL (POST_STIMULUS_BIT | TRIAL_PENDING)
 
 #define MODEBITS (DOUBLEBUFFERMODE | ZBUFFERMODE | RECTWRITEMODE \
-		  | PRECALCMODE)
+| PRECALCMODE)
 
 #define PENDING_BITS (EXPTPENDING | TRIAL_PENDING)
 #define ONLINEBITS (PENDING_BITS | NEW_FIXATION_BIT | BACKCLEARED)
@@ -152,8 +152,8 @@
 #define ORDER_BITS (STIMULUS_EXTRA_RIGHT | STIMULUS_EXTRA_LEFT | STIMULUS_EXTRA_EXPT | STIMULUS_EXTRA_BLANK | STIMULUS_EXTRA_UNCORRELATE | STIMULUS_EXTRA_ZEROCOH | STIMULUS_EXTRA_ZERO | STIMULUS_EXTRA_HIGH | STIMULUS_EXTRA_HIGHSF | STIMULUS_EXTRA_HIGHSQ | STIMULUS_EXTRA_HIGHTF | STIMULUS_EXTRA_RANDOM | STIMULUS_EXTRA_EXPT3 | STIMULUS_EXTRA_FPJUMP| STIMULUS_EXTRA_FLIP)
 
 /*#define LUMSCALE 31.0
-#define MEANLUM 31
-*/
+ #define MEANLUM 31
+ */
 #define MEANLUM 127
 #define LUMSCALE 127.0
 #define LEFTMODE 1
@@ -258,9 +258,9 @@ float pix2degy(float val);
 #define TO_GUI 2
 
 /*
-*  these Constants depend upon the strings defined in
-* char * toggle_strings, in front.c
-*/
+ *  these Constants depend upon the strings defined in
+ * char * toggle_strings, in front.c
+ */
 
 #define NULL_BIT 0
 #define GORAUD_BIT 1

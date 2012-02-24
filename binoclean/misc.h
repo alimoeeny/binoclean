@@ -1,7 +1,7 @@
 /* MISC.H contains funtion declarations for
-*  funtions in the misc libary
-*	B.G.C Oct 1989
-*/
+ *  funtions in the misc libary
+ *	B.G.C Oct 1989
+ */
 FILE *my_r_open();
 FILE *my_Zopen();
 FILE *uncompress();

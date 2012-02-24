@@ -4,11 +4,11 @@
 
 char *myscopy(char *s1, char *s2)
 {
-
-  int i;
-
-  if(s1 == s2)
-    return(s1);
+    
+    int i;
+    
+    if(s1 == s2)
+        return(s1);
 	if(s1 != NULL)
 		free(s1);
 	if(s2 == NULL)
@@ -17,8 +17,8 @@ char *myscopy(char *s1, char *s2)
 		return(NULL);
 	else
 	{
-	   s1 = (char *)malloc(sizeof(char) *(i+3));
-	   s1 = strcpy(s1,s2);
+        s1 = (char *)malloc(sizeof(char) *(i+3));
+        s1 = strcpy(s1,s2);
 	}
 	return(s1);
 }
@@ -26,7 +26,7 @@ char *myscopy(char *s1, char *s2)
 char *mysncopy(char *s1,char *s2, int n)
 {
 	char *calloc();
-
+    
 	if(s1 != NULL)
 		free(s1);
 	if(s2 == NULL)
@@ -35,8 +35,8 @@ char *mysncopy(char *s1,char *s2, int n)
 		return(NULL);
 	else
 	{
-	   s1 = calloc(1,(strlen(s2)+1));
-	   strncpy(s1,s2,n);
+        s1 = calloc(1,(strlen(s2)+1));
+        strncpy(s1,s2,n);
 	}
 	return(s1);
 }

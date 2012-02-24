@@ -28,7 +28,7 @@ void WriteToOutputPipe(NSString * ns);
     mainGUI *_window;
     NSWindow * monkeyWindow;
     NSTimer * mainTimer;
-
+    
     NSFileHandle * inputPipe;
     NSString * inputLine;
     NSFileHandle * outputPipe;

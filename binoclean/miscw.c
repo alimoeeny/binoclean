@@ -10,10 +10,10 @@ int fplaces(float x, int n);
 static char fplab[50];
 
 struct MENUDATA{
-  char *s;
-  void* client_data;
-  int menuval;
-  int id;
+    char *s;
+    void* client_data;
+    int menuval;
+    int id;
 };
 
 typedef struct MENUDATA Menudata;
@@ -32,7 +32,7 @@ static char *sliderstrings[] = {
 	"Range/10", 
 	"Center Range", 
 	"+/-", 
-
+    
 	"Pop slider up", 
 	NULL,
 };
@@ -50,13 +50,13 @@ static char *sliderstrings[] = {
 
 int free_optiondata(Optiondata *od)
 {
-  int i;
-  if(od->strings){
-    for(i = 0; i < od->n; i++){
-      if(od->strings[i])
-	free(od->strings[i]);
+    int i;
+    if(od->strings){
+        for(i = 0; i < od->n; i++){
+            if(od->strings[i])
+                free(od->strings[i]);
+        }
+        free(od->strings);
     }
-    free(od->strings);
-  }
 }
 

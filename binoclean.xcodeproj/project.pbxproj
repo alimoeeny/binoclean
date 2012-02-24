@@ -62,7 +62,6 @@
 		41BF8E3613A174FE00C8B6BA /* confirm.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E0413A174FE00C8B6BA /* confirm.c */; };
 		41BF8E3713A174FE00C8B6BA /* miscw.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E0513A174FE00C8B6BA /* miscw.c */; };
 		41BF8E3813A174FE00C8B6BA /* useenv.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E0C13A174FE00C8B6BA /* useenv.c */; };
-		41BF8E3913A174FE00C8B6BA /* glx.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E0D13A174FE00C8B6BA /* glx.c */; };
 		41BF8E3A13A174FE00C8B6BA /* myscopy.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E0E13A174FE00C8B6BA /* myscopy.c */; };
 		41BF8E3B13A174FE00C8B6BA /* serial.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E0F13A174FE00C8B6BA /* serial.c */; };
 		41BF8E3C13A174FE00C8B6BA /* stair.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1913A174FE00C8B6BA /* stair.c */; };
@@ -162,7 +161,6 @@
 		41BF8E0A13A174FE00C8B6BA /* fpslider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fpslider.h; sourceTree = "<group>"; };
 		41BF8E0B13A174FE00C8B6BA /* commdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commdefs.h; sourceTree = "<group>"; };
 		41BF8E0C13A174FE00C8B6BA /* useenv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = useenv.c; sourceTree = "<group>"; };
-		41BF8E0D13A174FE00C8B6BA /* glx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = glx.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8E0E13A174FE00C8B6BA /* myscopy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myscopy.c; sourceTree = "<group>"; };
 		41BF8E0F13A174FE00C8B6BA /* serial.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = serial.c; sourceTree = "<group>"; };
 		41BF8E1013A174FE00C8B6BA /* WinDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WinDefs.h; sourceTree = "<group>"; };
@@ -247,7 +245,6 @@
 				41BF8E0A13A174FE00C8B6BA /* fpslider.h */,
 				41BF8E0B13A174FE00C8B6BA /* commdefs.h */,
 				41BF8E0C13A174FE00C8B6BA /* useenv.c */,
-				41BF8E0D13A174FE00C8B6BA /* glx.c */,
 				41BF8E0E13A174FE00C8B6BA /* myscopy.c */,
 				41BF8E0F13A174FE00C8B6BA /* serial.c */,
 				41BF8E1013A174FE00C8B6BA /* WinDefs.h */,
@@ -555,7 +552,6 @@
 				41BF8E3613A174FE00C8B6BA /* confirm.c in Sources */,
 				41BF8E3713A174FE00C8B6BA /* miscw.c in Sources */,
 				41BF8E3813A174FE00C8B6BA /* useenv.c in Sources */,
-				41BF8E3913A174FE00C8B6BA /* glx.c in Sources */,
 				41BF8E3A13A174FE00C8B6BA /* myscopy.c in Sources */,
 				41BF8E3B13A174FE00C8B6BA /* serial.c in Sources */,
 				41BF8E3C13A174FE00C8B6BA /* stair.c in Sources */,

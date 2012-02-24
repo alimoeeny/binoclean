@@ -15,11 +15,11 @@
 char *useenv(instring)
 char *instring;
 {
- char outstr[300];
- char *inptr,*outptr,*tempptr;
- char tempstr[100];
- char *environ;
-
+    char outstr[300];
+    char *inptr,*outptr,*tempptr;
+    char tempstr[100];
+    char *environ;
+    
 	if(instring==NULL)
 	{
 		warn("NULL string",1);
@@ -29,9 +29,9 @@ char *instring;
 	outptr = outstr;
 	while (*inptr != 0) {
 		tempptr= (char *)tempstr;
-/* don't do anything is the tilde is just a backup file */
+        /* don't do anything is the tilde is just a backup file */
 		if (*inptr=='~' && strlen(inptr) > 2) 
-/*		if (*inptr=='~') */
+        /*		if (*inptr=='~') */
 		{
 			if((environ = tilde(inptr)) != NULL)
 				strcpy(outptr,environ);
@@ -61,7 +61,7 @@ char *instring;
 	return((char *)strcpy((char *)malloc(strlen(outstr)+1),outstr));
 }
 
-	
+
 char *CompleteFilename(path)
 char *path;
 {
@@ -73,7 +73,7 @@ char *path;
 #else
 	struct direct *dp;
 #endif	
-
+    
 	if((name = rindex(path,'/')) == NULL)
 	{
 		name = path;
@@ -90,14 +90,14 @@ char *path;
 	if (s_buf.st_mode & S_IFDIR)
 	{
 		if(!(dirp = opendir(dir)))
-		   return(path);
+            return(path);
 		while(dp = readdir(dirp))
-		if(strncmp(dp->d_name, name,strlen(name)) == 0)
-		{
-			sprintf(buf,"%s/%s",dir,dp->d_name);
-			p = myscopy(p,buf);
-			break;
-		}
+            if(strncmp(dp->d_name, name,strlen(name)) == 0)
+            {
+                sprintf(buf,"%s/%s",dir,dp->d_name);
+                p = myscopy(p,buf);
+                break;
+            }
 		closedir(dirp);
 	}
 	free(dir);
@@ -117,13 +117,13 @@ char *tilde(char *s)
 		start = useenv("$HOME");
 	else
 	{
-			pw = getpwnam(buf);
-	if(pw == NULL)
-		return(NULL);
-	else
-		start = pw->pw_dir;
+        pw = getpwnam(buf);
+        if(pw == NULL)
+            return(NULL);
+        else
+            start = pw->pw_dir;
 	}
-
+    
 	sprintf(buf,"%s%s",start,o);
 	free(start);
 	return((char *)strcpy((char *)malloc(strlen(buf)+1),buf));

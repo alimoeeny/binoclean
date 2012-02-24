@@ -82,12 +82,12 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
 	if(density > 0)
         sst->density = sst->density = density;
 	else if(sst->density <= 0.0)
-	  sst->density = sst->density = 20.0;
-/*
-* calculate actual number of dots from density
-* N.B. 25 * dotsiz * dotsiz = 100 * dotsiz/2 * dotsiz/2,
-* = area of dot
-*/
+        sst->density = sst->density = 20.0;
+    /*
+     * calculate actual number of dots from density
+     * N.B. 25 * dotsiz * dotsiz = 100 * dotsiz/2 * dotsiz/2,
+     * = area of dot
+     */
 	ndots = 1+(2 * pos->radius[1]/(sst->dotsiz[1]));
 	if(pos->ss[0] > 1)
         nrect = 1+ (pos->radius[0] * 2)/pos->ss[0];
@@ -467,19 +467,19 @@ void calc_rls(Stimulus *st, Substim *sst)
             if(*y < lasty && i > 0 && bsq > 0){
                 lasty = *y;
                 if(lasty+1 < h/2){
-                  *y++ = h/2;
-                  if(optionflag & SQUARE_RDS){
-                    *x++ = pos->radius[0];
-                    *x = pos->radius[0];
-                  }
-                  else{
-                    lastx = *x;
-                    *x++ = 0;
-                    *x = lastx;
-                  }
-                  nx++;
-                  *y = lasty;
-                  *p++ = lastp; // finish off last bar;
+                    *y++ = h/2;
+                    if(optionflag & SQUARE_RDS){
+                        *x++ = pos->radius[0];
+                        *x = pos->radius[0];
+                    }
+                    else{
+                        lastx = *x;
+                        *x++ = 0;
+                        *x = lastx;
+                    }
+                    nx++;
+                    *y = lasty;
+                    *p++ = lastp; // finish off last bar;
                     sst->npaint++;
                 }
                 if(*y > 1-h/2){
@@ -602,19 +602,19 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     
     if(sst->seedloop == 1)
     {
-/*
- * this gives the right "TF, and gives the right
- * response to manual phase settings of +- PI, but
- * seems wrong!
- * N.B. minus sign at front gives same direction of motion for
- * sine/rls
- * Dec 2000 changed so that TF does not control speed, allows speed
- * to be matched to a sinewave
- */
-   phase = -(pos->radius[1]*2 - sst->dotsiz[1]) * pos->phase/( 2 * M_PI);
-   phase = -pos->locn[0];
-   phase = -(pos->radius[1]*2 - sst->dotsiz[1]) * pos->phase/( 2 * M_PI);
-   phase = -(deg2pix(1/st->f) * pos->phase/(2 * M_PI)+pos->locn[0]);
+        /*
+         * this gives the right "TF, and gives the right
+         * response to manual phase settings of +- PI, but
+         * seems wrong!
+         * N.B. minus sign at front gives same direction of motion for
+         * sine/rls
+         * Dec 2000 changed so that TF does not control speed, allows speed
+         * to be matched to a sinewave
+         */
+        phase = -(pos->radius[1]*2 - sst->dotsiz[1]) * pos->phase/( 2 * M_PI);
+        phase = -pos->locn[0];
+        phase = -(pos->radius[1]*2 - sst->dotsiz[1]) * pos->phase/( 2 * M_PI);
+        phase = -(deg2pix(1/st->f) * pos->phase/(2 * M_PI)+pos->locn[0]);
     }
     else
         phase = 0;
@@ -825,44 +825,44 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
              * if its a circular patch, want a final triangle on the end
              */
             if(*(y-1) < lasty && i > 0 && bsq > 0){
-              if(lasty+1 < h/2){
-                *y++ = h/2;
-                if(optionflag & SQUARE_RDS)
-                  *x++ = pos->radius[0];
-                else
-                  *x++ = 0;
-                nx++;
-                *p++ = lastp; // finish off last bar;
-                sst->npaint++;
-              }
-              if(lasty+1 < h/2){
-                *y++ = h/2;
-                if(optionflag & SQUARE_RDS)
-                  *x++ = pos->radius[0];
-                else
-                  *x++ = 0;
-                nx++;
-                *p++ = lastp; // finish off last bar;
-                sst->npaint++;
-              }
-              if(*y > 1-h/2){
-                lasty = *y;
-                *y++ = -h/2;
-                *y = lasty;
-                if(optionflag & SQUARE_RDS){
-                  *x++ = pos->radius[0];
-                  *x = pos->radius[0];
+                if(lasty+1 < h/2){
+                    *y++ = h/2;
+                    if(optionflag & SQUARE_RDS)
+                        *x++ = pos->radius[0];
+                    else
+                        *x++ = 0;
+                    nx++;
+                    *p++ = lastp; // finish off last bar;
+                    sst->npaint++;
                 }
-                else{
-                  lastx = *x;
-                  *x++ = 0;
-                  *x = lastx;
+                if(lasty+1 < h/2){
+                    *y++ = h/2;
+                    if(optionflag & SQUARE_RDS)
+                        *x++ = pos->radius[0];
+                    else
+                        *x++ = 0;
+                    nx++;
+                    *p++ = lastp; // finish off last bar;
+                    sst->npaint++;
                 }
-                nx++;
-                *(p+1) = *p;
-                *p++;
-                sst->npaint++;
-              }
+                if(*y > 1-h/2){
+                    lasty = *y;
+                    *y++ = -h/2;
+                    *y = lasty;
+                    if(optionflag & SQUARE_RDS){
+                        *x++ = pos->radius[0];
+                        *x = pos->radius[0];
+                    }
+                    else{
+                        lastx = *x;
+                        *x++ = 0;
+                        *x = lastx;
+                    }
+                    nx++;
+                    *(p+1) = *p;
+                    *p++;
+                    sst->npaint++;
+                }
             } // end last y
             lasty = *y;
             lastp = *p;

@@ -1,9 +1,9 @@
 /*
-* binoc.c all purpose binocular visual physioslogy, psychophsics and training
-* OGL version April 1997, B. Cumming
-* panel manage and monoc interleave
-* background when expt is stopped
-*/
+ * binoc.c all purpose binocular visual physioslogy, psychophsics and training
+ * OGL version April 1997, B. Cumming
+ * panel manage and monoc interleave
+ * background when expt is stopped
+ */
 
 #import <stdio.h> 
 #import <stdlib.h> 
@@ -33,8 +33,8 @@
 
 
 /*
-INTRIAL = TRIAL_PENDING | POST_STIMULUS_BIT
-*/
+ INTRIAL = TRIAL_PENDING | POST_STIMULUS_BIT
+ */
 #define LINESEP 30
 #define testout fprintf
 
@@ -229,7 +229,7 @@ int states[NSTATEFLAGS] = {0};
 static int stepframe = 0;
 
 char *toggle_strings[] = {
-/* optionflag */
+    /* optionflag */
 	"Goraud Shading", "Dithering", "Frame Test","Go",
 	"AntiAlias", "Square","72Hz","Cnrst Rev",
 	"S.E.","Back Fixed","Test mode","Fix cross","Box",
@@ -238,7 +238,7 @@ char *toggle_strings[] = {
 	"Show Val", "Conjuate Tracking", "Trials",
 	"Wait for BW", "Disp Clamp", "Clamp+Hold", "Search..", 
 	"Vgc Ramps", "RampHold", "See Conj", 
-/* option2flag */
+    /* option2flag */
 	"Flash", "Interact","FREE",
 	"Vary Vergence","+Anti", "+Blank", "+random", "+monoc", "+uncorr",
 	"wipe screen",
@@ -256,115 +256,115 @@ char *toggle_strings[] = {
 
 
 char *toggle_codes[] = {
-"gs","di",
-"ft", //Frame test
-"do", //Go/Stop
-"aa", // AntiAliasing
-"sq","xx",
-"cr", // Contrast reversing
-"se", // S.E.M. 
-"bf", // Background Fixed
-"tm","fc","fb","ap","wt","pb","lm","rm","cf","cv",
-"ws","ts","pw","ct","sw","bw","dc","ch","sm","vr",
-"rh","co","fl","ei","xx", "te","ia","ic","ir","im",
-"iu","cs","py","pa","ra",
-"sc", // Staircase
-"afc",
-"pp", // Show Performance String
-"if", // IFC
-"fe", // Feedback
-"ff", // Flip Feedback
-"bp", // Paint background stims
-"fs", // Fixed Bar Separation
-"r2", // Random rewards for expt2
-"i2", // Reverse rewards for expt2
-"bm", // Binocular Fixation point
-"rc", // Reverse Correlation 
-"iz", // Interleave Zero
-"s0", // Hide Status
-"m0", // No Mirrors (for initial training)
-"mr", // Move RF with Conjpos Eye tracking
-"gm", // Grey Monoc (grey field for 'occluded' eye) 
-"cn", // Contour Plot
-"gc", // Smooth Contour plot
-"to", // Plot Sequence
-"x2", // Expt2 is multiplied by Expt 1
-"fp", // Simulate FP movement
-"is", // Interleave Sinewave
-"sp", // Clear Spikes when step microdrive
-"ht", // +High TF
-"hs", // +High SF
-"cp",
-"hq",
-"hx", // +High X value
-"I0",
-"Im",
-"Ic", // Interleave Components
-"Iu", // Interleave Set of uncorrelated stims with each of Expt 2 val 
-"rp", //random phase
-"pt", // Plot Electrode Track
-"rd", // RAND_FP_DIR
-"ss", // SPLITSCREEN
-"cB", //Count Bad fixations not just wrong choices
-"rS", //Treat Stimulus as sequences
-"uS", //microstim on this trial
-"xy", //random tiling of XY-pos
-"sE", //Store Expts only
-"fG", //make fixpt a sq grating (for focussing).
-"iF", //Interleave FP jump
-"rr", //Randomize Relative Phase
-"ac", //Always Change Stim
-"tg", //Temporal Gaussian
-"cF", //Check Frame count
-"rP", // random phase disp
-"hX", // interleave HIGH expt 1 for each val of expt 2
-"ab", // always show background
-"lf", // Store lfp
-"no", // nonius lines
-"fi", // Interleave signflip (for IFC)
-"da", // Make Online Data Files
-"ao", // Auto Store Online Data Files
-"pf", // Flip Expts 1/2 on plot
-"fS", //Fast Sequence
-"af4", // 4 choice targets, for gambling
-"tl", // Paint stim 3 last
-"U0", // microstim zero trials only
-"rC", // random contrast
-"rI", // random interocular correlation
-"sR", // show reward bias
-"C3", //Collapse Psychophysics across Expt3  
-
-"cd", // Auto Copy Online Data Files # not shown on panel
-"cb", //Custom vals for expt2
-"pe", //stimulus in Overlay
-"ls", // reduce serialoutput (RC expts)
-"cS", // Center staircases (instead of starting at extremes)
-"FN", // FIXNUM_PAINTED_FRAMES paint all frames in stim, regargless of elapsed time
-"md", // modulate disparity
-"sg", // stereo glasses
-"vn", // Nonius lines for vertical vergence
-"Co", // Calculated once only, at stim start...
-"od", //Debug  
-"WT", //Watch timings
-"IT", //Initial Training
-"CF", //CHECK_FRAMECOUNTS
-"SB", //Show Stim Boxes
-/* 
- * One day, all the BW toogle boxes will be done like the rest
- * with optionflags[] and toggle_codes. Then this will be
- * where their codes are kept.
-"xl","xr","xc","xg","xx","yg","sf"
-*/
-NULL,
+    "gs","di",
+    "ft", //Frame test
+    "do", //Go/Stop
+    "aa", // AntiAliasing
+    "sq","xx",
+    "cr", // Contrast reversing
+    "se", // S.E.M. 
+    "bf", // Background Fixed
+    "tm","fc","fb","ap","wt","pb","lm","rm","cf","cv",
+    "ws","ts","pw","ct","sw","bw","dc","ch","sm","vr",
+    "rh","co","fl","ei","xx", "te","ia","ic","ir","im",
+    "iu","cs","py","pa","ra",
+    "sc", // Staircase
+    "afc",
+    "pp", // Show Performance String
+    "if", // IFC
+    "fe", // Feedback
+    "ff", // Flip Feedback
+    "bp", // Paint background stims
+    "fs", // Fixed Bar Separation
+    "r2", // Random rewards for expt2
+    "i2", // Reverse rewards for expt2
+    "bm", // Binocular Fixation point
+    "rc", // Reverse Correlation 
+    "iz", // Interleave Zero
+    "s0", // Hide Status
+    "m0", // No Mirrors (for initial training)
+    "mr", // Move RF with Conjpos Eye tracking
+    "gm", // Grey Monoc (grey field for 'occluded' eye) 
+    "cn", // Contour Plot
+    "gc", // Smooth Contour plot
+    "to", // Plot Sequence
+    "x2", // Expt2 is multiplied by Expt 1
+    "fp", // Simulate FP movement
+    "is", // Interleave Sinewave
+    "sp", // Clear Spikes when step microdrive
+    "ht", // +High TF
+    "hs", // +High SF
+    "cp",
+    "hq",
+    "hx", // +High X value
+    "I0",
+    "Im",
+    "Ic", // Interleave Components
+    "Iu", // Interleave Set of uncorrelated stims with each of Expt 2 val 
+    "rp", //random phase
+    "pt", // Plot Electrode Track
+    "rd", // RAND_FP_DIR
+    "ss", // SPLITSCREEN
+    "cB", //Count Bad fixations not just wrong choices
+    "rS", //Treat Stimulus as sequences
+    "uS", //microstim on this trial
+    "xy", //random tiling of XY-pos
+    "sE", //Store Expts only
+    "fG", //make fixpt a sq grating (for focussing).
+    "iF", //Interleave FP jump
+    "rr", //Randomize Relative Phase
+    "ac", //Always Change Stim
+    "tg", //Temporal Gaussian
+    "cF", //Check Frame count
+    "rP", // random phase disp
+    "hX", // interleave HIGH expt 1 for each val of expt 2
+    "ab", // always show background
+    "lf", // Store lfp
+    "no", // nonius lines
+    "fi", // Interleave signflip (for IFC)
+    "da", // Make Online Data Files
+    "ao", // Auto Store Online Data Files
+    "pf", // Flip Expts 1/2 on plot
+    "fS", //Fast Sequence
+    "af4", // 4 choice targets, for gambling
+    "tl", // Paint stim 3 last
+    "U0", // microstim zero trials only
+    "rC", // random contrast
+    "rI", // random interocular correlation
+    "sR", // show reward bias
+    "C3", //Collapse Psychophysics across Expt3  
+    
+    "cd", // Auto Copy Online Data Files # not shown on panel
+    "cb", //Custom vals for expt2
+    "pe", //stimulus in Overlay
+    "ls", // reduce serialoutput (RC expts)
+    "cS", // Center staircases (instead of starting at extremes)
+    "FN", // FIXNUM_PAINTED_FRAMES paint all frames in stim, regargless of elapsed time
+    "md", // modulate disparity
+    "sg", // stereo glasses
+    "vn", // Nonius lines for vertical vergence
+    "Co", // Calculated once only, at stim start...
+    "od", //Debug  
+    "WT", //Watch timings
+    "IT", //Initial Training
+    "CF", //CHECK_FRAMECOUNTS
+    "SB", //Show Stim Boxes
+    /* 
+     * One day, all the BW toogle boxes will be done like the rest
+     * with optionflags[] and toggle_codes. Then this will be
+     * where their codes are kept.
+     "xl","xr","xc","xg","xx","yg","sf"
+     */
+    NULL,
 };
-  
+
 char *mode_codes[] = {
-"db","zb","rw","vb",NULL,
+    "db","zb","rw","vb",NULL,
 };
 
 char *flag_codes[] = {
-  "pc","nc","cs","ac","sq","uc","le","fd","dd","mm","mf","tx","tc","cn","pl","fo","nw","sp", "bo", "oc", "wr",
-NULL,};
+    "pc","nc","cs","ac","sq","uc","le","fd","dd","mm","mf","tx","tc","cn","pl","fo","nw","sp", "bo", "oc", "wr",
+    NULL,};
 
 char *flagstrings[] = {
 	"White Dots", "Black Dots", "Crossed Seed","AntiCorrelate", "Square","Uncorrelated",
@@ -535,72 +535,72 @@ void panel_popup();
 
 int PrintToggles(FILE *ofd)
 {
-  int i = 0,j = 0;
-  fprintf(ofd,"ON/OFF codes:\n");
-  while(toggle_strings[i]){
-    fprintf(ofd, "%s %s\n",toggle_codes[i],toggle_strings[i]);
-    i++;
-  }
-  fprintf(ofd,"Stimulus codes:\n");
-  while(flagstrings[j]){
-    fprintf(ofd, "%s %s\n",flag_codes[j],flagstrings[j]);
-    j++;
-  }
-  return(i);
+    int i = 0,j = 0;
+    fprintf(ofd,"ON/OFF codes:\n");
+    while(toggle_strings[i]){
+        fprintf(ofd, "%s %s\n",toggle_codes[i],toggle_strings[i]);
+        i++;
+    }
+    fprintf(ofd,"Stimulus codes:\n");
+    while(flagstrings[j]){
+        fprintf(ofd, "%s %s\n",flag_codes[j],flagstrings[j]);
+        j++;
+    }
+    return(i);
 }
 
 char *binocTimeString()
 {
-  char name[BUFSIZ],*t = NULL ,buf[256];
-  time_t tval;
-  tval = time(NULL);
-  t = ctime(&tval);
-  t[19] = 0;
-  return (&t[10]);
+    char name[BUFSIZ],*t = NULL ,buf[256];
+    time_t tval;
+    tval = time(NULL);
+    t = ctime(&tval);
+    t[19] = 0;
+    return (&t[10]);
 }
 
 
 void ShowTime()
 {
-  vcoord x[2];
-  char buf[BUFSIZ];
-  int px,py;
-  float val;
-
-
-  if(issfrc(expt.stimmode))
-    return;
-  px = (int)(ExptProperty(&expt, PANEL_XPOS));
-  py = (int)(ExptProperty(&expt, PANEL_YPOS));
-
-  if(px > 400)
-    x[0] = -600;
-  else
-    x[0] = 0;
-  x[1] = 100;
-  setmask(ALLPLANES);
-  mycmv(x);
-  SetGrey(TheStim->gammaback);
-  myrect(x[0],x[1]-5,x[0]+200,x[1]+50);
-  SetGrey(1.0);
-  if(TheStim->gammaback > 0){
-    if(states[EXPT_PAUSED_BY_QEXP])
-      sprintf(buf,"%s: Expt Pausing (%.1f)",binocTimeString(),timediff(&now,&endexptime));
-    else if(states[EXPT_PAUSED])
-      sprintf(buf,"%s: Expt Paused",binocTimeString());
-    else if(check_for_monkey == 0)
-      sprintf(buf,"%s: Not Checking Monkey",binocTimeString());
+    vcoord x[2];
+    char buf[BUFSIZ];
+    int px,py;
+    float val;
+    
+    
+    if(issfrc(expt.stimmode))
+        return;
+    px = (int)(ExptProperty(&expt, PANEL_XPOS));
+    py = (int)(ExptProperty(&expt, PANEL_YPOS));
+    
+    if(px > 400)
+        x[0] = -600;
     else
-      sprintf(buf,"%s",binocTimeString());
-    if(microsaccade)
-      sprintf(buf,"Saccade %.2f",microsaccade);
-    if((stimstate == IN_TIMEOUT || stimstate == IN_TIMEOUT_W) && timeout_type == SHAKE_TIMEOUT_PART2){
-      val = timediff(&now, &starttimeout);
-      sprintf(buf,"Shake %.1f",val);
+        x[0] = 0;
+    x[1] = 100;
+    setmask(ALLPLANES);
+    mycmv(x);
+    SetGrey(TheStim->gammaback);
+    myrect(x[0],x[1]-5,x[0]+200,x[1]+50);
+    SetGrey(1.0);
+    if(TheStim->gammaback > 0){
+        if(states[EXPT_PAUSED_BY_QEXP])
+            sprintf(buf,"%s: Expt Pausing (%.1f)",binocTimeString(),timediff(&now,&endexptime));
+        else if(states[EXPT_PAUSED])
+            sprintf(buf,"%s: Expt Paused",binocTimeString());
+        else if(check_for_monkey == 0)
+            sprintf(buf,"%s: Not Checking Monkey",binocTimeString());
+        else
+            sprintf(buf,"%s",binocTimeString());
+        if(microsaccade)
+            sprintf(buf,"Saccade %.2f",microsaccade);
+        if((stimstate == IN_TIMEOUT || stimstate == IN_TIMEOUT_W) && timeout_type == SHAKE_TIMEOUT_PART2){
+            val = timediff(&now, &starttimeout);
+            sprintf(buf,"Shake %.1f",val);
+        }
+        
+        BigString(buf);
     }
- 
-    BigString(buf);
-  }
 }
 
 
@@ -616,65 +616,65 @@ void acknowledge(char * a ,int b)
 
 int getframecount()
 {
-  float tval;
-  int frames;
-  static int gotzerr = 0;
-  char buf[BUFSIZ];
-
-  gettimeofday(&frametime, NULL);
-  tval = timediff(&frametime, &zeroframetime);
-  frames = (int)((tval * mon.framerate) +0.1);
-  if(frames == realframecount && frames != 0)
-    tval = timediff(&frametime, &prevframetime);
-  if(frames > 0){
-    gotzerr = 0;
-    memcpy(&prevframetime, &frametime, sizeof(struct timeval));
-  }
-  else if(frames < 0){ // should never happen
-    if( !gotzerr){
-      sprintf(buf,"Negative frame (%d) count (%d,%d)",frames,stimstate,fixstate);
-      acknowledge(buf,NULL);
-      gotzerr++;
+    float tval;
+    int frames;
+    static int gotzerr = 0;
+    char buf[BUFSIZ];
+    
+    gettimeofday(&frametime, NULL);
+    tval = timediff(&frametime, &zeroframetime);
+    frames = (int)((tval * mon.framerate) +0.1);
+    if(frames == realframecount && frames != 0)
+        tval = timediff(&frametime, &prevframetime);
+    if(frames > 0){
+        gotzerr = 0;
+        memcpy(&prevframetime, &frametime, sizeof(struct timeval));
     }
-    if(seroutfile && gotzerr % 1000000 == 1)
-      fprintf(seroutfile,"Negative frames at %u %u (%u) %s state %d,%d,%d\n",ufftime(&frametime),ufftime(&zeroframetime),ufftime(&prevframetime),binocTimeString(),stimstate,fixstate,mode&FRAME_BITS);
-    return(1000);
-  }
-  return(frames);
-  
+    else if(frames < 0){ // should never happen
+        if( !gotzerr){
+            sprintf(buf,"Negative frame (%d) count (%d,%d)",frames,stimstate,fixstate);
+            acknowledge(buf,NULL);
+            gotzerr++;
+        }
+        if(seroutfile && gotzerr % 1000000 == 1)
+            fprintf(seroutfile,"Negative frames at %u %u (%u) %s state %d,%d,%d\n",ufftime(&frametime),ufftime(&zeroframetime),ufftime(&prevframetime),binocTimeString(),stimstate,fixstate,mode&FRAME_BITS);
+        return(1000);
+    }
+    return(frames);
+    
 }
 
 float getframetime()
 {
-  float tval;
-  int frames;
-
-  gettimeofday(&frametime, NULL);
-  tval = timediff(&frametime, &zeroframetime);
-  return(tval);
-  
+    float tval;
+    int frames;
+    
+    gettimeofday(&frametime, NULL);
+    tval = timediff(&frametime, &zeroframetime);
+    return(tval);
+    
 }
 
 int CheckStrings()
 {
 	int i,j,err = 0;
-
+    
 	for(i = 0; i < MAXTOTALCODES; i++)
 	{
 		for(j = i+1; j < MAXTOTALCODES; j++)
-		  {
+        {
 		    if(serial_strings[j] == NULL)
-		      {
-			fprintf(stderr,"Serial strings %d undefsined!!\n",j);
-			err++;
-		      }
+            {
+                fprintf(stderr,"Serial strings %d undefsined!!\n",j);
+                err++;
+            }
 		    else if(strcmp(serial_strings[i],serial_strings[j]) == 0 && 
-			    strncmp(serial_strings[i],"xx",2) != 0)
-		      {
-			  fprintf(stderr,"Duplicate code (%s) at %d and %d\n",serial_strings[i],i,j);
-			  err++;
-		      }
-		  }
+                    strncmp(serial_strings[i],"xx",2) != 0)
+            {
+                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",serial_strings[i],i,j);
+                err++;
+            }
+        }
 	}
 	return(err);
 }
@@ -683,30 +683,30 @@ extern double gammaval;
 
 void initial_setup()
 {
-  Locator *pos;
-  int i;
-  long mtype;
-
+    Locator *pos;
+    int i;
+    long mtype;
+    
 	setgamma(1.22);
 	defaultflags[COLLAPSE_EXPT3] = 1;
 	defaultflags[BINOCULAR_FIXPOINT] = 1;
 	defaultflags[STAIR_CENTER] = 1;
-
+    
 	for(i = 0; i < MAXALLFLAGS; i++)
-	  optionflags[i] = defaultflags[i];
+        optionflags[i] = defaultflags[i];
 	TheStim = NewStimulus(NULL);
 	StimulusType(TheStim, STIM_GRATING);
 	tempstim = NewStimulus(NULL);
 	StimulusType(tempstim, STIM_BAR);
-
+    
 	ChoiceStima = NewStimulus(NULL);
 	StimulusType(ChoiceStima, STIM_GRATING);
 	ChoiceStima->splane = STIM_CHOICE1_BIT;
-
+    
 	ChoiceStimb = NewStimulus(NULL);
 	StimulusType(ChoiceStimb, STIM_GRATING);
 	ChoiceStimb->splane = STIM_CHOICE2_BIT;
-
+    
 	/*	gluq = gluNewQuadric();*/
 	pos = &TheStim->pos;
 	stimptr = TheStim;
@@ -748,16 +748,16 @@ void initial_setup()
 	TheStim->angleinc = 0;
 	pos->angle =  0;
 	TheStim->mode = (DRAW_FIX_BIT | DOUBLEBUFFERMODE | STIMWIPE);
-
+    
 	TheStim->splane = 0x1;
-
+    
 	pos->size[0] = rint(width/pos->ss[0]);
 	pos->size[1] = rint(height/pos->ss[1]);
 	expt.spikegain = 10.0;
 	expt.electrode_depth = 0.0;
 	expt.vals[FIXATION_OVERLAP] = 100;
 	expt.vals[SHAKE_TIMEOUT_DURATION] = 10;
-
+    
 	afc_s.performance_1 = (char *)malloc(PERF_STRING_LENGTH+1 * sizeof(char)); /* strings for holding afc performance */
 	nullify(afc_s.performance_1, PERF_STRING_LENGTH+1);
 	afc_s.performance_2 = (char *)malloc(PERF_STRING_LENGTH+1 * sizeof(char));
@@ -785,7 +785,7 @@ void initial_setup()
 	mon.pix2cms[0] = 1/mon.cms2pix[0];
 	mon.pix2cms[1] = 1/mon.cms2pix[1];
 	for(i = 0; i < 8; i++)
-	  mon.trapscale[i] = 0;
+        mon.trapscale[i] = 0;
 	mon.loaded = 0;
 	mon.filename = NULL;
 	mon.name = NULL;
@@ -794,158 +794,158 @@ void initial_setup()
 	srandom((i = getpid()));
 	mtype = (long)i;
 	srand48(mtype);
-
+    
 	gettimeofday(&sessiontime,NULL);
-	    gettimeofday(&now,NULL);
+    gettimeofday(&now,NULL);
 	for(i = 0; i < MAXSERIALCODES; i++)
 	    switch(i)
-	      {
+    {
 		case STIMID:
 		case SET_SEED:
 		case OPTION_CODE:
 		case RC_SEED:
 		case STIMULUS_VERSION:
-	      case CORRELATION:
-	      case MONOCULARITY_EXPT:
-		  codesend[i] = SEND_STIMULUS;
-		break;
-	      case UPLOAD_CODE:
-	      case UFF_PREFIX:
-	      case UFF_COMMENT:
-	      case ELECTRODE_DEPTH:
-	      case QUERY_STATE:
-	      case SEND_CLEAR:
-		codesend[i] = SEND_USER_ONLY;
-		break;
-	      case STIMULUS_MODE:
-	      case STIMULUS_TYPE_CODE:
-	      case DISP_X:
-	      case DISP_Y:
-	      case STIM_WIDTH:
+        case CORRELATION:
+        case MONOCULARITY_EXPT:
+            codesend[i] = SEND_STIMULUS;
+            break;
+        case UPLOAD_CODE:
+        case UFF_PREFIX:
+        case UFF_COMMENT:
+        case ELECTRODE_DEPTH:
+        case QUERY_STATE:
+        case SEND_CLEAR:
+            codesend[i] = SEND_USER_ONLY;
+            break;
+        case STIMULUS_MODE:
+        case STIMULUS_TYPE_CODE:
+        case DISP_X:
+        case DISP_Y:
+        case STIM_WIDTH:
 		case STIM_HEIGHT:
 		case SF:
 		case TF:
 		case ORIENTATION:
-	      case SET_SEEDLOOP:
+        case SET_SEEDLOOP:
 		case STATIC_VERGENCE:
 		case UNIT_BINWIDTH:
 		case DISP_BACK:
-	      case SETZXOFF:
-	      case SETZYOFF:
-	      case EXPTYPE_CODE:
-	      case EXPTYPE_CODE2:
-	      case EXPTYPE_CODE3:
-	      case EXPT2_INCR:
-	      case EXPT2_MEAN:
-	      case EXPT2_NSTIM:
-	      case EXPT_INCR:
-	      case EXPT_MEAN:
-	      case NTRIALS_CODE:
-	      case DOT_DENSITY:
-	      case DOT_SIZE:
-	      case VERSION_CODE:
-	      case FRAMEREPEAT:
-	      case NFRAMES_CODE:
-	      case START_PHASE:
-	      case ISI_CODE:
-	      case FRAMERATE_CODE:
-	      case NEXTRAS_CODE:
-	      case BACKSTIM_TYPE:
-	      case BACK_CONTRAST:
-	      case BACK_ORI:
-	      case BACK_SIZE:
-	      case BACK_TF:
-	      case BACK_CORRELATION:
-	      case TRIAL_START_BLANK:
-	      case DISTRIBUTION_WIDTH:
-	      case RC1INC:
-	      case DISTRIBUTION_MEAN:
-	      case VIEWD_CODE:
-	      case XPIXEL_CODE:
-	      case YPIXEL_CODE:
-	      case RF_ANGLE:
-	      case JDEATH:
-	      case STANDING_DISP:
-	      case PURSUIT_INCREMENT:
-	      case INITIAL_APPLY_MAX:
-	      case FP_MOVE_DIR:
-	      case REWARD_BIAS:
-		codesend[i] = SEND_EXPT;
-		break;
-	      case PULSE_WIDTH:
-		codesend[i] = SEND_EXPT_NONZERO;
-		break;
+        case SETZXOFF:
+        case SETZYOFF:
+        case EXPTYPE_CODE:
+        case EXPTYPE_CODE2:
+        case EXPTYPE_CODE3:
+        case EXPT2_INCR:
+        case EXPT2_MEAN:
+        case EXPT2_NSTIM:
+        case EXPT_INCR:
+        case EXPT_MEAN:
+        case NTRIALS_CODE:
+        case DOT_DENSITY:
+        case DOT_SIZE:
+        case VERSION_CODE:
+        case FRAMEREPEAT:
+        case NFRAMES_CODE:
+        case START_PHASE:
+        case ISI_CODE:
+        case FRAMERATE_CODE:
+        case NEXTRAS_CODE:
+        case BACKSTIM_TYPE:
+        case BACK_CONTRAST:
+        case BACK_ORI:
+        case BACK_SIZE:
+        case BACK_TF:
+        case BACK_CORRELATION:
+        case TRIAL_START_BLANK:
+        case DISTRIBUTION_WIDTH:
+        case RC1INC:
+        case DISTRIBUTION_MEAN:
+        case VIEWD_CODE:
+        case XPIXEL_CODE:
+        case YPIXEL_CODE:
+        case RF_ANGLE:
+        case JDEATH:
+        case STANDING_DISP:
+        case PURSUIT_INCREMENT:
+        case INITIAL_APPLY_MAX:
+        case FP_MOVE_DIR:
+        case REWARD_BIAS:
+            codesend[i] = SEND_EXPT;
+            break;
+        case PULSE_WIDTH:
+            codesend[i] = SEND_EXPT_NONZERO;
+            break;
 		case NCOMPONENTS:
 		case SF2:
-	      case TF2:
-	      case PHASE2:
-		codesend[i] = SEND_GRATING2;
-		break;
-	      case FP_MOVE_SIZE:
-		codesend[i] = SEND_NON_ZERO;
-		break;
-	      default:
-		codesend[i] = SEND_EXPLICIT;
-		break;
-	      }
+        case TF2:
+        case PHASE2:
+            codesend[i] = SEND_GRATING2;
+            break;
+        case FP_MOVE_SIZE:
+            codesend[i] = SEND_NON_ZERO;
+            break;
+        default:
+            codesend[i] = SEND_EXPLICIT;
+            break;
+    }
 	for(i = 0; i < MAXTOTALCODES; i++)
-	  {
+    {
 	    switch(i)
-	      {
-	      case TRAPEZOIDAL_SCALING:
-		nfplaces[i] = 7;
-		break;
-	      case OPPOSITE_DELAY:
-	      case INITIAL_APPLY_MAX:
-	      case DISP_X:
-	      case TWOCYL_DISP:
-	      case DISP_P:
-	      case EXPT_MEAN:
-	      case EXPT2_MEAN:
-	      case EXPT_INCR:
-	      case EXPT2_INCR:
-	      case XPIXEL_CODE:
-	      case YPIXEL_CODE:
-		nfplaces[i] = 5;
-		break;
-	      case DISP_BACK:
-	      case STANDING_DISP:
-	      case DOT_SIZE:
-	      case DISP_Y:
-	      case CORRELATED_DISPARITY:
-	      case ANTICORRELATED_DISPARITY:
-	      case FP_MOVE_SIZE:
-	      case DEPTH_MOD:
-	      case SETCONTRAST:
-	      case CONTRAST_LEFT:
-	      case CONTRAST_RIGHT:
-	      case CONTRAST_DIFF:
-	      case STIM_WIDTH:
-	      case STIM_HEIGHT:
-	      case VDISP_MOD:
-	      case CORRELATION:
-	      case SF:
-	      case SF_DIFF:
-	      case SF2:
-	      case INITIAL_DISPARITY:
-		  case PURSUIT_INCREMENT:
-		  case JDEATH:
-	      case FAKESTIM_SIGNAL:
-	      case PLAID_RATIO:
-		nfplaces[i] = 4;
-		break;
-	      case EXPT2_NSTIM:
-	      case NTRIALS_CODE:
-	      case SET_SEED:
-	      case SET_SEEDLOOP:
-	      case RC_SEED:
-		nfplaces[i] = 0;
-		break;
-	      default:
-		nfplaces[i] = 2;
-		break;
-	      }
-	  }
+        {
+            case TRAPEZOIDAL_SCALING:
+                nfplaces[i] = 7;
+                break;
+            case OPPOSITE_DELAY:
+            case INITIAL_APPLY_MAX:
+            case DISP_X:
+            case TWOCYL_DISP:
+            case DISP_P:
+            case EXPT_MEAN:
+            case EXPT2_MEAN:
+            case EXPT_INCR:
+            case EXPT2_INCR:
+            case XPIXEL_CODE:
+            case YPIXEL_CODE:
+                nfplaces[i] = 5;
+                break;
+            case DISP_BACK:
+            case STANDING_DISP:
+            case DOT_SIZE:
+            case DISP_Y:
+            case CORRELATED_DISPARITY:
+            case ANTICORRELATED_DISPARITY:
+            case FP_MOVE_SIZE:
+            case DEPTH_MOD:
+            case SETCONTRAST:
+            case CONTRAST_LEFT:
+            case CONTRAST_RIGHT:
+            case CONTRAST_DIFF:
+            case STIM_WIDTH:
+            case STIM_HEIGHT:
+            case VDISP_MOD:
+            case CORRELATION:
+            case SF:
+            case SF_DIFF:
+            case SF2:
+            case INITIAL_DISPARITY:
+            case PURSUIT_INCREMENT:
+            case JDEATH:
+            case FAKESTIM_SIGNAL:
+            case PLAID_RATIO:
+                nfplaces[i] = 4;
+                break;
+            case EXPT2_NSTIM:
+            case NTRIALS_CODE:
+            case SET_SEED:
+            case SET_SEEDLOOP:
+            case RC_SEED:
+                nfplaces[i] = 0;
+                break;
+            default:
+                nfplaces[i] = 2;
+                break;
+        }
+    }
 	codesend[UPLOAD_CODE] = SEND_USER_ONLY;
 	codesend[UFF_PREFIX] = SEND_USER_ONLY;
 	ExptInit(&expt, TheStim, &mon);
@@ -975,19 +975,19 @@ void SetPriority(int priority)
 
 float GetFrameRate(void)
 {
-  FILE *p;
-  char *command;
-  int n,pixels,lines;
-  float rate,gamma;
-  char buf[BUFSIZ];
-
-  if(expt.vals[FRAMERATE_CODE] > 0)
-     rate = expt.vals[FRAMERATE_CODE];
- else
-     rate = 60;
-
-  return rate;
-
+    FILE *p;
+    char *command;
+    int n,pixels,lines;
+    float rate,gamma;
+    char buf[BUFSIZ];
+    
+    if(expt.vals[FRAMERATE_CODE] > 0)
+        rate = expt.vals[FRAMERATE_CODE];
+    else
+        rate = 60;
+    
+    return rate;
+    
 }
 
 
@@ -1242,7 +1242,7 @@ char **argv;
 	if((i = OpenSerial(theport)) <= 0)
 		mode |= NO_SERIAL_PORT;
     
-
+    
 	OpenPenetrationLog(0); /* open a dummy so ed is ALWAYS saved */
     
 	while(argc >1)
@@ -1389,9 +1389,9 @@ char **argv;
                 printf("Reading %d....\n",loadfiles[nfiles]);
             //Ali: for some reason xcode passes these additional arguments that messes up things.
             /*if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
-                fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
-                exit_program();
-            } 
+             fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
+             exit_program();
+             } 
              */
             nfiles++;
             /* 
@@ -1427,16 +1427,16 @@ char **argv;
         }
         //Ali: for some reason xcode passes these additional arguments that messes up things.
         /*Ali
-        if(ReadExptFile(loadfiles[i],1,1,!nfiles) < 0)
-        {
-            fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[i]);
-#ifdef NIDAQ
-		    DIOClose();
-#endif
-            exit_program();
-            //	    exit(0);
-        }
-        */
+         if(ReadExptFile(loadfiles[i],1,1,!nfiles) < 0)
+         {
+         fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[i]);
+         #ifdef NIDAQ
+         DIOClose();
+         #endif
+         exit_program();
+         //	    exit(0);
+         }
+         */
 	}
 	//Ali SetPanelColor(TheStim->gammaback);
 	//Ali SetStimPanel(TheStim);
@@ -1480,22 +1480,22 @@ void SendAllToGui()
 
 void SendAll()
 {
-  int i;
-  time_t tval;
-
-  for(i = 0; i < MAXSERIALCODES; i++)
-    if(codesend[i] != SEND_USER_ONLY)
-      SerialSend(i);
-  SendPenInfo();
-  tval = time(NULL);
-  if(seroutfile)
-    fprintf(seroutfile,"#SendAll at %s",ctime(&tval));
+    int i;
+    time_t tval;
+    
+    for(i = 0; i < MAXSERIALCODES; i++)
+        if(codesend[i] != SEND_USER_ONLY)
+            SerialSend(i);
+    SendPenInfo();
+    tval = time(NULL);
+    if(seroutfile)
+        fprintf(seroutfile,"#SendAll at %s",ctime(&tval));
 }
 
 void MakeConnection()
 {
 	int i;
-
+    
 	if(!(mode & SERIAL_OK))
 	{
 		SerialSignal(BW_IS_READY);
@@ -1504,12 +1504,12 @@ void MakeConnection()
 	}
 	if(mode & SERIAL_OK)
 	{
-	  SerialString("NewConnection\n",0);
-	  SendAll();
-	  SerialSend(ELECTRODE_DEPTH);
-	  SerialSend(PEN_START_DEPTH);
-	  gettimeofday(&sessiontime,NULL);
-	  SerialSignal(END_EXPT);
+        SerialString("NewConnection\n",0);
+        SendAll();
+        SerialSend(ELECTRODE_DEPTH);
+        SerialSend(PEN_START_DEPTH);
+        gettimeofday(&sessiontime,NULL);
+        SerialSignal(END_EXPT);
 	}
 }
 
@@ -1518,64 +1518,64 @@ void MakeConnection()
 
 void glstatusline(char *s, int line)
 {
-  static char *lines[10] = {NULL};
-  vcoord x[2];
-
-  if(!(mode & RUNNING) || (optionflags[HIDE_STATUS]))
-    return;
-  x[0] = -winsiz[0];
-  x[1] = -winsiz[1] + (25 * line);
-  if(line < 10 && s != NULL)
-    lines[line] = myscopy(lines[line],s);
-  if(s != NULL) /* new string */
-    glDrawBuffer(GL_FRONT_AND_BACK);
-      if(optionflag & SHOW_STIMVAL_BIT)
-	setmask(ALLPLANES);
-      else
-	setmask(OVERLAY);
-        SetGrey(TheStim->gammaback);
-        myrect(x[0],x[1]-5,x[0]+400,x[1]+15);
+    static char *lines[10] = {NULL};
+    vcoord x[2];
+    
+    if(!(mode & RUNNING) || (optionflags[HIDE_STATUS]))
+        return;
+    x[0] = -winsiz[0];
+    x[1] = -winsiz[1] + (25 * line);
+    if(line < 10 && s != NULL)
+        lines[line] = myscopy(lines[line],s);
+    if(s != NULL) /* new string */
+        glDrawBuffer(GL_FRONT_AND_BACK);
+    if(optionflag & SHOW_STIMVAL_BIT)
+        setmask(ALLPLANES);
+    else
+        setmask(OVERLAY);
+    SetGrey(TheStim->gammaback);
+    myrect(x[0],x[1]-5,x[0]+400,x[1]+15);
 	SetGrey(1.0);
 	mycmv(x);
 	if(s != NULL)
-	  printString(s,1);
+        printString(s,1);
 	else if(lines[line] != NULL)
-	  printString(lines[line],1);
+        printString(lines[line],1);
 	if(states[EXPT_PAUSED]){
-	  x[1] = -winsiz[1] + 150;
-	  mycmv(x);
-	  BigString("Paused");
+        x[1] = -winsiz[1] + 150;
+        mycmv(x);
+        BigString("Paused");
 	}
 	if(freezeexpt){
-	  x[1] = -winsiz[1] + 150;
-	  mycmv(x);
-	  BigString("Expt Frozen");
+        x[1] = -winsiz[1] + 150;
+        mycmv(x);
+        BigString("Expt Frozen");
 	}
-      glDrawBuffer(GL_BACK);
+    glDrawBuffer(GL_BACK);
 }
 
 void statusline(char *s)
 {
-  char buf[BUFSIZ];
-
-
-  if(s != NULL)
-    statusstring = myscopy(statusstring,s);
-  else
-    s = statusstring;
-  glstatusline(s,1);
-
-  if(mode & HOLD_STATUS)
-    return;
-
+    char buf[BUFSIZ];
+    
+    
+    if(s != NULL)
+        statusstring = myscopy(statusstring,s);
+    else
+        s = statusstring;
+    glstatusline(s,1);
+    
+    if(mode & HOLD_STATUS)
+        return;
+    
 }
 
 void ResetProjectionMatrix()
 {
-  glPopMatrix();
-  glPushMatrix();
-  return;
-  glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glPushMatrix();
+    return;
+    glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(pmatrix);
     //    glLoadIdentity();
 }
@@ -1583,67 +1583,67 @@ void ResetProjectionMatrix()
 
 int TrialOver()
 {
-  Stimulus *st = expt.st;
-  
-
-  if((st->type == STIM_CYLINDER || st->type == STIM_RDS) && expt.vals[INITIAL_DISPARITY] != 0){
-    if(st->left->ptr->velocity == 0 && seroutfile)
-      fprintf(seroutfile,"resetting velocity to %.2f\n",oldvelocity);
-     st->disp = olddisp;
-     st->left->ptr->velocity = oldvelocity;
-     st->posinc = oldvelocity;
-     st->flag = stimflag;
-	 if(st->left->ptr->velocity < 0.0001 && seroutfile)
-	   fprintf(seroutfile,"#Cyl velocity %.6f (%.f)\n",st->left->ptr->velocity,oldvelocity);
-  }
-  if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001){
-	SerialSend(FIXPOS_XY);
-	//	SerialSend(XPOS);
-	//	SerialSend(YPOS);
-  }
-
+    Stimulus *st = expt.st;
+    
+    
+    if((st->type == STIM_CYLINDER || st->type == STIM_RDS) && expt.vals[INITIAL_DISPARITY] != 0){
+        if(st->left->ptr->velocity == 0 && seroutfile)
+            fprintf(seroutfile,"resetting velocity to %.2f\n",oldvelocity);
+        st->disp = olddisp;
+        st->left->ptr->velocity = oldvelocity;
+        st->posinc = oldvelocity;
+        st->flag = stimflag;
+        if(st->left->ptr->velocity < 0.0001 && seroutfile)
+            fprintf(seroutfile,"#Cyl velocity %.6f (%.f)\n",st->left->ptr->velocity,oldvelocity);
+    }
+    if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001){
+        SerialSend(FIXPOS_XY);
+        //	SerialSend(XPOS);
+        //	SerialSend(YPOS);
+    }
+    
 }
 
 void StopGo(int go)
 { 
-  char buf[256];
-  stopgo = go;
-
-  if(go == GO)
+    char buf[256];
+    stopgo = go;
+    
+    if(go == GO)
     {
-      mode &= (~BW_ERROR);
-      optionflag |= GO_BIT;
-      mode |= ANIMATE_BIT;
-      monkeypress = 0;
-      end_timeout();
-      sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
-      SerialString(buf,0);
-      if(!(TheStim->mode & EXPTPENDING) && expt.st->left->ptr->velocity > 0){
-	oldvelocity = expt.st->left->ptr->velocity;
-	stimflag = expt.st->flag;
-	if(expt.st->type == STIM_RDS)
-	  oldvelocity = expt.st->posinc;
-	olddisp = expt.st->disp;
-      }
+        mode &= (~BW_ERROR);
+        optionflag |= GO_BIT;
+        mode |= ANIMATE_BIT;
+        monkeypress = 0;
+        end_timeout();
+        sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+        SerialString(buf,0);
+        if(!(TheStim->mode & EXPTPENDING) && expt.st->left->ptr->velocity > 0){
+            oldvelocity = expt.st->left->ptr->velocity;
+            stimflag = expt.st->flag;
+            if(expt.st->type == STIM_RDS)
+                oldvelocity = expt.st->posinc;
+            olddisp = expt.st->disp;
+        }
     }
-/* 
- *Requests to stop during the POSTSTIMULUS period are denied - 
- * monkey completed the trial and is about to get the reward
- * so wait for that
- */
-  else if(stimstate != POSTSTIMULUS || testflags[PLAYING_EXPT])
+    /* 
+     *Requests to stop during the POSTSTIMULUS period are denied - 
+     * monkey completed the trial and is about to get the reward
+     * so wait for that
+     */
+    else if(stimstate != POSTSTIMULUS || testflags[PLAYING_EXPT])
     {
-      optionflag &= (~GO_BIT);
-     mode &= (~(ANIMATE_BIT | TEST_PENDING));
-      monkeypress = WURTZ_STOPPED;
-      sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
-      SerialString(buf,0);
-      if(stimstate == INSTIMULUS)
-	TrialOver();
-      start_timeout(SEARCH);
-      if(stimstate == IN_TIMEOUT)
-	stimstate = STIMSTOPPED;
-      //Ali SetAllPanel(&expt);
+        optionflag &= (~GO_BIT);
+        mode &= (~(ANIMATE_BIT | TEST_PENDING));
+        monkeypress = WURTZ_STOPPED;
+        sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
+        SerialString(buf,0);
+        if(stimstate == INSTIMULUS)
+            TrialOver();
+        start_timeout(SEARCH);
+        if(stimstate == IN_TIMEOUT)
+            stimstate = STIMSTOPPED;
+        //Ali SetAllPanel(&expt);
     }
 }
 
@@ -2111,7 +2111,7 @@ int HandleMouse(WindowEvent e)
     float aval;
     Expstim *es,*esp;
     Locator *pos = &TheStim->pos;
-
+    
     char cbuf[256];
     static char instring[256];
     static int sctr = 0;
@@ -2124,72 +2124,72 @@ int HandleMouse(WindowEvent e)
     i = 0;
     handle = 0;
     
- 
-        switch (e.eventType) {
-            case ButtonRelease:
-                if(eventstate & SHIFTKEY)
-                    ShiftButtonRelease(start, endpt, e);
-                else if(eventstate & CNTLKEY)
-                    CntrlButtonRelease(start, endpt, e);
-                else 
-                    ButtonReleased(start, endpt, e);
-                eventstate = 0;
-                break;
-            case ButtonPress:
-                eventstate = 0;
-                if(e.mouseButton == Button1)
-                    eventstate |= LBUTTON;
-                if(e.mouseButton == Button2){
-                    eventstate |= MBUTTON;
-                    if(TheStim->type == STIM_NONE && !(e.modifierKey & ShiftMask) && 
-                       !(e.modifierKey & ControlMask))
-                        RewardOn(1);
+    
+    switch (e.eventType) {
+        case ButtonRelease:
+            if(eventstate & SHIFTKEY)
+                ShiftButtonRelease(start, endpt, e);
+            else if(eventstate & CNTLKEY)
+                CntrlButtonRelease(start, endpt, e);
+            else 
+                ButtonReleased(start, endpt, e);
+            eventstate = 0;
+            break;
+        case ButtonPress:
+            eventstate = 0;
+            if(e.mouseButton == Button1)
+                eventstate |= LBUTTON;
+            if(e.mouseButton == Button2){
+                eventstate |= MBUTTON;
+                if(TheStim->type == STIM_NONE && !(e.modifierKey & ShiftMask) && 
+                   !(e.modifierKey & ControlMask))
+                    RewardOn(1);
+            }
+            if(e.mouseButton == Button3)
+                eventstate |= RBUTTON;
+            if(e.modifierKey & ShiftMask)
+                ShiftButtonDown(start, endpt, e);
+            else if(e.modifierKey & ControlMask)
+                CntrlButtonDown(start, endpt, e);
+            else
+                ButtonDown(start, endpt, e);
+            /*
+             * in darwin can get erroneous Button4 events from a middle mouse press
+             */
+            if(e.mouseButton == Button4)
+                TheStim->pos.angle += 0.02;
+            if(e.mouseButton == Button5)
+                TheStim->pos.angle -= 0.02;
+            
+            break;
+        case MotionNotify:
+            /*
+             * N.B. Motion events are processed according to the cntrl/shiftkey status at the
+             * time thhe button was first pressed, using eventstate. This way releasing the
+             * shift key during a drag doesn't cause problems
+             */
+            if(eventstate & SHIFTKEY){
+                ShiftDrag(start, endpt, e);
+                if(expt.nlines < MAXUSERLINES)
+                {
+                    pl = &expt.plot->linedata[expt.nlines*4];
+                    *pl++ = start[0];
+                    *pl++ = start[1];
+                    *pl++ = endpt[0];
+                    *pl++ = endpt[1];
                 }
-                if(e.mouseButton == Button3)
-                    eventstate |= RBUTTON;
-                if(e.modifierKey & ShiftMask)
-                    ShiftButtonDown(start, endpt, e);
-                else if(e.modifierKey & ControlMask)
-                    CntrlButtonDown(start, endpt, e);
-                else
-                    ButtonDown(start, endpt, e);
-                /*
-                 * in darwin can get erroneous Button4 events from a middle mouse press
-                 */
-                if(e.mouseButton == Button4)
-                    TheStim->pos.angle += 0.02;
-                if(e.mouseButton == Button5)
-                    TheStim->pos.angle -= 0.02;
-
-                break;
-            case MotionNotify:
-                /*
-                 * N.B. Motion events are processed according to the cntrl/shiftkey status at the
-                 * time thhe button was first pressed, using eventstate. This way releasing the
-                 * shift key during a drag doesn't cause problems
-                 */
-                if(eventstate & SHIFTKEY){
-                    ShiftDrag(start, endpt, e);
-                    if(expt.nlines < MAXUSERLINES)
-                    {
-                        pl = &expt.plot->linedata[expt.nlines*4];
-                        *pl++ = start[0];
-                        *pl++ = start[1];
-                        *pl++ = endpt[0];
-                        *pl++ = endpt[1];
-                    }
-                }
-                else if(eventstate & CNTLKEY)
-                    CntrlDrag(start, endpt, e);
-                else if(e.modifierKey & ControlMask)
-                    ShowPos(e.mouseX,e.mouseY);
-                else if(e.modifierKey & ShiftMask)
-                    ShowDataPos(expt.plot, e.mouseX,e.mouseY);
-                else
-                    ButtonDrag(start, endpt, e);
-                break;
-        }
-   
+            }
+            else if(eventstate & CNTLKEY)
+                CntrlDrag(start, endpt, e);
+            else if(e.modifierKey & ControlMask)
+                ShowPos(e.mouseX,e.mouseY);
+            else if(e.modifierKey & ShiftMask)
+                ShowDataPos(expt.plot, e.mouseX,e.mouseY);
+            else
+                ButtonDrag(start, endpt, e);
+            break;
+    }
+    
     
     return(res);
 }
@@ -2197,52 +2197,52 @@ int HandleMouse(WindowEvent e)
 
 
 void RunOneTrial(){
-  states[ONE_TRIAL] = 1;
-  StopGo(GO);
+    states[ONE_TRIAL] = 1;
+    StopGo(GO);
 }
 
 void SetStopButton(int onoff)
 {
-
-if(TheStim->mode & EXPTPENDING) /* cant play with this button  in expts */
-  return;
-  if((onoff == GO && monkeypress == WURTZ_STOPPED) ||
-     (onoff == STOP && monkeypress != WURTZ_STOPPED))
+    
+    if(TheStim->mode & EXPTPENDING) /* cant play with this button  in expts */
+        return;
+    if((onoff == GO && monkeypress == WURTZ_STOPPED) ||
+       (onoff == STOP && monkeypress != WURTZ_STOPPED))
     {
-/* 
- * NB this is confusing. Must do the opposite of what we want here, since
- * the call to handle_pushbuttons toggles ANIMATE_BIT
- * EG: GO unsets ANIMATE_BIT, whihc is then set in handle_pusbuttons
-*/
-	if(onoff == STOP)
-	  mode |= ANIMATE_BIT;
-	if(onoff == GO)
-	  mode &= (~ANIMATE_BIT);
-      }
+        /* 
+         * NB this is confusing. Must do the opposite of what we want here, since
+         * the call to handle_pushbuttons toggles ANIMATE_BIT
+         * EG: GO unsets ANIMATE_BIT, whihc is then set in handle_pusbuttons
+         */
+        if(onoff == STOP)
+            mode |= ANIMATE_BIT;
+        if(onoff == GO)
+            mode &= (~ANIMATE_BIT);
+    }
 }
 
 void exit_program()
 {
-/*
-  if(!(mode & SAVED_LOG))
-    SaveLog();
-*/
-  if(TheStim->mode & EXPTPENDING){
-    expt_over(1);
-  }
-  closeserial(0);
-  closeserial(1);
-  if(alarmstart.tv_sec > 0) // waiting for an alarm event
-    RunWaterAlarm();
-  CloseLog();
+    /*
+     if(!(mode & SAVED_LOG))
+     SaveLog();
+     */
+    if(TheStim->mode & EXPTPENDING){
+        expt_over(1);
+    }
+    closeserial(0);
+    closeserial(1);
+    if(alarmstart.tv_sec > 0) // waiting for an alarm event
+        RunWaterAlarm();
+    CloseLog();
 	if(testfd != NULL)
 	{
 		fprintf(testfd,"%d frames\n",framecount);
 		fclose(testfd);
 	}
 #ifdef NIDAQ
-		    DIOClose();
-		    _Exit(0);
+    DIOClose();
+    _Exit(0);
 #else
 	exit(0);
 #endif
@@ -2253,72 +2253,72 @@ void exit_program()
 
 void Box(int a, int b, int c, int d, float color)
 {
-  vcoord pt[2];
-  glDrawBuffer(GL_FRONT_AND_BACK);
-  setmask(OVERLAY);
-  SetGrey(color);
-  glBegin(GL_LINE_LOOP);
-  pt[0] = a-winsiz[0];
-  pt[1] = winsiz[1] - b;
-  myvx(pt);
-  pt[0] = a - winsiz[0]; 
-  pt[1] = winsiz[1] - d;
-  myvx(pt);
-  pt[0] = c - winsiz[0]; 
-  pt[1] = winsiz[1] - d;
-  myvx(pt);
-  pt[0] = c - winsiz[0]; 
-  pt[1] = winsiz[1] - b;
-  myvx(pt);
-  pt[0] = a - winsiz[0]; 
-  pt[1] = winsiz[1] - b;
-  myvx(pt);
-  glEnd();
+    vcoord pt[2];
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    setmask(OVERLAY);
+    SetGrey(color);
+    glBegin(GL_LINE_LOOP);
+    pt[0] = a-winsiz[0];
+    pt[1] = winsiz[1] - b;
+    myvx(pt);
+    pt[0] = a - winsiz[0]; 
+    pt[1] = winsiz[1] - d;
+    myvx(pt);
+    pt[0] = c - winsiz[0]; 
+    pt[1] = winsiz[1] - d;
+    myvx(pt);
+    pt[0] = c - winsiz[0]; 
+    pt[1] = winsiz[1] - b;
+    myvx(pt);
+    pt[0] = a - winsiz[0]; 
+    pt[1] = winsiz[1] - b;
+    myvx(pt);
+    glEnd();
 }
 
 
 
 void VisLine(int a, int b, int c, int d, float color)
 {
-  vcoord pt[2];
-  glDrawBuffer(GL_FRONT_AND_BACK);
-  setmask(ALLPLANES);
-  SetGrey(color);
-  glBegin(GL_LINE_STRIP);
-  pt[0] = a;
-  pt[1] = -b;
-  myvx(pt);
-  if(optionflags[NO_MIRRORS])
-    pt[0] = c - winsiz[0]; 
-  else
-    pt[0] =  winsiz[0]-c; 
-  pt[1] = d - winsiz[1];
-  myvx(pt);
-  glEnd();
+    vcoord pt[2];
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    setmask(ALLPLANES);
+    SetGrey(color);
+    glBegin(GL_LINE_STRIP);
+    pt[0] = a;
+    pt[1] = -b;
+    myvx(pt);
+    if(optionflags[NO_MIRRORS])
+        pt[0] = c - winsiz[0]; 
+    else
+        pt[0] =  winsiz[0]-c; 
+    pt[1] = d - winsiz[1];
+    myvx(pt);
+    glEnd();
 }
 
 float getangle(vcoord *wp, vcoord *sp)
 {
-  float sx,sy,res;
-  sy = (wp[1]-winsiz[1])-sp[1];
-  sx  = (wp[0]-winsiz[0])-sp[0];
-  res = atan2(sy,sx);
-  return(res);
+    float sx,sy,res;
+    sy = (wp[1]-winsiz[1])-sp[1];
+    sx  = (wp[0]-winsiz[0])-sp[0];
+    res = atan2(sy,sx);
+    return(res);
 }
 
 void win2stim(vcoord *wp, vcoord *sp, float angle, vcoord *result)
 {
-  int sx,sy;
-  float cx,cy,sina,cosa;
-
-  sy = (wp[1]-winsiz[1])-sp[1];
-  sx  = (wp[0]-winsiz[0])-sp[0];
-  sina = sin(angle*M_PI/180);
-  cosa = cos(angle*M_PI/180);
-  cx = sx * cosa +sy* sina;
-  cy = sy * cosa - sx * sina;
-  result[0] = (vcoord)cx;
-  result[1] = (vcoord)cy;
+    int sx,sy;
+    float cx,cy,sina,cosa;
+    
+    sy = (wp[1]-winsiz[1])-sp[1];
+    sx  = (wp[0]-winsiz[0])-sp[0];
+    sina = sin(angle*M_PI/180);
+    cosa = cos(angle*M_PI/180);
+    cx = sx * cosa +sy* sina;
+    cy = sy * cosa - sx * sina;
+    result[0] = (vcoord)cx;
+    result[1] = (vcoord)cy;
 }
 
 int MyLine(int a, int b, int c, int d, float color)
@@ -2340,122 +2340,122 @@ int MyLine(int a, int b, int c, int d, float color)
 
 vcoord StimLine(vcoord *pos, Expstim *es, float color)
 {
-  int sx,sy;
-  float cx,cy;
-  vcoord pt[2];
-/*
-* convert from root window co-ordinates to stimulus co-ordinates
-*/
-  glDrawBuffer(GL_FRONT_AND_BACK);
-  setmask(OVERLAY);
-  SetGrey(color);
-  win2stim(pos,es->pos,es->angle,pt);
-   glPushMatrix();
-  
-   glTranslatef(es->pos[0],es->pos[1],0);
-  glRotatef(es->angle,0,0,1);
-  glBegin(GL_LINE_STRIP);
-  pt[0] = -es->size[0]/2;
-  myvx(pt);
-  pt[0] = es->size[0]/2;
-  myvx(pt);
-  glEnd();
-  glPopMatrix();
-  return(pt[1]);
+    int sx,sy;
+    float cx,cy;
+    vcoord pt[2];
+    /*
+     * convert from root window co-ordinates to stimulus co-ordinates
+     */
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    setmask(OVERLAY);
+    SetGrey(color);
+    win2stim(pos,es->pos,es->angle,pt);
+    glPushMatrix();
+    
+    glTranslatef(es->pos[0],es->pos[1],0);
+    glRotatef(es->angle,0,0,1);
+    glBegin(GL_LINE_STRIP);
+    pt[0] = -es->size[0]/2;
+    myvx(pt);
+    pt[0] = es->size[0]/2;
+    myvx(pt);
+    glEnd();
+    glPopMatrix();
+    return(pt[1]);
 }
 
 
 
 int RewardOn(int onoff){
-  char buf[256];
-
-  sprintf(buf,"%2s%c\n",serial_strings[REWARD_SIZE],onoff?'+':'-');
-  SerialString(buf,0);
+    char buf[256];
+    
+    sprintf(buf,"%2s%c\n",serial_strings[REWARD_SIZE],onoff?'+':'-');
+    SerialString(buf,0);
 }
 
 
 
 void TurnBackStim(Stimulus *st)
 {
-  if(st->type == STIM_RDS || st->type == STIM_RLS)
-    st->right->baseseed = --(st->left->baseseed);
-  if(st->next && st->next->type == STIM_RDS)
-    st->next->right->baseseed = --(st->next->left->baseseed);
+    if(st->type == STIM_RDS || st->type == STIM_RLS)
+        st->right->baseseed = --(st->left->baseseed);
+    if(st->next && st->next->type == STIM_RDS)
+        st->next->right->baseseed = --(st->next->left->baseseed);
 }
 
 
 
 int ClearStimLine(int n){
-  short *pl;
-
-  pl = &expt.plot->linedata[n*4];
-  *pl++ = 0;
-  *pl++ = 0;
-  *pl++ = 0;
-  *pl++ = 0;
+    short *pl;
+    
+    pl = &expt.plot->linedata[n*4];
+    *pl++ = 0;
+    *pl++ = 0;
+    *pl++ = 0;
+    *pl++ = 0;
 }
 
 
 
 void StartRunning()
 {
-  int i;
-
-  if(optionflag & DITHERMODE) //Ali && confirm_no("Are You Sure You want Dithering?",NULL))
-    optionflag &= (~DITHERMODE);
-
-  mode |= NEWPOS;
-  CheckRect(TheStim);
-  mode |= RUNNING;
-  setmask(ALLPLANES);
-  clear_display(1);
-  mode |= CURSOR_IS_ON;
-  
-  i = mode;
-  setstimuli(0);
-  ResetCustomVals(i);
-
-
-  //Ali SetExpPanel(&expt);
-  psychclear(expt.plot,1);
-  fprintf(stderr,"Initial Clear done\n");
-  gettimeofday(&now, NULL);
-  memcpy(&endtrialtime,&now,sizeof(struct timeval));
-  memcpy(&goodfixtime,&now,sizeof(struct timeval));
-  if(forcestart){
-    if(replay_expt){
+    int i;
+    
+    if(optionflag & DITHERMODE) //Ali && confirm_no("Are You Sure You want Dithering?",NULL))
+        optionflag &= (~DITHERMODE);
+    
+    mode |= NEWPOS;
+    CheckRect(TheStim);
+    mode |= RUNNING;
+    setmask(ALLPLANES);
+    clear_display(1);
+    mode |= CURSOR_IS_ON;
+    
+    i = mode;
+    setstimuli(0);
+    ResetCustomVals(i);
+    
+    
+    //Ali SetExpPanel(&expt);
+    psychclear(expt.plot,1);
+    fprintf(stderr,"Initial Clear done\n");
+    gettimeofday(&now, NULL);
+    memcpy(&endtrialtime,&now,sizeof(struct timeval));
+    memcpy(&goodfixtime,&now,sizeof(struct timeval));
+    if(forcestart){
+        if(replay_expt){
+        }
+        else{
+            if(forcestart > 1)
+                set_test_loop();
+            StopGo(GO);
+        }
     }
-    else{
-      if(forcestart > 1)
-	set_test_loop();
-      StopGo(GO);
-    }
-  }
     glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
     glPushMatrix();
     binocrunning = 1;
     if(TheStim->left->baseseed == 0){
-      NewSeed(TheStim);
+        NewSeed(TheStim);
     }
 }
 
 char DummySerial()
 {
-  gettimeofday(&now,NULL);
-  switch(stimstate)
+    gettimeofday(&now,NULL);
+    switch(stimstate)
     {
-    case POSTSTIMULUS:
-    case POSTPOSTSTIMULUS:
-    case INTRIAL:
-    default:
-      return(MYEOF);
-    case WAIT_FOR_RESPONSE:
-      if(timediff(&now,&timeb) > 1.0)
-	return(WURTZ_OK);
+        case POSTSTIMULUS:
+        case POSTPOSTSTIMULUS:
+        case INTRIAL:
+        default:
+            return(MYEOF);
+        case WAIT_FOR_RESPONSE:
+            if(timediff(&now,&timeb) > 1.0)
+                return(WURTZ_OK);
     }
-      return(MYEOF);
-  gettimeofday(&timeb,NULL);
-
+    return(MYEOF);
+    gettimeofday(&timeb,NULL);
+    
 }
 
 
@@ -2475,15 +2475,15 @@ void one_event_loop()
 	Locator *pos = &TheStim->pos;
 	int statectr = 0,tc;
 	static int testlaps = 0;
-
-  tc = 0;
-  while((c = ReadSerial(ttys[0])) != MYEOF){
-    GotChar(c);
-    if(tc++ > 2048){
-      if((ser = CheckSerialInput(1000)) != NULL)
-	fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
+    
+    tc = 0;
+    while((c = ReadSerial(ttys[0])) != MYEOF){
+        GotChar(c);
+        if(tc++ > 2048){
+            if((ser = CheckSerialInput(1000)) != NULL)
+                fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
+        }
     }
-  }
 }
 
 #pragma mark Event_Loop
@@ -2502,87 +2502,87 @@ void event_loop()
 	Locator *pos = &TheStim->pos;
 	int statectr = 0,tc;
 	static int testlaps = 0;
-
+    
     //Ali 20/6/2011
     //stimstate = PRESTIMULUS;
-	  	
-		tc = 0;
-		while((c = ReadSerial(ttys[0])) != MYEOF){
-			GotChar(c);
-			if(tc++ > 2048){
-			  if((ser = CheckSerialInput(1000)) != NULL)
-			  fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
-			}
-		}
+    
+    tc = 0;
+    while((c = ReadSerial(ttys[0])) != MYEOF){
+        GotChar(c);
+        if(tc++ > 2048){
+            if((ser = CheckSerialInput(1000)) != NULL)
+                fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
+        }
+    }
     ReadInputPipe();
-		if(cleartime.tv_sec != 0){
-		  gettimeofday(&now,NULL);
-		  val = timediff(&now,&cleartime);
-		  if((val = timediff(&now,&cleartime)) > cleardelay){
-		  SerialSend(SEND_CLEAR);
-		  cleartime.tv_sec = 0;
-		  }
-		}
-		if(!(mode & RUNNING) && window_is_mapped)
-		  {
-		    if(statectr > 2) /* finally ready */
-		      {
+    if(cleartime.tv_sec != 0){
+        gettimeofday(&now,NULL);
+        val = timediff(&now,&cleartime);
+        if((val = timediff(&now,&cleartime)) > cleardelay){
+            SerialSend(SEND_CLEAR);
+            cleartime.tv_sec = 0;
+        }
+    }
+    if(!(mode & RUNNING) && window_is_mapped)
+    {
+        if(statectr > 2) /* finally ready */
+        {
 			StartRunning();
-		      }
-		    else
-		      {
+        }
+        else
+        {
 		    if(statectr == 0)
-		      expfront();
+                expfront();
 		    else if(statectr == 1 && !demomode)
-		      //Ali framefront();
-		      statectr++;
-		      }
-		  }
-		if(mode & TEST_PENDING)
-		  {
-              testmode = 4;
-		    if(testmode == 0){
-	    /*		      run_anticorrelated_test_loop();*/
-		      if(TheStim->type == STIM_RADIAL)
-			run_radial_test_loop();
-		      else if(TheStim->type == STIM_RDS)
-			run_anticorrelated_test_loop();
-		      else
-			run_general_test_loop();
-		    }
-		    else if(testmode == 2)
-		      run_gabor_test_loop();
-		    else if(testmode == 1 || testmode == 3)
-		      run_rds_test_loop();
-            else if (testmode == 4){
-                for (i = 0; i < 20; i++){
-  //                  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    paint_frame(WHOLESTIM,1);
- //                   paint_stimulus(TheStim);
-              TheStim->pos.phase += TheStim->incr;
-   //           calc_stimulus(TheStim);
-                    //glFinishRenderAPPLE();
-                    glSwapAPPLE();
-                    //Ali where the screen update goes
-                    //TESTRefresh();
-                }
-            }
-//                  run_general_test_loop();
-		    else if (testmode == 5){
-                paint_stimulus(TheStim);
+                //Ali framefront();
+                statectr++;
+        }
+    }
+    if(mode & TEST_PENDING)
+    {
+        testmode = 4;
+        if(testmode == 0){
+            /*		      run_anticorrelated_test_loop();*/
+            if(TheStim->type == STIM_RADIAL)
+                run_radial_test_loop();
+            else if(TheStim->type == STIM_RDS)
+                run_anticorrelated_test_loop();
+            else
+                run_general_test_loop();
+        }
+        else if(testmode == 2)
+            run_gabor_test_loop();
+        else if(testmode == 1 || testmode == 3)
+            run_rds_test_loop();
+        else if (testmode == 4){
+            for (i = 0; i < 20; i++){
+                //                  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                paint_frame(WHOLESTIM,1);
+                //                   paint_stimulus(TheStim);
                 TheStim->pos.phase += TheStim->incr;
-                calc_stimulus(TheStim);
-                glFinishRenderAPPLE();
+                //           calc_stimulus(TheStim);
+                //glFinishRenderAPPLE();
+                glSwapAPPLE();
+                //Ali where the screen update goes
+                //TESTRefresh();
             }
-              if(forcestart >1 && ++testlaps >= forcestart)
-		      exit_program();
-		  }
-		else
-		  next_frame(TheStim);
-		if(command_pending && mode & RUNNING){
-		  ReadExptFile(NULL, 0, 0,0);
-		}
-		ctr++;
+        }
+        //                  run_general_test_loop();
+        else if (testmode == 5){
+            paint_stimulus(TheStim);
+            TheStim->pos.phase += TheStim->incr;
+            calc_stimulus(TheStim);
+            glFinishRenderAPPLE();
+        }
+        if(forcestart >1 && ++testlaps >= forcestart)
+            exit_program();
+    }
+    else
+        next_frame(TheStim);
+    if(command_pending && mode & RUNNING){
+        ReadExptFile(NULL, 0, 0,0);
+    }
+    ctr++;
 	
 }
 
@@ -2590,7 +2590,7 @@ void event_loop()
 void SetDelay(Locator *pos)
 {
 	int y = pos->xy[1]-winsiz[1],i;
-
+    
 	/* image big enough to need some delay when y is small */
 	i = pos->imsize[0] * pos->imsize[1] * 0.008 - 180;
 	/* image big enough to need some delay when y is small */
@@ -2605,10 +2605,10 @@ void CheckRect(Stimulus *st)
 	float i,j,lx,ly,w,h,cosa,sina,dm,size[2];
 	Locator *pos = &st->pos;
 	int x,y,rx,ry,border = 2;
-
+    
 	x = pos->xy[0];
 	y = pos->xy[1];
-
+    
 	sina = fabs(sin(pos->angle));
 	cosa = fabs(cos(pos->angle));
 	size[0] = pos->imsize[0] + deg2pix(fabs(st->dlength/2));
@@ -2616,14 +2616,14 @@ void CheckRect(Stimulus *st)
 	w = (size[0] * cosa + size[1] * sina) + 2 * fabs((int)(st->disp)) + 2 * fabs((int)(st->vdisp));
 	h = (size[1] * cosa + size[0] * sina) + 2 *fabs((int)(st->disp))  + 2 * fabs((int)(st->vdisp));
 	if(st->type == STIM_CORRUG)
-	  {
+    {
 	    dm = deg2pix(StimulusProperty(st,DEPTH_MOD));
 	    w += (2 * fabsf(dm));
 	    h += (2 * fabsf(dm));
-	    }
+    }
 	if(st->type == STIM_RDS){
-	  w += (2* st->left->dotsiz[0]);
-	  h += (2* st->left->dotsiz[1]);
+        w += (2* st->left->dotsiz[0]);
+        h += (2* st->left->dotsiz[1]);
 	}
 	imrect.lx = x - (w+1)/2 - border;
 	imrect.rx = imrect.lx + w+2 + 2*border;
@@ -2631,10 +2631,10 @@ void CheckRect(Stimulus *st)
 	imrect.ry = imrect.ly + h+2 + 2*border;
 	memcpy(&st->rect,&imrect,sizeof(Rectangle));
 	if(st->next != NULL && st->next->type != STIM_NONE)
-	  {
+    {
 	    pos = &st->next->pos;
-	size[0] = pos->imsize[0] + deg2pix(fabs(st->next->dlength/2));
-	size[1] = pos->imsize[1] + deg2pix(fabs(st->next->dwidth/2));
+        size[0] = pos->imsize[0] + deg2pix(fabs(st->next->dlength/2));
+        size[1] = pos->imsize[1] + deg2pix(fabs(st->next->dwidth/2));
 	    x = pos->xy[0];
 	    y = pos->xy[1];
 	    sina = fabs(sin(pos->angle));
@@ -2646,141 +2646,141 @@ void CheckRect(Stimulus *st)
 	    ly = y - (h+1)/2 - border;
 	    ry = ly + h+2 + 2*border;
 	    if(lx < imrect.lx)
-	      imrect.lx = lx;
+            imrect.lx = lx;
 	    if(rx > imrect.rx)
-	      imrect.rx = rx;
+            imrect.rx = rx;
 	    if(ly < imrect.ly)
-	      imrect.ly = ly;	
+            imrect.ly = ly;	
 	    if(ry > imrect.ry)
-	      imrect.ry = ry;
+            imrect.ry = ry;
 	    memcpy(&st->next->rect,&imrect,sizeof(Rectangle));
-	  }
+    }
 }
 
 int StartOverlay()
 {
-  if(!(mode & OVERLAY_ON))
+    if(!(mode & OVERLAY_ON))
     {
-      mode |= OVERLAY_ON;
-      glDrawBuffer(GL_FRONT_AND_BACK);
-      setmask(OVERLAY);
+        mode |= OVERLAY_ON;
+        glDrawBuffer(GL_FRONT_AND_BACK);
+        setmask(OVERLAY);
     }
 	return(0);
 }
 
 int EndOverlay()
 {
-  if(mode & OVERLAY_ON)
+    if(mode & OVERLAY_ON)
     {
-  mode &= (~OVERLAY_ON);
-  glDrawBuffer(GL_BACK);
-  setmask(BOTHMODE);
+        mode &= (~OVERLAY_ON);
+        glDrawBuffer(GL_BACK);
+        setmask(BOTHMODE);
     }
 	return(0);
 }
 
 int ShowBox(Expstim *ps, float color)
 {
-  vcoord x[2],cp[2];
-  int i,step;
-
-
-
-  glPushMatrix();
-  if(optionflags[MOVE_RF] && optionflag & SHOW_CONJUG_BIT && ps->type == RF_BOX){
-    glTranslatef(ps->pos[0]+oldpos[0],ps->pos[1]+oldpos[1],0);
-  }
-  else{
-    glTranslatef(ps->pos[0],ps->pos[1],0);
-  }
-  glRotatef(ps->angle,0,0,1);
-  glLineWidth(expt.linw);
-  SetGrey(color);
-/* first draw the stimulus region*/
-  glBegin(GL_LINE_LOOP);
-  x[0] = -ps->size[0]/2;
-  x[1] = -ps->size[1]/2;
-  myvx(x);
-  x[0] += ps->size[0];
-  myvx(x);
-  x[1] += ps->size[1];
-  myvx(x);
-  x[0] = -ps->size[0]/2;
-  myvx(x);
-  x[1] = -ps->size[1]/2;
-  myvx(x); 
-  glEnd();
-  if(ps->flag & PHASEMARKER_ON && !optionflags[STIMULUS_IN_OVERLAY])
-    {
-      glBegin(GL_LINE_STRIP);
-      x[0] = -ps->size[0]/2;
-      x[1] = ps->phasemark;
-      myvx(x);
-      x[0] = ps->size[0]/2;
-      myvx(x);
-      glEnd();
+    vcoord x[2],cp[2];
+    int i,step;
+    
+    
+    
+    glPushMatrix();
+    if(optionflags[MOVE_RF] && optionflag & SHOW_CONJUG_BIT && ps->type == RF_BOX){
+        glTranslatef(ps->pos[0]+oldpos[0],ps->pos[1]+oldpos[1],0);
     }
-/* then add a psth */
-
-
-  if(ps->flag & PSTH_ON && ps->nreps[1][0] > 0 && ps->nbins > 0 && ps->nbins < 500)
-    {
-  glBegin(GL_LINE_STRIP);
-  x[0] = ps->size[0]/2;
-  x[1] = -ps->size[1]/2;
-  myvx(x);
-  step = ps->size[1]/ps->nbins;
-  if(ps->flag & PSTH2_ON)
-    {
-    step = (ps->size[1] * 2)/ps->nbins;
-    if(!(ps->nbins & 1) && step * ps->nbins/2 < ps->size[0])
-	step++;
-  }
-  for(i = 0; i < ps->nbins; i++)
-    {
-      if(step > 0)
-	x[0] = ps->size[0]/2 + expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-      else
-	x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-      myvx(x);
-      x[1] += step;
-      if(x[1] >= ps->size[1]/2 && ps->flag & PSTH2_ON)
-	{
-	  if(ps->nbins & 1)
-	    {
-	      x[1] -= step/2;
-	      myvx(x);
-	      x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-	      myvx(x);
-	      x[1] -= step/2;
-	    }
-	  else
-	    myvx(x);
-	  x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-	  step = -step;
-      }
-      myvx(x);
+    else{
+        glTranslatef(ps->pos[0],ps->pos[1],0);
     }
-  x[0] = ps->size[0]/2;
-  myvx(x);
- glEnd();
-}
-  else if(ps->flag & CENTERMARK_ON) 
+    glRotatef(ps->angle,0,0,1);
+    glLineWidth(expt.linw);
+    SetGrey(color);
+    /* first draw the stimulus region*/
+    glBegin(GL_LINE_LOOP);
+    x[0] = -ps->size[0]/2;
+    x[1] = -ps->size[1]/2;
+    myvx(x);
+    x[0] += ps->size[0];
+    myvx(x);
+    x[1] += ps->size[1];
+    myvx(x);
+    x[0] = -ps->size[0]/2;
+    myvx(x);
+    x[1] = -ps->size[1]/2;
+    myvx(x); 
+    glEnd();
+    if(ps->flag & PHASEMARKER_ON && !optionflags[STIMULUS_IN_OVERLAY])
     {
-      glBegin(GL_LINES);
-      x[0] = -5;
-      x[1] = 0;
-      myvx(x);
-      x[0] = 5;
-      myvx(x);
-      x[0] = 0;
-      x[1] = 0;
-      myvx(x);
-      x[1] = -10;
-      myvx(x);
-      glEnd();
+        glBegin(GL_LINE_STRIP);
+        x[0] = -ps->size[0]/2;
+        x[1] = ps->phasemark;
+        myvx(x);
+        x[0] = ps->size[0]/2;
+        myvx(x);
+        glEnd();
     }
-  glPopMatrix();
+    /* then add a psth */
+    
+    
+    if(ps->flag & PSTH_ON && ps->nreps[1][0] > 0 && ps->nbins > 0 && ps->nbins < 500)
+    {
+        glBegin(GL_LINE_STRIP);
+        x[0] = ps->size[0]/2;
+        x[1] = -ps->size[1]/2;
+        myvx(x);
+        step = ps->size[1]/ps->nbins;
+        if(ps->flag & PSTH2_ON)
+        {
+            step = (ps->size[1] * 2)/ps->nbins;
+            if(!(ps->nbins & 1) && step * ps->nbins/2 < ps->size[0])
+                step++;
+        }
+        for(i = 0; i < ps->nbins; i++)
+        {
+            if(step > 0)
+                x[0] = ps->size[0]/2 + expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
+            else
+                x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
+            myvx(x);
+            x[1] += step;
+            if(x[1] >= ps->size[1]/2 && ps->flag & PSTH2_ON)
+            {
+                if(ps->nbins & 1)
+                {
+                    x[1] -= step/2;
+                    myvx(x);
+                    x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
+                    myvx(x);
+                    x[1] -= step/2;
+                }
+                else
+                    myvx(x);
+                x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
+                step = -step;
+            }
+            myvx(x);
+        }
+        x[0] = ps->size[0]/2;
+        myvx(x);
+        glEnd();
+    }
+    else if(ps->flag & CENTERMARK_ON) 
+    {
+        glBegin(GL_LINES);
+        x[0] = -5;
+        x[1] = 0;
+        myvx(x);
+        x[0] = 5;
+        myvx(x);
+        x[0] = 0;
+        x[1] = 0;
+        myvx(x);
+        x[1] = -10;
+        myvx(x);
+        glEnd();
+    }
+    glPopMatrix();
 	return(0);
 }
 
@@ -2790,8 +2790,8 @@ void RotateStimulus(int x, int y)
 	int ix,iy;
 	float i,j,lx,ly,w,h,cosa,sina;
 	Locator *pos = &stimptr->pos;
-
-
+    
+    
 	mode |= NEED_REPAINT;
 	h = y-winsiz[1] - pos->xy[1];
 	w  = x-winsiz[0] - pos->xy[0];
@@ -2802,11 +2802,11 @@ void RotateStimulus(int x, int y)
 void LocateStimulus(Stimulus *st, vcoord x, vcoord y)
 {
 	Locator *pos = &st->pos;
-
-
+    
+    
 	pos->xy[1] = y-winsiz[1];
 	pos->xy[0]  = x-winsiz[0];
-      	if(!(optionflag & BACKGROUND_FIXED_BIT))
+    if(!(optionflag & BACKGROUND_FIXED_BIT))
 	{
 		if(st->next != NULL)
 		{
@@ -2820,21 +2820,21 @@ void LocateStimulus(Stimulus *st, vcoord x, vcoord y)
 
 void ShowDataPos(struct plotdata *plot, int x, int y)
 {
-  int wx = x - winsiz[0], wy = winsiz[1] - y;
-  float dx,dy;
-
-  dx = plot->xrange[0] + plot->range * (wx - plot->offset)/plot->w;
-  dy = plot->maxrate * (wy - plot->pos[1])/plot->size[1];
-  sprintf(mssg,"%.3f %.1f",dx,dy);
-  glstatusline(mssg,2);
+    int wx = x - winsiz[0], wy = winsiz[1] - y;
+    float dx,dy;
+    
+    dx = plot->xrange[0] + plot->range * (wx - plot->offset)/plot->w;
+    dy = plot->maxrate * (wy - plot->pos[1])/plot->size[1];
+    sprintf(mssg,"%.3f %.1f",dx,dy);
+    glstatusline(mssg,2);
 }
 
 void ShowPos(int x, int y)
 {
-  int wx = x - winsiz[0], wy = winsiz[1] - y;
-
-  sprintf(mssg,"%.1f %.1f (%d,%d)",pix2deg(wx),pix2deg(wy),x,y);
-  glstatusline(mssg,2);
+    int wx = x - winsiz[0], wy = winsiz[1] - y;
+    
+    sprintf(mssg,"%.1f %.1f (%d,%d)",pix2deg(wx),pix2deg(wy),x,y);
+    glstatusline(mssg,2);
 }
 
 void monocwipe()
@@ -2843,33 +2843,33 @@ void monocwipe()
 
 void clear_display(int flag)
 {
-
-  if(!(mode & RUNNING))
+    
+    if(!(mode & RUNNING))
     {
-    return;
+        return;
     }
-
-  if(optionflag & DITHERMODE)
-    glEnable(GL_DITHER);
-  else
-    glDisable(GL_DITHER);
-
-  newtimeout = 1;
-  glDrawBuffer(GL_FRONT_AND_BACK);
-  clear_screen(TheStim, 1);
-  if(stimstate == STIMSTOPPED && clearcolor != TheStim->background)
-    search_background();
-  if(stimstate == POSTTRIAL && monkeypress == WURTZ_OK_W)
-    chessboard(128,128);
-  if(flag)
+    
+    if(optionflag & DITHERMODE)
+        glEnable(GL_DITHER);
+    else
+        glDisable(GL_DITHER);
+    
+    newtimeout = 1;
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    clear_screen(TheStim, 1);
+    if(stimstate == STIMSTOPPED && clearcolor != TheStim->background)
+        search_background();
+    if(stimstate == POSTTRIAL && monkeypress == WURTZ_OK_W)
+        chessboard(128,128);
+    if(flag)
     {
-      setmask(OVERLAY);
-    redraw_overlay(expt.plot);
+        setmask(OVERLAY);
+        redraw_overlay(expt.plot);
     }
-  setmask(BOTHMODE);
-  if(expt.vals[FIXATION_OVERLAP] > 10)
-    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-  ShowPerformanceString(0);
+    setmask(BOTHMODE);
+    if(expt.vals[FIXATION_OVERLAP] > 10)
+        draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+    ShowPerformanceString(0);
     glDrawBuffer(GL_BACK);
     glFlushRenderAPPLE();
     glFinishRenderAPPLE();
@@ -2877,96 +2877,96 @@ void clear_display(int flag)
 
 void redraw_overlay(struct plotdata  *plot)
 {
-  Expstim *es;
-  short *pl;
-  int i;
-
-  if(!(mode & RUNNING))
-    return;
-
-  glLineWidth(expt.linw);
-  setmask(OVERLAY);
-/*
- * when STIMULUS_IN_OVERLAY is set, the buffer does 
- */
-  if(!optionflags[STIMULUS_IN_OVERLAY]){
-    if(testflags[TEST_RC])
-      glClearColor(clearcolor,0,clearcolor,clearcolor);
-    else
-      glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
-    glClear(GL_COLOR_BUFFER_BIT);
-  }
-  if(stimstate == STIMSTOPPED)
-    ShowTime();
-  es = plot->stims;
-  for(i = 0; i < plot->nstim[0]; i++,es++)
-    if(es->flag & BOX_ON)
-      ShowBox(es, BOX_COLOR);
-  if((pl = plot->linedata) != NULL)
-    for(i = 0; i <= expt.nlines; i++,pl+=4)
-      MyLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
-  for(i = 0; i < rfctr; i++)
-      ShowBox(&oldrfs[i],0.2);
+    Expstim *es;
+    short *pl;
+    int i;
     
-  if(optionflags[SPLITSCREEN])
-    {
-      glPushMatrix();
-      expt.rf->flag &= (~CENTERMARK_ON);
-      setmask(ALLPLANES);
-      ShowBox(expt.rf,0.2);
-      glTranslatef(psychoff[0],0,0);
-      ShowBox(expt.rf,0.2);
-      setmask(OVERLAY);
-      glTranslatef(-psychoff[0],psychoff[1],0);
-      glPopMatrix();
+    if(!(mode & RUNNING))
+        return;
+    
+    glLineWidth(expt.linw);
+    setmask(OVERLAY);
+    /*
+     * when STIMULUS_IN_OVERLAY is set, the buffer does 
+     */
+    if(!optionflags[STIMULUS_IN_OVERLAY]){
+        if(testflags[TEST_RC])
+            glClearColor(clearcolor,0,clearcolor,clearcolor);
+        else
+            glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
-  else
-    ShowBox(expt.rf,RF_COLOR);
-
-  if(option2flag & PSYCHOPHYSICS_BIT && stimstate == STIMSTOPPED
-    && option2flag & PERF_STRING)
-    setmask(ALLPLANES);
-/*  statusline(NULL);  redraws info line too often*/
-  glstatusline(NULL,2);
+    if(stimstate == STIMSTOPPED)
+        ShowTime();
+    es = plot->stims;
+    for(i = 0; i < plot->nstim[0]; i++,es++)
+        if(es->flag & BOX_ON)
+            ShowBox(es, BOX_COLOR);
+    if((pl = plot->linedata) != NULL)
+        for(i = 0; i <= expt.nlines; i++,pl+=4)
+            MyLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
+    for(i = 0; i < rfctr; i++)
+        ShowBox(&oldrfs[i],0.2);
+    
+    if(optionflags[SPLITSCREEN])
+    {
+        glPushMatrix();
+        expt.rf->flag &= (~CENTERMARK_ON);
+        setmask(ALLPLANES);
+        ShowBox(expt.rf,0.2);
+        glTranslatef(psychoff[0],0,0);
+        ShowBox(expt.rf,0.2);
+        setmask(OVERLAY);
+        glTranslatef(-psychoff[0],psychoff[1],0);
+        glPopMatrix();
+    }
+    else
+        ShowBox(expt.rf,RF_COLOR);
+    
+    if(option2flag & PSYCHOPHYSICS_BIT && stimstate == STIMSTOPPED
+       && option2flag & PERF_STRING)
+        setmask(ALLPLANES);
+    /*  statusline(NULL);  redraws info line too often*/
+    glstatusline(NULL,2);
     ShowPerformanceString(-1);
-  if(optionflag & SHOW_CONJUG_BIT)
+    if(optionflag & SHOW_CONJUG_BIT)
     {
-    draw_conjpos(cmarker_size,PLOT_COLOR);
+        draw_conjpos(cmarker_size,PLOT_COLOR);
     }
-  
+    
 }
 
 int step_stimulus()
 {
-  char s[BUFSIZ];
-  int oldfreeze;
-
-  stepframe++;
-  oldfreeze = freezestimulus;
-  freezestimulus = 0;
-  increment_stimulus(expt.st, &expt.st->pos);
-  freezestimulus = oldfreeze;
-  clear_screen(expt.st,0);
-  paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-  if(isadotstim(expt.st))
-    sprintf(s,"%d se%d",stepframe,expt.st->left->seed);
-  else
-    sprintf(s,"%d",stepframe);
-  glstatusline(s,0);
-  change_frame();
-   fprintf(stderr,"step %d\n",stepframe);
-   return(stepframe);
+    char s[BUFSIZ];
+    int oldfreeze;
+    
+    stepframe++;
+    oldfreeze = freezestimulus;
+    freezestimulus = 0;
+    increment_stimulus(expt.st, &expt.st->pos);
+    freezestimulus = oldfreeze;
+    clear_screen(expt.st,0);
+    paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+    if(isadotstim(expt.st))
+        sprintf(s,"%d se%d",stepframe,expt.st->left->seed);
+    else
+        sprintf(s,"%d",stepframe);
+    glstatusline(s,0);
+    change_frame();
+    fprintf(stderr,"step %d\n",stepframe);
+    return(stepframe);
 }
 
 void clear_overlay()
 {
-  if(!(mode & RUNNING))
-    return;
-  glDrawBuffer(GL_FRONT_AND_BACK);
-  setmask(OVERLAY);
-  glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glDrawBuffer(GL_BACK);
+    if(!(mode & RUNNING))
+        return;
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    setmask(OVERLAY);
+    glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDrawBuffer(GL_BACK);
 }
 
 int ASetStimulus(float val, int code, int *event, Stimulus *st)
@@ -3044,16 +3044,16 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             setblank = 0;
         }
 	}
-//Ali	if(event == NOEVENT)
-//        up = 0;
-//	else if(event == NULL || event->xbutton.type == ButtonRelease)
-//    {
-//		up = 1;
-//		if(option2flag & EXPT_INTERACTIVE && TheStim->mode & EXPTPENDING &&
-//		   code == expt.mode)
-//            expt.nextval = val;
-//        
-//    }
+    //Ali	if(event == NOEVENT)
+    //        up = 0;
+    //	else if(event == NULL || event->xbutton.type == ButtonRelease)
+    //    {
+    //		up = 1;
+    //		if(option2flag & EXPT_INTERACTIVE && TheStim->mode & EXPTPENDING &&
+    //		   code == expt.mode)
+    //            expt.nextval = val;
+    //        
+    //    }
     if (event == 0)
         up = 1;
 	if(st == NULL)
@@ -3898,15 +3898,15 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             SetStimulus(st,val,DISP_X,event);
             SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY] * -1);
             break;
-	case ABS_ORTHOG_POS:
-	  fval = GetProperty(&expt, st, PARA_POS);
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  bval = -(val * sina - fval * cosa);
-	  cval = (fval * sina + val * cosa);
-	  SetStimulus(st,bval,XPOS,event);
-	  SetStimulus(st,cval,YPOS,event);
-	  break;
+        case ABS_ORTHOG_POS:
+            fval = GetProperty(&expt, st, PARA_POS);
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            bval = -(val * sina - fval * cosa);
+            cval = (fval * sina + val * cosa);
+            SetStimulus(st,bval,XPOS,event);
+            SetStimulus(st,cval,YPOS,event);
+            break;
         case ORTHOG_POS:
             fval = GetProperty(&expt, st, PARA_POS);
         case RF_ORTHO:
@@ -4137,22 +4137,22 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case CONTRAST2:
             pos->contrast2 = val;
             break;
-	case PLAID_RATIO:
-	  // ratio > 1 = contrast1 > contrast2
-	  bval = StimulusProperty(st, SETCONTRAST);
-	  dval = StimulusProperty(st, CONTRAST2);
-	  aval =  (bval > dval) ? bval : dval;
-	  if (val < 0){
-	    bval = aval + val;
-	    dval = aval;
-	  }
-	  else{
-	    bval = aval;
-	    dval = aval-val;
-	  }
-	  SetStimulus(st, bval, SETCONTRAST,  event);
-	  SetStimulus(st, dval, CONTRAST2,  event);
-	  break;
+        case PLAID_RATIO:
+            // ratio > 1 = contrast1 > contrast2
+            bval = StimulusProperty(st, SETCONTRAST);
+            dval = StimulusProperty(st, CONTRAST2);
+            aval =  (bval > dval) ? bval : dval;
+            if (val < 0){
+                bval = aval + val;
+                dval = aval;
+            }
+            else{
+                bval = aval;
+                dval = aval-val;
+            }
+            SetStimulus(st, bval, SETCONTRAST,  event);
+            SetStimulus(st, dval, CONTRAST2,  event);
+            break;
         case CONTRAST_RATIO:
             if(st->type == STIM_RDSSINE || st->type == STIM_RADIAL && st->prev == NULL){
                 expt.vals[CONTRAST_RATIO] = val;
@@ -4623,335 +4623,335 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 
 void nsine_background()
 {
-  int i;
-  tempstim->type = STIM_GRATINGN;
-  memcpy(tempstim->freqs,expt.st->freqs,(sizeof(float) * MAXFREQS));
-  tempstim->pos.contrast = 1.2;
-  tempstim->pos.ss[1] = 1;
-  SetStimulus(tempstim,pix2deg(winsiz[0] * 2),STIM_WIDTH,NULL);
-  SetStimulus(tempstim,pix2deg(winsiz[1] * 2),STIM_HEIGHT,NULL);
-  tempstim->nfreqs = expt.st->nfreqs;
-  tempstim->pos.angle = M_PI/2;
-  tempstim->pos.xy[0] = 0;
-  tempstim->pos.xy[1] = 0;
-  tempstim->background  = 0.5;  
-  if(optionflags[RANDOM_PHASE]){
-    for(i = 0; i < tempstim->nfreqs; i++)
-      tempstim->phases[i] = (rnd_i() %360) * M_PI/180;
-  }
-  calc_stimulus(tempstim);
-  paint_stimulus(tempstim);
-//AliGLX  mySwapBuffers();
-  paint_stimulus(tempstim);
+    int i;
+    tempstim->type = STIM_GRATINGN;
+    memcpy(tempstim->freqs,expt.st->freqs,(sizeof(float) * MAXFREQS));
+    tempstim->pos.contrast = 1.2;
+    tempstim->pos.ss[1] = 1;
+    SetStimulus(tempstim,pix2deg(winsiz[0] * 2),STIM_WIDTH,NULL);
+    SetStimulus(tempstim,pix2deg(winsiz[1] * 2),STIM_HEIGHT,NULL);
+    tempstim->nfreqs = expt.st->nfreqs;
+    tempstim->pos.angle = M_PI/2;
+    tempstim->pos.xy[0] = 0;
+    tempstim->pos.xy[1] = 0;
+    tempstim->background  = 0.5;  
+    if(optionflags[RANDOM_PHASE]){
+        for(i = 0; i < tempstim->nfreqs; i++)
+            tempstim->phases[i] = (rnd_i() %360) * M_PI/180;
+    }
+    calc_stimulus(tempstim);
+    paint_stimulus(tempstim);
+    //AliGLX  mySwapBuffers();
+    paint_stimulus(tempstim);
 }
 
 void search_background()
 {
-  int i,j,xstep,ystep,rnd,nb;
-  int oldoption = optionflag;
-  float val,vborder,hborder;
-  int forcecalc = 1;
-  ystep = xstep = 70;
-  
-/*
- * paint binocular search screen
- */
-  if(expt.st->type == STIM_GRATINGN && issfrc(expt.stimmode) && expt.mode == SF){
-    nsine_background();
-    return;
-  }
+    int i,j,xstep,ystep,rnd,nb;
+    int oldoption = optionflag;
+    float val,vborder,hborder;
+    int forcecalc = 1;
+    ystep = xstep = 70;
     
-
-  optionflag &= (~(ANTIALIAS_BIT | LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
-
-/*
- * background is white, so need black bars
- */
-  
-  if(newtimeout < 5 || forcecalc){
-  tempstim->type = STIM_BAR;
-  tempstim->pos.contrast = -1.0 * expt.vals[TIMEOUT_CONTRAST];
-  tempstim->pos.angle = 0;
-  tempstim->disp = 0;
-  tempstim->pos.phase = 0;
-  tempstim->pos.radius[0] = 50;
-  tempstim->pos.radius[1] = 50;
-  tempstim->pos.xy[0] = 0; 
-  tempstim->pos.xy[1] = 0;
-  tempstim->left->pos.xy[0] = 0; 
-  tempstim->left->pos.xy[1] = 0;
-  tempstim->right->pos.xy[0] = 0; 
-  tempstim->right->pos.xy[1] = 0;
-  vborder = hborder = 50;
-  tempstim->f = 5;
-  tempstim->pos.sf = 5;
-  tempstim->mode &= (~STIMULUS_NEEDS_CLEAR);
-  tempstim->fixcolor = tempstim->background = expt.vals[BLANKCOLOR_CODE];
-  tempstim->next = NULL;
-  tempstim->left->mode = LEFTMODE;
-  tempstim->right->mode = RIGHTMODE;
-  tempstim->left->pos.contrast = tempstim->right->pos.contrast = tempstim->pos.contrast;
-  tempstim->left->pos.radius[0] = tempstim->right->pos.radius[0] = tempstim->pos.radius[0];
-  tempstim->left->pos.radius[1] = tempstim->right->pos.radius[1] = tempstim->pos.radius[1];
-  nb = (1280/xstep) * (1024/ystep);
-  tempstim->left->pos.phase = tempstim->right->pos.phase = tempstim->pos.phase;
-  tempstim->left->nbars = tempstim->right->nbars = nb;
-  tempstim->noclear = 1;
-  
-  init_stimulus(tempstim);
-  srandom(TheStim->left->baseseed);
-  nb = 0;
-  for(i = xstep/2 - 1280/2+hborder; i < 1280/2-hborder; i += xstep)
-    {
-      tempstim->pos.xy[0] = i;
-	     for(j = ystep/2-1024/2+vborder; j < 1024/2-vborder; j += ystep)
-	      {
-		rnd = random();
-		val = (float)(rnd%134);
-		if(rnd & 0x100)
-		  val = (val * val)/99.7;
-		else
-		  val = -(val * val)/99.7;
-		tempstim->left->imb[nb] =  (expt.rf->angle + val) * 2 * M_PI/360.0;
-	    tempstim->left->ypos[nb] = j;
-	    tempstim->left->xpos[nb] = i;
-	    tempstim->right->imb[nb] =  (expt.rf->angle + val) * 2 * M_PI/360.0;
-	    tempstim->right->ypos[nb] = j;
-	    tempstim->right->xpos[nb] = i;
-	    nb++;
-	if (tempstim->f < 5 || tempstim->left->pos.sf < 5 ||tempstim->right->pos.sf < 5 || tempstim->right->pos.radius[0] > 200)
-	  {
-//	    printf("Backgr pattern f = %.3f\n",tempstim->f);
-	  }
-	  }
-      }
-  tempstim->left->nbars = tempstim->right->nbars = nb;
-  newtimeout++;
-  }
-  gettimeofday(&now,NULL);
-  if(timediff(&now,&lastcleartime) > 60)
-    newtimeout = 1;
-  if(newtimeout < 5 || forcecalc){
-    setmask(ALLMODE);
-    clearcolor = expt.vals[BLANKCOLOR_CODE];
-    glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
-    glClear(GL_COLOR_BUFFER_BIT);
-    ShowTime();
-    paint_stimulus(tempstim);
-    optionflag = oldoption;
-    srandom(TheStim->left->baseseed);
-    setmask(bothmask);
-    gettimeofday(&lastcleartime,NULL);
-  }
+    /*
+     * paint binocular search screen
+     */
+    if(expt.st->type == STIM_GRATINGN && issfrc(expt.stimmode) && expt.mode == SF){
+        nsine_background();
+        return;
+    }
+    
+    
+    optionflag &= (~(ANTIALIAS_BIT | LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
+    
+    /*
+     * background is white, so need black bars
+     */
+    
+    if(newtimeout < 5 || forcecalc){
+        tempstim->type = STIM_BAR;
+        tempstim->pos.contrast = -1.0 * expt.vals[TIMEOUT_CONTRAST];
+        tempstim->pos.angle = 0;
+        tempstim->disp = 0;
+        tempstim->pos.phase = 0;
+        tempstim->pos.radius[0] = 50;
+        tempstim->pos.radius[1] = 50;
+        tempstim->pos.xy[0] = 0; 
+        tempstim->pos.xy[1] = 0;
+        tempstim->left->pos.xy[0] = 0; 
+        tempstim->left->pos.xy[1] = 0;
+        tempstim->right->pos.xy[0] = 0; 
+        tempstim->right->pos.xy[1] = 0;
+        vborder = hborder = 50;
+        tempstim->f = 5;
+        tempstim->pos.sf = 5;
+        tempstim->mode &= (~STIMULUS_NEEDS_CLEAR);
+        tempstim->fixcolor = tempstim->background = expt.vals[BLANKCOLOR_CODE];
+        tempstim->next = NULL;
+        tempstim->left->mode = LEFTMODE;
+        tempstim->right->mode = RIGHTMODE;
+        tempstim->left->pos.contrast = tempstim->right->pos.contrast = tempstim->pos.contrast;
+        tempstim->left->pos.radius[0] = tempstim->right->pos.radius[0] = tempstim->pos.radius[0];
+        tempstim->left->pos.radius[1] = tempstim->right->pos.radius[1] = tempstim->pos.radius[1];
+        nb = (1280/xstep) * (1024/ystep);
+        tempstim->left->pos.phase = tempstim->right->pos.phase = tempstim->pos.phase;
+        tempstim->left->nbars = tempstim->right->nbars = nb;
+        tempstim->noclear = 1;
+        
+        init_stimulus(tempstim);
+        srandom(TheStim->left->baseseed);
+        nb = 0;
+        for(i = xstep/2 - 1280/2+hborder; i < 1280/2-hborder; i += xstep)
+        {
+            tempstim->pos.xy[0] = i;
+            for(j = ystep/2-1024/2+vborder; j < 1024/2-vborder; j += ystep)
+            {
+                rnd = random();
+                val = (float)(rnd%134);
+                if(rnd & 0x100)
+                    val = (val * val)/99.7;
+                else
+                    val = -(val * val)/99.7;
+                tempstim->left->imb[nb] =  (expt.rf->angle + val) * 2 * M_PI/360.0;
+                tempstim->left->ypos[nb] = j;
+                tempstim->left->xpos[nb] = i;
+                tempstim->right->imb[nb] =  (expt.rf->angle + val) * 2 * M_PI/360.0;
+                tempstim->right->ypos[nb] = j;
+                tempstim->right->xpos[nb] = i;
+                nb++;
+                if (tempstim->f < 5 || tempstim->left->pos.sf < 5 ||tempstim->right->pos.sf < 5 || tempstim->right->pos.radius[0] > 200)
+                {
+                    //	    printf("Backgr pattern f = %.3f\n",tempstim->f);
+                }
+            }
+        }
+        tempstim->left->nbars = tempstim->right->nbars = nb;
+        newtimeout++;
+    }
+    gettimeofday(&now,NULL);
+    if(timediff(&now,&lastcleartime) > 60)
+        newtimeout = 1;
+    if(newtimeout < 5 || forcecalc){
+        setmask(ALLMODE);
+        clearcolor = expt.vals[BLANKCOLOR_CODE];
+        glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ShowTime();
+        paint_stimulus(tempstim);
+        optionflag = oldoption;
+        srandom(TheStim->left->baseseed);
+        setmask(bothmask);
+        gettimeofday(&lastcleartime,NULL);
+    }
 }
 
 void start_timeout(int mode)
 {
-  int i,j,xstep,ystep,rnd;
-  float val;
-  struct timeval estart;
-
-
-  newtimeout = 1;
-  if(optionflags[INITIAL_TRAINING])
-    optionflags[INITIAL_TRAINING] = 2;
-  if(mode == SHAKE_TIMEOUT)
-    mode = timeout_type = SHAKE_TIMEOUT_PART1;
-  if(timeout_type == SHAKE_TIMEOUT_PART1 || timeout_type == SHAKE_TIMEOUT)
+    int i,j,xstep,ystep,rnd;
+    float val;
+    struct timeval estart;
+    
+    
+    newtimeout = 1;
+    if(optionflags[INITIAL_TRAINING])
+        optionflags[INITIAL_TRAINING] = 2;
+    if(mode == SHAKE_TIMEOUT)
+        mode = timeout_type = SHAKE_TIMEOUT_PART1;
+    if(timeout_type == SHAKE_TIMEOUT_PART1 || timeout_type == SHAKE_TIMEOUT)
     {
-      timeout_type = SHAKE_TIMEOUT_PART1;
-      SetStimulus(expt.st,0.0, SETBACKCOLOR,NULL);
-      mode = SHAKE_TIMEOUT_PART1;
-      TheStim->fixcolor = 0;
+        timeout_type = SHAKE_TIMEOUT_PART1;
+        SetStimulus(expt.st,0.0, SETBACKCOLOR,NULL);
+        mode = SHAKE_TIMEOUT_PART1;
+        TheStim->fixcolor = 0;
     }
-  else if(TheStim->fix.timeout > 0 || mode != BAD_FIXATION){
-  	glDrawBuffer(GL_FRONT_AND_BACK);
-	setmask(ALLMODE);
-	TheStim->fixcolor = expt.vals[BLANKCOLOR_CODE];
-	if(optionflag & FRAME_ONLY_BIT)
-	  {
-	  clearcolor = dogamma(expt.vals[SETCLEARCOLOR]);
-	  glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
-	  }
-	else
-	  {
-	  clearcolor = expt.vals[BLANKCOLOR_CODE];
-	  glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
-	  }
-	glClear(GL_COLOR_BUFFER_BIT);
-	glFlushRenderAPPLE();
-  }
+    else if(TheStim->fix.timeout > 0 || mode != BAD_FIXATION){
+        glDrawBuffer(GL_FRONT_AND_BACK);
+        setmask(ALLMODE);
+        TheStim->fixcolor = expt.vals[BLANKCOLOR_CODE];
+        if(optionflag & FRAME_ONLY_BIT)
+        {
+            clearcolor = dogamma(expt.vals[SETCLEARCOLOR]);
+            glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
+        }
+        else
+        {
+            clearcolor = expt.vals[BLANKCOLOR_CODE];
+            glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
+        }
+        glClear(GL_COLOR_BUFFER_BIT);
+        glFlushRenderAPPLE();
+    }
 	gettimeofday(&starttimeout,NULL);
-
-        switch (mode){   /*j monkey needs to know what he has done wrong */   
+    
+    switch (mode){   /*j monkey needs to know what he has done wrong */   
 	    default:
 	    case SEARCH:
-		search_background();
-		break;
-	   case SHAKE_TIMEOUT_PART1:
-	     if(stimstate != STIMSTOPPED){
-		fixstate = BADFIX_STATE;
-		stimstate = POSTTRIAL;
-	     }
-		break;
-	   case SHAKE_TIMEOUT_PART2:
-	     SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
-	     SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
-	     glDrawBuffer(GL_FRONT_AND_BACK);
-	     setmask(ALLMODE);
-	     search_background();
-	     break;
+            search_background();
+            break;
+        case SHAKE_TIMEOUT_PART1:
+            if(stimstate != STIMSTOPPED){
+                fixstate = BADFIX_STATE;
+                stimstate = POSTTRIAL;
+            }
+            break;
+        case SHAKE_TIMEOUT_PART2:
+            SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
+            SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
+            glDrawBuffer(GL_FRONT_AND_BACK);
+            setmask(ALLMODE);
+            search_background();
+            break;
 	    case BAD_FIXATION:
-		fixstate = BADFIX_STATE;
-		stimstate = POSTTRIAL;
-/*	
- * BC changed to give normal timeout pattern for
- * bad saccades, chessboard for wrong response
- */
-	      /*	if(SACCREQD(afc_s) && fixstate != BADFIX_STATE)
-		  chessboard(128,128);
-else
-*/
-	  if(TheStim->fix.timeout > 0.01)
-		  search_background();
-		break;
-	case WURTZ_OK_W:
-	  chessboard(128,128);
-	  stimstate = POSTTRIAL;
-	  break;
+            fixstate = BADFIX_STATE;
+            stimstate = POSTTRIAL;
+            /*	
+             * BC changed to give normal timeout pattern for
+             * bad saccades, chessboard for wrong response
+             */
+            /*	if(SACCREQD(afc_s) && fixstate != BADFIX_STATE)
+             chessboard(128,128);
+             else
+             */
+            if(TheStim->fix.timeout > 0.01)
+                search_background();
+            break;
+        case WURTZ_OK_W:
+            chessboard(128,128);
+            stimstate = POSTTRIAL;
+            break;
 	}
 	glFlushRenderAPPLE();
 	if(stimstate != IN_TIMEOUT && stimstate != POSTTRIAL)
-	  stimstate = STIMSTOPPED;
+        stimstate = STIMSTOPPED;
 	BackupStimFile();
 	ShowPerformanceString(0);
 	if(ExptIsRunning()){
-	  gettimeofday(&estart,NULL);
-/*
- * Some expts it is crucial that reset is call before prepare
- * e.g. if animal broke fixation during a pursuit trial
- */
-	  ResetExpStim(1);
-	  PrepareExptStim(1,11);
-	  gettimeofday(&now,NULL);
+        gettimeofday(&estart,NULL);
+        /*
+         * Some expts it is crucial that reset is call before prepare
+         * e.g. if animal broke fixation during a pursuit trial
+         */
+        ResetExpStim(1);
+        PrepareExptStim(1,11);
+        gettimeofday(&now,NULL);
 	}
-/*	fiterate(toplevel, 0, 0);*/
+    /*	fiterate(toplevel, 0, 0);*/
 }
 
 void end_timeout()
 {
-  char buf[256];
-
-
-
-  if(timeout_type == SHAKE_TIMEOUT_PART2 || timeout_type == SHAKE_TIMEOUT){
-    SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
-    SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
-    glDrawBuffer(GL_FRONT_AND_BACK);
-    setmask(ALLMODE);
-    search_background();
-  }
-
-
-
-  TheStim->mode &= (~(INTRIAL));
-  clearcolor = dogamma(expt.vals[SETCLEARCOLOR]);
-  timeout_type = 0;
-  if(monkeypress == WURTZ_STOPPED)
-    return;
-  TheStim->fixcolor = TheStim->fix.offcolor;
-  TheStim->mode |= NEW_FIXATION_BIT;
-  stimstate = INTERTRIAL;
-  clear_display(1);
-  TheStim->fix.state = FIX_IS_OFF;
-  mode &= (~HOLD_STATUS);
-
-  /*
-   * this paints the choice target stimuli before the first stim of an expt.
-   * and I don't see why it is here anyway.... Feb 2006. bgc
-  if(SACCREQD(afc_s)){
-    paint_target(TheStim->background,1);
-    optionflag |= (DRAW_FIX_BIT);
-  }
-  */
-  sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
-  SerialString(buf,0);
-  newtimeout = 1;
-      
+    char buf[256];
+    
+    
+    
+    if(timeout_type == SHAKE_TIMEOUT_PART2 || timeout_type == SHAKE_TIMEOUT){
+        SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
+        SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
+        glDrawBuffer(GL_FRONT_AND_BACK);
+        setmask(ALLMODE);
+        search_background();
+    }
+    
+    
+    
+    TheStim->mode &= (~(INTRIAL));
+    clearcolor = dogamma(expt.vals[SETCLEARCOLOR]);
+    timeout_type = 0;
+    if(monkeypress == WURTZ_STOPPED)
+        return;
+    TheStim->fixcolor = TheStim->fix.offcolor;
+    TheStim->mode |= NEW_FIXATION_BIT;
+    stimstate = INTERTRIAL;
+    clear_display(1);
+    TheStim->fix.state = FIX_IS_OFF;
+    mode &= (~HOLD_STATUS);
+    
+    /*
+     * this paints the choice target stimuli before the first stim of an expt.
+     * and I don't see why it is here anyway.... Feb 2006. bgc
+     if(SACCREQD(afc_s)){
+     paint_target(TheStim->background,1);
+     optionflag |= (DRAW_FIX_BIT);
+     }
+     */
+    sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+    SerialString(buf,0);
+    newtimeout = 1;
+    
 }
 
 void SendMovements()
 {
-  char buf[BUFSIZ],temp[BUFSIZ];
-  int i;
-
-  sprintf(buf, "%s",serial_strings[DRAGGED_POS]);
-  for(i = 0; i < drag; i++)
+    char buf[BUFSIZ],temp[BUFSIZ];
+    int i;
+    
+    sprintf(buf, "%s",serial_strings[DRAGGED_POS]);
+    for(i = 0; i < drag; i++)
     {
-      sprintf(temp,"%d:%.2f ",framelist[i],poslist[i]);
-      strcat(buf,temp);
+        sprintf(temp,"%d:%.2f ",framelist[i],poslist[i]);
+        strcat(buf,temp);
     }
-  SerialString(buf,0);
+    SerialString(buf,0);
 }
 
 void WriteSignal()
 {
-  char c;
+    char c;
 	if(mode & WURTZ_FRAME_BIT)
-	  {
+    {
 	    c = START_TRIAL;
- 	  write(ttys[0],&c,1);
-	  gettimeofday(&wurtzframetime,NULL);
-	  if(mimic_fixation == 1)
-	    fixstate = GOOD_FIXATION;
-	 }
+        write(ttys[0],&c,1);
+        gettimeofday(&wurtzframetime,NULL);
+        if(mimic_fixation == 1)
+            fixstate = GOOD_FIXATION;
+    }
 	if(mode & FIRST_FRAME_BIT)
-	  {
+    {
 	    c = FRAME_SIGNAL;
-	  write(ttys[0],&c,1);
-	  gettimeofday(&firstframetime,NULL);
-	  memcpy(&zeroframetime, &firstframetime, sizeof(struct timeval));
-	  expstate = 0;
-	  framesdone = 0;
-	  framectr = 0;
+        write(ttys[0],&c,1);
+        gettimeofday(&firstframetime,NULL);
+        memcpy(&zeroframetime, &firstframetime, sizeof(struct timeval));
+        expstate = 0;
+        framesdone = 0;
+        framectr = 0;
 #ifdef NIDAQ
-	  if (optionflags[MICROSTIM])
-	    DIOval = 0x6;
-	  else
-	    DIOval = 0x4;
-	  DIOWrite(DIOval);
+        if (optionflags[MICROSTIM])
+            DIOval = 0x6;
+        else
+            DIOval = 0x4;
+        DIOWrite(DIOval);
 #endif
-	  if(seroutfile)
-	    fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
+        if(seroutfile)
+            fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
 	}
 	if(mode & STIM_FRAME_BIT)
-	  {
+    {
 	    c = START_STIM;
-	  write(ttys[0],&c,1);
-	  gettimeofday(&firstframetime,NULL);
-	  if(mimic_fixation == 1)
-	    fixstate = GOOD_FIXATION;
+        write(ttys[0],&c,1);
+        gettimeofday(&firstframetime,NULL);
+        if(mimic_fixation == 1)
+            fixstate = GOOD_FIXATION;
 	}
 	if(mode & LAST_FRAME_BIT)
-	  {
+    {
 	    c = END_STIM;
-	  write(ttys[0],&c,1);
+        write(ttys[0],&c,1);
 #ifdef FRAME_OUTPUT
 	    DIOWrite(DIOval);
 #endif
-	  gettimeofday(&endstimtime,NULL);
-	  if(seroutfile)
-	    fprintf(seroutfile,"O %d %u %u\n",(int)(c),ufftime(&endstimtime),
-		    ufftime(&endstimtime)-ufftime(&zeroframetime));
-
-	  expstate = END_STIM;
+        gettimeofday(&endstimtime,NULL);
+        if(seroutfile)
+            fprintf(seroutfile,"O %d %u %u\n",(int)(c),ufftime(&endstimtime),
+                    ufftime(&endstimtime)-ufftime(&zeroframetime));
+        
+        expstate = END_STIM;
 #ifdef NIDAQ
-	  DIOval = 0;
-	  DIOWrite(0); 
+        DIOval = 0;
+        DIOWrite(0); 
 #endif
 	}
 	if(mode & STIMCHANGE_FRAME)
-	  {
+    {
 	    c = STIM_CHANGE;
 	    write(ttys[0],&c,1);
 #ifdef NIDAQ
@@ -4959,14 +4959,14 @@ void WriteSignal()
 	    DIOWrite(DIOval); // Pins 
 #endif
 	    if(!optionflags[REDUCE_SERIAL_OUTPUT]){
-	    if(seroutfile)
-	      fprintf(seroutfile,"ds+ %u\n",ufftime(&frametime));
+            if(seroutfile)
+                fprintf(seroutfile,"ds+ %u\n",ufftime(&frametime));
 	    }
 	    if(rcfd){
-	      fprintf(rcfd,"ds+ %u\n",ufftime(&frametime));
+            fprintf(rcfd,"ds+ %u\n",ufftime(&frametime));
 	    }
-	  }
-
+    }
+    
 	mode &= (~(FRAME_BITS | STIMCHANGE_FRAME));
 	outcodes[++outctr%CODEHIST] = c;
 }
@@ -4978,25 +4978,25 @@ int change_frame()
 	int lastframe,oldmode = mode;
 	static int framesswapped = 0;
 	vcoord x[2];
-
-
+    
+    
 #if defined(WIN32NOT)
-/*
- * Under windows, repeated calls to change frame when no painting has been done
- * allows the graphics pipleline to get behind the CPU, so that next time real
- * painting is called for, it hangs while all the swaps get implemented.
- */
+    /*
+     * Under windows, repeated calls to change frame when no painting has been done
+     * allows the graphics pipleline to get behind the CPU, so that next time real
+     * painting is called for, it hangs while all the swaps get implemented.
+     */
 	static struct timeval lasttime;
 	float val;
-
+    
 	gettimeofday(&now,NULL);
 	if((val = timediff(&now, &lasttime)) < 0.0001/mon.framerate){
-	  memcpy(&lasttime, &now, sizeof(struct timeval));
-	  return(0);
+        memcpy(&lasttime, &now, sizeof(struct timeval));
+        return(0);
 	}
 	memcpy(&lasttime, &now, sizeof(struct timeval));
 #endif
-
+    
 	if(mode & LAST_FRAME_BIT)
 	{
 		if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
@@ -5004,13 +5004,13 @@ int change_frame()
 		else
 			mode &= (~FRAME_BITS);
 	}
-
+    
 	else if(mode & FIRST_FRAME_BIT || mode & WURTZ_FRAME_BIT)
-	  {
+    {
 	    resetframectr();
 	    expstate = 0;
-	  lastwurtzcount = wurtzcount;
-	  framesswapped = 0;
+        lastwurtzcount = wurtzcount;
+        framesswapped = 0;
 	}
 	/*
 	 * N.B. Need all three of these calls to make it work smoothly.
@@ -5018,129 +5018,129 @@ int change_frame()
 	 * Xevnet handling
 	 */
 	if(framehold > 0.01){
-	  x[0] = 0;
-	  x[1] = 0;
-  	  mycmv(x);
-	  sprintf(buf,"%d",framesswapped);
-	  printString(buf,1);
+        x[0] = 0;
+        x[1] = 0;
+        mycmv(x);
+        sprintf(buf,"%d",framesswapped);
+        printString(buf,1);
 	}
-//	—glFlushRenderAPPLE();
-//AliGLX	mySwapBuffers();
+    //	—glFlushRenderAPPLE();
+    //AliGLX	mySwapBuffers();
 	glFinishRenderAPPLE();
     glSwapAPPLE();
 	framesswapped++;
 	if(mode & FRAME_BITS)
-	  {
+    {
 #ifdef FRAME_OUTPUT
 	    DIOWrite(DIOval | 8);
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
-	      glFinishRenderAPPLE(); /* block until buffer swapped */
+            glFinishRenderAPPLE(); /* block until buffer swapped */
 	    WriteSignal();
 	    if(c == END_STIM){
-	      sprintf(buf,"%s%d\n",serial_strings[NFRAMES_CODE],framesdone);
-	      SerialString(buf,0);
+            sprintf(buf,"%s%d\n",serial_strings[NFRAMES_CODE],framesdone);
+            SerialString(buf,0);
 	    }
-	  }
-
+    }
+    
 #ifdef FRAME_OUTPUT
 	else if (Frames2DIO)
-	  {
-	      DIOWrite(DIOval | 8);
-	  }
+    {
+        DIOWrite(DIOval | 8);
+    }
 #endif
 	thebuffer = !thebuffer;
 	if(mode & RESET_FRAME_CTR)
-	  {
+    {
 	    mode &= (~RESET_FRAME_CTR);
 	    gettimeofday(&zeroframetime, NULL);
-    /* 
-     *       framecount = 1 = first frame and counting
-     *       framecount = 0 = not running a set of frames
-     */
+        /* 
+         *       framecount = 1 = first frame and counting
+         *       framecount = 0 = not running a set of frames
+         */
 	    framecount = 1;
-	  }
+    }
 	realframecount = getframecount();
 	if(oldmode & LAST_FRAME_BIT)
-	  stimstate = POSTSTIMULUS;
-	  
+        stimstate = POSTSTIMULUS;
+    
 	if(stmode & DRAG_STIMULUS)
-	  {
+    {
 	    stmode &= (~DRAG_STIMULUS);
 	    framelist[drag] = realframecount;
 	    poslist[drag] = StimulusProperty(TheStim, SETZXOFF);
 	    if(++drag > MAXDRAGS)
-	      drag = 0;
-	  }
+            drag = 0;
+    }
 	if(framehold > 0.01){
-	  fsleep(framehold);
+        fsleep(framehold);
 	}
 	return(0);
 }
 
 
 int SetRandomPhase( Stimulus *st,     Locator *pos)
-  {
+{
     int iphase,i;
-
+    
     if(expt.stimmode == FOUR_PHASES){
-      iphase = rnd_i() %4;
-/* 
- * tests for stimtype must use expt.stimtype, not st->
- * an interleaved blank changes st->. This is called before
- * st->type is reset on the next frame.
- */
-      if(expt.stimtype == STIM_BAR){
-	if(iphase == 0){
-	  pos->contrast = 1;
-	  st->contrast_disp = 0;
-	}
-	else if (iphase == 1){
-	  pos->contrast = -1;
-	  st->contrast_disp = 0;
-	}
-	else if (iphase == 2){
-	  pos->contrast = 0;
-	  st->contrast_disp = 2;
-	}
-	else if (iphase == 3){
-	  pos->contrast = 0;
-	  st->contrast_disp = -2;
-	}
-	pos->phase = 0;
-      }
-      else{
-	pos->phase = iphase * M_PI/2;
-	pos->phase2 = (rnd_i() %4) * M_PI/2;
-      }
+        iphase = rnd_i() %4;
+        /* 
+         * tests for stimtype must use expt.stimtype, not st->
+         * an interleaved blank changes st->. This is called before
+         * st->type is reset on the next frame.
+         */
+        if(expt.stimtype == STIM_BAR){
+            if(iphase == 0){
+                pos->contrast = 1;
+                st->contrast_disp = 0;
+            }
+            else if (iphase == 1){
+                pos->contrast = -1;
+                st->contrast_disp = 0;
+            }
+            else if (iphase == 2){
+                pos->contrast = 0;
+                st->contrast_disp = 2;
+            }
+            else if (iphase == 3){
+                pos->contrast = 0;
+                st->contrast_disp = -2;
+            }
+            pos->phase = 0;
+        }
+        else{
+            pos->phase = iphase * M_PI/2;
+            pos->phase2 = (rnd_i() %4) * M_PI/2;
+        }
     }
     else if(expt.stimmode == TWO_PHASES){
-      iphase = rnd_i() %2;
-      pos->phase = iphase  * M_PI;
-      pos->phase2 = (rnd_i() %2) * M_PI;
+        iphase = rnd_i() %2;
+        pos->phase = iphase  * M_PI;
+        pos->phase2 = (rnd_i() %2) * M_PI;
     }
     else{
-      iphase = (rnd_i() %360);
-      pos->phase = (iphase * M_PI)/180;
-      pos->phase2 = (rnd_i() %360);
-      pos->phase2 *= (M_PI/180);
-      for(i = 0; i < st->nfreqs; i++)
-	st->phases[i] = (rnd_i() %360) * M_PI/180;
+        iphase = (rnd_i() %360);
+        pos->phase = (iphase * M_PI)/180;
+        pos->phase2 = (rnd_i() %360);
+        pos->phase2 *= (M_PI/180);
+        for(i = 0; i < st->nfreqs; i++)
+            st->phases[i] = (rnd_i() %360) * M_PI/180;
     }
     frameiseqp[expt.framesdone] = iphase;
     if(pos->phase != 0)
-      iphase = 0;
+        iphase = 0;
 }
 void SetRandomCorrelation(Stimulus *st)
 {
-  double arnd,brnd;
-  arnd = rnd_01d(); //left
-  if(st->flag & ANTICORRELATE)
-    arnd *= -1;
-  st->correlation = arnd;
-  if(rdspair(st) || rlspair(st)){
-    st->next->correlation = arnd;
-  }
+    double arnd,brnd;
+    arnd = rnd_01d(); //left
+    if(st->flag & ANTICORRELATE)
+        arnd *= -1;
+    st->correlation = arnd;
+    if(rdspair(st) || rlspair(st)){
+        st->next->correlation = arnd;
+    }
 }
 
 void SetRandomContrast(Stimulus *st)
@@ -5160,458 +5160,458 @@ void SetRandomContrast(Stimulus *st)
 
 void increment_stimulus(Stimulus *st, Locator *pos)
 {
-  Substim *rds,*rdsb;
-  OneStim *psine = st->left->ptr;
-  int i,seedframe;
-  float fval,newx,newy,dx,dy,x,y;
-  Thisstim *stp;
-  static double dispphase = 0,idisp = 0;
-  double rphase,rnd,arnd,brnd;
-  int period,asmode,newseed,ival,iphase;
-  char buf[BUFSIZ];
-  static int dispchanged = 0;
-
-  if(freezestimulus > 1)
-    return;
-
-  asmode = (int)(expt.vals[ALTERNATE_STIM_MODE]);
-  if(st->next != NULL && optionflags[PAINT_BACKGROUND])
-    increment_stimulus(st->next,&st->next->pos);
-
-  seedframe = (int)rint(expt.vals[CHANGE_SEED]);
-
-/*
- * check whether the time has come to move the FixPoint, or shift the
- * stimulus. N.B. this only needs to be done once, don't repeat it if 
- * incrementing the background stimulus. Hence only do it if st->prev == NULL
- */
-  if(st->prev == NULL){
-  if((i = (int)rint(expt.vals[FP_MOVE_FRAME])) > 0
-     && i != seedframe){
-    if(realframecount%i == (i-1)){
-      gettimeofday(&now,NULL);
-      if((realframecount/i) &1) // Odd number
-	{
-	  newx = oldfixpos[0];
-	  newy = oldfixpos[1];
-	  dx = dy = 0;
-	  if(optionflags[RAND_FP_DIR]){
-	    do{
-	      expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
-	      fval = expt.vals[FP_MOVE_DIR];
-	      dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
-	      dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
-	      newx = fixpos[0] + deg2pix(dx);
-	      newy = fixpos[1] + deg2pix(dy);
-	    }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
-	  }
-	}
-      else{
-	SerialSend(FP_MOVE_DIR);
-	if(optionflags[RAND_FP_DIR]){
-	  do{
-	    expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
-	    fval = expt.vals[FP_MOVE_DIR];
-	    dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
-	    dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
-	    newx = fixpos[0] + deg2pix(dx);
-	    newy = fixpos[1] + deg2pix(dy);
-	  }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
-	}
-	else{
-	    fval = expt.vals[FP_MOVE_DIR];
-	    dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
-	    dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
-	    newx = fixpos[0] + deg2pix(dx);
-	    newy = fixpos[1] + deg2pix(dy);
-	}
-
-      }
-      if(optionflags[SIMULATE_FP_MOVE]){
-	SetStimulus(stimptr,expt.stimvals[XPOS]+dx, XPOS,NULL);
-	SetStimulus(stimptr,expt.stimvals[YPOS]+dy, YPOS,NULL);
-	mode |= STIMCHANGE_FRAME;
-      }
-      else{
-	NewFixPos(newx, newy);
-      }
+    Substim *rds,*rdsb;
+    OneStim *psine = st->left->ptr;
+    int i,seedframe;
+    float fval,newx,newy,dx,dy,x,y;
+    Thisstim *stp;
+    static double dispphase = 0,idisp = 0;
+    double rphase,rnd,arnd,brnd;
+    int period,asmode,newseed,ival,iphase;
+    char buf[BUFSIZ];
+    static int dispchanged = 0;
+    
+    if(freezestimulus > 1)
+        return;
+    
+    asmode = (int)(expt.vals[ALTERNATE_STIM_MODE]);
+    if(st->next != NULL && optionflags[PAINT_BACKGROUND])
+        increment_stimulus(st->next,&st->next->pos);
+    
+    seedframe = (int)rint(expt.vals[CHANGE_SEED]);
+    
+    /*
+     * check whether the time has come to move the FixPoint, or shift the
+     * stimulus. N.B. this only needs to be done once, don't repeat it if 
+     * incrementing the background stimulus. Hence only do it if st->prev == NULL
+     */
+    if(st->prev == NULL){
+        if((i = (int)rint(expt.vals[FP_MOVE_FRAME])) > 0
+           && i != seedframe){
+            if(realframecount%i == (i-1)){
+                gettimeofday(&now,NULL);
+                if((realframecount/i) &1) // Odd number
+                {
+                    newx = oldfixpos[0];
+                    newy = oldfixpos[1];
+                    dx = dy = 0;
+                    if(optionflags[RAND_FP_DIR]){
+                        do{
+                            expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+                            fval = expt.vals[FP_MOVE_DIR];
+                            dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
+                            dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
+                            newx = fixpos[0] + deg2pix(dx);
+                            newy = fixpos[1] + deg2pix(dy);
+                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                    }
+                }
+                else{
+                    SerialSend(FP_MOVE_DIR);
+                    if(optionflags[RAND_FP_DIR]){
+                        do{
+                            expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+                            fval = expt.vals[FP_MOVE_DIR];
+                            dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
+                            dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
+                            newx = fixpos[0] + deg2pix(dx);
+                            newy = fixpos[1] + deg2pix(dy);
+                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                    }
+                    else{
+                        fval = expt.vals[FP_MOVE_DIR];
+                        dx  = expt.vals[FP_MOVE_SIZE] * cos(fval);
+                        dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
+                        newx = fixpos[0] + deg2pix(dx);
+                        newy = fixpos[1] + deg2pix(dy);
+                    }
+                    
+                }
+                if(optionflags[SIMULATE_FP_MOVE]){
+                    SetStimulus(stimptr,expt.stimvals[XPOS]+dx, XPOS,NULL);
+                    SetStimulus(stimptr,expt.stimvals[YPOS]+dy, YPOS,NULL);
+                    mode |= STIMCHANGE_FRAME;
+                }
+                else{
+                    NewFixPos(newx, newy);
+                }
+            }
+        }
     }
-  }
-  }
-  if(st->type == STIM_RADIAL)
+    if(st->type == STIM_RADIAL)
     {
-      if (seedframe > 0 && realframecount >= seedframe && stimstate == INSTIMULUS &&
-	  (realframecount < seedframe + st->left->ptr->lifeframes || st->left->ptr->lifeframes == 0)){
-	if(st->left->show_increment == 0)
-		mode |= STIMCHANGE_FRAME;
-	st->left->show_increment = 1;
-	st->right->show_increment = 1;
-      }
-      else{
-	st->left->show_increment = st->right->show_increment = 0;
-      }
+        if (seedframe > 0 && realframecount >= seedframe && stimstate == INSTIMULUS &&
+            (realframecount < seedframe + st->left->ptr->lifeframes || st->left->ptr->lifeframes == 0)){
+            if(st->left->show_increment == 0)
+                mode |= STIMCHANGE_FRAME;
+            st->left->show_increment = 1;
+            st->right->show_increment = 1;
+        }
+        else{
+            st->left->show_increment = st->right->show_increment = 0;
+        }
     }
-/*
- * to make a static RDS change seed after a certain number of frames, set RANDOM_PHASE and
- * CHANGE_SEED. That way CHANGE_SEED can be used to do iniial dispaity expts with RDS
- */
-
-  if((optionflags[RANDOM_PHASE] || st->left->seedloop == 0)&& 
-     (st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_CHECKER))
+    /*
+     * to make a static RDS change seed after a certain number of frames, set RANDOM_PHASE and
+     * CHANGE_SEED. That way CHANGE_SEED can be used to do iniial dispaity expts with RDS
+     */
+    
+    if((optionflags[RANDOM_PHASE] || st->left->seedloop == 0)&& 
+       (st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_CHECKER))
     {
-      rds = st->left;
-      if (seedframe > 0 && realframecount%seedframe == (seedframe-1)){
-	gettimeofday(&now,NULL);
-	mode |= STIMCHANGE_FRAME;
-      }
-/*
- * Dec '05, now done here, not in calc_rds, so that freeze/step works
- */
-      if(testflags[REPEAT_DOTS])
-	  rds->seed++;
-      else if(rds->seedloop == 0 || 
-	 (mode & STIMCHANGE_FRAME && seedframe > 0))
-	{
-	  rds->baseseed += 2;
-	}
-	 
-/*
- * always stepping 2 is easier. But need to make seed delay * 2 also....
- *	  if(st->flag & UNCORRELATE)
- *         rds->baseseed++;
- */
+        rds = st->left;
+        if (seedframe > 0 && realframecount%seedframe == (seedframe-1)){
+            gettimeofday(&now,NULL);
+            mode |= STIMCHANGE_FRAME;
+        }
+        /*
+         * Dec '05, now done here, not in calc_rds, so that freeze/step works
+         */
+        if(testflags[REPEAT_DOTS])
+            rds->seed++;
+        else if(rds->seedloop == 0 || 
+                (mode & STIMCHANGE_FRAME && seedframe > 0))
+        {
+            rds->baseseed += 2;
+        }
+        
+        /*
+         * always stepping 2 is easier. But need to make seed delay * 2 also....
+         *	  if(st->flag & UNCORRELATE)
+         *         rds->baseseed++;
+         */
     }
-  if(st->type == STIM_CYLINDER || st->type == STIM_RDS && st->left->seedloop == 1){
-    if(realframecount == 0)
-      dispchanged = 0;
-      if (seedframe > 0){
-	if(realframecount< seedframe){
-		if(expt.type2 == INITIAL_MOVEMENT){
-			dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[INITIAL_MOVEMENT];
-			dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[INITIAL_MOVEMENT];
-			x = expt.vals[XPOS] + (realframecount-seedframe) * dx;
-			y = expt.vals[YPOS] + (realframecount-seedframe) * dy;
-			TheStim->pos.xy[0] = deg2pix(x);
-			TheStim->pos.xy[1] = deg2pix(y);
-		}
-		else{
-	  st->nchanges = 0;
-	  if(st->left->ptr->deathchance == 0){
-	    st->posinc = 0;
-	    st->left->ptr->velocity = 0;
-	  }
-	  idisp = st->disp;
-/*
- * the background cylinder has idisp applied if back disp <APPLY_MAX then set to zero
-June 2 2010 - Never apply the Initial disp to the background. When would we want this?
- */
-/*
-	  if(st->next != NULL && st->next->type == STIM_CYLINDER &&
-	     fabs(st->next->disp) < deg2pix(expt.vals[INITIAL_APPLY_MAX]/2)){
-
-	    SetStimulus(st->next,expt.vals[INITIAL_DISPARITY],DISP_X,NOEVENT);
-	  }
-*/
-/*
- * only do Initial disparity manip for foreground stimulus
- */
-	  if(st->prev == NULL && fabs(olddisp) < deg2pix(expt.vals[INITIAL_APPLY_MAX]/2)){
-	    SetStimulus(st,expt.vals[INITIAL_DISPARITY],DISP_X,NOEVENT);
-	    idisp = st->disp;
-	    dispchanged++;
-	    if(realframecount == 0)
-	      SerialSend(DISP_X);
-	  }
- // set nchanges to 1 so that no signal sent if no change
-	  else if(st->left->ptr->deathchance > 0)
-	    st->nchanges = 1;
-		}
-	}
-	else{
-	  if(st->prev == NULL){
-	  st->disp = olddisp;
-	  if(st->next != NULL && st->next->type == STIM_CYLINDER){
-	    st->next->disp = deg2pix(expt.vals[DISP_BACK])/2;
-	  }
-	  st->left->ptr->velocity = oldvelocity;
-	  st->posinc = oldvelocity;
-	  }
-	  if(expt.stimmode == REMOVE_BACKSURFACE && st->flag & FLAT_DISPARITY && st->flag & FLAT_SURFACES)
-	    st->flag |= FRONT_ONLY;
-	  if(st->nchanges++ == 0){
-	    mode |= STIMCHANGE_FRAME;
-	    SerialSend(DISP_X);
-	    if(fabsf(expt.vals[INITIAL_MOVEMENT]) > 0.01){
-	      SerialSend(XPOS);
-	      SerialSend(YPOS);
-	    }
-
-	    if(dispchanged){
-	      sprintf(buf,"Disparity Changed %.4lf to %.4f",pix2deg(2*idisp),pix2deg(2*st->disp));
-	      glstatusline(buf,1);
-	    }
-	  }
-	}
-      }
-  }
-
-
-
-
-
-
-/* 
-* when backjump is set, the background disparity is modified during a trial
-* if the badkdisp is no zero it is set to zero after backjump frames. If it
-* is zero, is is set to a nonzero lvevel equal to the first value of the expt 
-* set. So if i & 1 backdisp should be not equal to expt.vals[DISP__BACK].
-* if not i&1, should be equal to expt.vals[BACK_DISP]. If st->next->disp
-* is not waht it shoudl be this is the first frame, so send a signal
-*/
-  if(isastim(st->next) && expt.vals[BACKJUMP] > 0 && stimstate == INSTIMULUS && realframecount > expt.vals[BACKJUMP])
-     {
-       i = realframecount/expt.vals[BACKJUMP];
-       if(i & 1)
-	 {
-	   if(fabs(st->next->disp - deg2pix(expt.vals[DISP_BACK])/2) < 0.001)
-   	     mode |= STIMCHANGE_FRAME;
-	   if(fabs(expt.vals[DISP_BACK]) < 0.0001)
-	     {
-	       stp = getexpval(0);
-	       st->next->disp = deg2pix(stp->vals[0]/2);
-	     }
-	   else
-	     st->next->disp = 0;
-	 }
-       else if(fabs(st->next->disp - deg2pix(expt.vals[DISP_BACK])/2) > 0.001)
-	 {
-	     mode |= STIMCHANGE_FRAME;
-	   st->next->disp = deg2pix(expt.vals[DISP_BACK]/2);
-	 }
-     }
-
-/*
- * N.B. dispincr takes priority over REVERSE_CORRELATE
- * so leaving RC set is not a problem
-*/
+    if(st->type == STIM_CYLINDER || st->type == STIM_RDS && st->left->seedloop == 1){
+        if(realframecount == 0)
+            dispchanged = 0;
+        if (seedframe > 0){
+            if(realframecount< seedframe){
+                if(expt.type2 == INITIAL_MOVEMENT){
+                    dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[INITIAL_MOVEMENT];
+                    dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[INITIAL_MOVEMENT];
+                    x = expt.vals[XPOS] + (realframecount-seedframe) * dx;
+                    y = expt.vals[YPOS] + (realframecount-seedframe) * dy;
+                    TheStim->pos.xy[0] = deg2pix(x);
+                    TheStim->pos.xy[1] = deg2pix(y);
+                }
+                else{
+                    st->nchanges = 0;
+                    if(st->left->ptr->deathchance == 0){
+                        st->posinc = 0;
+                        st->left->ptr->velocity = 0;
+                    }
+                    idisp = st->disp;
+                    /*
+                     * the background cylinder has idisp applied if back disp <APPLY_MAX then set to zero
+                     June 2 2010 - Never apply the Initial disp to the background. When would we want this?
+                     */
+                    /*
+                     if(st->next != NULL && st->next->type == STIM_CYLINDER &&
+                     fabs(st->next->disp) < deg2pix(expt.vals[INITIAL_APPLY_MAX]/2)){
+                     
+                     SetStimulus(st->next,expt.vals[INITIAL_DISPARITY],DISP_X,NOEVENT);
+                     }
+                     */
+                    /*
+                     * only do Initial disparity manip for foreground stimulus
+                     */
+                    if(st->prev == NULL && fabs(olddisp) < deg2pix(expt.vals[INITIAL_APPLY_MAX]/2)){
+                        SetStimulus(st,expt.vals[INITIAL_DISPARITY],DISP_X,NOEVENT);
+                        idisp = st->disp;
+                        dispchanged++;
+                        if(realframecount == 0)
+                            SerialSend(DISP_X);
+                    }
+                    // set nchanges to 1 so that no signal sent if no change
+                    else if(st->left->ptr->deathchance > 0)
+                        st->nchanges = 1;
+                }
+            }
+            else{
+                if(st->prev == NULL){
+                    st->disp = olddisp;
+                    if(st->next != NULL && st->next->type == STIM_CYLINDER){
+                        st->next->disp = deg2pix(expt.vals[DISP_BACK])/2;
+                    }
+                    st->left->ptr->velocity = oldvelocity;
+                    st->posinc = oldvelocity;
+                }
+                if(expt.stimmode == REMOVE_BACKSURFACE && st->flag & FLAT_DISPARITY && st->flag & FLAT_SURFACES)
+                    st->flag |= FRONT_ONLY;
+                if(st->nchanges++ == 0){
+                    mode |= STIMCHANGE_FRAME;
+                    SerialSend(DISP_X);
+                    if(fabsf(expt.vals[INITIAL_MOVEMENT]) > 0.01){
+                        SerialSend(XPOS);
+                        SerialSend(YPOS);
+                    }
+                    
+                    if(dispchanged){
+                        sprintf(buf,"Disparity Changed %.4lf to %.4f",pix2deg(2*idisp),pix2deg(2*st->disp));
+                        glstatusline(buf,1);
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    /* 
+     * when backjump is set, the background disparity is modified during a trial
+     * if the badkdisp is no zero it is set to zero after backjump frames. If it
+     * is zero, is is set to a nonzero lvevel equal to the first value of the expt 
+     * set. So if i & 1 backdisp should be not equal to expt.vals[DISP__BACK].
+     * if not i&1, should be equal to expt.vals[BACK_DISP]. If st->next->disp
+     * is not waht it shoudl be this is the first frame, so send a signal
+     */
+    if(isastim(st->next) && expt.vals[BACKJUMP] > 0 && stimstate == INSTIMULUS && realframecount > expt.vals[BACKJUMP])
+    {
+        i = realframecount/expt.vals[BACKJUMP];
+        if(i & 1)
+        {
+            if(fabs(st->next->disp - deg2pix(expt.vals[DISP_BACK])/2) < 0.001)
+                mode |= STIMCHANGE_FRAME;
+            if(fabs(expt.vals[DISP_BACK]) < 0.0001)
+            {
+                stp = getexpval(0);
+                st->next->disp = deg2pix(stp->vals[0]/2);
+            }
+            else
+                st->next->disp = 0;
+        }
+        else if(fabs(st->next->disp - deg2pix(expt.vals[DISP_BACK])/2) > 0.001)
+        {
+            mode |= STIMCHANGE_FRAME;
+            st->next->disp = deg2pix(expt.vals[DISP_BACK]/2);
+        }
+    }
+    
+    /*
+     * N.B. dispincr takes priority over REVERSE_CORRELATE
+     * so leaving RC set is not a problem
+     */
 	if(optionflag & CONTRAST_REVERSE_BIT)
 	{
 		pos->contrast_phase += st->incr;
 		pos->contrast = pos->contrast_amp * cos(pos->contrast_phase);
-
-/*
- * Setting Contrast reverse AND Flash makes the contrast reversal a square wave in time
- */
+        
+        /*
+         * Setting Contrast reverse AND Flash makes the contrast reversal a square wave in time
+         */
 		if(option2flag & FLASH_BIT){
-		  if(pos->contrast <= 0)
-		    pos->contrast = -pos->contrast_amp;
-		  else
-		    pos->contrast = pos->contrast_amp;
+            if(pos->contrast <= 0)
+                pos->contrast = -pos->contrast_amp;
+            else
+                pos->contrast = pos->contrast_amp;
 		}
 		if (rdspair(st)){
-		  if(st->incr == 0){
-		    st->next->pos.contrast_phase += st->next->incr;
-		    st->next->pos.contrast = st->next->pos.contrast_amp * cos(st->next->pos.contrast_phase);
-		    if(option2flag & FLASH_BIT){
-		      if(cos(st->next->pos.contrast_phase) > -0.5){
-			st->next->pos.contrast = 1;
-		      }
-		      else{
-			st->next->pos.contrast = 0;
-		      }
-		    }
-		  }
-		  else{
-		  st->next->pos.contrast_phase = pos->contrast_phase;
-		  st->next->pos.contrast = pos->contrast;
-		  }
+            if(st->incr == 0){
+                st->next->pos.contrast_phase += st->next->incr;
+                st->next->pos.contrast = st->next->pos.contrast_amp * cos(st->next->pos.contrast_phase);
+                if(option2flag & FLASH_BIT){
+                    if(cos(st->next->pos.contrast_phase) > -0.5){
+                        st->next->pos.contrast = 1;
+                    }
+                    else{
+                        st->next->pos.contrast = 0;
+                    }
+                }
+            }
+            else{
+                st->next->pos.contrast_phase = pos->contrast_phase;
+                st->next->pos.contrast = pos->contrast;
+            }
 		}
 		else if (st->type == STIM_RADIAL){
-		  pos->phase2 += st->left->ptr->incr;
-		  if(option2flag & FLASH_BIT)
-		    pos->contrast2 = pos->contrast_amp * sign(cos(pos->phase2));
-		  else
-		    pos->contrast2 = pos->contrast_amp * cos(pos->phase2);
-
+            pos->phase2 += st->left->ptr->incr;
+            if(option2flag & FLASH_BIT)
+                pos->contrast2 = pos->contrast_amp * sign(cos(pos->phase2));
+            else
+                pos->contrast2 = pos->contrast_amp * cos(pos->phase2);
+            
 		}
 	}
 	else if(option2flag & FLASH_BIT)
-	  {
+    {
 	    if(optionflags[FAST_SEQUENCE]){ // don't do flashing here
-	      pos->contrast = pos->contrast_amp;
-	      if(st->next)
-		st->next->pos.contrast = st->next->pos.contrast_amp;
-	      if(framecseq[realframecount+1])
-		mode |= STIMCHANGE_FRAME;
+            pos->contrast = pos->contrast_amp;
+            if(st->next)
+                st->next->pos.contrast = st->next->pos.contrast_amp;
+            if(framecseq[realframecount+1])
+                mode |= STIMCHANGE_FRAME;
 	    }
 	    else{
-	      pos->contrast_phase += st->incr;
-	      i = pos->contrast_phase/M_PI;
-	      if(i &1){
-		pos->contrast = 0.0;
-		expt.st->mode |= STIMULUS_NEEDS_CLEAR;
-	      }
-	      else
-		pos->contrast = pos->contrast_amp;
+            pos->contrast_phase += st->incr;
+            i = pos->contrast_phase/M_PI;
+            if(i &1){
+                pos->contrast = 0.0;
+                expt.st->mode |= STIMULUS_NEEDS_CLEAR;
+            }
+            else
+                pos->contrast = pos->contrast_amp;
 	    }
-	  }
+    }
 	else if(st->dispincr != 0)
 	{
-	  st->disp += st->dispincr;
+        st->disp += st->dispincr;
 	}
 	else if(optionflags[REVERSE_CORRELATE])
 	{
-	  if(expt.mode == DISP_X)
-	    st->disp = deg2pix(frameseq[framectr])/2;
-	  else if(expt.mode == ORIENTATION)
-	    st->pos.angle = frameseq[framectr] * M_PI/180.0;
-	  framectr++;
+        if(expt.mode == DISP_X)
+            st->disp = deg2pix(frameseq[framectr])/2;
+        else if(expt.mode == ORIENTATION)
+            st->pos.angle = frameseq[framectr] * M_PI/180.0;
+        framectr++;
 	}
 	else
 	{
-/*
- * if FAST_SEQUENCE is set do this in the Expt loop, so that if Fr > 1, 
- * correlation only changes with other params
-*/
-	  if (optionflags[RANDOM_CORRELATION] && !optionflags[FAST_SEQUENCE]){
-	    SetRandomCorrelation(st);
-	  }
-	  if (optionflags[RANDOM_CONTRAST]){
-		  SetRandomContrast(st);
-	  }
-	  else if (expt.type3 != RANDOM_CONTRAST_EXPT){
+        /*
+         * if FAST_SEQUENCE is set do this in the Expt loop, so that if Fr > 1, 
+         * correlation only changes with other params
+         */
+        if (optionflags[RANDOM_CORRELATION] && !optionflags[FAST_SEQUENCE]){
+            SetRandomCorrelation(st);
+        }
+        if (optionflags[RANDOM_CONTRAST]){
+            SetRandomContrast(st);
+        }
+        else if (expt.type3 != RANDOM_CONTRAST_EXPT){
 			pos->contrast = pos->contrast_amp;
-		if(st->next)
-		  st->next->pos.contrast = st->next->pos.contrast_amp;
-	  }
+            if(st->next)
+                st->next->pos.contrast = st->next->pos.contrast_amp;
+        }
 		pos->phase += st->incr;
 		if(optionflags[RANDOM_PHASE]){
-/* make sure these phases come from this seed so can be reconstructed*/
-		  rnd_init(st->left->baseseed);
-		  SetRandomPhase(st, pos);
+            /* make sure these phases come from this seed so can be reconstructed*/
+            rnd_init(st->left->baseseed);
+            SetRandomPhase(st, pos);
 		}
 		pos->locn[0] += st->posinc;
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
-		  pos->phase = M_PI/2;
+            pos->phase = M_PI/2;
 		else if (st->type == STIM_GRATING2)
-		  {
+        {
 		    pos->phase2 += psine->incr;
 		}
 		else if (st->type == STIM_GRATINGN)
-		  {
+        {
 		    if (st->left->ptr->velocity > 0){
-		      for(i = 0; i < st->nfreqs; i++)
-			st->phases[i] += st->left->incrs[i];
+                for(i = 0; i < st->nfreqs; i++)
+                    st->phases[i] += st->left->incrs[i];
 		    }
 		    else{
-		      for(i = 0; i < st->nfreqs; i++)
-			st->phases[i] += st->incr;
+                for(i = 0; i < st->nfreqs; i++)
+                    st->phases[i] += st->incr;
 		    }
-		  }
+        }
 		else if (rdspair(st) && !optionflags[PAINT_BACKGROUND])
-		  {
+        {
 		    rds = st->left;
 		    rdsb = st->next->left;
 		    st->next->pos.locn[0] += st->next->posinc;
-		  }
+        }
 	}
 	if(st->angleinc != 0)
-	  {
+    {
 	    st->pos.angle += (st->angleinc * M_PI/(180 * mon.framerate));
-	  }
-
- 
-
-/*
- * remember st->disp is half the disparity. It is added to one eye and
- * subtracted from the other
- */
+    }
+    
+    
+    
+    /*
+     * remember st->disp is half the disparity. It is added to one eye and
+     * subtracted from the other
+     */
     if(optionflags[MODULATE_DISPARITY] && fabs(st->depth_mod) > 0 && (st->type == STIM_GRATING || st->type == STIM_RDS) || st->type == STIM_IMAGE){
-      st->modphase += (st->vals[MODULATION_F] *M_PI *2)/(mon.framerate);
-
-      if(st->left->seedloop == 1)
-	newseed = 0;
-      if(optionflag & CONTRAST_REVERSE_BIT)
-	{
-	  if(pos->contrast < 0){
-	    if(st->modphase > M_PI/2 && asmode == SEED_CHANGE_WITH_CONTRAST) // just changed sign
-	      newseed = 1;
-	    st->modphase = 0;
-	  }
-	  else{
-	    if(st->modphase < M_PI/2 && asmode == SEED_CHANGE_WITH_CONTRAST) // just changed sign
-	      newseed = 1;
-	    st->modphase = M_PI;
-	  }
-	  if(newseed){
-	    st->left->baseseed += 2;
-	  }
-	}
-
-/*
- * gaussian onset, starting at -2sd, sd = 5 frames
- */
-      if(optionflags[TEMPORAL_GAUSS]){
-	if(st->framectr < 10)
-	  st->tenvelope = exp(-sqr((10-st->framectr))/50);
-	else if((ival = st->nframes - st->framectr) < 10 && 
-		asmode != ASYMMETRICAL_ENVELOPE)
-	  st->tenvelope = exp(-sqr((10-ival))/50);
-	else
-	  st->tenvelope = 1;
-      }
-      else
-	st->tenvelope = 1;
-      if(st->type == STIM_GRATING){
-	if(optionflags[RANDOM_DEPTH_PHASE]){
-	  
-	  period = (int)rint(1000/mon.framerate);
-	  rphase = rnd_i() % period;
-	  rphase = rphase * 2 * M_PI/period;
-	  st->phasedisp[0] = cos(rphase) * deg_rad(st->depth_mod);
-	}
-	else
-	  st->phasedisp[0] = expt.vals[DISP_P] + cos(st->modphase) * deg_rad(st->depth_mod);
-      }
-      else if(st->type == STIM_RDS){
-	if(optionflags[MODULATE_DISPARITY] == 2){
-	  SetDotPlanes(st,st->vals[MODULATION_F], st->depth_mod * st->tenvelope);
-	  st->disp = st->meandisp;
-	}
-	else
-	  st->disp = expt.st->meandisp + st->tenvelope * deg2pix(cos(st->modphase) * st->depth_mod/2);
-      }
-      else if(st->type == STIM_IMAGE){
-	  st->disp = expt.st->meandisp + st->tenvelope * deg2pix(cos(st->modphase) * st->depth_mod/2);
-      }
-
+        st->modphase += (st->vals[MODULATION_F] *M_PI *2)/(mon.framerate);
+        
+        if(st->left->seedloop == 1)
+            newseed = 0;
+        if(optionflag & CONTRAST_REVERSE_BIT)
+        {
+            if(pos->contrast < 0){
+                if(st->modphase > M_PI/2 && asmode == SEED_CHANGE_WITH_CONTRAST) // just changed sign
+                    newseed = 1;
+                st->modphase = 0;
+            }
+            else{
+                if(st->modphase < M_PI/2 && asmode == SEED_CHANGE_WITH_CONTRAST) // just changed sign
+                    newseed = 1;
+                st->modphase = M_PI;
+            }
+            if(newseed){
+                st->left->baseseed += 2;
+            }
+        }
+        
+        /*
+         * gaussian onset, starting at -2sd, sd = 5 frames
+         */
+        if(optionflags[TEMPORAL_GAUSS]){
+            if(st->framectr < 10)
+                st->tenvelope = exp(-sqr((10-st->framectr))/50);
+            else if((ival = st->nframes - st->framectr) < 10 && 
+                    asmode != ASYMMETRICAL_ENVELOPE)
+                st->tenvelope = exp(-sqr((10-ival))/50);
+            else
+                st->tenvelope = 1;
+        }
+        else
+            st->tenvelope = 1;
+        if(st->type == STIM_GRATING){
+            if(optionflags[RANDOM_DEPTH_PHASE]){
+                
+                period = (int)rint(1000/mon.framerate);
+                rphase = rnd_i() % period;
+                rphase = rphase * 2 * M_PI/period;
+                st->phasedisp[0] = cos(rphase) * deg_rad(st->depth_mod);
+            }
+            else
+                st->phasedisp[0] = expt.vals[DISP_P] + cos(st->modphase) * deg_rad(st->depth_mod);
+        }
+        else if(st->type == STIM_RDS){
+            if(optionflags[MODULATE_DISPARITY] == 2){
+                SetDotPlanes(st,st->vals[MODULATION_F], st->depth_mod * st->tenvelope);
+                st->disp = st->meandisp;
+            }
+            else
+                st->disp = expt.st->meandisp + st->tenvelope * deg2pix(cos(st->modphase) * st->depth_mod/2);
+        }
+        else if(st->type == STIM_IMAGE){
+            st->disp = expt.st->meandisp + st->tenvelope * deg2pix(cos(st->modphase) * st->depth_mod/2);
+        }
+        
     }
     else if(optionflags[RANDOM_PHASE] && !isadotstim(st)){
 	    st->left->baseseed += 2;
     }
-/*
- * only play with the fixation point if this call is for the foreground
- * stimulus, otherwise this gets done twice
- */
+    /*
+     * only play with the fixation point if this call is for the foreground
+     * stimulus, otherwise this gets done twice
+     */
     if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001 && st->prev == NULL){
-      dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT] * pursuedir;
-      dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT] * pursuedir;
-      dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT];
-      dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT];
-      if(altstimmode != MOVE_STIM_ONLY){
-/*
- * need to send new fix pos so that monk is rewarded for correct position
- */
-	fixpos[0] += (deg2pix(dx));
-	  fixpos[1] += (deg2pix(dy));
-	  SerialSend(FIXPOS_XY);
-      }
-      if(pursuedir > 0)
-	pursued += fabsf(expt.vals[PURSUIT_INCREMENT]);
-      TheStim->pos.xy[0] += (deg2pix(dx));
-      TheStim->pos.xy[1] += (deg2pix(dy));
-
+        dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT] * pursuedir;
+        dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT] * pursuedir;
+        dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT];
+        dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_INCREMENT];
+        if(altstimmode != MOVE_STIM_ONLY){
+            /*
+             * need to send new fix pos so that monk is rewarded for correct position
+             */
+            fixpos[0] += (deg2pix(dx));
+            fixpos[1] += (deg2pix(dy));
+            SerialSend(FIXPOS_XY);
+        }
+        if(pursuedir > 0)
+            pursued += fabsf(expt.vals[PURSUIT_INCREMENT]);
+        TheStim->pos.xy[0] += (deg2pix(dx));
+        TheStim->pos.xy[1] += (deg2pix(dy));
+        
     }
     st->framectr++;
 }
@@ -5619,155 +5619,155 @@ June 2 2010 - Never apply the Initial disp to the background. When would we want
 
 void PaintBackIm(PGM im)
 {
-  float z = 1.0;
-
-  if(expt.vals[BACKGROUND_ZOOM] > 1)
-    z = expt.vals[BACKGROUND_ZOOM];
+    float z = 1.0;
+    
+    if(expt.vals[BACKGROUND_ZOOM] > 1)
+        z = expt.vals[BACKGROUND_ZOOM];
     glPixelZoom(z,-z);
     glRasterPos2i(-im.w * z/2,im.h * z/2);
     glDrawPixels(im.w, im.h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im.ptr);
-
+    
 }
 void wipescreen(float color)
 {
-  setmask(bothmask);
-  if(expt.backim.name){
-    PaintBackIm(expt.backim);
-  }
-  else{
-    if(optionflags[STIMULUS_IN_OVERLAY])
-      glClearColor(color,color,color,color);
-    else
-      glClearColor(color,clearcolor,color,color);
-    glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
-  }
-  if(expt.vals[GRIDSIZE] > 0.1){
-    if(optionflag & CONTRAST_REVERSE_BIT){
-      expt.st->pos.contrast_phase += expt.st->incr;
-      if(expt.st->pos.contrast_phase > M_PI)
-	expt.st->pos.contrast_phase = -M_PI;
-      SetGrey(1.0);
-      if(expt.st->pos.contrast_phase > 0){
-	setmask(LEFTMODE);
-	grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),0);
-      }
-      else{
-	setmask(RIGHTMODE);
-	grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),1);
-      }
+    setmask(bothmask);
+    if(expt.backim.name){
+        PaintBackIm(expt.backim);
     }
     else{
-      SetGrey(1.0);
-      setmask(LEFTMODE);
-      grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),0);
-      if((int)(expt.vals[ALTERNATE_STIM_MODE]) == 1)
-		  SetGrey(0.0);
-
-      setmask(RIGHTMODE);
-      grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),1);
+        if(optionflags[STIMULUS_IN_OVERLAY])
+            glClearColor(color,color,color,color);
+        else
+            glClearColor(color,clearcolor,color,color);
+        glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
     }
-  }
-
+    if(expt.vals[GRIDSIZE] > 0.1){
+        if(optionflag & CONTRAST_REVERSE_BIT){
+            expt.st->pos.contrast_phase += expt.st->incr;
+            if(expt.st->pos.contrast_phase > M_PI)
+                expt.st->pos.contrast_phase = -M_PI;
+            SetGrey(1.0);
+            if(expt.st->pos.contrast_phase > 0){
+                setmask(LEFTMODE);
+                grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),0);
+            }
+            else{
+                setmask(RIGHTMODE);
+                grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),1);
+            }
+        }
+        else{
+            SetGrey(1.0);
+            setmask(LEFTMODE);
+            grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),0);
+            if((int)(expt.vals[ALTERNATE_STIM_MODE]) == 1)
+                SetGrey(0.0);
+            
+            setmask(RIGHTMODE);
+            grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),1);
+        }
+    }
+    
 }
 
 void paint_frame(int type, int showfix)
 {
-  struct timeval atime,btime,ctime;
-  
-  gettimeofday(&atime, NULL);
-   // mode |= NEED_REPAINT;
-  if(!optionflags[CALCULATE_ONCE_ONLY])
-    calc_stimulus(TheStim);
-  gettimeofday(&calctime, NULL);
-  setmask(ALLMODE);
-
-
-  if(testflags[TEST_RC] && expt.st->type != STIM_IMAGE){
-
-    if(expt.st->flag & UNCORRELATE)
-      wipescreen(1.0);
-    else
-      wipescreen(0.0);
-    return;
+    struct timeval atime,btime,ctime;
+    
+    gettimeofday(&atime, NULL);
+    // mode |= NEED_REPAINT;
+    if(!optionflags[CALCULATE_ONCE_ONLY])
+        calc_stimulus(TheStim);
+    gettimeofday(&calctime, NULL);
+    setmask(ALLMODE);
+    
+    
+    if(testflags[TEST_RC] && expt.st->type != STIM_IMAGE){
+        
+        if(expt.st->flag & UNCORRELATE)
+            wipescreen(1.0);
+        else
+            wipescreen(0.0);
+        return;
     }
-  if(fixpaint > 0){
-    fixpaint--;
-    draw_fix(oldfixpos[0],oldfixpos[1], TheStim->fix.size, TheStim->background);
-  }
-  else
-    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->background);
-
-/*
- * Drawing the fixation marker above SHOULD be the first call to the graphics
- * pipeline since swapbuffers was called, so this is where the CPU blocks 
- * waiting for the vertical re-trace. Record the frame time here. 
- */
-  gettimeofday(&paintframetime, NULL);
-  swapwait = timediff(&paintframetime,&calctime);
-  calcdur =  timediff(&calctime,&atime);
-
-/* if the middle button is down, dont paint - quick check for stim  effect */
-
-  setmask(BOTHMODE);
-  if(debug == 3)
+    if(fixpaint > 0){
+        fixpaint--;
+        draw_fix(oldfixpos[0],oldfixpos[1], TheStim->fix.size, TheStim->background);
+    }
+    else
+        draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->background);
+    
+    /*
+     * Drawing the fixation marker above SHOULD be the first call to the graphics
+     * pipeline since swapbuffers was called, so this is where the CPU blocks 
+     * waiting for the vertical re-trace. Record the frame time here. 
+     */
+    gettimeofday(&paintframetime, NULL);
+    swapwait = timediff(&paintframetime,&calctime);
+    calcdur =  timediff(&calctime,&atime);
+    
+    /* if the middle button is down, dont paint - quick check for stim  effect */
+    
+    setmask(BOTHMODE);
+    if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
-  if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
-  if(type == STIM_BACKGROUND && isastim(TheStim->next))
-    paint_stimulus(TheStim->next);
-  else
-    paint_stimulus(TheStim);
-  }
-  else
-    wipescreen(clearcolor);
-  setmask(ALLMODE);
-  if(showfix)
-    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-  gettimeofday(&btime, NULL);
-  if(debug)
-    glFlushRenderAPPLE();
-  paintdur = timediff(&btime,&paintframetime);
-  if(optionflags[STIMULUS_IN_OVERLAY])
+    if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
+        if(type == STIM_BACKGROUND && isastim(TheStim->next))
+            paint_stimulus(TheStim->next);
+        else
+            paint_stimulus(TheStim);
+    }
+    else
+        wipescreen(clearcolor);
+    setmask(ALLMODE);
+    if(showfix)
+        draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+    gettimeofday(&btime, NULL);
+    if(debug)
+        glFlushRenderAPPLE();
+    paintdur = timediff(&btime,&paintframetime);
+    if(optionflags[STIMULUS_IN_OVERLAY])
     {
-      if(optionflags[SPLITSCREEN])
-	{
-	  glPushMatrix();
-      glTranslatef(psychoff[0]/2,0,0);
-      ShowBox(expt.rf,0.0);
-      glTranslatef(-psychoff[0],psychoff[1],0);
-      ShowBox(expt.rf,0.0);
-	  glPopMatrix();
-	}
-      else
-	ShowBox(expt.rf,RF_COLOR);
+        if(optionflags[SPLITSCREEN])
+        {
+            glPushMatrix();
+            glTranslatef(psychoff[0]/2,0,0);
+            ShowBox(expt.rf,0.0);
+            glTranslatef(-psychoff[0],psychoff[1],0);
+            ShowBox(expt.rf,0.0);
+            glPopMatrix();
+        }
+        else
+            ShowBox(expt.rf,RF_COLOR);
     }
 }
 
 int CheckFix()
 {
-  int oldstate = stimstate;
-
-      if((optionflag & FIXATION_CHECK) && fixstate == BADFIX_STATE)
+    int oldstate = stimstate;
+    
+    if((optionflag & FIXATION_CHECK) && fixstate == BADFIX_STATE)
 	{
-	  TrialOver();
-	  start_timeout(BAD_FIXATION);
-	  return(-1);
+        TrialOver();
+        start_timeout(BAD_FIXATION);
+        return(-1);
 	}
-      return(0);
-
+    return(0);
+    
 }
 
 int RunBetweenTrials(Stimulus *st, Locator *pos)
 {
-  if(!(optionflag & STIM_IN_WURTZ_BIT)){
-    if(expt.st->type == STIM_IMAGE && expt.st->preload)
-      expt.st->framectr = rnd_i() % expt.st->nframes;
-    paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-    increment_stimulus(st, pos);
-    loopframes++;
-    return(1);
-  }
-  else
-    return(0);
+    if(!(optionflag & STIM_IN_WURTZ_BIT)){
+        if(expt.st->type == STIM_IMAGE && expt.st->preload)
+            expt.st->framectr = rnd_i() % expt.st->nframes;
+        paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+        increment_stimulus(st, pos);
+        loopframes++;
+        return(1);
+    }
+    else
+        return(0);
 }
 
 /*
@@ -5775,30 +5775,30 @@ int RunBetweenTrials(Stimulus *st, Locator *pos)
  */
 int StartTrial()
 {
-  static int lastnudge = 1;
-  int rnd;
-
-/*
- *  special fudge to allow stimuli to be changed during every trial,
- * but not necessarily start every trial with the same stim.
- * becuase stimno is always adjusted in opposite directions, the total
- * count doesn't get more than one off.
- */
-
-  if(rcfd){
-    fprintf(rcfd,"Trial %d\n",ufftime(&now));
-  }
-
-  
-  SerialSignal(GOOD_FIXATION);
-  if(optionflags[ALWAYS_CHANGE_STIM] && optionflag & SEARCH_MODE_BIT){
-    rnd = rnd_i();
-    if(rnd & 1 && stimno > 2){
-      lastnudge = ! lastnudge;
-      stimno += ((lastnudge - 0.5) * 2);  // + or - 1
+    static int lastnudge = 1;
+    int rnd;
+    
+    /*
+     *  special fudge to allow stimuli to be changed during every trial,
+     * but not necessarily start every trial with the same stim.
+     * becuase stimno is always adjusted in opposite directions, the total
+     * count doesn't get more than one off.
+     */
+    
+    if(rcfd){
+        fprintf(rcfd,"Trial %d\n",ufftime(&now));
     }
-  }
-  return(0);
+    
+    
+    SerialSignal(GOOD_FIXATION);
+    if(optionflags[ALWAYS_CHANGE_STIM] && optionflag & SEARCH_MODE_BIT){
+        rnd = rnd_i();
+        if(rnd & 1 && stimno > 2){
+            lastnudge = ! lastnudge;
+            stimno += ((lastnudge - 0.5) * 2);  // + or - 1
+        }
+    }
+    return(0);
 }
 
 /*
@@ -5808,60 +5808,60 @@ int StartTrial()
 
 int StartStimulus(Stimulus *st)
 {
-  if((option2flag & EXPT_INTERACTIVE))
-    SetStimulus(st,90.0,SETPHASE,NOEVENT);
-  else
-    SetStimulus(st,st->vals[START_PHASE],SETPHASE,NOEVENT);
-  if(st->type == STIM_RADIAL){
-    if(expt.vals[CHANGE_SEED] > 0)
-      st->right->show_increment = st->left->show_increment = 0;
+    if((option2flag & EXPT_INTERACTIVE))
+        SetStimulus(st,90.0,SETPHASE,NOEVENT);
     else
-      st->right->show_increment = st->left->show_increment = 1;
-  }
-  return(0);
+        SetStimulus(st,st->vals[START_PHASE],SETPHASE,NOEVENT);
+    if(st->type == STIM_RADIAL){
+        if(expt.vals[CHANGE_SEED] > 0)
+            st->right->show_increment = st->left->show_increment = 0;
+        else
+            st->right->show_increment = st->left->show_increment = 1;
+    }
+    return(0);
 }
 
 void ShowInfo()
 {
-  vcoord x[2];
-  Thisstim *stp;
-  char buf[BUFSIZ];
-
-  if(optionflag & SEARCH_MODE_BIT && optionflags[FEEDBACK]){
-    glDrawBuffer(GL_FRONT_AND_BACK);
-    setmask(ALLPLANES);
-    SetGrey(0.0);
-    x[0] = 0;
-    x[1] = TheStim->fix.size;
-    mycmv(x);
-    stp = getexpval(expt.stimno);
-    if(stp->vals[EXP_PSYCHVAL] < 0)
-      sprintf(buf,"Left (%.3f)",stp->vals[EXP_PSYCHVAL]);
-    else
-      sprintf(buf,"Right (%.3f)",stp->vals[EXP_PSYCHVAL]);
-    BigString(buf);
-    glDrawBuffer(GL_BACK);
-  }
+    vcoord x[2];
+    Thisstim *stp;
+    char buf[BUFSIZ];
+    
+    if(optionflag & SEARCH_MODE_BIT && optionflags[FEEDBACK]){
+        glDrawBuffer(GL_FRONT_AND_BACK);
+        setmask(ALLPLANES);
+        SetGrey(0.0);
+        x[0] = 0;
+        x[1] = TheStim->fix.size;
+        mycmv(x);
+        stp = getexpval(expt.stimno);
+        if(stp->vals[EXP_PSYCHVAL] < 0)
+            sprintf(buf,"Left (%.3f)",stp->vals[EXP_PSYCHVAL]);
+        else
+            sprintf(buf,"Right (%.3f)",stp->vals[EXP_PSYCHVAL]);
+        BigString(buf);
+        glDrawBuffer(GL_BACK);
+    }
 }
 
 void testcolor()
 {
-  float x[2],color;
+    float x[2],color;
     setmask(ALLPLANES);
     glDrawBuffer(GL_FRONT_AND_BACK);
     glClearColor(expt.st->gammaback, expt.st->gammaback, expt.st->gammaback, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glBegin(GL_LINES);
-
+    
     for(color = 0; color <= 1; color += 0.05)
     {
-      SetColor(color, 1);
-      x[0] = color * 40;
-      x[1] = 100;
-      myvx(x);
-      x[0] = color * 40;
-      x[1] = 300;
-      myvx(x);
+        SetColor(color, 1);
+        x[0] = color * 40;
+        x[1] = 100;
+        myvx(x);
+        x[0] = color * 40;
+        x[1] = 300;
+        myvx(x);
     }
     glEnd();
 }
@@ -5869,970 +5869,970 @@ void testcolor()
 
 float SetFixColor(Expt expt)
 {
-  
-      if (optionflags[SHOW_REWARD_BIAS])
+    
+    if (optionflags[SHOW_REWARD_BIAS])
       	optionflag |= (SQUARE_FIXATION);
-      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
-	expt.st->fixcolor = expt.st->fix.offcolor;
-      }
-      else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
-	expt.st->fixcolor = expt.st->fix.fixcolors[0];
-	optionflag &= (~SQUARE_FIXATION);
-      }
-      else
-	expt.st->fixcolor = expt.st->fix.fixcolor;
+    if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+        expt.st->fixcolor = expt.st->fix.offcolor;
+    }
+    else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+        expt.st->fixcolor = expt.st->fix.fixcolors[0];
+        optionflag &= (~SQUARE_FIXATION);
+    }
+    else
+        expt.st->fixcolor = expt.st->fix.fixcolor;
 }
 
 int next_frame(Stimulus *st)
 {
-
-  static float lastval;
-  static int laststate,fctr = 0;
-  float val,t2;
-  Locator *pos = &st->pos;
-  int i,oldstimstate = stimstate;
-  vcoord x[2];
-  static int stimctr = 0;
-  static int *confirmer_state = NULL;
-  char buf[BUFSIZ];
-  static int waitcount = 0;
-  Thisstim *stp,*istp;
-  char c;
-  int len = 100;
-  double o, drand48(),duration = 0,dx,dy = 0;
-  static int rc = 0, lastframecount = 0, warned = 0;
-  time_t t;
-  struct tm *ltime;
-  static double lasto = 0,lastt = 0;
-  int nf;
-
-
-  gettimeofday(&now,NULL);
-  /* some things need checking whatever the weather */
-  if(stimno == NEW_EXPT)
-    InitExpt();
-  if(abs(expt.st->sf_disp) > 0.01)
+    
+    static float lastval;
+    static int laststate,fctr = 0;
+    float val,t2;
+    Locator *pos = &st->pos;
+    int i,oldstimstate = stimstate;
+    vcoord x[2];
+    static int stimctr = 0;
+    static int *confirmer_state = NULL;
+    char buf[BUFSIZ];
+    static int waitcount = 0;
+    Thisstim *stp,*istp;
+    char c;
+    int len = 100;
+    double o, drand48(),duration = 0,dx,dy = 0;
+    static int rc = 0, lastframecount = 0, warned = 0;
+    time_t t;
+    struct tm *ltime;
+    static double lasto = 0,lastt = 0;
+    int nf;
+    
+    
+    gettimeofday(&now,NULL);
+    /* some things need checking whatever the weather */
+    if(stimno == NEW_EXPT)
+        InitExpt();
+    if(abs(expt.st->sf_disp) > 0.01)
 	    markercolor = 1.0;
-
-  markercolor = 1.0;
-  glstatusline(NULL,2);
+    
+    markercolor = 1.0;
+    glstatusline(NULL,2);
 #ifdef MONITOR_CLOSE
-  if(seroutfile && laststate != stimstate){
-    fprintf(seroutfile,"#State %d %d VS%.1f\n",stimstate,fixstate,afc_s.sacval[1]);
-	PrintInfo(seroutfile);
-	fflush(seroutfile);
-  }
-#endif
-  t2 = timediff(&now,&endstimtime);
-  if(t2 > 3600 && !(option2flag & PSYCHOPHYSICS_BIT) && check_for_monkey) /* 1hr sec gone with no trial */
-    {
-      time(&t);
-      ltime = localtime(&t);
-      if(ltime->tm_hour > 19){
-	printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
-      system("/bgc/bgc/etc/monkeywarn `hostname`");
-      memcpy(&endstimtime,&now,sizeof(struct timeval));
-      }
-
+    if(seroutfile && laststate != stimstate){
+        fprintf(seroutfile,"#State %d %d VS%.1f\n",stimstate,fixstate,afc_s.sacval[1]);
+        PrintInfo(seroutfile);
+        fflush(seroutfile);
     }
-  if(timeout_type == SHAKE_TIMEOUT)
-    start_timeout(SHAKE_TIMEOUT);
-  switch(stimstate)
+#endif
+    t2 = timediff(&now,&endstimtime);
+    if(t2 > 3600 && !(option2flag & PSYCHOPHYSICS_BIT) && check_for_monkey) /* 1hr sec gone with no trial */
     {
-    case STIMSTOPPED:
+        time(&t);
+        ltime = localtime(&t);
+        if(ltime->tm_hour > 19){
+            printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
+            system("/bgc/bgc/etc/monkeywarn `hostname`");
+            memcpy(&endstimtime,&now,sizeof(struct timeval));
+        }
+        
+    }
+    if(timeout_type == SHAKE_TIMEOUT)
+        start_timeout(SHAKE_TIMEOUT);
+    switch(stimstate)
+    {
+        case STIMSTOPPED:
 #ifdef NIDAQ
-      DIOval = 0; DIOWrite(0);
+            DIOval = 0; DIOWrite(0);
 #endif
-      if(rdspair(expt.st))
-	i = 0;
-      TheStim->fixcolor = expt.vals[BLANKCOLOR_CODE];
-      markercolor = 1.0;
-      if(TheStim->mode & EXPTPENDING && mode & ANIMATE_BIT)
-	stimstate = INTERTRIAL;
-      if(timeout_type == SHAKE_TIMEOUT_PART2){
-	ShowTime();
-	if((val = timediff(&now, &starttimeout)) > expt.vals[SHAKE_TIMEOUT_DURATION]){
-	     SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
-	     SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
-	     glDrawBuffer(GL_FRONT_AND_BACK);
-	     setmask(ALLMODE);
-	     search_background();
-	  end_timeout();
-	}
-      }
-      if(timeout_type == SHAKE_TIMEOUT_PART1)
-	timeout_type = SHAKE_TIMEOUT_PART2;
-      if(expt.vals[GRIDSIZE] > 20){
-	setmask(ALLMODE);
-	chessboard((int)(expt.vals[GRIDSIZE]), (int)(expt.vals[GRIDSIZE]));
-      }
-      else if(expt.vals[GRIDSIZE] > 0.1){
-	if(optionflag & CONTRAST_REVERSE_BIT){
-	  expt.st->pos.contrast_phase += expt.st->incr;
-	  i = (int)(expt.st->pos.contrast_phase) % 21;
-	  expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/10.0)-1;
-	  if((int)(expt.vals[ALTERNATE_STIM_MODE]) == QUICK_CAL){
-	    i = (int)(expt.st->pos.contrast_phase) % 5;
-	    expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/2)-1;
-	  }
-	}
-	setmask(ALLMODE);
-	chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	if((int)(expt.vals[ALTERNATE_STIM_MODE]) == CROSS_TALK){	
-	  glClearColor(0,0,0,0);
-	  glClear(GL_COLOR_BUFFER_BIT);
-	  if(optionflag & CONTRAST_REVERSE_BIT)
-	    i = (int)(expt.st->pos.contrast_phase) % 8;
-	  else
-	    i = (int)(expt.st->vals[START_PHASE]) % 8;
-	  switch(i){
-	  case 0:
-	    expt.vals[TIMEOUT_CONTRAST] = 1;
-	    setmask(ALLMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    break;
-	  case 1:
-	  case 3:
-	  case 5:
-	  case 7:
-	    expt.vals[TIMEOUT_CONTRAST] = 0;
-	    setmask(ALLMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    break;
-	  case 4:
-	    expt.vals[TIMEOUT_CONTRAST] = -1;
-	    setmask(ALLMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    break;
-	  case 2:
-	    expt.vals[TIMEOUT_CONTRAST] = -1;
-	    setmask(LEFTMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    expt.vals[TIMEOUT_CONTRAST] = 1;
-	    setmask(RIGHTMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    break;
-	  case 6:
-	    expt.vals[TIMEOUT_CONTRAST] = 1;
-	    setmask(LEFTMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    expt.vals[TIMEOUT_CONTRAST] = -1;
-	    setmask(RIGHTMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	    break;
-	  }
-	}
-	else{
-	  setmask(FORCEBOTH);
-	  glClearColor(0,0,0,0);
-	  glClear(GL_COLOR_BUFFER_BIT);
-	    setmask(BOTHMODE);
-	    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
-	}
-      }
-      else
-	search_background();
-      if(newtimeout < 5){
-	redraw_overlay(expt.plot);
-	if(debug) glstatusline("Stopped",3);
-          glSwapAPPLE();
-      }
-      gettimeofday(&now,NULL);
-      if(timediff(&now,&alarmstart) >  1){
-	RunWaterAlarm();
-      }
-      if(testflags[PLAYING_EXPT]){
-	ReplayExpt("Show");
-      }
-      ReadCommandFile(expt.cmdinfile);
-      break;
-    case INTERTRIAL:
+            if(rdspair(expt.st))
+                i = 0;
+            TheStim->fixcolor = expt.vals[BLANKCOLOR_CODE];
+            markercolor = 1.0;
+            if(TheStim->mode & EXPTPENDING && mode & ANIMATE_BIT)
+                stimstate = INTERTRIAL;
+            if(timeout_type == SHAKE_TIMEOUT_PART2){
+                ShowTime();
+                if((val = timediff(&now, &starttimeout)) > expt.vals[SHAKE_TIMEOUT_DURATION]){
+                    SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
+                    SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
+                    glDrawBuffer(GL_FRONT_AND_BACK);
+                    setmask(ALLMODE);
+                    search_background();
+                    end_timeout();
+                }
+            }
+            if(timeout_type == SHAKE_TIMEOUT_PART1)
+                timeout_type = SHAKE_TIMEOUT_PART2;
+            if(expt.vals[GRIDSIZE] > 20){
+                setmask(ALLMODE);
+                chessboard((int)(expt.vals[GRIDSIZE]), (int)(expt.vals[GRIDSIZE]));
+            }
+            else if(expt.vals[GRIDSIZE] > 0.1){
+                if(optionflag & CONTRAST_REVERSE_BIT){
+                    expt.st->pos.contrast_phase += expt.st->incr;
+                    i = (int)(expt.st->pos.contrast_phase) % 21;
+                    expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/10.0)-1;
+                    if((int)(expt.vals[ALTERNATE_STIM_MODE]) == QUICK_CAL){
+                        i = (int)(expt.st->pos.contrast_phase) % 5;
+                        expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/2)-1;
+                    }
+                }
+                setmask(ALLMODE);
+                chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                if((int)(expt.vals[ALTERNATE_STIM_MODE]) == CROSS_TALK){	
+                    glClearColor(0,0,0,0);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    if(optionflag & CONTRAST_REVERSE_BIT)
+                        i = (int)(expt.st->pos.contrast_phase) % 8;
+                    else
+                        i = (int)(expt.st->vals[START_PHASE]) % 8;
+                    switch(i){
+                        case 0:
+                            expt.vals[TIMEOUT_CONTRAST] = 1;
+                            setmask(ALLMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            break;
+                        case 1:
+                        case 3:
+                        case 5:
+                        case 7:
+                            expt.vals[TIMEOUT_CONTRAST] = 0;
+                            setmask(ALLMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            break;
+                        case 4:
+                            expt.vals[TIMEOUT_CONTRAST] = -1;
+                            setmask(ALLMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            break;
+                        case 2:
+                            expt.vals[TIMEOUT_CONTRAST] = -1;
+                            setmask(LEFTMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            expt.vals[TIMEOUT_CONTRAST] = 1;
+                            setmask(RIGHTMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            break;
+                        case 6:
+                            expt.vals[TIMEOUT_CONTRAST] = 1;
+                            setmask(LEFTMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            expt.vals[TIMEOUT_CONTRAST] = -1;
+                            setmask(RIGHTMODE);
+                            chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                            break;
+                    }
+                }
+                else{
+                    setmask(FORCEBOTH);
+                    glClearColor(0,0,0,0);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    setmask(BOTHMODE);
+                    chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
+                }
+            }
+            else
+                search_background();
+            if(newtimeout < 5){
+                redraw_overlay(expt.plot);
+                if(debug) glstatusline("Stopped",3);
+                glSwapAPPLE();
+            }
+            gettimeofday(&now,NULL);
+            if(timediff(&now,&alarmstart) >  1){
+                RunWaterAlarm();
+            }
+            if(testflags[PLAYING_EXPT]){
+                ReplayExpt("Show");
+            }
+            ReadCommandFile(expt.cmdinfile);
+            break;
+        case INTERTRIAL:
 #ifdef NIDAQ
-      DIOval = 0; DIOWrite(0);
+            DIOval = 0; DIOWrite(0);
 #endif
-      newtimeout = 1;
-      if(rdspair(expt.st))
-	i = 0;
-      if(debug) glstatusline("InterTrial",3);
-      if(TheStim->mode & EXPT_OVER)
-	{
-	  expt_over(1);
-	  if (demomode == 0)
-	    stimstate = STIMSTOPPED;
-	  if(testflags[PLAYING_EXPT]){
-	    ReplayExpt(NULL);
-	  }
-	  break;
-	}
-      if(testflags[PLAYING_EXPT]){
-	ReplayExpt(NULL);
-      }
-
-      TheStim->fixcolor = TheStim->fix.offcolor;
-      if(rdspair(expt.st))
-	i = 0;
-      if(option2flag & PSYCHOPHYSICS_BIT){ /* wait for button press */
-	ShowInfo();
-      }
-      else if((val = timediff(&now, &endtrialtime)) > expt.isi && 
-	      (demomode == 0 || (TheStim->mode & EXPTPENDING)))
-	{
-	stimstate=PREFIXATION;
-	break;
-	}
- //      printf("%.3f\n",val-lastval);
-      if(rdspair(expt.st))
-	i = 0;
-	setmask(OVERLAY);
-	redraw_overlay(expt.plot);
-      if(rdspair(expt.st))
-	i = 0;
-	if(ExptIsRunning() && (i = PrepareExptStim(1,12)) < 0){
-/*
- * only put up the warning once
- */
-	  if(confirmer_state == NULL || *confirmer_state == 0){
-	    sprintf(buf,"Error Setting Stimulus %d %d",stimno,stimorder[stimno]);
-	    if(seroutfile)
-	      fprintf(seroutfile,"%s\n",buf);
-	  }
-	  stimstate = INTERTRIAL;
-	}
-
-	SetFixColor(expt);
-
-
-      if(rdspair(expt.st))
-	i = 0;
-      setmask(bothmask);
-      wipescreen(clearcolor);
-      if(rdspair(expt.st))
-	i = 0;
-	if(!(optionflag & STIM_IN_WURTZ_BIT)){
-	    paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-	    increment_stimulus(st, pos);
-	}
-	else
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-      if(rdspair(expt.st))
-	i = 0;
-	change_frame();
-//	glFinishRenderAPPLE();
-      if(rdspair(expt.st))
-	i = 0;
-      break;
-    case PREFIXATION:
-      newtimeout = 1;
-      if(rdspair(expt.st))
-	i = 0;
-      sprintf(buf,"Prefix %d %d",(optionflag & FIXATION_CHECK), fixstate);
-      if(debug) glstatusline("Prefix",3);
-      if(!ExptIsRunning())
-	stimctr = 0;
-      if(seroutfile && optionflags[DEBUG_OUTPUT])
-	fprintf(seroutfile,"#Trial at %u (%d)\n",ufftime(&now),fixstate);
-      if(testflags[PLAYING_EXPT])
-	fixstate = GOOD_FIXATION;
-      if (optionflags[SHOW_REWARD_BIAS])
-      	optionflag |= (SQUARE_FIXATION);
-      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
-	TheStim->fixcolor = TheStim->fix.offcolor;
-      }
-      else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
-	TheStim->fixcolor = TheStim->fix.fixcolors[0];
-	optionflag &= (~SQUARE_FIXATION);
-      }
-      else
-	TheStim->fixcolor = TheStim->fix.fixcolor;
-      pursued = 0;
-      clearcolor = TheStim->gammaback;
-      if(laststate == INTERTRIAL) /* first call */
-	{
-	memcpy(&fixontime, &now, sizeof(struct timeval));
-	if(ExptIsRunning() && (i = PrepareExptStim(1,13)) < 0){
-	  if(confirmer_state == NULL || *confirmer_state == 0){
-	    printf("Prepare returns %d\n",i);
-	  }
-	  stimstate = INTERTRIAL;
-	}
-	SetFixColor(expt);
-	if(demomode == 0)
-	  fixstate = 0;
-	mode |= WURTZ_FRAME_BIT;
-	}
-
-      if(!(optionflag & FIXATION_CHECK) || fixstate == GOOD_FIXATION || demomode)
-	{
-	  expstate = 0;
-	stimstate = PRESTIMULUS;
-	StartTrial();
-	memcpy(&goodfixtime, &now, sizeof(struct timeval));
-	break;
-	}
-      else if((val = timediff(&now, &fixontime)) > 1.0)
-	{
-	memcpy(&endtrialtime, &now, sizeof(struct timeval));
-	stimstate = INTERTRIAL;
-/*
- * will get here when monkey is not looking. During initial training this
- * "arms" the reward, so monkey will get on immediately after preperiod of first trial
- */
-	if(optionflags[INITIAL_TRAINING])
-	  optionflags[INITIAL_TRAINING] = 2;
-
-	}
-
-      wipescreen(clearcolor);
-      if(!(optionflag & STIM_IN_WURTZ_BIT)){
-	    paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-	    increment_stimulus(st, pos);
-      }
-	else
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-      change_frame();
-      break;
-    case PRESTIMULUS:
-//Ali CheckKeyboard(D, allframe);
-      microsaccade = 0;
-      if(rdspair(expt.st))
-	expt.framesdone = 0;
-      expt.framesdone = 0;
-      expt.stimvals[FIXPOS_X] = expt.vals[FIXPOS_X];
-      expt.stimvals[FIXPOS_Y] = expt.vals[FIXPOS_Y];
-      if (!ExptIsRunning()){
-	if(expt.st->type == STIM_RDS)
-	  precalc_rds_disps(expt.st);
-      }
-	  else if (expt.st->type == STIM_CYLINDER){
-		  if(expt.st->left->ptr->velocity < 0.0001 && seroutfile)
-			  fprintf(seroutfile,"#Cyl velocity %.6f (%.f)\n",expt.st->left->ptr->velocity,oldvelocity);
-	  }
-	  
-      if(debug) glstatusline("PreStim",3);
-      clearcolor = TheStim->gammaback;
-      if (optionflags[SHOW_REWARD_BIAS])
-      	optionflag |= (SQUARE_FIXATION);
-      if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
-	TheStim->fixcolor = TheStim->fix.offcolor;
-      }
-      else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
-	TheStim->fixcolor = TheStim->fix.fixcolors[0];
-	optionflag &= (~SQUARE_FIXATION);
-      }
-      else
-	TheStim->fixcolor = TheStim->fix.fixcolor;
-      if(CheckFix() < 0)
-	break;
-//Ali  CheckKeyboard(D, allframe);
-      if(laststate != PRESTIMULUS){
-	mode |= STIM_FRAME_BIT; /* send trial signal at next frame */
+            newtimeout = 1;
+            if(rdspair(expt.st))
+                i = 0;
+            if(debug) glstatusline("InterTrial",3);
+            if(TheStim->mode & EXPT_OVER)
+            {
+                expt_over(1);
+                if (demomode == 0)
+                    stimstate = STIMSTOPPED;
+                if(testflags[PLAYING_EXPT]){
+                    ReplayExpt(NULL);
+                }
+                break;
+            }
+            if(testflags[PLAYING_EXPT]){
+                ReplayExpt(NULL);
+            }
+            
+            TheStim->fixcolor = TheStim->fix.offcolor;
+            if(rdspair(expt.st))
+                i = 0;
+            if(option2flag & PSYCHOPHYSICS_BIT){ /* wait for button press */
+                ShowInfo();
+            }
+            else if((val = timediff(&now, &endtrialtime)) > expt.isi && 
+                    (demomode == 0 || (TheStim->mode & EXPTPENDING)))
+            {
+                stimstate=PREFIXATION;
+                break;
+            }
+            //      printf("%.3f\n",val-lastval);
+            if(rdspair(expt.st))
+                i = 0;
+            setmask(OVERLAY);
+            redraw_overlay(expt.plot);
+            if(rdspair(expt.st))
+                i = 0;
+            if(ExptIsRunning() && (i = PrepareExptStim(1,12)) < 0){
+                /*
+                 * only put up the warning once
+                 */
+                if(confirmer_state == NULL || *confirmer_state == 0){
+                    sprintf(buf,"Error Setting Stimulus %d %d",stimno,stimorder[stimno]);
+                    if(seroutfile)
+                        fprintf(seroutfile,"%s\n",buf);
+                }
+                stimstate = INTERTRIAL;
+            }
+            
+            SetFixColor(expt);
+            
+            
+            if(rdspair(expt.st))
+                i = 0;
+            setmask(bothmask);
+            wipescreen(clearcolor);
+            if(rdspair(expt.st))
+                i = 0;
+            if(!(optionflag & STIM_IN_WURTZ_BIT)){
+                paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+                increment_stimulus(st, pos);
+            }
+            else
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            if(rdspair(expt.st))
+                i = 0;
+            change_frame();
+            //	glFinishRenderAPPLE();
+            if(rdspair(expt.st))
+                i = 0;
+            break;
+        case PREFIXATION:
+            newtimeout = 1;
+            if(rdspair(expt.st))
+                i = 0;
+            sprintf(buf,"Prefix %d %d",(optionflag & FIXATION_CHECK), fixstate);
+            if(debug) glstatusline("Prefix",3);
+            if(!ExptIsRunning())
+                stimctr = 0;
+            if(seroutfile && optionflags[DEBUG_OUTPUT])
+                fprintf(seroutfile,"#Trial at %u (%d)\n",ufftime(&now),fixstate);
+            if(testflags[PLAYING_EXPT])
+                fixstate = GOOD_FIXATION;
+            if (optionflags[SHOW_REWARD_BIAS])
+                optionflag |= (SQUARE_FIXATION);
+            if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+                TheStim->fixcolor = TheStim->fix.offcolor;
+            }
+            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+                TheStim->fixcolor = TheStim->fix.fixcolors[0];
+                optionflag &= (~SQUARE_FIXATION);
+            }
+            else
+                TheStim->fixcolor = TheStim->fix.fixcolor;
+            pursued = 0;
+            clearcolor = TheStim->gammaback;
+            if(laststate == INTERTRIAL) /* first call */
+            {
+                memcpy(&fixontime, &now, sizeof(struct timeval));
+                if(ExptIsRunning() && (i = PrepareExptStim(1,13)) < 0){
+                    if(confirmer_state == NULL || *confirmer_state == 0){
+                        printf("Prepare returns %d\n",i);
+                    }
+                    stimstate = INTERTRIAL;
+                }
+                SetFixColor(expt);
+                if(demomode == 0)
+                    fixstate = 0;
+                mode |= WURTZ_FRAME_BIT;
+            }
+            
+            if(!(optionflag & FIXATION_CHECK) || fixstate == GOOD_FIXATION || demomode)
+            {
+                expstate = 0;
+                stimstate = PRESTIMULUS;
+                StartTrial();
+                memcpy(&goodfixtime, &now, sizeof(struct timeval));
+                break;
+            }
+            else if((val = timediff(&now, &fixontime)) > 1.0)
+            {
+                memcpy(&endtrialtime, &now, sizeof(struct timeval));
+                stimstate = INTERTRIAL;
+                /*
+                 * will get here when monkey is not looking. During initial training this
+                 * "arms" the reward, so monkey will get on immediately after preperiod of first trial
+                 */
+                if(optionflags[INITIAL_TRAINING])
+                    optionflags[INITIAL_TRAINING] = 2;
+                
+            }
+            
+            wipescreen(clearcolor);
+            if(!(optionflag & STIM_IN_WURTZ_BIT)){
+                paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+                increment_stimulus(st, pos);
+            }
+            else
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            change_frame();
+            break;
+        case PRESTIMULUS:
+            //Ali CheckKeyboard(D, allframe);
+            microsaccade = 0;
+            if(rdspair(expt.st))
+                expt.framesdone = 0;
+            expt.framesdone = 0;
+            expt.stimvals[FIXPOS_X] = expt.vals[FIXPOS_X];
+            expt.stimvals[FIXPOS_Y] = expt.vals[FIXPOS_Y];
+            if (!ExptIsRunning()){
+                if(expt.st->type == STIM_RDS)
+                    precalc_rds_disps(expt.st);
+            }
+            else if (expt.st->type == STIM_CYLINDER){
+                if(expt.st->left->ptr->velocity < 0.0001 && seroutfile)
+                    fprintf(seroutfile,"#Cyl velocity %.6f (%.f)\n",expt.st->left->ptr->velocity,oldvelocity);
+            }
+            
+            if(debug) glstatusline("PreStim",3);
+            clearcolor = TheStim->gammaback;
+            if (optionflags[SHOW_REWARD_BIAS])
+                optionflag |= (SQUARE_FIXATION);
+            if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+                TheStim->fixcolor = TheStim->fix.offcolor;
+            }
+            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+                TheStim->fixcolor = TheStim->fix.fixcolors[0];
+                optionflag &= (~SQUARE_FIXATION);
+            }
+            else
+                TheStim->fixcolor = TheStim->fix.fixcolor;
+            if(CheckFix() < 0)
+                break;
+            //Ali  CheckKeyboard(D, allframe);
+            if(laststate != PRESTIMULUS){
+                mode |= STIM_FRAME_BIT; /* send trial signal at next frame */
 #ifdef MONITOR_CLOSE
-	if(seroutfile)
-	  fprintf(seroutfile,"#Presstim VS%.1f %.3f\n",afc_s.sacval[1],timediff(&now,&goodfixtime));
+                if(seroutfile)
+                    fprintf(seroutfile,"#Presstim VS%.1f %.3f\n",afc_s.sacval[1],timediff(&now,&goodfixtime));
 #endif
-      }
-      CheckFix();
-//Ali CheckKeyboard(D, allframe);
-      if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
-	 val > expt.vals[TRIAL_START_BLANK])
-	{
-	  redraw_overlay(expt.plot);
-//Ali CheckKeyboard(D, allframe);
-	  if(optionflags[INITIAL_TRAINING] == 2){
-	    SerialSignal(FREE_REWARD);
-	    optionflags[INITIAL_TRAINING] = 1;
-/*
- * give a reward and wait some more, so that interval to next reward
- * is same as subsequent waits..
- */
-	    memcpy(&goodfixtime, &now, sizeof(struct timeval));
-	    break;
-	  }
-//Ali CheckKeyboard(D, allframe);
-	  if (ExptIsRunning() && (mode & ANIMATE_BIT) )
-	    {
-	      inexptstim = 1;
-	      if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
-	    framesdone = RunExptStimSeq(TheStim, TheStim->nframes, expt.stimpertrial,D);
-	    stimstate = POSTSTIMULUS;
-	      }
-	      else{
-//Ali CheckKeyboard(D, allframe);
-	    framesdone = RunExptStim(TheStim, TheStim->nframes, D, -1);
+            }
+            CheckFix();
+            //Ali CheckKeyboard(D, allframe);
+            if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
+               val > expt.vals[TRIAL_START_BLANK])
+            {
+                redraw_overlay(expt.plot);
+                //Ali CheckKeyboard(D, allframe);
+                if(optionflags[INITIAL_TRAINING] == 2){
+                    SerialSignal(FREE_REWARD);
+                    optionflags[INITIAL_TRAINING] = 1;
+                    /*
+                     * give a reward and wait some more, so that interval to next reward
+                     * is same as subsequent waits..
+                     */
+                    memcpy(&goodfixtime, &now, sizeof(struct timeval));
+                    break;
+                }
+                //Ali CheckKeyboard(D, allframe);
+                if (ExptIsRunning() && (mode & ANIMATE_BIT) )
+                {
+                    inexptstim = 1;
+                    if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
+                        framesdone = RunExptStimSeq(TheStim, TheStim->nframes, expt.stimpertrial,D);
+                        stimstate = POSTSTIMULUS;
+                    }
+                    else{
+                        //Ali CheckKeyboard(D, allframe);
+                        framesdone = RunExptStim(TheStim, TheStim->nframes, D, -1);
 #ifdef MONITOR_CLOSE
-	    if(seroutfile)
-	      fprintf(seroutfile,"#Over%d: %d %d\n",framesdone,fixstate, stimctr);
+                        if(seroutfile)
+                            fprintf(seroutfile,"#Over%d: %d %d\n",framesdone,fixstate, stimctr);
 #endif
-	    inexptstim = 0;
-	    if(debug == 4)
-	      testcolor();
-	    if(fixstate == GOOD_FIXATION && ++stimctr < expt.stimpertrial){
-	      oldstimstate = stimstate;
-	      ResetExpStim(1);
-	      stimstate = PRESTIMULUS;
-	      if(expt.isi > 0)
-		stimstate = POSTSTIMINTRIAL;
-	      else
-		stimstate = PRESTIMULUS;
-/*
- * This is where stimno is incremented when there are > 1 stim per trial and
- * we are still in a trial
- */
-	      if(!freezeexpt)
-		stimno++;
-/*
- * need to get spikes back from BW before preparing next expt stim
- */
-		if(seroutfile){
-		fprintf(seroutfile,"#Pre %d\n",stimno);
+                        inexptstim = 0;
+                        if(debug == 4)
+                            testcolor();
+                        if(fixstate == GOOD_FIXATION && ++stimctr < expt.stimpertrial){
+                            oldstimstate = stimstate;
+                            ResetExpStim(1);
+                            stimstate = PRESTIMULUS;
+                            if(expt.isi > 0)
+                                stimstate = POSTSTIMINTRIAL;
+                            else
+                                stimstate = PRESTIMULUS;
+                            /*
+                             * This is where stimno is incremented when there are > 1 stim per trial and
+                             * we are still in a trial
+                             */
+                            if(!freezeexpt)
+                                stimno++;
+                            /*
+                             * need to get spikes back from BW before preparing next expt stim
+                             */
+                            if(seroutfile){
+                                fprintf(seroutfile,"#Pre %d\n",stimno);
 #ifdef MONITOR_CLOSE
-		  fprintf(seroutfile,"#Spikes %d\n",gotspikes);
-		  fflush(seroutfile);
+                                fprintf(seroutfile,"#Spikes %d\n",gotspikes);
+                                fflush(seroutfile);
 #endif
-		}
-	      if(optionflag & WAIT_FOR_BW_BIT && !gotspikes){
-		gettimeofday(&timeb,NULL);
-		val = 0;
-		while(!gotspikes && val < 0.1){
-		  while((c = ReadSerial(ttys[0])) != MYEOF)
-		    GotChar(c);
-		  gettimeofday(&now,NULL);
-		  val = timediff(&now,&timeb);
-		}
+                            }
+                            if(optionflag & WAIT_FOR_BW_BIT && !gotspikes){
+                                gettimeofday(&timeb,NULL);
+                                val = 0;
+                                while(!gotspikes && val < 0.1){
+                                    while((c = ReadSerial(ttys[0])) != MYEOF)
+                                        GotChar(c);
+                                    gettimeofday(&now,NULL);
+                                    val = timediff(&now,&timeb);
+                                }
 #ifdef MONITOR_CLOSE
-		if(seroutfile){
-		  fprintf(seroutfile,"#Done\n");
-		  fflush(seroutfile);
-		}
+                                if(seroutfile){
+                                    fprintf(seroutfile,"#Done\n");
+                                    fflush(seroutfile);
+                                }
 #endif
-	      }
-	      if((i = PrepareExptStim(1,14)) < 0)
-		stimstate = INTERTRIAL;
-	      else{
-		memcpy(&goodfixtime, &now, sizeof(struct timeval));
-		gotspikes = 0;
-	      }
-	    }
-	    else{
-	      if(testflags[PLAYING_EXPT]){
-		ResetExpStim(1);
-		PrepareExptStim(1,15);
-	      }
-	      stimctr = 0;
-	    }
-	      }
-	      loopframes = 0;
-	      if(option2flag & PSYCHOPHYSICS_BIT && stimstate == POSTSTIMULUS){
-		ShowTrialCount(0.0, wsum);
-		stimstate = WAIT_FOR_RESPONSE;
-		if(isharris(altstimmode)){
-		  o = drand48();
-		  endpt[0] = winsiz[0] + len * sin(o * M_PI * 2);
-		  endpt[1] = winsiz[1] + len * cos(o * M_PI * 2);
-		  
-		  VisLine(0,0,endpt[0],endpt[1],1.0);
-		}
-	      }
-	    if(!(option2flag & PSYCHOPHYSICS_BIT) && (optionflag & FIXATION_CHECK) && (mimic_fixation & MIMIC_FIXATION)){
-		fixstate = WAIT_FOR_MOUSE;
-		mimic_fixation &= (~MIMIC_FIXATION);
-	    }
-	      
-	    if(!(option2flag & PSYCHOPHYSICS_BIT) && !(optionflag & FIXATION_CHECK)){
-		fixstate = RESPONDED;
-	      stimstate = WAIT_FOR_RESPONSE;
-
-		gettimeofday(&endtrialtime, NULL);
-	    }
-	    } // end ExptItsRunning
-	  else if(mode & ANIMATE_BIT)
-	    {
-	      drag = 0;
-	      mode |= NEED_REPAINT; /* make sure background done */
-	      expt.st->framectr = 0;
-	      StartStimulus(TheStim);
-	      paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-	      mode |= FIRST_FRAME_BIT;
-	      change_frame();
-	      stimstate = INSTIMULUS;
-	      rc = 0;
-	      lastframecount = 0;
-	      break;
-	    }
-	  else if(testflags[PLAYING_EXPT]){
-	    ReplayExpt(NULL);
-	  }
-	}
-      else if(optionflag & BACKGROUND_IN_PREPERIOD)
-	{
-	  paint_frame(STIM_BACKGROUND, !(mode & FIXATION_OFF_BIT));
-	  change_frame();
-	}
-	else
-	{	
-	  if(option2flag & PSYCHOPHYSICS_BIT && val < expt.vals[TRIAL_START_BLANK]){
-	    setmask(bothmask);
-	    clearstim(TheStim,clearcolor, optionflag & DRAW_FIX_BIT);
-	    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fix.offcolor);
-	  }
-	  else{
-	    wipescreen(clearcolor);
-	    if(!RunBetweenTrials(st, pos))
-	      draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-	  }
-	  change_frame();
-	  glFinishRenderAPPLE();
-	}
-      break;
-    case POSTSTIMINTRIAL:
-      if(rdspair(expt.st))
-	i = 0;
-      if(debug) glstatusline("Poststim",3);
+                            }
+                            if((i = PrepareExptStim(1,14)) < 0)
+                                stimstate = INTERTRIAL;
+                            else{
+                                memcpy(&goodfixtime, &now, sizeof(struct timeval));
+                                gotspikes = 0;
+                            }
+                        }
+                        else{
+                            if(testflags[PLAYING_EXPT]){
+                                ResetExpStim(1);
+                                PrepareExptStim(1,15);
+                            }
+                            stimctr = 0;
+                        }
+                    }
+                    loopframes = 0;
+                    if(option2flag & PSYCHOPHYSICS_BIT && stimstate == POSTSTIMULUS){
+                        ShowTrialCount(0.0, wsum);
+                        stimstate = WAIT_FOR_RESPONSE;
+                        if(isharris(altstimmode)){
+                            o = drand48();
+                            endpt[0] = winsiz[0] + len * sin(o * M_PI * 2);
+                            endpt[1] = winsiz[1] + len * cos(o * M_PI * 2);
+                            
+                            VisLine(0,0,endpt[0],endpt[1],1.0);
+                        }
+                    }
+                    if(!(option2flag & PSYCHOPHYSICS_BIT) && (optionflag & FIXATION_CHECK) && (mimic_fixation & MIMIC_FIXATION)){
+                        fixstate = WAIT_FOR_MOUSE;
+                        mimic_fixation &= (~MIMIC_FIXATION);
+                    }
+                    
+                    if(!(option2flag & PSYCHOPHYSICS_BIT) && !(optionflag & FIXATION_CHECK)){
+                        fixstate = RESPONDED;
+                        stimstate = WAIT_FOR_RESPONSE;
+                        
+                        gettimeofday(&endtrialtime, NULL);
+                    }
+                } // end ExptItsRunning
+                else if(mode & ANIMATE_BIT)
+                {
+                    drag = 0;
+                    mode |= NEED_REPAINT; /* make sure background done */
+                    expt.st->framectr = 0;
+                    StartStimulus(TheStim);
+                    paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+                    mode |= FIRST_FRAME_BIT;
+                    change_frame();
+                    stimstate = INSTIMULUS;
+                    rc = 0;
+                    lastframecount = 0;
+                    break;
+                }
+                else if(testflags[PLAYING_EXPT]){
+                    ReplayExpt(NULL);
+                }
+            }
+            else if(optionflag & BACKGROUND_IN_PREPERIOD)
+            {
+                paint_frame(STIM_BACKGROUND, !(mode & FIXATION_OFF_BIT));
+                change_frame();
+            }
+            else
+            {	
+                if(option2flag & PSYCHOPHYSICS_BIT && val < expt.vals[TRIAL_START_BLANK]){
+                    setmask(bothmask);
+                    clearstim(TheStim,clearcolor, optionflag & DRAW_FIX_BIT);
+                    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fix.offcolor);
+                }
+                else{
+                    wipescreen(clearcolor);
+                    if(!RunBetweenTrials(st, pos))
+                        draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+                }
+                change_frame();
+                glFinishRenderAPPLE();
+            }
+            break;
+        case POSTSTIMINTRIAL:
+            if(rdspair(expt.st))
+                i = 0;
+            if(debug) glstatusline("Poststim",3);
 #ifdef MONITOR_CLOSE
-      if(seroutfile && laststate != stimstate)
-	fprintf(seroutfile,"#Poststimintrial\n");
+            if(seroutfile && laststate != stimstate)
+                fprintf(seroutfile,"#Poststimintrial\n");
 #endif
-      CheckFix();
-      if(testflags[PLAYING_EXPT]){
-	ReplayExpt(NULL);
-      }
-      if(fixstate == BADFIX_STATE){
-	stimctr = 0;
-	stimstate = POSTTRIAL;
-      }
-      else if((val = timediff(&now, &endstimtime)) > expt.postperiod)
-	stimstate = PRESTIMULUS;
-      memcpy(&goodfixtime, &now, sizeof(struct timeval));
-      break;
-    case INSTIMULUS:
-      if(rdspair(expt.st))
-	i = 0;
-      if(debug) glstatusline("InStim",3);
-      if(CheckFix() < 0){
-	TrialOver();
-	break;
-      }
-
-
-      paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-      increment_stimulus(st, pos);
-      lastframecount = rc;
-      nf = expt.st->framerepeat;
-/* 
- *on the mac when the focus is in the display win, vertical blank is ignored
- *this makes a mess of interacting with the stimulus. So put in a forced delay
- *here
- */
-
-      if(nf < 1)
-	nf = 1;
-
-    while((rc = getframecount()) < lastframecount +nf)
-	    rc = getframecount();
-      change_frame();
-      expt.framesdone++;
-      if(mode & NEWDRAG)
-	{
-	CheckRect(TheStim);
-	mode &= (~NEWDRAG);
-	}
-      framesdone++;
-      if(optionflags[FIXNUM_PAINTED_FRAMES] && framesdone >= TheStim->nframes ||
-	 (!optionflags[FIXNUM_PAINTED_FRAMES] && (realframecount = getframecount()) >= TheStim->nframes))
-	{
-	memcpy(&endstimtime, &now, sizeof(struct timeval));
-	stimstate = POSTSTIMULUS;
-	mode |= LAST_FRAME_BIT;
-	}
-      else if(realframecount/mon.framerate > expt.vals[FIXATION_OVERLAP])
-	{
-	  TheStim->fixcolor = TheStim->gammaback;
-	  mode |= FIXATION_OFF_BIT;
-	}
-      break;
-    case POSTSTIMULUS:
-      if(rdspair(expt.st))
-	i = 0;
-      if(debug) glstatusline("Poststim",3);
+            CheckFix();
+            if(testflags[PLAYING_EXPT]){
+                ReplayExpt(NULL);
+            }
+            if(fixstate == BADFIX_STATE){
+                stimctr = 0;
+                stimstate = POSTTRIAL;
+            }
+            else if((val = timediff(&now, &endstimtime)) > expt.postperiod)
+                stimstate = PRESTIMULUS;
+            memcpy(&goodfixtime, &now, sizeof(struct timeval));
+            break;
+        case INSTIMULUS:
+            if(rdspair(expt.st))
+                i = 0;
+            if(debug) glstatusline("InStim",3);
+            if(CheckFix() < 0){
+                TrialOver();
+                break;
+            }
+            
+            
+            paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+            increment_stimulus(st, pos);
+            lastframecount = rc;
+            nf = expt.st->framerepeat;
+            /* 
+             *on the mac when the focus is in the display win, vertical blank is ignored
+             *this makes a mess of interacting with the stimulus. So put in a forced delay
+             *here
+             */
+            
+            if(nf < 1)
+                nf = 1;
+            
+            while((rc = getframecount()) < lastframecount +nf)
+                rc = getframecount();
+            change_frame();
+            expt.framesdone++;
+            if(mode & NEWDRAG)
+            {
+                CheckRect(TheStim);
+                mode &= (~NEWDRAG);
+            }
+            framesdone++;
+            if(optionflags[FIXNUM_PAINTED_FRAMES] && framesdone >= TheStim->nframes ||
+               (!optionflags[FIXNUM_PAINTED_FRAMES] && (realframecount = getframecount()) >= TheStim->nframes))
+            {
+                memcpy(&endstimtime, &now, sizeof(struct timeval));
+                stimstate = POSTSTIMULUS;
+                mode |= LAST_FRAME_BIT;
+            }
+            else if(realframecount/mon.framerate > expt.vals[FIXATION_OVERLAP])
+            {
+                TheStim->fixcolor = TheStim->gammaback;
+                mode |= FIXATION_OFF_BIT;
+            }
+            break;
+        case POSTSTIMULUS:
+            if(rdspair(expt.st))
+                i = 0;
+            if(debug) glstatusline("Poststim",3);
 #ifdef MONITOR_CLOSE
-      if(seroutfile){
-	fprintf(seroutfile,"#Poststim VS%.1f (%.3f)\n",afc_s.sacval[1],timediff(&now,&goodfixtime));
-	fflush(seroutfile);
-      }
+            if(seroutfile){
+                fprintf(seroutfile,"#Poststim VS%.1f (%.3f)\n",afc_s.sacval[1],timediff(&now,&goodfixtime));
+                fflush(seroutfile);
+            }
 #endif
-      mode &= (~FIXATION_OFF_BIT);
-      if (!option2flag &AFC) // don't mess with color before response
-	TheStim->fixcolor = TheStim->fix.fixcolor;
-      if(CheckFix() < 0)
-	break;
-	if((val = timediff(&now, &endstimtime)) > expt.postperiod)
-	  {
-	    if(!(TheStim->mode & EXPTPENDING && !states[EXPT_PAUSED]) && ++stimctr < expt.stimpertrial)
-	      stimstate = PRESTIMULUS;
-	    else{
-	      stimstate = POSTPOSTSTIMULUS;
-	      if (!option2flag &AFC) // don't mess with color before response
-		TheStim->fixcolor = TheStim->fix.offcolor;
-	      if(!(TheStim->mode & EXPTPENDING))
-		stimctr = 0;
-	    }
-	  break;
-	  }
-	setmask(bothmask);
-	glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
-	glClear(GL_COLOR_BUFFER_BIT);
-	RunBetweenTrials(st, pos);
-	if(expt.vals[FIXATION_OVERLAP] > 10)
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-	change_frame();
-	if(testflags[PLAYING_EXPT]){
-	  if((i = ReplayExpt(NULL)) == INTERTRIAL)
-	    stimstate = i;
-	}
-	break;
-    case POSTPOSTSTIMULUS: /* clear both buffers with overlay */
-      if(rdspair(expt.st))
-	i = 0;
-        setmask(ALLMODE);
-	if(debug) glstatusline("PostPostStim",3);
+            mode &= (~FIXATION_OFF_BIT);
+            if (!option2flag &AFC) // don't mess with color before response
+                TheStim->fixcolor = TheStim->fix.fixcolor;
+            if(CheckFix() < 0)
+                break;
+            if((val = timediff(&now, &endstimtime)) > expt.postperiod)
+            {
+                if(!(TheStim->mode & EXPTPENDING && !states[EXPT_PAUSED]) && ++stimctr < expt.stimpertrial)
+                    stimstate = PRESTIMULUS;
+                else{
+                    stimstate = POSTPOSTSTIMULUS;
+                    if (!option2flag &AFC) // don't mess with color before response
+                        TheStim->fixcolor = TheStim->fix.offcolor;
+                    if(!(TheStim->mode & EXPTPENDING))
+                        stimctr = 0;
+                }
+                break;
+            }
+            setmask(bothmask);
+            glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
+            glClear(GL_COLOR_BUFFER_BIT);
+            RunBetweenTrials(st, pos);
+            if(expt.vals[FIXATION_OVERLAP] > 10)
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            change_frame();
+            if(testflags[PLAYING_EXPT]){
+                if((i = ReplayExpt(NULL)) == INTERTRIAL)
+                    stimstate = i;
+            }
+            break;
+        case POSTPOSTSTIMULUS: /* clear both buffers with overlay */
+            if(rdspair(expt.st))
+                i = 0;
+            setmask(ALLMODE);
+            if(debug) glstatusline("PostPostStim",3);
 #ifdef MONITOR_CLOSE
-	if(seroutfile)
-	  fprintf(seroutfile,"#PostPoststim\n");
+            if(seroutfile)
+                fprintf(seroutfile,"#PostPoststim\n");
 #endif
-	if (expt.mode != BACKGROUND_IMAGE){
-	  glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
-	  glClear(GL_COLOR_BUFFER_BIT);
-	}
-	RunBetweenTrials(st, pos);
-	if(expt.vals[FIXATION_OVERLAP] > 10)
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-	else
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
-	setmask(OVERLAY);
-	SetGrey(1.0);
-	redraw_overlay(expt.plot);
-	change_frame();
-	if(laststate == POSTSTIMULUS)
-	  gettimeofday(&endtrialtime, NULL);
-        setmask(ALLMODE);
-	glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
-	glClear(GL_COLOR_BUFFER_BIT);
-	RunBetweenTrials(st, pos);
-	if(expt.vals[FIXATION_OVERLAP] > 10)
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-	else
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
-	setmask(OVERLAY);
-	redraw_overlay(expt.plot);
-	change_frame();
-	SerialSignal(WURTZ_OK);
-	glDrawBuffer(GL_BACK);
-	glFinishRenderAPPLE();
-	stimstate = WAIT_FOR_RESPONSE;
-	ShowTrialCount(0.0, wsum);
-      break;
-    case WAIT_FOR_RESPONSE:
-      if(rdspair(expt.st))
-	i = 0;
-      if(laststate != stimstate)
-	waitcount = 0;
-      val = timediff(&now, &endtrialtime);
+            if (expt.mode != BACKGROUND_IMAGE){
+                glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            RunBetweenTrials(st, pos);
+            if(expt.vals[FIXATION_OVERLAP] > 10)
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            else
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
+            setmask(OVERLAY);
+            SetGrey(1.0);
+            redraw_overlay(expt.plot);
+            change_frame();
+            if(laststate == POSTSTIMULUS)
+                gettimeofday(&endtrialtime, NULL);
+            setmask(ALLMODE);
+            glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
+            glClear(GL_COLOR_BUFFER_BIT);
+            RunBetweenTrials(st, pos);
+            if(expt.vals[FIXATION_OVERLAP] > 10)
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            else
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
+            setmask(OVERLAY);
+            redraw_overlay(expt.plot);
+            change_frame();
+            SerialSignal(WURTZ_OK);
+            glDrawBuffer(GL_BACK);
+            glFinishRenderAPPLE();
+            stimstate = WAIT_FOR_RESPONSE;
+            ShowTrialCount(0.0, wsum);
+            break;
+        case WAIT_FOR_RESPONSE:
+            if(rdspair(expt.st))
+                i = 0;
+            if(laststate != stimstate)
+                waitcount = 0;
+            val = timediff(&now, &endtrialtime);
 #ifdef MONITOR_CLOSE
-      if(seroutfile)
-	fprintf(seroutfile,"#WaitFor %.2f VS%.1f\n",val,afc_s.sacval[1]);
+            if(seroutfile)
+                fprintf(seroutfile,"#WaitFor %.2f VS%.1f\n",val,afc_s.sacval[1]);
 #endif
 #if defined(WIN32) 
-      if(waitcount > 2 && option2flag & PSYCHOPHYSICS_BIT)
-	break;
+            if(waitcount > 2 && option2flag & PSYCHOPHYSICS_BIT)
+                break;
 #endif
-	if(debug){
-			sprintf(buf,"Wait %.4f",val);
-			printf("%s\n",buf);
-			glstatusline(buf,3);
-		}
-	if(freezestimulus)
-	  return(framecount);
-      wipescreen(clearcolor);
-      RunBetweenTrials(st, pos);
-      if(option2flag & PSYCHOPHYSICS_BIT || fixstate == WAIT_FOR_MOUSE){
-	  TheStim->fixcolor = TheStim->fix.fixcolor;
-      }
-      else if(mimic_bias) //always respond one way
-      {
-        stp = getexpval(expt.stimno);
-	
-	if(stp->vals[EXP_PSYCHVAL] < 0)
-	  GotChar(WURTZ_OK_W);
-	else
-	  GotChar(WURTZ_OK);
-
-      }
-      else if(mimic_fixation && (o = rnd_01d()) < mimicbadfix && stimno > 0
-	      && waitcount == 0 && o != lasto){
-	lasto = 0;
-	if (dorpt && dorpt == lastrpt){
-	  printf("ob stuck at =%.3f\n",o);
-	}
-	else{
-	if(option2flag & AFC)
-	  stimno++; // will be decremented in GotChar
-	GotChar(BAD_FIXATION);
-	printf("ob=%.3f\n",o);
-	}
-	lastrpt = dorpt;
-      }
-      else if(mimic_fixation && val > TheStim->fix.rt-0.02){
-	if(SACCREQD(afc_s)){
-	    printf("og=%.3f\n",o);
-	    if((o = drand48()) < expt.spikegain)
-	      GotChar(WURTZ_OK);
-	    else{
-	      GotChar(WURTZ_OK_W);
-	      monkeypress = WURTZ_OK_W;
-	    }
-	  }
-	  else 
-	      GotChar(WURTZ_OK);
-      }
-      else if(demomode)
-	;  // in demo, hit F3 again to remove targets
-      else if(val > TheStim->fix.rt)
-	{
-	    if(seroutfile)
-	      fprintf(seroutfile,"#LATE stimno %d\n",stimno);
-	    stimstate = POSTTRIAL;
-	    fctr = 0;
-	    TheStim->fixcolor = TheStim->fix.offcolor;
-	    memcpy(&endtrialtime,&now,sizeof(struct timeval));
-	    afc_s.lasttrial = BAD_TRIAL;
-	    SerialSignal(WURTZ_LATE);
-	    fixstate = WURTZ_LATE;
-	    SerialSignal(END_TRIAL);
-	    fixstate = RESPONDED;
-        notify("TRES L\n");
-	    change_frame();
-	    oldstimpos[0] = TheStim->pos.xy[0];
-	    oldstimpos[1] = TheStim->pos.xy[1];
-	    ResetExpStim(1); //before stimno is incremented
-            ShuffleStimulus(WURTZ_LATE);
-	}
+            if(debug){
+                sprintf(buf,"Wait %.4f",val);
+                printf("%s\n",buf);
+                glstatusline(buf,3);
+            }
+            if(freezestimulus)
+                return(framecount);
+            wipescreen(clearcolor);
+            RunBetweenTrials(st, pos);
+            if(option2flag & PSYCHOPHYSICS_BIT || fixstate == WAIT_FOR_MOUSE){
+                TheStim->fixcolor = TheStim->fix.fixcolor;
+            }
+            else if(mimic_bias) //always respond one way
+            {
+                stp = getexpval(expt.stimno);
+                
+                if(stp->vals[EXP_PSYCHVAL] < 0)
+                    GotChar(WURTZ_OK_W);
+                else
+                    GotChar(WURTZ_OK);
+                
+            }
+            else if(mimic_fixation && (o = rnd_01d()) < mimicbadfix && stimno > 0
+                    && waitcount == 0 && o != lasto){
+                lasto = 0;
+                if (dorpt && dorpt == lastrpt){
+                    printf("ob stuck at =%.3f\n",o);
+                }
+                else{
+                    if(option2flag & AFC)
+                        stimno++; // will be decremented in GotChar
+                    GotChar(BAD_FIXATION);
+                    printf("ob=%.3f\n",o);
+                }
+                lastrpt = dorpt;
+            }
+            else if(mimic_fixation && val > TheStim->fix.rt-0.02){
+                if(SACCREQD(afc_s)){
+                    printf("og=%.3f\n",o);
+                    if((o = drand48()) < expt.spikegain)
+                        GotChar(WURTZ_OK);
+                    else{
+                        GotChar(WURTZ_OK_W);
+                        monkeypress = WURTZ_OK_W;
+                    }
+                }
+                else 
+                    GotChar(WURTZ_OK);
+            }
+            else if(demomode)
+                ;  // in demo, hit F3 again to remove targets
+            else if(val > TheStim->fix.rt)
+            {
+                if(seroutfile)
+                    fprintf(seroutfile,"#LATE stimno %d\n",stimno);
+                stimstate = POSTTRIAL;
+                fctr = 0;
+                TheStim->fixcolor = TheStim->fix.offcolor;
+                memcpy(&endtrialtime,&now,sizeof(struct timeval));
+                afc_s.lasttrial = BAD_TRIAL;
+                SerialSignal(WURTZ_LATE);
+                fixstate = WURTZ_LATE;
+                SerialSignal(END_TRIAL);
+                fixstate = RESPONDED;
+                notify("TRES L\n");
+                change_frame();
+                oldstimpos[0] = TheStim->pos.xy[0];
+                oldstimpos[1] = TheStim->pos.xy[1];
+                ResetExpStim(1); //before stimno is incremented
+                ShuffleStimulus(WURTZ_LATE);
+            }
 #if defined(Linux) || defined(WIN32)
-	else
-	  GotChar(WURTZ_OK);
+            else
+                GotChar(WURTZ_OK);
 #endif
-      if(isharris(altstimmode)){
-	VisLine(0,0,endpt[0],endpt[1],1.0);
-      }
-      if(SACCREQD(afc_s) && fixstate != RESPONDED && stimstate != POSTTRIAL){
-	  paint_target(expt.targetcolor, 0);
-      }
-      else if(expt.vals[FIXATION_OVERLAP] > 10)
-	if(fabsf(TheStim->fixcolor-TheStim->background) < 0.1)
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fix.offcolor);
-	else
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-      else
-	  draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
-      if(fixstate == RESPONDED && ! (option2flag & PSYCHOPHYSICS_BIT))
-	{
-/* 
- * if this is the trial exiting the correction loop loopstate will
- * be normal. Incremnet stimno so that the next stimulus is a different one.
- * but the trial should be counted as a wrong one, based on the trial that
- * took us into the correction loop.
- */
-	if(!(option2flag & PSYCHOPHYSICS_BIT))
-	  ResetExpStim(1);
-	SetFixColor(expt);
-/*
- * This is where stimno is incremented for the last stim of the trial
- */
-	if(!states[EXPT_PAUSED] && TheStim->mode & EXPTPENDING 
-	   && afc_s.loopstate != CORRECTION_LOOP
-	   && !optionflags[RUN_SEQUENCE] && !freezeexpt)
-	  stimno++;
-	if(seroutfile)
-	  fprintf(seroutfile,"#stimno %d\n",stimno);
-	fixstate = INTERTRIAL;
-	stimstate = POSTTRIAL;
-	ShowTrialCount(0.0, wsum);
-	fsleep(0.05);
-	if(monkeypress == WURTZ_OK_W && rewardall == 0)
-	  start_timeout(monkeypress);
-	}
-      else if (CheckFix() < 0){ /* Bad saccade gives BAD_FIXATION code here */
-	if(!(option2flag & PSYCHOPHYSICS_BIT))
-	  ResetExpStim(0);
-	ShuffleStimulus(BAD_FIXATION);
-      }
-      if(testflags[PLAYING_EXPT]){
-	ReplayExpt(NULL);
-	if(stimstate == WAIT_FOR_RESPONSE) //not changed
-	  stimstate = PRESTIMULUS;
-      }
-
+            if(isharris(altstimmode)){
+                VisLine(0,0,endpt[0],endpt[1],1.0);
+            }
+            if(SACCREQD(afc_s) && fixstate != RESPONDED && stimstate != POSTTRIAL){
+                paint_target(expt.targetcolor, 0);
+            }
+            else if(expt.vals[FIXATION_OVERLAP] > 10)
+                if(fabsf(TheStim->fixcolor-TheStim->background) < 0.1)
+                    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fix.offcolor);
+                else
+                    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+                else
+                    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
+            if(fixstate == RESPONDED && ! (option2flag & PSYCHOPHYSICS_BIT))
+            {
+                /* 
+                 * if this is the trial exiting the correction loop loopstate will
+                 * be normal. Incremnet stimno so that the next stimulus is a different one.
+                 * but the trial should be counted as a wrong one, based on the trial that
+                 * took us into the correction loop.
+                 */
+                if(!(option2flag & PSYCHOPHYSICS_BIT))
+                    ResetExpStim(1);
+                SetFixColor(expt);
+                /*
+                 * This is where stimno is incremented for the last stim of the trial
+                 */
+                if(!states[EXPT_PAUSED] && TheStim->mode & EXPTPENDING 
+                   && afc_s.loopstate != CORRECTION_LOOP
+                   && !optionflags[RUN_SEQUENCE] && !freezeexpt)
+                    stimno++;
+                if(seroutfile)
+                    fprintf(seroutfile,"#stimno %d\n",stimno);
+                fixstate = INTERTRIAL;
+                stimstate = POSTTRIAL;
+                ShowTrialCount(0.0, wsum);
+                fsleep(0.05);
+                if(monkeypress == WURTZ_OK_W && rewardall == 0)
+                    start_timeout(monkeypress);
+            }
+            else if (CheckFix() < 0){ /* Bad saccade gives BAD_FIXATION code here */
+                if(!(option2flag & PSYCHOPHYSICS_BIT))
+                    ResetExpStim(0);
+                ShuffleStimulus(BAD_FIXATION);
+            }
+            if(testflags[PLAYING_EXPT]){
+                ReplayExpt(NULL);
+                if(stimstate == WAIT_FOR_RESPONSE) //not changed
+                    stimstate = PRESTIMULUS;
+            }
+            
 #ifdef WIN32
-      if(waitcount++ <2)
-	change_frame();
+            if(waitcount++ <2)
+                change_frame();
 #else
-      waitcount++;
-      change_frame();
+            waitcount++;
+            change_frame();
 #endif
-	break;
-    case POSTTRIAL:
-      if(rdspair(expt.st))
-	i = 0;
-      if(seroutfile){
-	fprintf(seroutfile,"#PostTrial, last %d stimno%d \n",laststate,stimno);
-	fflush(seroutfile);
-      }
-      if(option2flag & AFC)
-	CountReps(stimno);
-      if((option2flag & PSYCHOPHYSICS_BIT) || fixstate == BAD_FIXATION){
-	  ResetExpStim(0);
-	  if(ExptIsRunning())
-	    PrepareExptStim(1,10);
-	  SetFixColor(expt);
-	  if(fixstate == BAD_FIXATION && TheStim->fix.timeout > 0){
-	    search_background();
-	    change_frame();
-	    search_background();
-	  }
-      }
-      else{
-	setmask(bothmask);
-	wipescreen(clearcolor);
-	change_frame();
-      }
-	if(debug) glstatusline("PostTrial",3);
-	if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001 && fixstate != BAD_FIXATION){
-/*
- * N.B. at this moment changes in PURSUIT INCREMENT as part of an expt will not
- * have been made yet for the next trial. This works becuase the after pursuing in one direction, the next trial must be a pursuit back. 
- */
-	  dx = (expt.vals[PURSUIT_INCREMENT]) * (expt.st->nframes-1) * sin(expt.vals[FP_MOVE_DIR]);
-	  dy = cos(expt.vals[FP_MOVE_DIR]) * (expt.vals[PURSUIT_INCREMENT]) * (expt.st->nframes-1);
-
-
-	  if(pursued > 0.1 || stimno & 1){
-	    pursuedir = -1;
-	    if(altstimmode != MOVE_STIM_ONLY){
-	      expt.vals[FIXPOS_X] = expt.fixpos[0] + dx;
-	      expt.vals[FIXPOS_Y] = expt.fixpos[1] + dy;
-	    }
-	    TheStim->pos.xy[0] = deg2pix(expt.vals[XPOS] + dx);
-	    TheStim->pos.xy[1] = deg2pix(expt.vals[YPOS] + dy);
-		//	    printf("P- %.3f\n",expt.vals[PURSUIT_INCREMENT]);
-	  }
-	  else{
-	    pursuedir = 1;
-	    expt.vals[FIXPOS_X] = expt.fixpos[0];
-	    expt.vals[FIXPOS_Y] = expt.fixpos[1];
-	    TheStim->pos.xy[0] = deg2pix(expt.vals[XPOS]);
-	    TheStim->pos.xy[1] = deg2pix(expt.vals[YPOS]);
-		//	    printf("P+ %.3f\n",expt.vals[PURSUIT_INCREMENT]);
-	  }
-	  SerialSend(PURSUIT_INCREMENT);
-	  fixpos[0] = deg2pix(expt.vals[FIXPOS_X]);
-	  if(seroutfile){
-	    fprintf(seroutfile,"#fx %.2f,%.2f (%.2f,%.2f) pi %.3f(%.0f) xo %.3f\n",expt.stimvals[FIXPOS_X],
-		    expt.stimvals[FIXPOS_Y],dx,dy,
-		    expt.vals[PURSUIT_INCREMENT],pursuedir,pix2deg(TheStim->pos.xy[0]));
-	  fprintf(seroutfile,"#efx %.2f,%.2f stimno %d\n",expt.fixpos[0],expt.fixpos[1],stimno);
-	  }
-	}
-	else{
-	  expt.vals[FIXPOS_X] = expt.stimvals[FIXPOS_X];
-	  expt.vals[FIXPOS_Y] = expt.stimvals[FIXPOS_Y];
-	  fixpos[0] = deg2pix(expt.vals[FIXPOS_X]);
-	}
-	pursued = 0;
-	fixpos[1] = deg2pix(expt.vals[FIXPOS_Y]);
-	SerialSend(FIXPOS_XY);
-	draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-
-/* stimseq[].result is used in human psychophysics for staircases */
-	if(!(option2flag & PSYCHOPHYSICS_BIT))
-	  stimseq[trialctr].result = monkeypress;
-	else
-	  ShowInfo();
-	if(trialctr < TRIALBUFFERLEN)
-	  trialctr++;
-	else{
-	  trialctr = 0;
-	  triallaps++;
-	    }
-	stimseq[trialctr].a = stimseq[trialctr].b = 0;
-/*
- * if expt stim is prepared during a timout, this undoes the setting
- * of saccval...
-	afc_s.sacval[0] =  afc_s.abssac[0];
-	afc_s.sacval[1] =  afc_s.abssac[1];
-*/
-	if(fixstate == BADFIX_STATE && TheStim->fix.timeout > 0)
-	    stimstate = IN_TIMEOUT;
-	else if(monkeypress == WURTZ_OK_W)
-	    stimstate = IN_TIMEOUT_W;
-	else{
-	  stimstate = INTERTRIAL;
- // ONE_TRIAL meand one _good trial, so only stop if not a timeout
-	  if(states[ONE_TRIAL]){
-	    StopGo(STOP);
-	    states[ONE_TRIAL] = 0;
-	  }
-	}
-	if(stopgo == STOP)
-	  StopGo(STOP);
-	if(stairfd){
-	  fprintf(stairfd,"Post%d(%d) ",stimno,stimorder[stimno]);
-	}
-      break;
-    case IN_TIMEOUT:
-    case IN_TIMEOUT_W:
-      if(rdspair(expt.st))
-	i = 0;
-	if(debug) glstatusline("Timeout",3);
-	duration = TheStim->fix.timeout; 
-	if(stimstate == IN_TIMEOUT_W)
-	  duration = afc_s.wrongtimeout; 
-	else if (timeout_type == SHAKE_TIMEOUT_PART1)
-	  duration = expt.vals[SHAKE_TIMEOUT_DURATION]; 
-	else if (timeout_type == SHAKE_TIMEOUT_PART2)
-	  duration = 1;
-      markercolor = 0;
-      if(monkeypress == WURTZ_OK_W)
-	{
-	  markercolor = 0;
-	  //	  mySwapBuffers();
-	  	  setmask(BOTHMODE);
-	  	  chessboard(128,128);
-	}
-      if((val = timediff(&now, &starttimeout)) > duration)
-	{
-	  if(timeout_type == SHAKE_TIMEOUT_PART1){
-	    timeout_type = SHAKE_TIMEOUT_PART2;
-	    start_timeout(SHAKE_TIMEOUT_PART2);
-	  }
-	  else{
-	    if (duration > 0)
-	      end_timeout();
-	    stimstate = INTERTRIAL;
-	  }
-	  fctr = 0;
-	}
-
-      redraw_overlay(expt.plot);
-      if(timeout_type == SHAKE_TIMEOUT_PART2 && 0)
-	ShowTime();
-      change_frame();
-      break;
+            break;
+        case POSTTRIAL:
+            if(rdspair(expt.st))
+                i = 0;
+            if(seroutfile){
+                fprintf(seroutfile,"#PostTrial, last %d stimno%d \n",laststate,stimno);
+                fflush(seroutfile);
+            }
+            if(option2flag & AFC)
+                CountReps(stimno);
+            if((option2flag & PSYCHOPHYSICS_BIT) || fixstate == BAD_FIXATION){
+                ResetExpStim(0);
+                if(ExptIsRunning())
+                    PrepareExptStim(1,10);
+                SetFixColor(expt);
+                if(fixstate == BAD_FIXATION && TheStim->fix.timeout > 0){
+                    search_background();
+                    change_frame();
+                    search_background();
+                }
+            }
+            else{
+                setmask(bothmask);
+                wipescreen(clearcolor);
+                change_frame();
+            }
+            if(debug) glstatusline("PostTrial",3);
+            if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001 && fixstate != BAD_FIXATION){
+                /*
+                 * N.B. at this moment changes in PURSUIT INCREMENT as part of an expt will not
+                 * have been made yet for the next trial. This works becuase the after pursuing in one direction, the next trial must be a pursuit back. 
+                 */
+                dx = (expt.vals[PURSUIT_INCREMENT]) * (expt.st->nframes-1) * sin(expt.vals[FP_MOVE_DIR]);
+                dy = cos(expt.vals[FP_MOVE_DIR]) * (expt.vals[PURSUIT_INCREMENT]) * (expt.st->nframes-1);
+                
+                
+                if(pursued > 0.1 || stimno & 1){
+                    pursuedir = -1;
+                    if(altstimmode != MOVE_STIM_ONLY){
+                        expt.vals[FIXPOS_X] = expt.fixpos[0] + dx;
+                        expt.vals[FIXPOS_Y] = expt.fixpos[1] + dy;
+                    }
+                    TheStim->pos.xy[0] = deg2pix(expt.vals[XPOS] + dx);
+                    TheStim->pos.xy[1] = deg2pix(expt.vals[YPOS] + dy);
+                    //	    printf("P- %.3f\n",expt.vals[PURSUIT_INCREMENT]);
+                }
+                else{
+                    pursuedir = 1;
+                    expt.vals[FIXPOS_X] = expt.fixpos[0];
+                    expt.vals[FIXPOS_Y] = expt.fixpos[1];
+                    TheStim->pos.xy[0] = deg2pix(expt.vals[XPOS]);
+                    TheStim->pos.xy[1] = deg2pix(expt.vals[YPOS]);
+                    //	    printf("P+ %.3f\n",expt.vals[PURSUIT_INCREMENT]);
+                }
+                SerialSend(PURSUIT_INCREMENT);
+                fixpos[0] = deg2pix(expt.vals[FIXPOS_X]);
+                if(seroutfile){
+                    fprintf(seroutfile,"#fx %.2f,%.2f (%.2f,%.2f) pi %.3f(%.0f) xo %.3f\n",expt.stimvals[FIXPOS_X],
+                            expt.stimvals[FIXPOS_Y],dx,dy,
+                            expt.vals[PURSUIT_INCREMENT],pursuedir,pix2deg(TheStim->pos.xy[0]));
+                    fprintf(seroutfile,"#efx %.2f,%.2f stimno %d\n",expt.fixpos[0],expt.fixpos[1],stimno);
+                }
+            }
+            else{
+                expt.vals[FIXPOS_X] = expt.stimvals[FIXPOS_X];
+                expt.vals[FIXPOS_Y] = expt.stimvals[FIXPOS_Y];
+                fixpos[0] = deg2pix(expt.vals[FIXPOS_X]);
+            }
+            pursued = 0;
+            fixpos[1] = deg2pix(expt.vals[FIXPOS_Y]);
+            SerialSend(FIXPOS_XY);
+            draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            
+            /* stimseq[].result is used in human psychophysics for staircases */
+            if(!(option2flag & PSYCHOPHYSICS_BIT))
+                stimseq[trialctr].result = monkeypress;
+            else
+                ShowInfo();
+            if(trialctr < TRIALBUFFERLEN)
+                trialctr++;
+            else{
+                trialctr = 0;
+                triallaps++;
+            }
+            stimseq[trialctr].a = stimseq[trialctr].b = 0;
+            /*
+             * if expt stim is prepared during a timout, this undoes the setting
+             * of saccval...
+             afc_s.sacval[0] =  afc_s.abssac[0];
+             afc_s.sacval[1] =  afc_s.abssac[1];
+             */
+            if(fixstate == BADFIX_STATE && TheStim->fix.timeout > 0)
+                stimstate = IN_TIMEOUT;
+            else if(monkeypress == WURTZ_OK_W)
+                stimstate = IN_TIMEOUT_W;
+            else{
+                stimstate = INTERTRIAL;
+                // ONE_TRIAL meand one _good trial, so only stop if not a timeout
+                if(states[ONE_TRIAL]){
+                    StopGo(STOP);
+                    states[ONE_TRIAL] = 0;
+                }
+            }
+            if(stopgo == STOP)
+                StopGo(STOP);
+            if(stairfd){
+                fprintf(stairfd,"Post%d(%d) ",stimno,stimorder[stimno]);
+            }
+            break;
+        case IN_TIMEOUT:
+        case IN_TIMEOUT_W:
+            if(rdspair(expt.st))
+                i = 0;
+            if(debug) glstatusline("Timeout",3);
+            duration = TheStim->fix.timeout; 
+            if(stimstate == IN_TIMEOUT_W)
+                duration = afc_s.wrongtimeout; 
+            else if (timeout_type == SHAKE_TIMEOUT_PART1)
+                duration = expt.vals[SHAKE_TIMEOUT_DURATION]; 
+            else if (timeout_type == SHAKE_TIMEOUT_PART2)
+                duration = 1;
+            markercolor = 0;
+            if(monkeypress == WURTZ_OK_W)
+            {
+                markercolor = 0;
+                //	  mySwapBuffers();
+                setmask(BOTHMODE);
+                chessboard(128,128);
+            }
+            if((val = timediff(&now, &starttimeout)) > duration)
+            {
+                if(timeout_type == SHAKE_TIMEOUT_PART1){
+                    timeout_type = SHAKE_TIMEOUT_PART2;
+                    start_timeout(SHAKE_TIMEOUT_PART2);
+                }
+                else{
+                    if (duration > 0)
+                        end_timeout();
+                    stimstate = INTERTRIAL;
+                }
+                fctr = 0;
+            }
+            
+            redraw_overlay(expt.plot);
+            if(timeout_type == SHAKE_TIMEOUT_PART2 && 0)
+                ShowTime();
+            change_frame();
+            break;
     }
-  lastval = val;
-  laststate = oldstimstate;
-  if(debug == 4){
-    testcolor();
-  }
-  return(framecount);
+    lastval = val;
+    laststate = oldstimstate;
+    if(debug == 4){
+        testcolor();
+    }
+    return(framecount);
 }
 
 void expback()
@@ -6847,120 +6847,120 @@ void exprun()
 
 void expfront()
 {
-//Ali	if(display_win == (Window)NULL)
-//		makewindow(NULL);
+    //Ali	if(display_win == (Window)NULL)
+    //		makewindow(NULL);
 	
 	mode |= WINDOWS_RAISED;
 }
 
 /*
-void MyFunction (AUX_EVENTREC *event ) {
-    GLint x, y;
-    x = event -> data[AUX_MOUSEX];
-    y = event -> data[AUX_MOUSEY];
-}
-*/
+ void MyFunction (AUX_EVENTREC *event ) {
+ GLint x, y;
+ x = event -> data[AUX_MOUSEX];
+ y = event -> data[AUX_MOUSEY];
+ }
+ */
 
 
 
 void set_test_loop()
 {
-  if(mode & TEST_PENDING)
-    mode &= (~TEST_PENDING);
-  else
-  mode |= TEST_PENDING;
+    if(mode & TEST_PENDING)
+        mode &= (~TEST_PENDING);
+    else
+        mode |= TEST_PENDING;
 }
 
 
 void test_dot(vcoord x, vcoord y, vcoord w){
-  glVertex2f(x-w,y-w);
-  glVertex2f(x+w,y-w);
-  glVertex2f(x+w,y+w);
-  glVertex2f(x-w,y+w);
+    glVertex2f(x-w,y-w);
+    glVertex2f(x+w,y-w);
+    glVertex2f(x+w,y+w);
+    glVertex2f(x-w,y+w);
 }
 
 void lwrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
 {
-  vcoord x,y;
-  
-  x = (llx+urx)/2;
-  y = (lly+ury)/2;
-  glVertex2f(x,lly);
-  glVertex2f(x,ury);
-  glVertex2f(llx,y);
-  glVertex2f(urx,y);
-  
+    vcoord x,y;
+    
+    x = (llx+urx)/2;
+    y = (lly+ury)/2;
+    glVertex2f(x,lly);
+    glVertex2f(x,ury);
+    glVertex2f(llx,y);
+    glVertex2f(urx,y);
+    
 }
 
 void rotrect(vcoord *line, vcoord x, vcoord y)
 {
-      glVertex2f(x+line[0],y+line[1]);
-      glVertex2f(x+line[2],y+line[3]);
+    glVertex2f(x+line[0],y+line[1]);
+    glVertex2f(x+line[2],y+line[3]);
 }
 
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
-
-/*
-  if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
-    return;
-*/
-
-      glVertex2f(x+line[0],y+line[1]);
-      glVertex2f(x+line[6],y+line[7]);
+    
+    /*
+     if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
+     return;
+     */
+    
+    glVertex2f(x+line[0],y+line[1]);
+    glVertex2f(x+line[6],y+line[7]);
 }
 
 void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
 {
-  vcoord x,y;
-  float lcolor;
-  llx += 0.5;
-  lly += 0.5;
-  urx -= 0.5;
-  ury -= 0.5;
-  x = (llx + urx)/2;
-  /*   glVertex2f(x,lly);
-  glVertex2f(x,ury);
-  */
-  for(x = llx; x < urx; x += 1.0)
+    vcoord x,y;
+    float lcolor;
+    llx += 0.5;
+    lly += 0.5;
+    urx -= 0.5;
+    ury -= 0.5;
+    x = (llx + urx)/2;
+    /*   glVertex2f(x,lly);
+     glVertex2f(x,ury);
+     */
+    for(x = llx; x < urx; x += 1.0)
     {
-      glVertex2f(x,lly);
-      glVertex2f(x,ury);
+        glVertex2f(x,lly);
+        glVertex2f(x,ury);
     }
-      glVertex2f(urx,lly);
-      glVertex2f(urx,ury);
-  /*      glVertex2f(llx,lly);
-      glVertex2f(llx,ury);
-      glVertex2f(urx,lly);
-      glVertex2f(urx,ury);
-      glVertex2f(llx,ury);
-      glVertex2f(urx,ury);
-      glVertex2f(llx,lly);
-      glVertex2f(urx,lly);
-      */
+    glVertex2f(urx,lly);
+    glVertex2f(urx,ury);
+    /*      glVertex2f(llx,lly);
+     glVertex2f(llx,ury);
+     glVertex2f(urx,lly);
+     glVertex2f(urx,ury);
+     glVertex2f(llx,ury);
+     glVertex2f(urx,ury);
+     glVertex2f(llx,lly);
+     glVertex2f(urx,lly);
+     */
 }
 
 
 void run_rds_test_loop()
 {
-  int i,j,fw,fh,ival,frame = 0;
-  int *p,d,*end;
-  vcoord *x,*y,xp[2],dw,dh,w,h;
-  Locator *pos = &TheStim->pos;
-  char cbuf[BUFSIZ];
-  Stimulus *st;
-  int shift = pos->xy[1];
-  float vcolor[4],fixw;
-  Substim *gb = TheStim->left;
-  Substim *sst = TheStim->left;
-  float val,angle;
-  vcoord rect[8],crect[4];
-  double sina,cosa,o;
-  char c;
-  int ncalls[4];
-
-  vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
-      st = TheStim;
+    int i,j,fw,fh,ival,frame = 0;
+    int *p,d,*end;
+    vcoord *x,*y,xp[2],dw,dh,w,h;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    Stimulus *st;
+    int shift = pos->xy[1];
+    float vcolor[4],fixw;
+    Substim *gb = TheStim->left;
+    Substim *sst = TheStim->left;
+    float val,angle;
+    vcoord rect[8],crect[4];
+    double sina,cosa,o;
+    char c;
+    int ncalls[4];
+    
+    vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    st = TheStim;
     x = sst->xpos;
     y = sst->ypos;
     w = sst->dotsiz[0]/2;
@@ -6971,62 +6971,62 @@ void run_rds_test_loop()
     dh = h;
     fw = sst->dotsiz[0];
     fh = sst->dotsiz[1];
-
+    
     setmask(ALLPLANES);
-      SetColor(TheStim->background,1);
-      clearcolor = TheStim->gammaback;
-      glDrawBuffer(GL_FRONT_AND_BACK);
-      glClearColor(clearcolor, clearcolor, clearcolor,clearcolor);
-      glClear(GL_COLOR_BUFFER_BIT);
-      glFlushRenderAPPLE();
-      glPushMatrix();
-
+    SetColor(TheStim->background,1);
+    clearcolor = TheStim->gammaback;
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    glClearColor(clearcolor, clearcolor, clearcolor,clearcolor);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glFlushRenderAPPLE();
+    glPushMatrix();
+    
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	  glLineWidth(1.0);
-	  if(testmode == 3){
-      for(frame = 0; frame < 72; frame++){
-	testcalc_rds(st->next,st->next->left, testmode);
-	testcalc_rds(st,st->left, testmode);
-	testcalc_rds(st->next,st->next->right, testmode);
-	testcalc_rds(st,st->right, testmode);
-	glDrawBuffer(GL_BACK);
-	glClearColor(0.5, 0.5, 0.5,1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	paint_stimulus(st);
-//AliGLX	mySwapBuffers();
-      }
-      return;
-	  }
-
-	  /*      if(optionflag & ANTIALIAS_BIT)
-	{
-	   glEnable(GL_LINE_SMOOTH);
-	   glLineWidth(1.0);
-	  if(strncmp(getRenderer(),"IMPACT",5) == 0)
-	    {
-	      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	      glEnable(GL_BLEND);
-	      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	    }
-	}
-	*/
-      glDrawBuffer(GL_BACK);
-      glClearColor(0.5, 0.5, 0.5,1.0);
-      glClear(GL_COLOR_BUFFER_BIT);
+    glLineWidth(1.0);
+    if(testmode == 3){
+        for(frame = 0; frame < 72; frame++){
+            testcalc_rds(st->next,st->next->left, testmode);
+            testcalc_rds(st,st->left, testmode);
+            testcalc_rds(st->next,st->next->right, testmode);
+            testcalc_rds(st,st->right, testmode);
+            glDrawBuffer(GL_BACK);
+            glClearColor(0.5, 0.5, 0.5,1.0);
+            glClear(GL_COLOR_BUFFER_BIT);
+            paint_stimulus(st);
+            //AliGLX	mySwapBuffers();
+        }
+        return;
+    }
+    
+    /*      if(optionflag & ANTIALIAS_BIT)
+     {
+     glEnable(GL_LINE_SMOOTH);
+     glLineWidth(1.0);
+     if(strncmp(getRenderer(),"IMPACT",5) == 0)
+     {
+     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+     glEnable(GL_BLEND);
+     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+     }
+     }
+     */
+    glDrawBuffer(GL_BACK);
+    glClearColor(0.5, 0.5, 0.5,1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
 	SetGrey(1.0);
-      calc_stimulus(TheStim);
-      gettimeofday(&timeb,NULL);
-
+    calc_stimulus(TheStim);
+    gettimeofday(&timeb,NULL);
+    
     glGetIntegerv(GL_RGBA_MODE, &ival);
-//AliGLX    printf("%s RGBA %d ",getRenderer(),ival);
+    //AliGLX    printf("%s RGBA %d ",getRenderer(),ival);
     glGetIntegerv(GL_RED_BITS, &ival);
     printf(" Red_Bits %d ",ival);
     glGetIntegerv(GL_SUBPIXEL_BITS, &ival);
     printf("Subpix %d\n",ival);
     o = drand48();
     
-        angle = rad_deg(pos->angle);
-
+    angle = rad_deg(pos->angle);
+    
 	cosa = cos(pos->angle);
 	sina = sin(pos->angle);
 	dh = dh - 0.5;
@@ -7043,390 +7043,390 @@ void run_rds_test_loop()
 	crect[1] = -dh * cosa;
 	crect[2] = dh * sina;
 	crect[3] = dh * cosa;
-
-      glTranslatef((pos->xy[0]),pos->xy[1],0);
+    
+    glTranslatef((pos->xy[0]),pos->xy[1],0);
 	glRotatef(angle,0.0,0.0,1.0);
-
-
-
-      for(frame = 0; frame < 72; frame++)
+    
+    
+    
+    for(frame = 0; frame < 72; frame++)
 	{
-	  glClear(GL_COLOR_BUFFER_BIT);
-	  glColor4f(vcolor[0],vcolor[1],vcolor[2],vcolor[3]);
-      if(optionflag & ANTIALIAS_BIT)
-	  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glEnable(GL_LINE_SMOOTH);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor4f(vcolor[0],vcolor[1],vcolor[2],vcolor[3]);
+        if(optionflag & ANTIALIAS_BIT)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_LINE_SMOOTH);
 	    p = sst->im;
 	    end = (sst->im+sst->ndots);
 	    x = sst->xpos;
 	    y = sst->ypos;
 	    if(optionflag & ANTIALIAS_BIT)
-	      {
+        {
       		glLineWidth(1.0);
-		glEnable(GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_LINE_SMOOTH);
-		glBegin(GL_LINES);
-		glColor4f(vcolor[0],vcolor[1],vcolor[2],vcolor[3]);
-		i = 0;
-		for(;p < end; p++,x++,y++)
-		  {
-		    if((i = !i))
-		      glColor3f(vcolor[0],vcolor[1],vcolor[2]);
-		    else	
-		      glColor3f(0.0,0.0,0.0);
-		  aarotrect(rect,*x+drand48(),*y);
-		  }
-		glEnd();
-		p = sst->im;
-		end = (sst->im+sst->ndots);
-		x = sst->xpos;
-		y = sst->ypos;
- 		glDisable(GL_BLEND);
-		glDisable(GL_LINE_SMOOTH);
-	      }
+            glEnable(GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_LINE_SMOOTH);
+            glBegin(GL_LINES);
+            glColor4f(vcolor[0],vcolor[1],vcolor[2],vcolor[3]);
+            i = 0;
+            for(;p < end; p++,x++,y++)
+            {
+                if((i = !i))
+                    glColor3f(vcolor[0],vcolor[1],vcolor[2]);
+                else	
+                    glColor3f(0.0,0.0,0.0);
+                aarotrect(rect,*x+drand48(),*y);
+            }
+            glEnd();
+            p = sst->im;
+            end = (sst->im+sst->ndots);
+            x = sst->xpos;
+            y = sst->ypos;
+            glDisable(GL_BLEND);
+            glDisable(GL_LINE_SMOOTH);
+        }
 	    i = 0;
 	    glLineWidth(dw*2);
 	    glColor4f(vcolor[0],vcolor[1],vcolor[2],vcolor[3]);
 	    i = 0;
-
- /*
-   on octane 2, this AA has no cost!!
- */
+        
+        /*
+         on octane 2, this AA has no cost!!
+         */
 	    glEnable(GL_BLEND);
 	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    glEnable(GL_LINE_SMOOTH);
 	    glBegin(GL_LINES);
 	    for(;p < end; p++,x++,y++){
-	      if((i = !i))
-		glColor3f(vcolor[0],vcolor[1],vcolor[2]);
-	      else	
-		glColor3f(0.0,0.0,0.0);
-	      rotrect(crect, *x+o, *y+o);
+            if((i = !i))
+                glColor3f(vcolor[0],vcolor[1],vcolor[2]);
+            else	
+                glColor3f(0.0,0.0,0.0);
+            rotrect(crect, *x+o, *y+o);
 	    }
 	    glEnd();
-
-/*
-  Much slower, and get funny interaction in middle
-
-	    glEnable(GL_BLEND);
-	    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	    glEnable(GL_POLYGON_SMOOTH);
-	    glBegin(GL_QUADS);
-
-	    for(;p < end; p++,x++,y++){
-	      if((i = !i))
-		glColor3f(vcolor[0],vcolor[1],vcolor[2]);
-	      else	
-		glColor3f(0.0,0.0,0.0);
-	      test_dot(*x+o, *y+o,dh);
-	    }
-	    glEnd();
-	    glDisable(GL_POLYGON_SMOOTH);
-*/
-
+        
+        /*
+         Much slower, and get funny interaction in middle
+         
+         glEnable(GL_BLEND);
+         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glEnable(GL_POLYGON_SMOOTH);
+         glBegin(GL_QUADS);
+         
+         for(;p < end; p++,x++,y++){
+         if((i = !i))
+         glColor3f(vcolor[0],vcolor[1],vcolor[2]);
+         else	
+         glColor3f(0.0,0.0,0.0);
+         test_dot(*x+o, *y+o,dh);
+         }
+         glEnd();
+         glDisable(GL_POLYGON_SMOOTH);
+         */
+        
 	    c = STIM_CHANGE;
 	    write(ttys[0],&c,1);
 	    if(!optionflags[CALCULATE_ONCE_ONLY])
-	      calc_stimulus(TheStim);
-//AliGLX	    mySwapBuffers();
+            calc_stimulus(TheStim);
+        //AliGLX	    mySwapBuffers();
 	    glFlushRenderAPPLE();
 	    c = FRAME_SIGNAL;
 	    write(ttys[0],&c,1);
 	}
-
-      glPopMatrix();
-      gettimeofday(&now,NULL);
-      val = timediff(&now,&timeb);
-      sprintf(mssg,"B%d dots(%dx%d) * 72 = %.3f seconds",sst->ndots,fw,fh,val);
-      statusline(mssg);
-
-
-      gettimeofday(&timeb,NULL);
-      for(frame = 0; frame < 72; frame++){
-	ncalls[0] = calc_rds(st->next,st->next->left);
-	ncalls[1] = calc_rds(st,st->left);
-	ncalls[2] = calc_rds(st->next,st->next->right);
-	ncalls[3] = calc_rds(st,st->right);
-      }
-      gettimeofday(&now,NULL);
-      val = timediff(&now,&timeb);
-      printf("Randoms calls %d,%d,%d,%d\n",ncalls[0],ncalls[1],ncalls[2],ncalls[3]);
-      printf("Calc took %.3f,",val);
-
-      gettimeofday(&timeb,NULL);
-      for(frame = 0; frame < 72; frame++){
-	testcalc_rds(st->next,st->next->left, testmode);
-	testcalc_rds(st,st->left, testmode);
-	testcalc_rds(st->next,st->next->right, testmode);
-	testcalc_rds(st,st->right, testmode);
-	if(testmode == 3)
-	  paint_stimulus(st);
-//AliGLX	mySwapBuffers();
-      }
-      gettimeofday(&now,NULL);
-      val = timediff(&now,&timeb);
-      printf(" %.3f,",val);
-
-      gettimeofday(&timeb,NULL);
-      for(frame = 0; frame < 72; frame++){
-	calc_stimulus(TheStim);
-      }
-      gettimeofday(&now,NULL);
-      val = timediff(&now,&timeb);
-      printf(" %.3f,",val);
-
-      printf("\n");
+    
+    glPopMatrix();
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&timeb);
+    sprintf(mssg,"B%d dots(%dx%d) * 72 = %.3f seconds",sst->ndots,fw,fh,val);
+    statusline(mssg);
+    
+    
+    gettimeofday(&timeb,NULL);
+    for(frame = 0; frame < 72; frame++){
+        ncalls[0] = calc_rds(st->next,st->next->left);
+        ncalls[1] = calc_rds(st,st->left);
+        ncalls[2] = calc_rds(st->next,st->next->right);
+        ncalls[3] = calc_rds(st,st->right);
+    }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&timeb);
+    printf("Randoms calls %d,%d,%d,%d\n",ncalls[0],ncalls[1],ncalls[2],ncalls[3]);
+    printf("Calc took %.3f,",val);
+    
+    gettimeofday(&timeb,NULL);
+    for(frame = 0; frame < 72; frame++){
+        testcalc_rds(st->next,st->next->left, testmode);
+        testcalc_rds(st,st->left, testmode);
+        testcalc_rds(st->next,st->next->right, testmode);
+        testcalc_rds(st,st->right, testmode);
+        if(testmode == 3)
+            paint_stimulus(st);
+        //AliGLX	mySwapBuffers();
+    }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&timeb);
+    printf(" %.3f,",val);
+    
+    gettimeofday(&timeb,NULL);
+    for(frame = 0; frame < 72; frame++){
+        calc_stimulus(TheStim);
+    }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&timeb);
+    printf(" %.3f,",val);
+    
+    printf("\n");
 }
 
 
 void run_radial_test_loop(){
-  int i,j,fw,fh,ival,frame = 0,w,h;
-  int d,*end;
-  vcoord *x,*y,xp[2],dw,dh;
-  Locator *pos = &TheStim->pos;
-  char cbuf[BUFSIZ];
-  Stimulus *st = TheStim;
-  int shift = pos->xy[1];
-  float vcolor[4],fixw;
-  Substim *gb = TheStim->left;
-  Substim *sst = TheStim->left;
-  float val,angle;
-  vcoord rect[8],crect[4];
-  double sina,cosa;
-  char c;
-  GLubyte *im1,*im2,*p,col;
-  int ndots = 0,nframes = 72;
-  int *iy;
-  double *ax,*ay,xv,*pd,sd,s;
-  float disp = 0;
-  int nrpt = st->framerepeat;
-
-
-  for(frame = 0; frame < nframes; frame++){
+    int i,j,fw,fh,ival,frame = 0,w,h;
+    int d,*end;
+    vcoord *x,*y,xp[2],dw,dh;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    Stimulus *st = TheStim;
+    int shift = pos->xy[1];
+    float vcolor[4],fixw;
+    Substim *gb = TheStim->left;
+    Substim *sst = TheStim->left;
+    float val,angle;
+    vcoord rect[8],crect[4];
+    double sina,cosa;
+    char c;
+    GLubyte *im1,*im2,*p,col;
+    int ndots = 0,nframes = 72;
+    int *iy;
+    double *ax,*ay,xv,*pd,sd,s;
+    float disp = 0;
+    int nrpt = st->framerepeat;
     
-    /*
-      calc_radial(st,st->left,disp);
-      calc_radial(st,st->right,-disp);
-    */
-    calc_stimulus(st);
-    if(frame > 5){
-      st->left->show_increment = 1;
-      st->right->show_increment = 1;
+    
+    for(frame = 0; frame < nframes; frame++){
+        
+        /*
+         calc_radial(st,st->left,disp);
+         calc_radial(st,st->right,-disp);
+         */
+        calc_stimulus(st);
+        if(frame > 5){
+            st->left->show_increment = 1;
+            st->right->show_increment = 1;
+        }
+        else{
+            st->left->show_increment = 0;
+            st->right->show_increment = 0;
+        }
+        
+        for(i = 0; i < nrpt; i++){
+            setmask(LEFTMODE);
+            paint_radial(st->left,st->left->mode,0);
+            setmask(RIGHTMODE);
+            paint_radial(st->right,st->right->mode,0);
+            change_frame();
+        }
+        for(i = 0; i < nrpt; i++){
+            setmask(LEFTMODE);
+            paint_radial(st->right,st->left->mode,0);
+            setmask(RIGHTMODE);
+            paint_radial(st->left,st->right->mode,0);
+            change_frame();
+        }
+        if(!(mode & ANIMATE_BIT))
+            return;
     }
-    else{
-      st->left->show_increment = 0;
-      st->right->show_increment = 0;
-    }
-      
-    for(i = 0; i < nrpt; i++){
-      setmask(LEFTMODE);
-      paint_radial(st->left,st->left->mode,0);
-      setmask(RIGHTMODE);
-      paint_radial(st->right,st->right->mode,0);
-      change_frame();
-    }
-    for(i = 0; i < nrpt; i++){
-      setmask(LEFTMODE);
-      paint_radial(st->right,st->left->mode,0);
-      setmask(RIGHTMODE);
-      paint_radial(st->left,st->right->mode,0);
-      change_frame();
-    }
-    if(!(mode & ANIMATE_BIT))
-      return;
-  }
-  printf("Radial test\n");
-
+    printf("Radial test\n");
+    
 }
 
 void run_gabor_test_loop()
 {
-  int i,j,fw,fh,ival,frame = 0,w,h;
-  int d,*end;
-  vcoord *x,*y,xp[2],dw,dh;
-  Locator *pos = &TheStim->pos;
-  char cbuf[BUFSIZ];
-  Stimulus *st = TheStim;
-  int shift = pos->xy[1];
-  float vcolor[4],fixw;
-  Substim *gb = TheStim->left;
-  Substim *sst = TheStim->left;
-  float val,angle;
-  vcoord rect[8],crect[4];
-  double sina,cosa;
-  char c;
-  GLubyte *im1,*im2,*p,col;
-  int ndots = 0,nframes = 72;
-  int *iy;
-  double *ax,*ay,xv,*pd,sd,s;
-
-  w = (int)(2 *pos->radius[0]);
-  h = (int)(2 * pos->radius[0]);
-
-  setmask(ALLPLANES);
-  im1 = (GLubyte *)malloc(w * h * sizeof(GLubyte));
-  im2 = (GLubyte *)malloc(w * h * sizeof(GLubyte));
-  ax = (double *)malloc((w + nframes) * sizeof(double));
-  ay = (double *)malloc((h+nframes) * sizeof(double));
-  iy = (int *)malloc((h+nframes) * sizeof(int));
-  sd = StimulusProperty(TheStim,SD_X);
-  for(i = 0; i < w+nframes; i++){
-    s = sin(2 * M_PI * i/deg2pix(1/st->f))/2 ;
-    ax[i] = s * exp(sqr(pos->radius[0]-i)/(-2*sqr(deg2pix(sd))));
-  }
-  
-  sd = StimulusProperty(TheStim,SD_Y);
-  for(i = 0; i < h+nframes; i++){
-    ay[i] = exp(sqr(pos->radius[0]-i)/(-2*sqr(deg2pix(sd))));
-    iy[i] = (int)(255 * ay[i]);
-  }
-
-
+    int i,j,fw,fh,ival,frame = 0,w,h;
+    int d,*end;
+    vcoord *x,*y,xp[2],dw,dh;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    Stimulus *st = TheStim;
+    int shift = pos->xy[1];
+    float vcolor[4],fixw;
+    Substim *gb = TheStim->left;
+    Substim *sst = TheStim->left;
+    float val,angle;
+    vcoord rect[8],crect[4];
+    double sina,cosa;
+    char c;
+    GLubyte *im1,*im2,*p,col;
+    int ndots = 0,nframes = 72;
+    int *iy;
+    double *ax,*ay,xv,*pd,sd,s;
+    
+    w = (int)(2 *pos->radius[0]);
+    h = (int)(2 * pos->radius[0]);
+    
+    setmask(ALLPLANES);
+    im1 = (GLubyte *)malloc(w * h * sizeof(GLubyte));
+    im2 = (GLubyte *)malloc(w * h * sizeof(GLubyte));
+    ax = (double *)malloc((w + nframes) * sizeof(double));
+    ay = (double *)malloc((h+nframes) * sizeof(double));
+    iy = (int *)malloc((h+nframes) * sizeof(int));
+    sd = StimulusProperty(TheStim,SD_X);
+    for(i = 0; i < w+nframes; i++){
+        s = sin(2 * M_PI * i/deg2pix(1/st->f))/2 ;
+        ax[i] = s * exp(sqr(pos->radius[0]-i)/(-2*sqr(deg2pix(sd))));
+    }
+    
+    sd = StimulusProperty(TheStim,SD_Y);
+    for(i = 0; i < h+nframes; i++){
+        ay[i] = exp(sqr(pos->radius[0]-i)/(-2*sqr(deg2pix(sd))));
+        iy[i] = (int)(255 * ay[i]);
+    }
+    
+    
     p = im1;
     for(i = 0; i < w; i++){
-      col = 255 * ax[i];
-      for(j = 0; j < h; j++){
-	*p++ = (GLubyte)(col);
-      }
+        col = 255 * ax[i];
+        for(j = 0; j < h; j++){
+            *p++ = (GLubyte)(col);
+        }
     }
-  p = im1;
-
-  gettimeofday(&timeb,NULL);
-  ndots = w;
-  glDrawBuffer(GL_BACK);
-  glRasterPos2i(-w/2,-h/2);
-  if(optionflag & WURTZ_WHOLE_STIMULI){
-    ndots = w * h;
-    for(frame = 0; frame < nframes; frame++)
-	{
-	  p = im1;
-	  for(i = 0; i < w; i++){
-	    xv = ax[i+frame] * 255;
-	  for(j = 0; j < h; j++){
-	    *p++ = (GLubyte)(127 + (ay[j] * xv));
-	  }
-	  }
-	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-//AliGLX	  mySwapBuffers();
-	}
-  }
-  else if(option2flag & FLASH_BIT){
+    p = im1;
+    
+    gettimeofday(&timeb,NULL);
     ndots = w;
-    col = frame * 3;
-    for(frame = 0; frame < nframes; frame++)
-	{
-	  p = im1;
-	  for(i = 0; i < w; i++){
-	    col = frame;
-	    for(j = 0; j < h; j++){
-	      *p++ = (GLubyte)(col);
-	    }
-	  }
-	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-	  glFlushRenderAPPLE();
-//AliGLX	  mySwapBuffers();
-	}
-  }
-  else if(option2flag & RANDOM){
-    ndots = w;
-    col = frame * 3;
-    for(frame = 0; frame < nframes; frame++)
-	{
-	  if(frame & 1)
-	    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-	  else
-	    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im2);
-	  glFlushRenderAPPLE();
-//AliGLX	  mySwapBuffers();
-	}
-  }
-  else if(optionflags[PAINT_BACKGROUND]){
-    /* Just calculate, no rendering */
-    ndots = w * h;
-    for(frame = 0; frame < nframes; frame++)
-	{
-	  col = frame;
-	  p = im1;
-	  for(i = 0; i < w; i++){
-	    xv = ax[i+frame] * 255;
+    glDrawBuffer(GL_BACK);
+    glRasterPos2i(-w/2,-h/2);
+    if(optionflag & WURTZ_WHOLE_STIMULI){
+        ndots = w * h;
+        for(frame = 0; frame < nframes; frame++)
+        {
+            p = im1;
+            for(i = 0; i < w; i++){
+                xv = ax[i+frame] * 255;
+                for(j = 0; j < h; j++){
+                    *p++ = (GLubyte)(127 + (ay[j] * xv));
+                }
+            }
+            glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
+            //AliGLX	  mySwapBuffers();
+        }
+    }
+    else if(option2flag & FLASH_BIT){
+        ndots = w;
+        col = frame * 3;
+        for(frame = 0; frame < nframes; frame++)
+        {
+            p = im1;
+            for(i = 0; i < w; i++){
+                col = frame;
+                for(j = 0; j < h; j++){
+                    *p++ = (GLubyte)(col);
+                }
+            }
+            glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
+            glFlushRenderAPPLE();
+            //AliGLX	  mySwapBuffers();
+        }
+    }
+    else if(option2flag & RANDOM){
+        ndots = w;
+        col = frame * 3;
+        for(frame = 0; frame < nframes; frame++)
+        {
+            if(frame & 1)
+                glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
+            else
+                glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im2);
+            glFlushRenderAPPLE();
+            //AliGLX	  mySwapBuffers();
+        }
+    }
+    else if(optionflags[PAINT_BACKGROUND]){
+        /* Just calculate, no rendering */
+        ndots = w * h;
+        for(frame = 0; frame < nframes; frame++)
+        {
+            col = frame;
+            p = im1;
+            for(i = 0; i < w; i++){
+                xv = ax[i+frame] * 255;
 	    	    p = &im1[i*h];
-		    pd = ay;
-	  for(j = 0; j < h; j++){
-//	    *p++ = (GLubyte)(*ay + xv);
-//	    *p++ = (GLubyte)(ay[j] * xv);
-//	    *p++ = (GLubyte)(ay[j] + xv);
-	    p[j] = 0.5 + ay[j] * xv;
-	  }
-	  }
-	}
-  }
-  else{
-    ndots = w;
-    for(frame = 0; frame < nframes; frame++)
-	{
-	  p = im1;
-	  for(i = 0; i < w; i++){
-	    col = 255 * fabs(sin((double)(i+frame)/10));
-	    for(j = 0; j < h; j++){
-	      *p++ = (GLubyte)(col);
-	  }
-	  }
-	  glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
-	  glFlushRenderAPPLE();
-//AliGLX	  mySwapBuffers();
-	}
-  }
-      gettimeofday(&now,NULL);
-      val = timediff(&now,&timeb);
-      sprintf(mssg,"B%d dots(%dx%d) * 72 = %.3f seconds",ndots,w,h,val);
-      statusline(mssg);
-      free(im2);
-      free(im1);
-      free(ax);
-      free(ay);
+                pd = ay;
+                for(j = 0; j < h; j++){
+                    //	    *p++ = (GLubyte)(*ay + xv);
+                    //	    *p++ = (GLubyte)(ay[j] * xv);
+                    //	    *p++ = (GLubyte)(ay[j] + xv);
+                    p[j] = 0.5 + ay[j] * xv;
+                }
+            }
+        }
+    }
+    else{
+        ndots = w;
+        for(frame = 0; frame < nframes; frame++)
+        {
+            p = im1;
+            for(i = 0; i < w; i++){
+                col = 255 * fabs(sin((double)(i+frame)/10));
+                for(j = 0; j < h; j++){
+                    *p++ = (GLubyte)(col);
+                }
+            }
+            glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
+            glFlushRenderAPPLE();
+            //AliGLX	  mySwapBuffers();
+        }
+    }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&timeb);
+    sprintf(mssg,"B%d dots(%dx%d) * 72 = %.3f seconds",ndots,w,h,val);
+    statusline(mssg);
+    free(im2);
+    free(im1);
+    free(ax);
+    free(ay);
 }
 
 void run_anticorrelated_test_loop()
 {
-  int i,j;
-  Locator *pos = &TheStim->pos;
-  char cbuf[BUFSIZ];
-  Stimulus *st;
-  int shift = pos->xy[1];
-
-      st = TheStim;
-      setmask(ALLPLANES);
-      glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
-      glClear(GL_COLOR_BUFFER_BIT);
-      glPushMatrix();
-      glTranslatef(-shift,0,0);
-      st->flag &= (~ANTICORRELATE);
-      calc_stimulus(TheStim);
-       if(st->next != NULL && st->next->type == STIM_RDS)
-	 {
-	   st->next->flag &= (~ANTICORRELATE);
-	   calc_stimulus(TheStim);
-	   paint_rds(st->next,st->right->mode);
-	 }
-        paint_rds(st,st->right->mode);
+    int i,j;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    Stimulus *st;
+    int shift = pos->xy[1];
+    
+    st = TheStim;
+    setmask(ALLPLANES);
+    glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPushMatrix();
+    glTranslatef(-shift,0,0);
+    st->flag &= (~ANTICORRELATE);
+    calc_stimulus(TheStim);
+    if(st->next != NULL && st->next->type == STIM_RDS)
+    {
+        st->next->flag &= (~ANTICORRELATE);
+        calc_stimulus(TheStim);
+        paint_rds(st->next,st->right->mode);
+    }
+    paint_rds(st,st->right->mode);
 	glTranslatef(shift,0,0);
 	if(st->next != NULL && st->next->type == STIM_RDS)
-	  paint_rds(st->next,st->left->mode);
-        paint_rds(st,st->left->mode);
-
-      glTranslatef(shift,0,0);
-      st->flag |= ANTICORRELATE;
-      calc_stimulus(TheStim);
-       if(st->next != NULL && st->next->type == STIM_RDS)
-	 {
-	   st->next->flag |= ANTICORRELATE;
-	   calc_stimulus(TheStim);
+        paint_rds(st->next,st->left->mode);
+    paint_rds(st,st->left->mode);
+    
+    glTranslatef(shift,0,0);
+    st->flag |= ANTICORRELATE;
+    calc_stimulus(TheStim);
+    if(st->next != NULL && st->next->type == STIM_RDS)
+    {
+        st->next->flag |= ANTICORRELATE;
+        calc_stimulus(TheStim);
         paint_rds(st->next,st->right->mode);
-	 }
-        paint_rds(st,st->right->mode);
-
+    }
+    paint_rds(st,st->right->mode);
+    
 	setmask(BOTHMODE);
 	st->pos.lastxy[0] = st->pos.xy[0];
 	st->pos.lastxy[1] = st->pos.xy[1];
@@ -7434,78 +7434,78 @@ void run_anticorrelated_test_loop()
 	glPopMatrix();
 	glFlushRenderAPPLE();
 	glFinishRenderAPPLE();
-//AliGLX	mySwapBuffers();
+    //AliGLX	mySwapBuffers();
 }
 
 void run_general_test_loop()
 {
-  int i,j;
-  Locator *pos = &TheStim->pos;
-  char cbuf[BUFSIZ];
-
-      calc_stimulus(TheStim);
-   gettimeofday(&zeroframetime, NULL);
-  for(i = 0; i < TheStim->nframes; i++)
+    int i,j;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    
+    calc_stimulus(TheStim);
+    gettimeofday(&zeroframetime, NULL);
+    for(i = 0; i < TheStim->nframes; i++)
     {
-      paint_stimulus(TheStim);
-      pos->phase += TheStim->incr;
-      calc_stimulus(TheStim);
+        paint_stimulus(TheStim);
+        pos->phase += TheStim->incr;
+        calc_stimulus(TheStim);
         change_frame();
-//AliGLX      mySwapBuffers();
-      }
-  j = getframecount();
-  sprintf(cbuf,"Took %d real frames",j);
-  statusline(cbuf);
-   gettimeofday(&zeroframetime, NULL);
-   setmask(bothmask);
-  for(i = 0; i < TheStim->nframes; i++)
+        //AliGLX      mySwapBuffers();
+    }
+    j = getframecount();
+    sprintf(cbuf,"Took %d real frames",j);
+    statusline(cbuf);
+    gettimeofday(&zeroframetime, NULL);
+    setmask(bothmask);
+    for(i = 0; i < TheStim->nframes; i++)
     {
-      glClear(GL_COLOR_BUFFER_BIT);
-      paint_stimulus(TheStim);
-      pos->phase += TheStim->incr;
-      calc_stimulus(TheStim);
-//AliGLX      mySwapBuffers();
-      }
-  i = getframecount();
-  sprintf(cbuf,"Took %d,%d real frames",j,i);
-  statusline(cbuf);
+        glClear(GL_COLOR_BUFFER_BIT);
+        paint_stimulus(TheStim);
+        pos->phase += TheStim->incr;
+        calc_stimulus(TheStim);
+        //AliGLX      mySwapBuffers();
+    }
+    i = getframecount();
+    sprintf(cbuf,"Took %d,%d real frames",j,i);
+    statusline(cbuf);
 }
 
 void run_swap_test_loop()
 {
-  int i,j;
-  Locator *pos = &TheStim->pos;
-  char cbuf[BUFSIZ];
-
-  calc_stimulus(TheStim);
-  gettimeofday(&zeroframetime, NULL);
-  for(i = 0; i < TheStim->nframes; i++)
+    int i,j;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    
+    calc_stimulus(TheStim);
+    gettimeofday(&zeroframetime, NULL);
+    for(i = 0; i < TheStim->nframes; i++)
     {
-      wipescreen(clearcolor);
-      draw_fix(fixpos[0],fixpos[1],expt.st->fix.size,expt.st->fix.fixcolor);
-      change_frame();
-      /*
-      —glFlushRenderAPPLE();
-      glFinishRenderAPPLE();
-      mySwapBuffers();
-      */
+        wipescreen(clearcolor);
+        draw_fix(fixpos[0],fixpos[1],expt.st->fix.size,expt.st->fix.fixcolor);
+        change_frame();
+        /*
+         —glFlushRenderAPPLE();
+         glFinishRenderAPPLE();
+         mySwapBuffers();
+         */
     }
-  gettimeofday(&now, NULL);
-  j = getframecount();
-  sprintf(cbuf,"Took %d real frames %.3f sec",j,timediff(&now,&zeroframetime));
-  statusline(cbuf);
+    gettimeofday(&now, NULL);
+    j = getframecount();
+    sprintf(cbuf,"Took %d real frames %.3f sec",j,timediff(&now,&zeroframetime));
+    statusline(cbuf);
 }
 
 
 void fsleep(float f)
 {
 	struct timeval start,stop;
-
+    
 	gettimeofday(&start,NULL);
 	gettimeofday(&stop,NULL);
 	while(timediff(&stop,&start) < f)
 		gettimeofday(&stop,NULL);
-
+    
 }
 
 
@@ -7519,866 +7519,866 @@ float StimulusProperty(Stimulus *st, int code)
 	double cosa,sina;
 	OneStim *psine;
 	Substim *rds;
-
+    
 	rds = st->left;
 	switch(code)
 	{
-	  case BLACKDOT_FRACTION:
-	  value = st->dotfrac;
-	  break;
-	  case MIXAC:
-	  value = st->corrmix;
-	  break;
-	case STIMULUS_VERSION:
-	  value = st->stimversion;
-	  break;
-	case DOTREPEAT:
-	  value = st->dotrpt;
-	  break;
-	case MODULATION_F:
-	  if(optionflags[MODULATE_DISPARITY] == 2)
-	    value = -st->vals[code];
-	  else
-	    value = st->vals[code];
-	  break;
-	case NHIGHCOMPONENTS:
-	case NLOWCOMPONENTS:
-	case NCOMPONENTS:
-	  value = st->nfreqs;
-	  break;
-	case START_PHASE:
-	  value = st->vals[code];
-	  break;
-/*
- * N.B. the usual rotation equations are not quite applicable because
- * of the way theta is defined. When theta = 0, orhtogonal disparity
- * is vertical, not horizontal.
- * When theta = 90 (vertical), wanted othog disp to have same sign
- * as x disp. So:
- * x = O sina + P cosa
- * y = P sina - O cosa.
- * Hence P = y sina + x cosa, and O = x sina - y cosa;
- */
-	case VSR:
-	  value = expt.vals[VSR];
-	  break;
-	case PARALELL_DISP:
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  x = StimulusProperty(st,DISP_X);
-	  y = StimulusProperty(st,DISP_Y);
-	  value = y * sina + x * cosa;
-	  break;
-	case ORTHOG_DISP:
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  x = StimulusProperty(st,DISP_X);
-	  y = StimulusProperty(st,DISP_Y);
-	  value = x * sina -  y * cosa;
-	  break;
-	case ORTHOG_POS:
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
-	  y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
-	  value = x * sina +  y * cosa;
-	  break;
-	case ABS_ORTHOG_POS:
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  x =  -StimulusProperty(st,XPOS);
-	  y = StimulusProperty(st,YPOS);
-	  value = x * sina +  y * cosa;
-	  break;
-	case STIMORTHOG_POS:
-	  x = StimulusProperty(st,ASPECT_RATIO);
-	  if(x > 1){
-	  cosa = cos(expt.st->pos.angle);
-	  sina = sin(expt.st->pos.angle);
-	  }
-	  else{
-	  cosa = cos(expt.st->pos.angle-M_PI_2);
-	  sina = sin(expt.st->pos.angle-M_PI_2);
-	  }
-	  x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
-	  y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
-	  value = x * sina +  y * cosa;
-	  break;
-	case ORTHOG_POSL:
-	  value = StimulusProperty(st,ORTHOG_POS) - StimulusProperty(st,ORTHOG_DISP)/2;
-	  break;
-	case ORTHOG_POSR:
-	  value = StimulusProperty(st,ORTHOG_POS) + StimulusProperty(st,ORTHOG_DISP)/2;
-	  break;
-	case PARA_POS:
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
-	  y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
-	  value = y * sina - x * cosa;
-	  break;
-	case ABS_PARA_POS:
-	  cosa = cos(expt.rf->angle * M_PI/180.0);
-	  sina = sin(expt.rf->angle * M_PI/180.0);
-	  x =  -StimulusProperty(st,XPOS);
-	  y = StimulusProperty(st,YPOS);
-	  value = y * sina -  x * cosa;
-	  break;
-	case FRAMEREPEAT:
-	  value = (float)(st->framerepeat);
-	  break;
-	case STIM_POLARANGLE:
-	  value = get_polarangle(pos->xy[0], pos->xy[1]);
-	  if(st->type == STIM_RADIAL){
-	    value = rad_deg(st->left->wedge_angle);
-	    value = rad_deg(st->right->wedge_angle);
-	  }
-	  break;	
-	case STIM_ECCENTRICITY:
-	  if(st->type == STIM_TWOBAR)
-	    value = pix2deg(sqrt(sqr(pos->xy[0]) + sqr(pos->xy[1]) + sqr(pos->barsep/2)));
-	  else
-	    value = pix2deg(sqrt(sqr(pos->xy[0]) + sqr(pos->xy[1])));
-	  break;	
-	case TWOBAR_SEP:
-	  value = pix2deg(pos->barsep);
-	  break;
-	case TWOBAR_ANGSEP:
-	  if(st->type == STIM_TWOBAR)
-	    value = 2 * atan((pos->barsep/2) / sqrt(sqr(pos->xy[0]) + sqr(pos->xy[1]))) * (180 / M_PI);
-	  else
-	    value = pix2deg(pos->barsep);
-	  break;
-	case STIMULUS_TYPE_CODE:
-	  value = st->type;
-	  break;
-	case BACKSTIM_TYPE:
-	  value = st->next->type;
-	  break;
-	case CORRELATION:
-	  if(st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG || st->type == STIM_RDSSINE || st->type == STIM_RLSSINE ||
-	     st->type == STIM_GRATINGN || st->type == STIM_CHECKER){
-	    if(st->flag & UNCORRELATE)
-	      value = 0;
-	    else if(st->flag & ANTICORRELATE)
-	      value = fabs(st->correlation) * -1;
-	    else
-	      value = st->correlation;
-	  }
-	  else if(st->type == STIM_GRATING && st->flag & UNCORRELATE)
-	    value = 0;
-	  else if(st->type == STIM_IMAGE && st->flag & UNCORRELATE)
-	    value = 0;
-	  else
-	    value = 1.0;
-	  break;
-	case BACK_CORRELATION:
-	  if(st->next){
-	  if(st->next->flag & ANTICORRELATE)
-	    value = -1;
-	  else if(st->next->flag &  UNCORRELATE)
-	    value = 0;
-	  else
-	    value = 1;
-	  }
-	  else
-	    value = 0;
-	  break;
-	case GAMMAVAL_CODE:
-	  value = gammaval;
-	  break;
-	case STANDING_DISP:
-	  if(st->type == STIM_CYLINDER)
-	    value = pix2deg(st->left->ptr->standing_disp) * 2;
-	    break;
-	case JDEATH:
-	    value = st->left->ptr->deathchance;
-	    break;
-	case FRAME_DISPLACEMENT:
-	  value = pix2deg(st->posinc);
-	    break;
-	case JVELOCITY:
-	  if(st->type == STIM_CYLINDER)
-	    value = (st->left->ptr->velocity * mon.framerate * 180/M_PI);
-	  else if(st->type == STIM_RDS || st->type == STIM_RLS){
-	    value = pix2deg(st->posinc * mon.framerate);
-	  }
-	  else if(st->type == STIM_GRATING){
-	    value = StimulusProperty(st,TF)/pos->sf;
-	  }
-	  else if(st->type == STIM_BAR){
-	    value = pix2deg(st->posinc * mon.framerate);
-	  }
-	    break;
-	case JF_INTENSITY:
-	  if(st->type == STIM_CYLINDER)
-	    value = st->left->ptr->front_intensity;
-	  break;
-	case JB_INTENSITY:
-	  if(st->type == STIM_CYLINDER)
-	    value = st->left->ptr->back_intensity;
-	     break;
-	case JNUMDOTS:
-	  if(st->type == STIM_CYLINDER)
-	    value = stimptr->left->ptr->numdots;
-	    break;
-	case JLIFEFRAMES:
-	  value = stimptr->left->ptr->lifeframes;
-	    break;
-	case GOODTRIALS:
-	  value = goodtrials;
-	  break;
-	case BADTRIALS:
-	  value = totaltrials - goodtrials;
-	  break;
-	case DEG2PIX:
-	  value = 512/pix2deg(512);
-	  break;
-	case RF_WIDTH:
-	  value = pix2deg(expt.rf->size[1]);
-	  break;
-	case RF_HEIGHT:
-	value = pix2deg(expt.rf->size[0]);
-	break;
-	case RF_X:
-	value = pix2deg(expt.rf->pos[0]);
-	break;
-	case RF_Y:
-	value = pix2deg(expt.rf->pos[1]);
-	break;
-	case RF_ANGLE:
-	value = (expt.rf->angle);
-	break;
-	case SWAPINTERVAL:
-	  value = TheStim->swapinterval;
-	  break;
-	case XMINSAMPLE_RATIO:
-	  value = st->sample_ratio[0];
-	  break;
-	case XMAXSAMPLE_RATIO:
-	  value = st->sample_ratio[1];
-	  break;
-	case ASPECT_RATIO:
-	  value = pix2deg(pos->imsize[0])/pix2deg(pos->imsize[1]);
-	  break;
-	case STIM_SIZE:
-	  if(pos->imsize[0] == pos->imsize[1])
-		value = pix2deg(pos->imsize[0]);
-	  else
-	    value = 2 * pix2deg(sqrt(pos->radius[1] * pos->radius[0]));
-	  if(st->type == STIM_IMAGE){
-	    value = sqrt((pix2deg(pos->imsize[0]) * pix2deg(pos->imsize[1])));
-	  }
-	  if(st->type == STIM_RADIAL){
-	    value = sqrt((pix2deg(pos->size[0]) * pix2deg(pos->size[1])));
-	  }
-	  break;
-	case STIM_WIDTH:
-		value = pix2deg(pos->imsize[1]);
-		value = pix2deg(2 * pos->radius[1]);
-		if(st->type == STIM_RADIAL){
-		  value = pix2deg(pos->size[1]);
-		}
-		if(st->type == STIM_IMAGE){
-		  value = pix2deg(pos->imsize[1]);
-		}
-		break;
-	case STIM_HEIGHT:
-		value = pix2deg(pos->imsize[0]);
-		value = st->length;
-		if(st->type == STIM_RADIAL){
-		  value = pix2deg(pos->size[0]);
-		}
-		if(st->type == STIM_IMAGE){
-		  value = pix2deg(pos->imsize[0]);
-		}
-		break;
-	case ORIENTATION:
-		value = pos->angle * 180.0/M_PI;
-		break;
-	case ORI_BANDWIDTH:
-		value = (st->left->orbw + st->right->orbw)/2;
-		break;
-	case BACK_ORI:
-	  if(st->next)
-		value = st->next->pos.angle * 180.0/M_PI;
-		break;
-	case BACK_TF:
-	  if(st->next)
-		value = mon.framerate * st->next->incr/(M_PI * 2);
-		break;
-	case ORI_LEFT:
-		value = (pos->angle-st->ori_disp) * 180.0/M_PI;
-		break;
-	case ORI_RIGHT:
-		value = (pos->angle +st->ori_disp) * 180.0/M_PI;
-		break;
-	case SF_LEFT:
-		value = (st->f + st->sf_disp);
-		break;
-	case SF_RIGHT:
-		value = (st->f - st->sf_disp);
-		break;
-	case STIM_PERIOD:
+        case BLACKDOT_FRACTION:
+            value = st->dotfrac;
+            break;
+        case MIXAC:
+            value = st->corrmix;
+            break;
+        case STIMULUS_VERSION:
+            value = st->stimversion;
+            break;
+        case DOTREPEAT:
+            value = st->dotrpt;
+            break;
+        case MODULATION_F:
+            if(optionflags[MODULATE_DISPARITY] == 2)
+                value = -st->vals[code];
+            else
+                value = st->vals[code];
+            break;
+        case NHIGHCOMPONENTS:
+        case NLOWCOMPONENTS:
+        case NCOMPONENTS:
+            value = st->nfreqs;
+            break;
+        case START_PHASE:
+            value = st->vals[code];
+            break;
+            /*
+             * N.B. the usual rotation equations are not quite applicable because
+             * of the way theta is defined. When theta = 0, orhtogonal disparity
+             * is vertical, not horizontal.
+             * When theta = 90 (vertical), wanted othog disp to have same sign
+             * as x disp. So:
+             * x = O sina + P cosa
+             * y = P sina - O cosa.
+             * Hence P = y sina + x cosa, and O = x sina - y cosa;
+             */
+        case VSR:
+            value = expt.vals[VSR];
+            break;
+        case PARALELL_DISP:
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            x = StimulusProperty(st,DISP_X);
+            y = StimulusProperty(st,DISP_Y);
+            value = y * sina + x * cosa;
+            break;
+        case ORTHOG_DISP:
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            x = StimulusProperty(st,DISP_X);
+            y = StimulusProperty(st,DISP_Y);
+            value = x * sina -  y * cosa;
+            break;
+        case ORTHOG_POS:
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
+            y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
+            value = x * sina +  y * cosa;
+            break;
+        case ABS_ORTHOG_POS:
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            x =  -StimulusProperty(st,XPOS);
+            y = StimulusProperty(st,YPOS);
+            value = x * sina +  y * cosa;
+            break;
+        case STIMORTHOG_POS:
+            x = StimulusProperty(st,ASPECT_RATIO);
+            if(x > 1){
+                cosa = cos(expt.st->pos.angle);
+                sina = sin(expt.st->pos.angle);
+            }
+            else{
+                cosa = cos(expt.st->pos.angle-M_PI_2);
+                sina = sin(expt.st->pos.angle-M_PI_2);
+            }
+            x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
+            y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
+            value = x * sina +  y * cosa;
+            break;
+        case ORTHOG_POSL:
+            value = StimulusProperty(st,ORTHOG_POS) - StimulusProperty(st,ORTHOG_DISP)/2;
+            break;
+        case ORTHOG_POSR:
+            value = StimulusProperty(st,ORTHOG_POS) + StimulusProperty(st,ORTHOG_DISP)/2;
+            break;
+        case PARA_POS:
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            x = pix2deg(expt.rf->pos[0]) - StimulusProperty(st,XPOS);
+            y = StimulusProperty(st,YPOS) - pix2deg(expt.rf->pos[1]);
+            value = y * sina - x * cosa;
+            break;
+        case ABS_PARA_POS:
+            cosa = cos(expt.rf->angle * M_PI/180.0);
+            sina = sin(expt.rf->angle * M_PI/180.0);
+            x =  -StimulusProperty(st,XPOS);
+            y = StimulusProperty(st,YPOS);
+            value = y * sina -  x * cosa;
+            break;
+        case FRAMEREPEAT:
+            value = (float)(st->framerepeat);
+            break;
+        case STIM_POLARANGLE:
+            value = get_polarangle(pos->xy[0], pos->xy[1]);
+            if(st->type == STIM_RADIAL){
+                value = rad_deg(st->left->wedge_angle);
+                value = rad_deg(st->right->wedge_angle);
+            }
+            break;	
+        case STIM_ECCENTRICITY:
+            if(st->type == STIM_TWOBAR)
+                value = pix2deg(sqrt(sqr(pos->xy[0]) + sqr(pos->xy[1]) + sqr(pos->barsep/2)));
+            else
+                value = pix2deg(sqrt(sqr(pos->xy[0]) + sqr(pos->xy[1])));
+            break;	
+        case TWOBAR_SEP:
+            value = pix2deg(pos->barsep);
+            break;
+        case TWOBAR_ANGSEP:
+            if(st->type == STIM_TWOBAR)
+                value = 2 * atan((pos->barsep/2) / sqrt(sqr(pos->xy[0]) + sqr(pos->xy[1]))) * (180 / M_PI);
+            else
+                value = pix2deg(pos->barsep);
+            break;
+        case STIMULUS_TYPE_CODE:
+            value = st->type;
+            break;
+        case BACKSTIM_TYPE:
+            value = st->next->type;
+            break;
+        case CORRELATION:
+            if(st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG || st->type == STIM_RDSSINE || st->type == STIM_RLSSINE ||
+               st->type == STIM_GRATINGN || st->type == STIM_CHECKER){
+                if(st->flag & UNCORRELATE)
+                    value = 0;
+                else if(st->flag & ANTICORRELATE)
+                    value = fabs(st->correlation) * -1;
+                else
+                    value = st->correlation;
+            }
+            else if(st->type == STIM_GRATING && st->flag & UNCORRELATE)
+                value = 0;
+            else if(st->type == STIM_IMAGE && st->flag & UNCORRELATE)
+                value = 0;
+            else
+                value = 1.0;
+            break;
+        case BACK_CORRELATION:
+            if(st->next){
+                if(st->next->flag & ANTICORRELATE)
+                    value = -1;
+                else if(st->next->flag &  UNCORRELATE)
+                    value = 0;
+                else
+                    value = 1;
+            }
+            else
+                value = 0;
+            break;
+        case GAMMAVAL_CODE:
+            value = gammaval;
+            break;
+        case STANDING_DISP:
+            if(st->type == STIM_CYLINDER)
+                value = pix2deg(st->left->ptr->standing_disp) * 2;
+            break;
+        case JDEATH:
+            value = st->left->ptr->deathchance;
+            break;
+        case FRAME_DISPLACEMENT:
+            value = pix2deg(st->posinc);
+            break;
+        case JVELOCITY:
+            if(st->type == STIM_CYLINDER)
+                value = (st->left->ptr->velocity * mon.framerate * 180/M_PI);
+            else if(st->type == STIM_RDS || st->type == STIM_RLS){
+                value = pix2deg(st->posinc * mon.framerate);
+            }
+            else if(st->type == STIM_GRATING){
+                value = StimulusProperty(st,TF)/pos->sf;
+            }
+            else if(st->type == STIM_BAR){
+                value = pix2deg(st->posinc * mon.framerate);
+            }
+            break;
+        case JF_INTENSITY:
+            if(st->type == STIM_CYLINDER)
+                value = st->left->ptr->front_intensity;
+            break;
+        case JB_INTENSITY:
+            if(st->type == STIM_CYLINDER)
+                value = st->left->ptr->back_intensity;
+            break;
+        case JNUMDOTS:
+            if(st->type == STIM_CYLINDER)
+                value = stimptr->left->ptr->numdots;
+            break;
+        case JLIFEFRAMES:
+            value = stimptr->left->ptr->lifeframes;
+            break;
+        case GOODTRIALS:
+            value = goodtrials;
+            break;
+        case BADTRIALS:
+            value = totaltrials - goodtrials;
+            break;
+        case DEG2PIX:
+            value = 512/pix2deg(512);
+            break;
+        case RF_WIDTH:
+            value = pix2deg(expt.rf->size[1]);
+            break;
+        case RF_HEIGHT:
+            value = pix2deg(expt.rf->size[0]);
+            break;
+        case RF_X:
+            value = pix2deg(expt.rf->pos[0]);
+            break;
+        case RF_Y:
+            value = pix2deg(expt.rf->pos[1]);
+            break;
+        case RF_ANGLE:
+            value = (expt.rf->angle);
+            break;
+        case SWAPINTERVAL:
+            value = TheStim->swapinterval;
+            break;
+        case XMINSAMPLE_RATIO:
+            value = st->sample_ratio[0];
+            break;
+        case XMAXSAMPLE_RATIO:
+            value = st->sample_ratio[1];
+            break;
+        case ASPECT_RATIO:
+            value = pix2deg(pos->imsize[0])/pix2deg(pos->imsize[1]);
+            break;
+        case STIM_SIZE:
+            if(pos->imsize[0] == pos->imsize[1])
+                value = pix2deg(pos->imsize[0]);
+            else
+                value = 2 * pix2deg(sqrt(pos->radius[1] * pos->radius[0]));
+            if(st->type == STIM_IMAGE){
+                value = sqrt((pix2deg(pos->imsize[0]) * pix2deg(pos->imsize[1])));
+            }
+            if(st->type == STIM_RADIAL){
+                value = sqrt((pix2deg(pos->size[0]) * pix2deg(pos->size[1])));
+            }
+            break;
+        case STIM_WIDTH:
+            value = pix2deg(pos->imsize[1]);
+            value = pix2deg(2 * pos->radius[1]);
+            if(st->type == STIM_RADIAL){
+                value = pix2deg(pos->size[1]);
+            }
+            if(st->type == STIM_IMAGE){
+                value = pix2deg(pos->imsize[1]);
+            }
+            break;
+        case STIM_HEIGHT:
+            value = pix2deg(pos->imsize[0]);
+            value = st->length;
+            if(st->type == STIM_RADIAL){
+                value = pix2deg(pos->size[0]);
+            }
+            if(st->type == STIM_IMAGE){
+                value = pix2deg(pos->imsize[0]);
+            }
+            break;
+        case ORIENTATION:
+            value = pos->angle * 180.0/M_PI;
+            break;
+        case ORI_BANDWIDTH:
+            value = (st->left->orbw + st->right->orbw)/2;
+            break;
+        case BACK_ORI:
+            if(st->next)
+                value = st->next->pos.angle * 180.0/M_PI;
+            break;
+        case BACK_TF:
+            if(st->next)
+                value = mon.framerate * st->next->incr/(M_PI * 2);
+            break;
+        case ORI_LEFT:
+            value = (pos->angle-st->ori_disp) * 180.0/M_PI;
+            break;
+        case ORI_RIGHT:
+            value = (pos->angle +st->ori_disp) * 180.0/M_PI;
+            break;
+        case SF_LEFT:
+            value = (st->f + st->sf_disp);
+            break;
+        case SF_RIGHT:
+            value = (st->f - st->sf_disp);
+            break;
+        case STIM_PERIOD:
 	        value = 1/st->f;
-		break;
-	case SF:
-		value = st->f;
-		break;
-	case SF2:
-	  if(st->type == STIM_GRATING2 || st->type == STIM_GRATINGN)
-	    {
-		value = st->left->ptr->sf2;
-	      }
-	  else
-	    value = 0.0;
-		break;
-	case TF2:
-	  if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL)
-	    {
-	      psine = (OneStim *)(st->left->ptr);
-		value = mon.framerate * psine->incr/(M_PI * 2);
-	        if(TheStim->swapinterval > 1)
-		  value /= TheStim->swapinterval;
-	      }
-	  else
-	    value = 0.0;
-		break;
-	case PHASE2:
-	  if(st->type == STIM_GRATING2 || st->type == STIM_GABOR)
-	    {
-	     	value = pos->phase2;
-	      }
-	  else
-	    value = 0.0;
-		break;
-	case ORI2:
-	  if(st->type == STIM_GRATING2 || st->type == STIM_GRATING)
-	    {
-	      psine = (OneStim *)(st->left->ptr);
-	      value = (pos->angle+psine->plaid_angle) * 180.0/M_PI;
-	    }
-	  if(st->type == STIM_RADIAL){
-	      value = (st->left->ptr->ori2) * 180.0/M_PI;
-	  }
-		break;
-	case SPINRATE:
-	  value = st->angleinc;
-	  break;
-	case PLAID_ANGLE:
-	  if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR)
-	    {
-		value = rad_deg(st->left->ptr->plaid_angle);
-	      }
-	  else
-	    value = 0.0;
-		break;
-	case TF:/*j*/
-		value = mon.framerate * st->incr/(M_PI * 2);
-		if(TheStim->swapinterval > 1)
-		    value /= TheStim->swapinterval;
-		break;
-
-	case DISP_A:
-	  value = StimulusProperty(st,DEPTH_MOD) + StimulusProperty(st,DISP_X);
-	  break;
-	case DISP_B:
-	  value = StimulusProperty(st,DISP_X) - StimulusProperty(st,DEPTH_MOD);
-	  break;
-	case DEPTH_MOD:
-/*
- * NB confusing. st->depth mod is in degrees, and is the true depth mod.
- * st->left->depth mod is in pixels, and is half the depth mod, because
- * the pixel value is added to one side, subtracted from the other.
- */
-		if(st->type == STIM_CORRUG)
-		  value = pix2deg(st->left->ptr->depth_mod *2);
-		else if(st->type == STIM_SQCORRUG)
-		  value = pix2deg(st->left->ptr->depth_mod *2);
-		else
-		  value = st->depth_mod;
-	  break;
-	case VDISP_MOD:
-/*
- * NB confusing. st->depth mod is in degrees, and is the true depth mod.
- * st->left->depth mod is in pixels, and is half the depth mod, because
- * the pixel value is added to one side, subtracted from the other.
- */
-	  value = st->vdisp_mod;
-	  break;
-       case DISP_GRAD:
-               if(st->type == STIM_CORRUG)
-                 value = pix2deg(st->left->ptr->disp_grad * 2);
-               break;
-	case SD_X:/*j*/
-		if(st->type == STIM_GABOR)
-			value = ((OneStim *)(st->left->ptr))->sy;
+            break;
+        case SF:
+            value = st->f;
+            break;
+        case SF2:
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATINGN)
+            {
+                value = st->left->ptr->sf2;
+            }
+            else
+                value = 0.0;
+            break;
+        case TF2:
+            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL)
+            {
+                psine = (OneStim *)(st->left->ptr);
+                value = mon.framerate * psine->incr/(M_PI * 2);
+                if(TheStim->swapinterval > 1)
+                    value /= TheStim->swapinterval;
+            }
+            else
+                value = 0.0;
+            break;
+        case PHASE2:
+            if(st->type == STIM_GRATING2 || st->type == STIM_GABOR)
+            {
+                value = pos->phase2;
+            }
+            else
+                value = 0.0;
+            break;
+        case ORI2:
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING)
+            {
+                psine = (OneStim *)(st->left->ptr);
+                value = (pos->angle+psine->plaid_angle) * 180.0/M_PI;
+            }
+            if(st->type == STIM_RADIAL){
+                value = (st->left->ptr->ori2) * 180.0/M_PI;
+            }
+            break;
+        case SPINRATE:
+            value = st->angleinc;
+            break;
+        case PLAID_ANGLE:
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR)
+            {
+                value = rad_deg(st->left->ptr->plaid_angle);
+            }
+            else
+                value = 0.0;
+            break;
+        case TF:/*j*/
+            value = mon.framerate * st->incr/(M_PI * 2);
+            if(TheStim->swapinterval > 1)
+                value /= TheStim->swapinterval;
+            break;
+            
+        case DISP_A:
+            value = StimulusProperty(st,DEPTH_MOD) + StimulusProperty(st,DISP_X);
+            break;
+        case DISP_B:
+            value = StimulusProperty(st,DISP_X) - StimulusProperty(st,DEPTH_MOD);
+            break;
+        case DEPTH_MOD:
+            /*
+             * NB confusing. st->depth mod is in degrees, and is the true depth mod.
+             * st->left->depth mod is in pixels, and is half the depth mod, because
+             * the pixel value is added to one side, subtracted from the other.
+             */
+            if(st->type == STIM_CORRUG)
+                value = pix2deg(st->left->ptr->depth_mod *2);
+            else if(st->type == STIM_SQCORRUG)
+                value = pix2deg(st->left->ptr->depth_mod *2);
+            else
+                value = st->depth_mod;
+            break;
+        case VDISP_MOD:
+            /*
+             * NB confusing. st->depth mod is in degrees, and is the true depth mod.
+             * st->left->depth mod is in pixels, and is half the depth mod, because
+             * the pixel value is added to one side, subtracted from the other.
+             */
+            value = st->vdisp_mod;
+            break;
+        case DISP_GRAD:
+            if(st->type == STIM_CORRUG)
+                value = pix2deg(st->left->ptr->disp_grad * 2);
+            break;
+        case SD_X:/*j*/
+            if(st->type == STIM_GABOR)
+                value = ((OneStim *)(st->left->ptr))->sy;
 	        else if(st->type == STIM_GRATING2 || st->type == STIM_GRATING)
-			value = ((OneStim *)(st->left->ptr))->sy;
-		else if(st->type == STIM_BAR)
-			value = st->pos.radius[1]/st->pos.ss[1];
-		else if(st->type == STIM_TWOBAR)
-			value = st->pos.radius[1]/st->pos.ss[1];
-		else if(st->type == STIM_RADIAL)
-		  value = st->left->ptr->sy;
-		else if(st->type == STIM_RLS)
-		  value = st->left->ptr->sy;
-		else if(st->type == STIM_CHECKER)
-		  value = st->left->ptr->sy;
-	break;
-	case SD_Y:/*j*/
-	  if(st->type == STIM_GABOR || st->type == STIM_RLS)
-	    value = st->left->ptr->sx;
-	  else if(st->type == STIM_RADIAL)
-	    value = pix2deg(st->left->ptr->rsigma);
-	  else if(st->type == STIM_CHECKER)
-		  value = st->left->ptr->sx;
-	  break;
-	case SD_BOTH:/*j*/
-	  value = (st->left->ptr->sx + st->left->ptr->sy)/2;
-	  break;
-	case SEED_SHIFT:
-	  if(st->type == STIM_RDS)
-	    value = pix2deg(st->left->xshift);
-	  else if(st->type == STIM_SQCORRUG)
-	    value = pix2deg(st->ucgap);
-	  else if(st->type == STIM_IMAGE)
-	    value = st->left->xshift;
-	  else
-	    value = 0;
-	  break;
-	case DISP_X:
-		value = pix2deg(st->disp) *2;
-		break;
-	case DISP_RAMP:
-	  if(isharris(altstimmode))
-	    value = pix2deg(st->dispincr) * mon.framerate;
-	  else
-	    value = pix2deg(st->dispincr) * TheStim->nframes;
-		break;
-	case RELDISP:
+                value = ((OneStim *)(st->left->ptr))->sy;
+            else if(st->type == STIM_BAR)
+                value = st->pos.radius[1]/st->pos.ss[1];
+            else if(st->type == STIM_TWOBAR)
+                value = st->pos.radius[1]/st->pos.ss[1];
+            else if(st->type == STIM_RADIAL)
+                value = st->left->ptr->sy;
+            else if(st->type == STIM_RLS)
+                value = st->left->ptr->sy;
+            else if(st->type == STIM_CHECKER)
+                value = st->left->ptr->sy;
+            break;
+        case SD_Y:/*j*/
+            if(st->type == STIM_GABOR || st->type == STIM_RLS)
+                value = st->left->ptr->sx;
+            else if(st->type == STIM_RADIAL)
+                value = pix2deg(st->left->ptr->rsigma);
+            else if(st->type == STIM_CHECKER)
+                value = st->left->ptr->sx;
+            break;
+        case SD_BOTH:/*j*/
+            value = (st->left->ptr->sx + st->left->ptr->sy)/2;
+            break;
+        case SEED_SHIFT:
+            if(st->type == STIM_RDS)
+                value = pix2deg(st->left->xshift);
+            else if(st->type == STIM_SQCORRUG)
+                value = pix2deg(st->ucgap);
+            else if(st->type == STIM_IMAGE)
+                value = st->left->xshift;
+            else
+                value = 0;
+            break;
+        case DISP_X:
+            value = pix2deg(st->disp) *2;
+            break;
+        case DISP_RAMP:
+            if(isharris(altstimmode))
+                value = pix2deg(st->dispincr) * mon.framerate;
+            else
+                value = pix2deg(st->dispincr) * TheStim->nframes;
+            break;
+        case RELDISP:
 	        if(st->next != NULL)
-		  value = pix2deg(st->disp-st->next->disp) *2;
-		else
-		  value = pix2deg(st->disp) *2;
-		break;
-	case DISP_Y:
-		value = pix2deg(st->vdisp) *2;
-		break;
-	case PHASE_AS_DISP:
-	  if(st->type == STIM_GRATING2 || st->type == STIM_GRATING)
-	    value = st->phasedisp[0]/(M_PI * st->f);
-	  else if(st->type == STIM_GRATINGN){
-	    value = st->rolldisp;
-	  }
-	  else if(st->type == STIM_CHECKER)
-	    value = st->phasedisp[0];
-	  else
-	    value = sin(st->pos.angle) * st->phasedisp[0]/(M_PI * st->f);
-	  break;
-	case SET_COUNTERPHASE:
-	  if(optionflag & CONTRAST_REVERSE_BIT)
-	    value = 1;
-	  else
-	    value = 0;
-	  break;
-	case PHASE_AS_RELDISP:
-	  value = -st->phasedisp[0]/(M_PI * st->f);
-	  break;
-	case DISP_P:
-/*
- * Phase disp recorded in radians in the UFF files, so report it that way here
- */
-		value = st->phasedisp[0]*2;
-		break;
-	case DISP_P2:
-		value = st->phasedisp[1]*2;
-		break;
-	case DOT_DENSITY:
-		if(st->type == STIM_CYLINDER || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG)
-			value = st->left->ptr->density;
-		else
-			value = st->left->density;
-		SetDotDistribution();
-		break;
-		
-	case XSAMPLES:/*j*/
-		if(st->type == STIM_GRATING || st->type == STIM_GRATING2 || st->type == STIM_GABOR)
-		  value = pos->ss[1];
-		break;
-	case DOT_SIZE:
-		if(st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_RDSSINE || st->type == STIM_CHECKER)
-			value = pix2deg(st->left->dotsiz[0]);
-		else if(st->type == STIM_CYLINDER || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG)
-			value = pix2deg(st->left->ptr->dotsiz[0]);
-		break;
-	case YSAMPLES:
-		if(st->type == STIM_GRATING || st->type == STIM_GRATING2 || st->type == STIM_GABOR)
-			value = pos->ss[0];
-		break;
-	case SETZOOM:
-		value = zoom;
-		break;
-	case SETZXOFF:
-		value = pix2deg(pos->xy[0]);
-		break;
-	case SETZYOFF:
-		value = pix2deg(pos->xy[1]);
-		break;
-	case CONTRAST2:
-		value = pos->contrast2;
-	  break;
-	case CONTRAST_LEFT:
-	  value = pos->contrast_amp + st->contrast_disp;
-	    break;
-	case CONTRAST_RIGHT:
-	  value = pos->contrast_amp - st->contrast_disp;
-	    break;
-	case SETCONTRAST:
-		value = pos->contrast_amp;
-		break;
-	case FB_RELATIVE_CONTRAST:
-	  if(st->next != NULL && st->next->type != STIM_NONE){
-	    rval = StimulusProperty(st, SETCONTRAST);
-	    lval = StimulusProperty(st->next, SETCONTRAST);
-	    if(rval < lval){
-	      value = rval+lval;
-	    }
-	    else{
-	      value = -(rval+lval);
-	    }
-	  }
-	  else{
-	    value = NOTSET;
-	  }
-	  break;
-	case CONTRAST_PAIRS:
-	    rval = StimulusProperty(st, CONTRAST_RIGHT);
-	    lval = StimulusProperty(st, CONTRAST_LEFT);
-	    if(lval-rval > 0.01)
-	      value = -0.5;
-	    else if(lval-rval < -0.01)
-	      value = 0.5;
-	    else if(fabs(rval - expt.stimvals[SETCONTRAST]) < 0.01)
-	      value = 1;
-	    else if(fabs(rval - expt.stimvals[CONTRAST2]) < 0.01)
-	      value = 0;
-	    else
-	      value = -10000; /* should not happen */
-	  break;
-	case PLAID_RATIO:
-	  // ratio > 1 = contrast1 > contrast2
-	  // ratio > 0 = contrast1 > contrast2
-	  lval = StimulusProperty(st, SETCONTRAST);
-	  rval = StimulusProperty(st, CONTRAST2);
-	  value = lval - rval;
-	  break;
-	case CONTRAST_RATIO:
-	  if(st->type == STIM_RDSSINE || st->type == STIM_GRATING2)
-	    value = expt.vals[CONTRAST_RATIO];
-	  else{
-	    rval = StimulusProperty(st, CONTRAST_RIGHT);
-	    lval = StimulusProperty(st, CONTRAST_LEFT);
-	    if(rval != 0)
-	      value = lval/rval;
-	    else
-	      value = 0;
-	  }
-	  break;
-	case CONTRAST_DIFF:
-	  if(st->type == STIM_RDSSINE || st->type == STIM_RADIAL)
-	    value = expt.vals[CONTRAST_RATIO];
-	  else
-	    value = st->contrast_disp;
-	  break;
-	case SF_DIFF:
-	  value = st->sf_disp*2;
-	  break;
-	case SIZE_DISP:
-	  value = (st->dlength + st->dwidth)/2;
-	  break;
-	case LENGTH_DISP:
-	  if(isinduced(expt.vals[ALTERNATE_STIM_MODE] )){
-	    
-	    value = (st->left->vscale > st->right->vscale) ? st->left->vscale : st->right->vscale;
-	  }
-	  else
-	    value = st->dlength;
-	  break;
-	case WIDTH_DISP:
-	  value = st->dwidth;
-	  break;
-	case HEIGHT_R:
-	  lval = StimulusProperty(st, STIM_HEIGHT);
-	  value = lval - st->dlength/2;
-	  break;
-	case HEIGHT_L:
-	  lval = StimulusProperty(st, STIM_HEIGHT);
-	  value = lval + st->dlength/2;
-	  break;
-	case WIDTH_R:
-	  lval = StimulusProperty(st, STIM_WIDTH);
-	  value = lval - st->dwidth/2;
-	  break;
-	case WIDTH_L:
-	  lval = StimulusProperty(st, STIM_WIDTH);
-	  value = lval + st->dwidth/2;
-	  break;
-	case DORI_BACK:
-	  if(st->next != NULL)
-	    value = rad_deg(st->next->ori_disp) * 2;
-	  else
-	    value = 0;
-	  break;
-	case ORIENTATION_DIFF:
-	case DORI_BOTH:
-	  value = rad_deg(st->ori_disp) * 2;
-	  break;
-	case SETBACKCOLOR:
-		value = st->background;
-		break;
-	case SETOVERLAYCOLOR:
-		value = expt.overlay_color;
-		break;
-	case DOT_POSX:
-	  value = pix2deg(pos->locn[0]);
-		break;
-	case SETPHASE:
-		value = rad_deg(st->pos.phase);
-		break;
-	case PHASEREL:
-		value = rad_deg(st->pos.dphase);
-		break;
-	case SETFIXCOLOR:
-		value = st->fix.fixcolor;
-		break;
-	case FIX_OFF_CODE:
-		value = st->fix.offcolor;
-		break;
-	case SETFIXSIZE:
-		value = pix2deg(st->fix.size);
-		break;
-	case SACTARGSIZE:
-		value = pix2deg(afc_s.targsize);
-		break;
-	case WURTZ_DURATION_CODE:
-/*	  if(optionflag & WURTZ_WHOLE_STIMULI)
-		value = st->fix.fixstims;
-	  else
-*/
-		value = st->fix.fixframes;	  
-		break;
-	case SET_SEEDLOOP:/*j*/
-	  value = st->left->seedloop;
-		break;
-	case SET_SEED:/*j*/
+                value = pix2deg(st->disp-st->next->disp) *2;
+            else
+                value = pix2deg(st->disp) *2;
+            break;
+        case DISP_Y:
+            value = pix2deg(st->vdisp) *2;
+            break;
+        case PHASE_AS_DISP:
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING)
+                value = st->phasedisp[0]/(M_PI * st->f);
+            else if(st->type == STIM_GRATINGN){
+                value = st->rolldisp;
+            }
+            else if(st->type == STIM_CHECKER)
+                value = st->phasedisp[0];
+            else
+                value = sin(st->pos.angle) * st->phasedisp[0]/(M_PI * st->f);
+            break;
+        case SET_COUNTERPHASE:
+            if(optionflag & CONTRAST_REVERSE_BIT)
+                value = 1;
+            else
+                value = 0;
+            break;
+        case PHASE_AS_RELDISP:
+            value = -st->phasedisp[0]/(M_PI * st->f);
+            break;
+        case DISP_P:
+            /*
+             * Phase disp recorded in radians in the UFF files, so report it that way here
+             */
+            value = st->phasedisp[0]*2;
+            break;
+        case DISP_P2:
+            value = st->phasedisp[1]*2;
+            break;
+        case DOT_DENSITY:
+            if(st->type == STIM_CYLINDER || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG)
+                value = st->left->ptr->density;
+            else
+                value = st->left->density;
+            SetDotDistribution();
+            break;
+            
+        case XSAMPLES:/*j*/
+            if(st->type == STIM_GRATING || st->type == STIM_GRATING2 || st->type == STIM_GABOR)
+                value = pos->ss[1];
+            break;
+        case DOT_SIZE:
+            if(st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_RDSSINE || st->type == STIM_CHECKER)
+                value = pix2deg(st->left->dotsiz[0]);
+            else if(st->type == STIM_CYLINDER || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG)
+                value = pix2deg(st->left->ptr->dotsiz[0]);
+            break;
+        case YSAMPLES:
+            if(st->type == STIM_GRATING || st->type == STIM_GRATING2 || st->type == STIM_GABOR)
+                value = pos->ss[0];
+            break;
+        case SETZOOM:
+            value = zoom;
+            break;
+        case SETZXOFF:
+            value = pix2deg(pos->xy[0]);
+            break;
+        case SETZYOFF:
+            value = pix2deg(pos->xy[1]);
+            break;
+        case CONTRAST2:
+            value = pos->contrast2;
+            break;
+        case CONTRAST_LEFT:
+            value = pos->contrast_amp + st->contrast_disp;
+            break;
+        case CONTRAST_RIGHT:
+            value = pos->contrast_amp - st->contrast_disp;
+            break;
+        case SETCONTRAST:
+            value = pos->contrast_amp;
+            break;
+        case FB_RELATIVE_CONTRAST:
+            if(st->next != NULL && st->next->type != STIM_NONE){
+                rval = StimulusProperty(st, SETCONTRAST);
+                lval = StimulusProperty(st->next, SETCONTRAST);
+                if(rval < lval){
+                    value = rval+lval;
+                }
+                else{
+                    value = -(rval+lval);
+                }
+            }
+            else{
+                value = NOTSET;
+            }
+            break;
+        case CONTRAST_PAIRS:
+            rval = StimulusProperty(st, CONTRAST_RIGHT);
+            lval = StimulusProperty(st, CONTRAST_LEFT);
+            if(lval-rval > 0.01)
+                value = -0.5;
+            else if(lval-rval < -0.01)
+                value = 0.5;
+            else if(fabs(rval - expt.stimvals[SETCONTRAST]) < 0.01)
+                value = 1;
+            else if(fabs(rval - expt.stimvals[CONTRAST2]) < 0.01)
+                value = 0;
+            else
+                value = -10000; /* should not happen */
+            break;
+        case PLAID_RATIO:
+            // ratio > 1 = contrast1 > contrast2
+            // ratio > 0 = contrast1 > contrast2
+            lval = StimulusProperty(st, SETCONTRAST);
+            rval = StimulusProperty(st, CONTRAST2);
+            value = lval - rval;
+            break;
+        case CONTRAST_RATIO:
+            if(st->type == STIM_RDSSINE || st->type == STIM_GRATING2)
+                value = expt.vals[CONTRAST_RATIO];
+            else{
+                rval = StimulusProperty(st, CONTRAST_RIGHT);
+                lval = StimulusProperty(st, CONTRAST_LEFT);
+                if(rval != 0)
+                    value = lval/rval;
+                else
+                    value = 0;
+            }
+            break;
+        case CONTRAST_DIFF:
+            if(st->type == STIM_RDSSINE || st->type == STIM_RADIAL)
+                value = expt.vals[CONTRAST_RATIO];
+            else
+                value = st->contrast_disp;
+            break;
+        case SF_DIFF:
+            value = st->sf_disp*2;
+            break;
+        case SIZE_DISP:
+            value = (st->dlength + st->dwidth)/2;
+            break;
+        case LENGTH_DISP:
+            if(isinduced(expt.vals[ALTERNATE_STIM_MODE] )){
+                
+                value = (st->left->vscale > st->right->vscale) ? st->left->vscale : st->right->vscale;
+            }
+            else
+                value = st->dlength;
+            break;
+        case WIDTH_DISP:
+            value = st->dwidth;
+            break;
+        case HEIGHT_R:
+            lval = StimulusProperty(st, STIM_HEIGHT);
+            value = lval - st->dlength/2;
+            break;
+        case HEIGHT_L:
+            lval = StimulusProperty(st, STIM_HEIGHT);
+            value = lval + st->dlength/2;
+            break;
+        case WIDTH_R:
+            lval = StimulusProperty(st, STIM_WIDTH);
+            value = lval - st->dwidth/2;
+            break;
+        case WIDTH_L:
+            lval = StimulusProperty(st, STIM_WIDTH);
+            value = lval + st->dwidth/2;
+            break;
+        case DORI_BACK:
+            if(st->next != NULL)
+                value = rad_deg(st->next->ori_disp) * 2;
+            else
+                value = 0;
+            break;
+        case ORIENTATION_DIFF:
+        case DORI_BOTH:
+            value = rad_deg(st->ori_disp) * 2;
+            break;
+        case SETBACKCOLOR:
+            value = st->background;
+            break;
+        case SETOVERLAYCOLOR:
+            value = expt.overlay_color;
+            break;
+        case DOT_POSX:
+            value = pix2deg(pos->locn[0]);
+            break;
+        case SETPHASE:
+            value = rad_deg(st->pos.phase);
+            break;
+        case PHASEREL:
+            value = rad_deg(st->pos.dphase);
+            break;
+        case SETFIXCOLOR:
+            value = st->fix.fixcolor;
+            break;
+        case FIX_OFF_CODE:
+            value = st->fix.offcolor;
+            break;
+        case SETFIXSIZE:
+            value = pix2deg(st->fix.size);
+            break;
+        case SACTARGSIZE:
+            value = pix2deg(afc_s.targsize);
+            break;
+        case WURTZ_DURATION_CODE:
+            /*	  if(optionflag & WURTZ_WHOLE_STIMULI)
+             value = st->fix.fixstims;
+             else
+             */
+            value = st->fix.fixframes;	  
+            break;
+        case SET_SEEDLOOP:/*j*/
+            value = st->left->seedloop;
+            break;
+        case SET_SEED:/*j*/
 	        value = stimptr->left->baseseed;
-		break;
-	case BACK_SIZE:
-		if(st->next == NULL)
-			value = 0.0;
+            break;
+        case BACK_SIZE:
+            if(st->next == NULL)
+                value = 0.0;
 	        else
-		  value = StimulusProperty(st->next,STIM_HEIGHT);
-		break;
-	case BACK_HEIGHT:
-		if(st->next == NULL)
-			value = 0.0;
+                value = StimulusProperty(st->next,STIM_HEIGHT);
+            break;
+        case BACK_HEIGHT:
+            if(st->next == NULL)
+                value = 0.0;
 	        else
-		  value = StimulusProperty(st->next,STIM_HEIGHT);
-		break;
-	case BACK_WIDTH:
-		if(st->next == NULL)
-			value = 0.0;
+                value = StimulusProperty(st->next,STIM_HEIGHT);
+            break;
+        case BACK_WIDTH:
+            if(st->next == NULL)
+                value = 0.0;
 	        else
-		  value = StimulusProperty(st->next,STIM_WIDTH);
-		break;
-	case BACK_CONTRAST:
-		if(st->next == NULL)
-			value = 0.0;
+                value = StimulusProperty(st->next,STIM_WIDTH);
+            break;
+        case BACK_CONTRAST:
+            if(st->next == NULL)
+                value = 0.0;
 	        else
-		  value = StimulusProperty(st->next,SETCONTRAST);
-		break;
-	case DISP_BACK:
-		if(st->next == NULL && st->prev == NULL)
-			value = 0.0;
-		else if(st->next == NULL && st->prev != NULL)
-		  value = pix2deg(st->disp) *2;
+                value = StimulusProperty(st->next,SETCONTRAST);
+            break;
+        case DISP_BACK:
+            if(st->next == NULL && st->prev == NULL)
+                value = 0.0;
+            else if(st->next == NULL && st->prev != NULL)
+                value = pix2deg(st->disp) *2;
 	        else{
-		  if(st->next->flag & UNCORRELATE && (st->next->type == STIM_RDS || st->next->type) == STIM_RLS)
-		    value = INTERLEAVE_EXPT_UNCORR;
-		  else
-		    value = pix2deg(st->next->disp) *2;
-		}
-		break;
-	case BACK_VDISP:
-		if(st->next == NULL && st->prev == NULL)
-			value = 0.0;
-		else if(st->next == NULL && st->prev != NULL)
-		  value = pix2deg(st->vdisp) *2;
+                if(st->next->flag & UNCORRELATE && (st->next->type == STIM_RDS || st->next->type) == STIM_RLS)
+                    value = INTERLEAVE_EXPT_UNCORR;
+                else
+                    value = pix2deg(st->next->disp) *2;
+            }
+            break;
+        case BACK_VDISP:
+            if(st->next == NULL && st->prev == NULL)
+                value = 0.0;
+            else if(st->next == NULL && st->prev != NULL)
+                value = pix2deg(st->vdisp) *2;
 	        else{
-		  if(st->next->flag & UNCORRELATE)
-		    value = INTERLEAVE_EXPT_UNCORR;
-		  else
-		    value = pix2deg(st->next->vdisp) *2;
-		}
-		break;
-	case RAMP_COEFFICIENT:
-		value = expt.clamp_rrate;
-		break;
-	case FIXPOS_X:
-		value = pix2deg(fixpos[0]);
-		break;
-	case FIXPOS_Y:
-		value = pix2degy(fixpos[1]);
-		break;
-	case VIEWD_CODE:
-		value = mon.viewd;
-		break;
-	case REWARD_SIZE:
-		value = st->fix.rwsize;
-		break;
-	case TIMEOUT_CODE:
-		value = st->fix.timeout;
-		break;
-	case SACCADE_AMPLITUDE:
-	  value = sqrt(sqr(afc_s.abssac[0]) + sqr(afc_s.abssac[1]));
-	  break;
-	case HSACCADE_VALUE:	/*j*/
-		value = afc_s.sacval[0];
-		break;
-	case VSACCADE_VALUE:	/*j*/
-		value = afc_s.sacval[1];
-		break;
-	case SAC_FIX_CRIT:	/*j*/
-		value = afc_s.sac_fix_crit;
-		break;
-	case WRONG_TIMEOUT_CODE:	/*j*/
-		value = afc_s.wrongtimeout;
-		break;
-	case STARTVAL:	/*j*/
-		value = afc_s.startvalue;
-		break;
-	case MAXSTAIRVAL:	/*j*/
-		value = afc_s.maxstairvalue;
-		break;
-	case MINSTAIRVAL:	/*j*/
-		value = afc_s.minstairvalue;
-		break;
-	case CORRECTION_LEAVE_CRIT:
-		value = afc_s.correction_leave;
+                if(st->next->flag & UNCORRELATE)
+                    value = INTERLEAVE_EXPT_UNCORR;
+                else
+                    value = pix2deg(st->next->vdisp) *2;
+            }
+            break;
+        case RAMP_COEFFICIENT:
+            value = expt.clamp_rrate;
+            break;
+        case FIXPOS_X:
+            value = pix2deg(fixpos[0]);
+            break;
+        case FIXPOS_Y:
+            value = pix2degy(fixpos[1]);
+            break;
+        case VIEWD_CODE:
+            value = mon.viewd;
+            break;
+        case REWARD_SIZE:
+            value = st->fix.rwsize;
+            break;
+        case TIMEOUT_CODE:
+            value = st->fix.timeout;
+            break;
+        case SACCADE_AMPLITUDE:
+            value = sqrt(sqr(afc_s.abssac[0]) + sqr(afc_s.abssac[1]));
+            break;
+        case HSACCADE_VALUE:	/*j*/
+            value = afc_s.sacval[0];
+            break;
+        case VSACCADE_VALUE:	/*j*/
+            value = afc_s.sacval[1];
+            break;
+        case SAC_FIX_CRIT:	/*j*/
+            value = afc_s.sac_fix_crit;
+            break;
+        case WRONG_TIMEOUT_CODE:	/*j*/
+            value = afc_s.wrongtimeout;
+            break;
+        case STARTVAL:	/*j*/
+            value = afc_s.startvalue;
+            break;
+        case MAXSTAIRVAL:	/*j*/
+            value = afc_s.maxstairvalue;
+            break;
+        case MINSTAIRVAL:	/*j*/
+            value = afc_s.minstairvalue;
+            break;
+        case CORRECTION_LEAVE_CRIT:
+            value = afc_s.correction_leave;
 	        break;
-	case CORRECTION_ENTRY_CRIT:
-		value = afc_s.correction_entry;
+        case CORRECTION_ENTRY_CRIT:
+            value = afc_s.correction_entry;
 	        break;
-	case AFC_PROPORTION:
-		value = afc_s.proportion;
+        case AFC_PROPORTION:
+            value = afc_s.proportion;
 	        break;
-	case BRIGHTSHIFT_CODE:
-		value = st->fix.stimcolor - st->fix.fixcolor;
-		break;
-	case BLANKCOLOR_CODE:
-		value = expt.vals[BLANKCOLOR_CODE];
-		break;
-      case STOP_CRITERION:
-		value = stopcriterion;
-		break;
-      case RUNAVERAGE_LENGTH:
-		value = avglen;
-		break;
-	default:
-		value = NOTSET;
-		break;
+        case BRIGHTSHIFT_CODE:
+            value = st->fix.stimcolor - st->fix.fixcolor;
+            break;
+        case BLANKCOLOR_CODE:
+            value = expt.vals[BLANKCOLOR_CODE];
+            break;
+        case STOP_CRITERION:
+            value = stopcriterion;
+            break;
+        case RUNAVERAGE_LENGTH:
+            value = avglen;
+            break;
+        default:
+            value = NOTSET;
+            break;
 	}
 	return(value);
 }
 
 void NewFixPos(float x, float y)
 {
-  char cbuf[BUFSIZ];
-  float fx,fy;
-
-  fx = pix2deg(x);
-  fy = pix2deg(y);
-
-  if(optionflags[NO_MIRRORS])
-    sprintf(cbuf,"%2s %.4f %.4f\n",serial_strings[FIXPOS_XY],-fx,fy);
-  else
-    sprintf(cbuf,"%2s %.4f %.4f\n",serial_strings[FIXPOS_XY],fx,fy);
-  /*
-    oldfixpos[0] = expt.vals[FIXPOS_X];
-    oldfixpos[1] = expt.vals[FIXPOS_Y];
-  */
+    char cbuf[BUFSIZ];
+    float fx,fy;
+    
+    fx = pix2deg(x);
+    fy = pix2deg(y);
+    
+    if(optionflags[NO_MIRRORS])
+        sprintf(cbuf,"%2s %.4f %.4f\n",serial_strings[FIXPOS_XY],-fx,fy);
+    else
+        sprintf(cbuf,"%2s %.4f %.4f\n",serial_strings[FIXPOS_XY],fx,fy);
+    /*
+     oldfixpos[0] = expt.vals[FIXPOS_X];
+     oldfixpos[1] = expt.vals[FIXPOS_Y];
+     */
     oldfixpos[0] = fixpos[0];
     oldfixpos[1] = fixpos[1];
-  fixpos[0] = x;
-  fixpos[1] = y;
-  SerialString(cbuf,0);
-  fixpaint = 2;
-  mode |= STIMCHANGE_FRAME;
+    fixpos[0] = x;
+    fixpos[1] = y;
+    SerialString(cbuf,0);
+    fixpaint = 2;
+    mode |= STIMCHANGE_FRAME;
 }
 
 void setoption()
 {
-  static long old = 0,old2 = 0;
-  long new,new2,gone,gone2;
-
-  new = (optionflag & (~old));
-  gone = ((~optionflag) & old);
-  gone2 = ((~option2flag) & old2);
-  new2 = (option2flag & (~old2));
-
-  if(new & SE_BIT)
+    static long old = 0,old2 = 0;
+    long new,new2,gone,gone2;
+    
+    new = (optionflag & (~old));
+    gone = ((~optionflag) & old);
+    gone2 = ((~option2flag) & old2);
+    new2 = (option2flag & (~old2));
+    
+    if(new & SE_BIT)
     {
-      clear_overlay();
-      redraw_overlay(expt.plot);
+        clear_overlay();
+        redraw_overlay(expt.plot);
     }
-/*
- * If L mononc selected, be sure to un-set R monoc
- */
-
-  if(new & MONOCULAR_MODE)
-  {
-	  optionflag &= (~(LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
-	  optionflag |= new;
-  }
-  if(new & WURTZ_WHOLE_STIMULI || gone & WURTZ_WHOLE_STIMULI)
+    /*
+     * If L mononc selected, be sure to un-set R monoc
+     */
+    
+    if(new & MONOCULAR_MODE)
     {
-/*      SetWPanel();*/
+        optionflag &= (~(LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
+        optionflag |= new;
     }
-
-  if(new2 & PSYCHOPHYSICS_BIT && option2flag & PSYCHOPHYSICS_BIT)
-    srandom(getpid());
-
-
-/*
- * only redraw the list and window if not in an experiment
- */
-  if((old2 | new2) & (INTERLEAVE_BLANK | INTERLEAVE_MONOCULAR| INTERLEAVE_ONE_MONOCULAR | INTERLEAVE_UNCORRELATED | INTERLEAVE_RANDOM) && (mode & RUNNING) &&
-  !(TheStim->mode & EXPTPENDING))
+    if(new & WURTZ_WHOLE_STIMULI || gone & WURTZ_WHOLE_STIMULI)
     {
-    PlotAlloc(&expt);
-    setstimuli(1);
-    //Ali ListExpStims(NULL);
-  }
-
-//ALi  if(new & STORE_WURTZ_BIT)
-//    SetRunButton(NULL);
-  old = optionflag;
-  old2 = option2flag;
+        /*      SetWPanel();*/
+    }
+    
+    if(new2 & PSYCHOPHYSICS_BIT && option2flag & PSYCHOPHYSICS_BIT)
+        srandom(getpid());
+    
+    
+    /*
+     * only redraw the list and window if not in an experiment
+     */
+    if((old2 | new2) & (INTERLEAVE_BLANK | INTERLEAVE_MONOCULAR| INTERLEAVE_ONE_MONOCULAR | INTERLEAVE_UNCORRELATED | INTERLEAVE_RANDOM) && (mode & RUNNING) &&
+       !(TheStim->mode & EXPTPENDING))
+    {
+        PlotAlloc(&expt);
+        setstimuli(1);
+        //Ali ListExpStims(NULL);
+    }
+    
+    //ALi  if(new & STORE_WURTZ_BIT)
+    //    SetRunButton(NULL);
+    old = optionflag;
+    old2 = option2flag;
 }
 
 
 
 int BackupStimFile()
 {
-  static int ctr = 0;
-  int i = ctr;
-  char cbuf[256];
-  
-  sprintf(cbuf,"./front.%dstim",ctr);
-  SaveExptFile(cbuf,SAVE_STATE);
-  ctr = (ctr+1)%4;
-  return(i);
+    static int ctr = 0;
+    int i = ctr;
+    char cbuf[256];
+    
+    sprintf(cbuf,"./front.%dstim",ctr);
+    SaveExptFile(cbuf,SAVE_STATE);
+    ctr = (ctr+1)%4;
+    return(i);
 }
 
 void SaveExptFile(char *filename,int flag)
@@ -8388,39 +8388,39 @@ void SaveExptFile(char *filename,int flag)
 	int i,j,go = 0;
 	FILE *ofd;
 	static int write_fail_acknowledged;
-
+    
 	for(i = 0; i < BUFSIZ; i++)
-	  spacestr[i] = ' ';
+        spacestr[i] = ' ';
 	if(seroutfile){
-	  fprintf(seroutfile,"#Save %d %s VS%.1f\n",flag,filename,afc_s.sacval[1]);
+        fprintf(seroutfile,"#Save %d %s VS%.1f\n",flag,filename,afc_s.sacval[1]);
 	}
 	if((ofd = fopen(filename,"w")) != NULL)
-	  {
+    {
 	    cbuf[0] = '=';
 	    cbuf[1] = 0;
 	    if(flag != SAVE_STATE && flag != QUICK_SAVE)
-	      fprintf(ofd,"clearquick\n");
+            fprintf(ofd,"clearquick\n");
 	    if(flag == SAVE_STATE)
-	      fprintf(ofd,"#State\n");
+            fprintf(ofd,"#State\n");
 	    if(expt.mon->filename)
-	      fprintf(ofd,"monitor=%s\n",expt.mon->filename);
+            fprintf(ofd,"monitor=%s\n",expt.mon->filename);
 	    fprintf(ofd,"%s=0\n",serial_strings[MODE_CODE]);
 	    if((j = MakeString(MODE_CODE, cbuf, &expt, TheStim, TO_FILE)) >= 0)
-	      fprintf(ofd,"%s\n",cbuf);
+            fprintf(ofd,"%s\n",cbuf);
 	    /* first clear optionflag, then write out the bits that are set */
 	    fprintf(ofd,"op=0\n");
 	    cbuf[0] = '=';
 	    cbuf[1] = 0;
 	    if((j = MakeString(OPTION_CODE, cbuf, &expt, TheStim, TO_FILE)) >= 0)
-	      fprintf(ofd,"%s\n",cbuf);
+            fprintf(ofd,"%s\n",cbuf);
 	    fprintf(ofd,"mo=fore\n");
 	    for(i = 0; i <= LAST_STIMULUS_CODE; i++)
-	      {
-		cbuf[0] = '=';
-		cbuf[1] = 0;
-		if((j = MakeString(i, cbuf, &expt, TheStim, TO_FILE)) >= 0)
-		  fprintf(ofd,"%s%.*s #Fore %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
-	      }
+        {
+            cbuf[0] = '=';
+            cbuf[1] = 0;
+            if((j = MakeString(i, cbuf, &expt, TheStim, TO_FILE)) >= 0)
+                fprintf(ofd,"%s%.*s #Fore %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
+        }
 	    cbuf[0] = '=';
 		cbuf[1] = 0;
 		if((j = MakeString(STIMULUS_FLAG, cbuf, &expt, TheStim, TO_FILE)) >= 0)
@@ -8433,8 +8433,8 @@ void SaveExptFile(char *filename,int flag)
 				cbuf[0] = '=';
 				cbuf[1] = 0;
 				if((j = MakeString(i, cbuf, &expt, TheStim->next,TO_FILE)) >= 0)
-				fprintf(ofd,"%s%.*s #Back %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
-			      }
+                    fprintf(ofd,"%s%.*s #Back %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
+            }
 			cbuf[0] = '=';
 			cbuf[1] = 0;
 			if((j = MakeString(STIMULUS_FLAG, cbuf, &expt, TheStim, TO_FILE)) >= 0)
@@ -8448,13 +8448,13 @@ void SaveExptFile(char *filename,int flag)
 				cbuf[0] = '=';
 				cbuf[1] = 0;
 				if((j = MakeString(i, cbuf, &expt, TheStim->next->next,TO_FILE)) >= 0)
-				fprintf(ofd,"%s%.*s #ST3 %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
-			      }
+                    fprintf(ofd,"%s%.*s #ST3 %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
+            }
 			cbuf[0] = '=';
 			cbuf[1] = 0;
 			if((j = MakeString(STIMULUS_FLAG, cbuf, &expt, TheStim, TO_FILE)) >= 0)
 				fprintf(ofd,"%s\n",cbuf);
-
+            
 		}
 		if(ChoiceStima->type != STIM_NONE){
 			fprintf(ofd,"mo=ChoiceU\n");
@@ -8463,8 +8463,8 @@ void SaveExptFile(char *filename,int flag)
 				cbuf[0] = '=';
 				cbuf[1] = 0;
 				if((j = MakeString(i, cbuf, &expt, ChoiceStima,TO_FILE)) >= 0)
-				fprintf(ofd,"%s%.*s #Choice 1 %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
-			      }
+                    fprintf(ofd,"%s%.*s #Choice 1 %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
+            }
 		}
 		if(ChoiceStimb->type != STIM_NONE){
 			fprintf(ofd,"mo=ChoiceD\n");
@@ -8473,166 +8473,166 @@ void SaveExptFile(char *filename,int flag)
 				cbuf[0] = '=';
 				cbuf[1] = 0;
 				if((j = MakeString(i, cbuf, &expt, ChoiceStimb,TO_FILE)) >= 0)
-				fprintf(ofd,"%s%.*s #Choice 2 %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
-			      }
+                    fprintf(ofd,"%s%.*s #Choice 2 %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
+            }
 		}
-
+        
 		fprintf(ofd,"mo=fore\n");
-
+        
 		if(optionflag & CLAMP_HOLD_BIT)
 			optionflag |= CLAMP_EXPT_BIT;
 		for(i = LAST_STIMULUS_CODE; i < MAXSAVECODES; i++)
 		{
-
+            
 			cbuf[0] = '=';
 			cbuf[1] = 0;
 			go = 0;
 			if((j = MakeString(i, cbuf, &expt, TheStim,TO_FILE)) >= 0){
-			  switch(i){
-
-
-/* 
- * for some parameters, intended as convenienve options online,
- * it is best not to save them to the file
- * as loading them up just causes trouble
- */
-			  case STIM_SIZE:
-			  case BACK_SIZE:
-			  case QUERY_STATE:
-			  case CONTRAST_LEFT:
-			  case CONTRAST_RIGHT:
-			  case SF_LEFT:
-			  case SF_RIGHT:
-			  case WIDTH_L:
-			  case WIDTH_R:
-			  case HEIGHT_L:
-			  case HEIGHT_R:
-			  case CONTRAST_PAIRS:
-			  case SEND_CLEAR:
-			  case SD_BOTH:
-			  case FB_RELATIVE_CONTRAST:
-			  case PHASE_AS_RELDISP:
-			  case DISP_A:
-			  case DISP_B:
-			  case STIM_POLARANGLE:
-			  case STIM_ECCENTRICITY:
-			  case ORTHOG_POSR:
-			  case ORTHOG_POSL:
-			  case INITIAL_MOVEMENT:
-			  case INITIAL_DURATION:
-			    go = 0;
-			    break;
-			  case SACCADE_DETECTED:
-			    if(flag == SAVE_STATE)
-			      go = 1;
-			    else
-			      go = 0;
-			    break;
-			  case PHASE_AS_DISP:
-			    if(expt.st->type == STIM_GRATINGN)
-			      go = 1;
-			    else
-			      go = 0;
-			    break;
-			  case PENETRATION_TEXT:
-			  case PENXPOS:
-			  case PENYPOS:
-			  case PENNUMCOUNTER:
-			  case VWHERE:
-			  case GOODTRIALS:
-			  case ORTHOG_POS:
-			  case PARA_POS:
-			  case BADTRIALS:
-			  case RELDISP:
-			    if(flag == SAVE_STATE)
-			      go = 1;
-			    else
-			      go = 0;
-			    break;
-/*
- * This list NOT save in QuckExpts. Might want to change these during
- * course of expt
- */
-			  case RF_X:
-			  case RF_Y:
-			  case RF_ANGLE:
-			  case RF_WIDTH:
-			  case RF_HEIGHT:
-			  case QUICKEXPT_CODE:
-			  case TRIGGER_LEVEL:
-			  case REWARD_SIZE:
-			  case CHANNEL_CODE:
-			  case SOFTOFF_CODE:
-			  case UFF_PREFIX:
-			  case EARLY_RWTIME:
-			  case STIMID:
-			  case ELECTRODE_DEPTH:
-			    if(flag == QUICK_SAVE) //Record expt state
-			      go = 0;
-			    else
-			      go = 1;
-			    break;
-			  case SET_SEED:
-			    if(flag == SAVE_STATE ||
-		       (flag == QUICK_SAVE && TheStim->left->baseseed <= 1000))
-			      go = 1;
-			    else
-			      go = 0;
-			    break;
-			  default:
-			    go = 1;
-			    break;
-			    
-			  }
-			  if(go)
-			    fprintf(ofd,"%s\t#%s\n",cbuf,serial_names[i]);
+                switch(i){
+                        
+                        
+                        /* 
+                         * for some parameters, intended as convenienve options online,
+                         * it is best not to save them to the file
+                         * as loading them up just causes trouble
+                         */
+                    case STIM_SIZE:
+                    case BACK_SIZE:
+                    case QUERY_STATE:
+                    case CONTRAST_LEFT:
+                    case CONTRAST_RIGHT:
+                    case SF_LEFT:
+                    case SF_RIGHT:
+                    case WIDTH_L:
+                    case WIDTH_R:
+                    case HEIGHT_L:
+                    case HEIGHT_R:
+                    case CONTRAST_PAIRS:
+                    case SEND_CLEAR:
+                    case SD_BOTH:
+                    case FB_RELATIVE_CONTRAST:
+                    case PHASE_AS_RELDISP:
+                    case DISP_A:
+                    case DISP_B:
+                    case STIM_POLARANGLE:
+                    case STIM_ECCENTRICITY:
+                    case ORTHOG_POSR:
+                    case ORTHOG_POSL:
+                    case INITIAL_MOVEMENT:
+                    case INITIAL_DURATION:
+                        go = 0;
+                        break;
+                    case SACCADE_DETECTED:
+                        if(flag == SAVE_STATE)
+                            go = 1;
+                        else
+                            go = 0;
+                        break;
+                    case PHASE_AS_DISP:
+                        if(expt.st->type == STIM_GRATINGN)
+                            go = 1;
+                        else
+                            go = 0;
+                        break;
+                    case PENETRATION_TEXT:
+                    case PENXPOS:
+                    case PENYPOS:
+                    case PENNUMCOUNTER:
+                    case VWHERE:
+                    case GOODTRIALS:
+                    case ORTHOG_POS:
+                    case PARA_POS:
+                    case BADTRIALS:
+                    case RELDISP:
+                        if(flag == SAVE_STATE)
+                            go = 1;
+                        else
+                            go = 0;
+                        break;
+                        /*
+                         * This list NOT save in QuckExpts. Might want to change these during
+                         * course of expt
+                         */
+                    case RF_X:
+                    case RF_Y:
+                    case RF_ANGLE:
+                    case RF_WIDTH:
+                    case RF_HEIGHT:
+                    case QUICKEXPT_CODE:
+                    case TRIGGER_LEVEL:
+                    case REWARD_SIZE:
+                    case CHANNEL_CODE:
+                    case SOFTOFF_CODE:
+                    case UFF_PREFIX:
+                    case EARLY_RWTIME:
+                    case STIMID:
+                    case ELECTRODE_DEPTH:
+                        if(flag == QUICK_SAVE) //Record expt state
+                            go = 0;
+                        else
+                            go = 1;
+                        break;
+                    case SET_SEED:
+                        if(flag == SAVE_STATE ||
+                           (flag == QUICK_SAVE && TheStim->left->baseseed <= 1000))
+                            go = 1;
+                        else
+                            go = 0;
+                        break;
+                    default:
+                        go = 1;
+                        break;
+                        
+                }
+                if(go)
+                    fprintf(ofd,"%s\t#%s\n",cbuf,serial_names[i]);
 			}
 		}
 		if(expt.st->imprefix != NULL){
-		  fprintf(ofd,"impref=%s\n",expt.st->imprefix);
-		  if(expt.st->immode == IMAGEMODE_ORBW)
-		      fprintf(ofd,"immode=orbw\n");
+            fprintf(ofd,"impref=%s\n",expt.st->imprefix);
+            if(expt.st->immode == IMAGEMODE_ORBW)
+                fprintf(ofd,"immode=orbw\n");
 		}
-/*
- * used not to write_expvals into QUICKexps, but I _think_ this is only
- * becuase this included qe= lines, which we do not want. The other lines,
- * for custom EXPVALs are wanted
- */
+        /*
+         * used not to write_expvals into QUICKexps, but I _think_ this is only
+         * becuase this included qe= lines, which we do not want. The other lines,
+         * for custom EXPVALs are wanted
+         */
 		write_expvals(ofd,flag);
 		if(expt.hemisphere)
-		  fprintf(ofd,"RightHemisphere\n");
+            fprintf(ofd,"RightHemisphere\n");
 		if(flag != QUICK_SAVE){
-		  write_menus(ofd);
-		  write_helpfiles(ofd);
+            write_menus(ofd);
+            write_helpfiles(ofd);
 		}
-
+        
 		//Ali write_sliders(ofd);
 		if(flag == SAVE_STATE){
-		  for(i = 0; i < rfctr; i++)
-		    fprintf(ofd,"oldrf %.2f %.2f %d %d %.2f\n",oldrfs[i].pos[0],oldrfs[i].pos[1],oldrfs[i].size[0],oldrfs[i].size[1],oldrfs[i].angle);
+            for(i = 0; i < rfctr; i++)
+                fprintf(ofd,"oldrf %.2f %.2f %d %d %.2f\n",oldrfs[i].pos[0],oldrfs[i].pos[1],oldrfs[i].size[0],oldrfs[i].size[1],oldrfs[i].angle);
 		}
 		//Ali write_windowpos(ofd);
 		if(expt.st->type == STIM_IMAGE){
-		  if(expt.st->preload)
-		    fprintf(ofd,"immode=preload\n");
-		  else
-		    fprintf(ofd,"immode=load\n");
-		  if(expt.st->immode == IMAGEMODE_ORBW)
-		    fprintf(ofd,"immode=orbw\n");
-		  else
-		    fprintf(ofd,"immode=plain\n");
+            if(expt.st->preload)
+                fprintf(ofd,"immode=preload\n");
+            else
+                fprintf(ofd,"immode=load\n");
+            if(expt.st->immode == IMAGEMODE_ORBW)
+                fprintf(ofd,"immode=orbw\n");
+            else
+                fprintf(ofd,"immode=plain\n");
 		}
 		
 		fclose(ofd);
-
+        
 	}
 	else
 	{
-	  if(!write_fail_acknowledged){
-		sprintf(cbuf,"can't open %s",filename);
-		acknowledge(cbuf,NULL);
-		write_fail_acknowledged++;
-	  }
+        if(!write_fail_acknowledged){
+            sprintf(cbuf,"can't open %s",filename);
+            acknowledge(cbuf,NULL);
+            write_fail_acknowledged++;
+        }
 	}
 }
 
@@ -8640,13 +8640,13 @@ void SaveExpt()
 {
 	char *filename,cbuf[256];
 	int i,j;
-
+    
 	gettimeofday(&timeb,NULL);
 	SaveExptFile(filename,0);
 	loadfiles[0] = myscopy(loadfiles[0],filename);
 	gettimeofday(&timec,NULL);
 	if(testfd != NULL)
-	  fprintf(testfd,"Saving %s, %.3f seconds\n",filename,timediff(&timec,&timeb));
+        fprintf(testfd,"Saving %s, %.3f seconds\n",filename,timediff(&timec,&timeb));
 	sprintf(cbuf,"Setup Saved in %s",filename);
 	statusline(cbuf);
 }
@@ -8657,53 +8657,53 @@ void SaveExpt()
 
 void select_stimulus(int type)
 {
-  switch(type)
+    switch(type)
     {
-    case STIM_FOREGROUND:
-      stimptr = TheStim;
-      break;
-    case STIM_BACKGROUND:
-	if(TheStim->next == NULL)
-	{
-		NewStimulus(TheStim);
-		StimulusType(TheStim->next, STIM_NONE);
-		TheStim->next->prev = TheStim;
-		TheStim->next->splane = 0x2;
-	}
-	stimptr = TheStim->next;
-	StimulusType(stimptr,stimptr->type);
-	CheckRect(TheStim);
-	break;
-    case STIM_NUM3:
-	if(TheStim->next == NULL)
-	{
-		NewStimulus(TheStim);
-		StimulusType(TheStim->next, STIM_NONE);
-		TheStim->next->prev = TheStim;
-		TheStim->next->splane = 0x2;
-	}
-	if(TheStim->next->next == NULL)
-	{
-		NewStimulus(TheStim->next);
-		StimulusType(TheStim->next->next, STIM_NONE);
-		TheStim->next->next->prev = TheStim->next;
-		TheStim->next->next->splane = STIM_THIRD_BIT;
-	}
-	stimptr = TheStim->next->next;
-	StimulusType(stimptr,stimptr->type);
-	CheckRect(TheStim);
-	break;
-    case STIM_CHOICE1:
-	stimptr = ChoiceStima;
-	StimulusType(stimptr,stimptr->type);
-	break;
-    case STIM_CHOICE2:
-	stimptr = ChoiceStimb;
-	StimulusType(stimptr,stimptr->type);
-	break;
+        case STIM_FOREGROUND:
+            stimptr = TheStim;
+            break;
+        case STIM_BACKGROUND:
+            if(TheStim->next == NULL)
+            {
+                NewStimulus(TheStim);
+                StimulusType(TheStim->next, STIM_NONE);
+                TheStim->next->prev = TheStim;
+                TheStim->next->splane = 0x2;
+            }
+            stimptr = TheStim->next;
+            StimulusType(stimptr,stimptr->type);
+            CheckRect(TheStim);
+            break;
+        case STIM_NUM3:
+            if(TheStim->next == NULL)
+            {
+                NewStimulus(TheStim);
+                StimulusType(TheStim->next, STIM_NONE);
+                TheStim->next->prev = TheStim;
+                TheStim->next->splane = 0x2;
+            }
+            if(TheStim->next->next == NULL)
+            {
+                NewStimulus(TheStim->next);
+                StimulusType(TheStim->next->next, STIM_NONE);
+                TheStim->next->next->prev = TheStim->next;
+                TheStim->next->next->splane = STIM_THIRD_BIT;
+            }
+            stimptr = TheStim->next->next;
+            StimulusType(stimptr,stimptr->type);
+            CheckRect(TheStim);
+            break;
+        case STIM_CHOICE1:
+            stimptr = ChoiceStima;
+            StimulusType(stimptr,stimptr->type);
+            break;
+        case STIM_CHOICE2:
+            stimptr = ChoiceStimb;
+            StimulusType(stimptr,stimptr->type);
+            break;
     }
-  //Ali SetStimPanel(stimptr);
-  //Ali SetAllPanel(&expt);
+    //Ali SetStimPanel(stimptr);
+    //Ali SetAllPanel(&expt);
 }
 
 
@@ -8711,18 +8711,18 @@ void CheckMode(int cmode)
 {
 	int new;
 	Locator *pos = &TheStim->pos;
-
+    
 	switch(cmode)
 	{
-	case COLORRGB:
-		rightshift = 8;
-		break;
-	case COLOR6BIT:
-		rightshift = 6;
-		break;
-	default:
-		rightshift = 0;
-		break;
+        case COLORRGB:
+            rightshift = 8;
+            break;
+        case COLOR6BIT:
+            rightshift = 6;
+            break;
+        default:
+            rightshift = 0;
+            break;
 	}
 }
 
@@ -8730,7 +8730,7 @@ float timediff(struct timeval *a, struct timeval *b)
 {
 	float res;
 	if(a->tv_sec == 0 || b->tv_sec == 0)
-	  return(-1000);
+        return(-1000);
 	res = a->tv_sec - b->tv_sec + (a->tv_usec - b->tv_usec)/1000000.0;
 	return(res);
 }
@@ -8738,7 +8738,7 @@ float timediff(struct timeval *a, struct timeval *b)
 void addtime(struct timeval *a, struct timeval *b, float sec)
 {
 	int wholesec = floor(sec);
-
+    
 	b->tv_sec = a->tv_sec + wholesec;
 	b->tv_usec = a->tv_usec + rint(((sec-wholesec) * 1000000.0));
 	if(b->tv_usec > 1000000)
@@ -8750,15 +8750,15 @@ void addtime(struct timeval *a, struct timeval *b, float sec)
 
 
 /*
-* GLblock(1210000) (1.21 million) causes a pause of 1 sec.
-* = 20k delays 1 frame
-*/
+ * GLblock(1210000) (1.21 million) causes a pause of 1 sec.
+ * = 20k delays 1 frame
+ */
 
 void GLblock(int n)
 {
 	int i;
 	short x[2];
-
+    
 	SetColor(TheStim->background,1);
 	glBegin(GL_POINTS);
 	for(i = 0; i < n; i++)
@@ -8775,154 +8775,154 @@ void WurtzTrial()
 {
 	int i,len;
 	if(monkeypress == WURTZ_STOPPED)
-	  return;
-	  
-
-        stmode &= (~MOVED_STIMULUS);
+        return;
+    
+    
+    stmode &= (~MOVED_STIMULUS);
 	TheStim->mode |= (NEW_FIXATION_BIT);
 	if((TheStim->mode & EXPTPENDING)|| mode & ANIMATE_BIT)
 		TheStim->mode |= TRIAL_PENDING;
-
+    
 	TheStim->fix.state = FIX_IS_UP;
 	TheStim->fixcolor = TheStim->fix.fixcolor;
 	lastwurtzcount = wurtzcount = 0;
 	if(TheStim->fix.stimvar > 0)
-	  duration = TheStim->fix.fixframes + random() % TheStim->fix.stimvar;
+        duration = TheStim->fix.fixframes + random() % TheStim->fix.stimvar;
 	else
-	  duration = TheStim->fix.fixframes;
+        duration = TheStim->fix.fixframes;
 	if(optionflag & WURTZ_WHOLE_STIMULI)
 	{
 		ntrialstim = (int)(0.5 + (float)(duration)/(TheStim->nframes));
-/* 26 July changed so that just don't count wurtzcout up during isi */
+        /* 26 July changed so that just don't count wurtzcout up during isi */
 		duration = (TheStim->nframes);
 	}
 	else
-	stimstate = PRESTIMULUS;
+        stimstate = PRESTIMULUS;
 	realframecount = framecount = 0;
 }
 
 float StimDuration()
 {
-  float val = timediff(&endstimtime,&firstframetime);
-  return(val);
+    float val = timediff(&endstimtime,&firstframetime);
+    return(val);
 }
 
 float StimTime(struct timeval *event)
 {
-  float val = timediff(event,&firstframetime);
-  return(val);
+    float val = timediff(event,&firstframetime);
+    return(val);
 }
 
 int ShowTrialCount(float down, float sum)
 {
-  int i,*iptr;
-  char result = '0',buf[256];
-  float val;
-
-
+    int i,*iptr;
+    char result = '0',buf[256];
+    float val;
+    
+    
 	if(sum < 0)
-	  {
+    {
 	    if(wurtzctr > avglen)
-	       {
-			    iptr = &fixed[wurtzctr-avglen];
-			    sum = 0;
-			    for(i = 0; i < avglen; i++)
-			      if(*iptr++ == (int)WURTZ_OK)
-				sum += 1.0;
-			  }
-	       else
-	       sum = 0;
-	  }
+        {
+            iptr = &fixed[wurtzctr-avglen];
+            sum = 0;
+            for(i = 0; i < avglen; i++)
+                if(*iptr++ == (int)WURTZ_OK)
+                    sum += 1.0;
+        }
+        else
+            sum = 0;
+    }
 	else{
 	    if(wurtzctr > avglen)
-	      iptr = &fixed[wurtzctr-avglen];
+            iptr = &fixed[wurtzctr-avglen];
 	    else
-	      iptr = &fixed[0];
+            iptr = &fixed[0];
 	    sum = 0;
 	    for(i = 0; i < avglen && i < wurtzctr; i++)
-	      if(*iptr++ == (int)WURTZ_OK)
-		sum += 1.0;
+            if(*iptr++ == (int)WURTZ_OK)
+                sum += 1.0;
 	}
 	val = StimDuration();
 	if(debug)
-	  sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
-	    totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
+        sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
+                totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
 	else
-	  sprintf(mssg,"%s Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %.0f/%d",binocTimeString(),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
-	    totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
-
-
+        sprintf(mssg,"%s Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %.0f/%d",binocTimeString(),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
+                totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
+    
+    
 	if(TheStim->mode & EXPTPENDING)
-	  {
+    {
 	    sprintf(buf,"Ex: %d/%d",stimno,expt.nreps*expt.nstim[5]);
 	    strcat(mssg,buf);
-	  }
+    }
 	if(endbadctr)
-	  {
+    {
 	    sprintf(buf,"Bad: %d",endbadctr);
 	    strcat(mssg,buf);
-	  }
+    }
 	if(optionflag & FRAME_ONLY_BIT)
-	  {
+    {
 	    sprintf(mssg,"Ex: %ld/%d %.1f +- SD %.2f %d,%d outliers",frametotal,expt.nreps*expt.nstim[5],framemean,framesd,outliers[0],outliers[1]);
-	  }
+    }
 	statusline(mssg);
 	return(0);
 }
 
 int ShowLastCodes()
 {
-  int i;
-  char *s, buf[BUFSIZ];
-
-  if((s = CheckSerialInput(100)) != NULL){
-    strcpy(buf,s);
-    for(i = 0; i < 100; i++){
-      if(buf[i] == END_STIM)
-	buf[i] = '$';
+    int i;
+    char *s, buf[BUFSIZ];
+    
+    if((s = CheckSerialInput(100)) != NULL){
+        strcpy(buf,s);
+        for(i = 0; i < 100; i++){
+            if(buf[i] == END_STIM)
+                buf[i] = '$';
+        }
+        fprintf(seroutfile,"Input%s\n",buf);
     }
-    fprintf(seroutfile,"Input%s\n",buf);
-  }
-  fprintf(seroutfile,"Codes: ");
-  for(i = 0; i < CODEHIST; i++)
-    fprintf(seroutfile," %d",lastcodes[(codectr-i)%CODEHIST]);
-  fprintf(seroutfile,"\n Outcodes:");
-  for(i = 0; i < CODEHIST; i++)
-    fprintf(seroutfile," %d",outcodes[(outctr-i)%CODEHIST]);
-  fprintf(seroutfile,"\n");
-  return(lastcodes[codectr]);
+    fprintf(seroutfile,"Codes: ");
+    for(i = 0; i < CODEHIST; i++)
+        fprintf(seroutfile," %d",lastcodes[(codectr-i)%CODEHIST]);
+    fprintf(seroutfile,"\n Outcodes:");
+    for(i = 0; i < CODEHIST; i++)
+        fprintf(seroutfile," %d",outcodes[(outctr-i)%CODEHIST]);
+    fprintf(seroutfile,"\n");
+    return(lastcodes[codectr]);
 }
 
 static char lastchar = 0;
 void ShowConjugReadState(char *line)
 {
-  char *s,buf[BUFSIZ];
-  int i;
-
-
-  fprintf(stderr,"Char %d (%d) last conjug %d buf %s.last%c\n",totalchrs,
-	  strlen(line),conjctr,conjbuf,lastchar);
-  if((s = CheckSerialInput(100)) != NULL){
-    fprintf(stderr,"S okay\n");
-    fprintf(stderr,"%s\n",s);
-    strcpy(buf,s);
-    for(i = 0; i < 100; i++){
-      if(buf[i] == CONJUG_OUT)
-	buf[i] = '$';
+    char *s,buf[BUFSIZ];
+    int i;
+    
+    
+    fprintf(stderr,"Char %d (%d) last conjug %d buf %s.last%c\n",totalchrs,
+            strlen(line),conjctr,conjbuf,lastchar);
+    if((s = CheckSerialInput(100)) != NULL){
+        fprintf(stderr,"S okay\n");
+        fprintf(stderr,"%s\n",s);
+        strcpy(buf,s);
+        for(i = 0; i < 100; i++){
+            if(buf[i] == CONJUG_OUT)
+                buf[i] = '$';
+        }
+        fprintf(stderr,"Input %s\n",buf);
     }
-    fprintf(stderr,"Input %s\n",buf);
-  }
-  fprintf(stderr,"Buf %s\n",charbuf);
+    fprintf(stderr,"Buf %s\n",charbuf);
 }
 
 
 double  RunTime(void )
 {
-  double t;
-  gettimeofday(&now, NULL);
-  t = timediff(&now,&progstarttime);
-  return(t);
-
+    double t;
+    gettimeofday(&now, NULL);
+    t = timediff(&now,&progstarttime);
+    return(t);
+    
 }
 #define MBUFLEN 512
 int GotChar(char c)
@@ -8939,621 +8939,621 @@ int GotChar(char c)
 	int monkey_dir,x,y,aid;
 	float oldrw,sacth;
 	int sign,code;
-
+    
 	totalchrs++;
-
+    
 	if(c == '\n')
 	{
-	  if(strncmp(charbuf,"CLOSING",6) == NULL)
-	    ReopenSerial();
-	  else if (!strncmp(charbuf,"SavedOnlineData",10)){
-		  if (optionflags[ONLINE_DATA])
-			  SerialString("WriteOnlineData\n",0);
-	  }
-	  else
-	    code = InterpretLine(charbuf,&expt,1);
+        if(strncmp(charbuf,"CLOSING",6) == NULL)
+            ReopenSerial();
+        else if (!strncmp(charbuf,"SavedOnlineData",10)){
+            if (optionflags[ONLINE_DATA])
+                SerialString("WriteOnlineData\n",0);
+        }
+        else
+            code = InterpretLine(charbuf,&expt,1);
 		charctr = 0;
 		if(code == SACCADE_DETECTED){
-		  sacth = expt.vals[SACCADE_DETECTED];
-		  if(sacth < 0.01)
-		    sacth = 1000;
- /* BW sends H, V components   */ 
-		  sscanf(charbuf,"%*2s%f %f",&sacval[0],&sacval[1]);
-/*
- * need to reverse H component even to get axis corrrect for oblique choice axes
- * NB this assumes mirrors - no option for No Mirror flag
- */
-		  sacdir = atan2(sacval[1],-sacval[0]);
-		  sacsiz = sqrt(sqr(sacval[1])+sqr(sacval[0]));
-		  val = timediff(&now,&wurtzstart);
-		  choiceaxis = atan2(afc_s.abssac[1],afc_s.abssac[0]);
-  /* tansac < 1 = dir of saccade within 45 degreees of choice axis */
-		  tansac = fabs(tan(sacdir-choiceaxis));
-		  if(seroutfile){
-		    fputs(charbuf,seroutfile);
-		    fprintf(seroutfile," Sa%2f(%.2f),%.2f (%.2f,%d,%d)\n",sacsiz,sacth,sacdir,val,stimstate,expt.allstimid);
-		  }
-// if experimenter is moving fixation point, don't punish saccades!
-		  if(val > 0.2 && sacsiz > sacth && tansac  < 1 && stimstate == INSTIMULUS && expt.vals[FP_MOVE_SIZE] == 0){
-		    if(seroutfile){
-		      fprintf(seroutfile,"#Saccade\n");
-		    }
-		    microsaccade = sacsiz;
-		    microsaccdir = sacdir;
-		    fixstate = SACCADE_DETECTED;
-		    c = BAD_FIXATION;
-		    write(ttys[0],&c,1);
-		    GotChar(BAD_FIXATION);
-		    sprintf(buf,"%.2s:%.2f %.2f\n",serial_strings[SACCADE_DETECTED],sacsiz,sacdir);
-		    SerialString(buf,0);
-		    for( i = 0; i < strlen(charbuf); i++)
-		      charbuf[i] = 0;
-		    return(BAD_FIXATION);
-		  }
+            sacth = expt.vals[SACCADE_DETECTED];
+            if(sacth < 0.01)
+                sacth = 1000;
+            /* BW sends H, V components   */ 
+            sscanf(charbuf,"%*2s%f %f",&sacval[0],&sacval[1]);
+            /*
+             * need to reverse H component even to get axis corrrect for oblique choice axes
+             * NB this assumes mirrors - no option for No Mirror flag
+             */
+            sacdir = atan2(sacval[1],-sacval[0]);
+            sacsiz = sqrt(sqr(sacval[1])+sqr(sacval[0]));
+            val = timediff(&now,&wurtzstart);
+            choiceaxis = atan2(afc_s.abssac[1],afc_s.abssac[0]);
+            /* tansac < 1 = dir of saccade within 45 degreees of choice axis */
+            tansac = fabs(tan(sacdir-choiceaxis));
+            if(seroutfile){
+                fputs(charbuf,seroutfile);
+                fprintf(seroutfile," Sa%2f(%.2f),%.2f (%.2f,%d,%d)\n",sacsiz,sacth,sacdir,val,stimstate,expt.allstimid);
+            }
+            // if experimenter is moving fixation point, don't punish saccades!
+            if(val > 0.2 && sacsiz > sacth && tansac  < 1 && stimstate == INSTIMULUS && expt.vals[FP_MOVE_SIZE] == 0){
+                if(seroutfile){
+                    fprintf(seroutfile,"#Saccade\n");
+                }
+                microsaccade = sacsiz;
+                microsaccdir = sacdir;
+                fixstate = SACCADE_DETECTED;
+                c = BAD_FIXATION;
+                write(ttys[0],&c,1);
+                GotChar(BAD_FIXATION);
+                sprintf(buf,"%.2s:%.2f %.2f\n",serial_strings[SACCADE_DETECTED],sacsiz,sacdir);
+                SerialString(buf,0);
+                for( i = 0; i < strlen(charbuf); i++)
+                    charbuf[i] = 0;
+                return(BAD_FIXATION);
+            }
 		}
 		for( i = 0; i < strlen(charbuf); i++)
 		    charbuf[i] = 0;
 	}
 	else if(c== START_EXPT){ /* this is sent when BW starts up send everything */
-
+        
 #ifdef NIDAQ  
-// trigger data collection for Spike2
+        // trigger data collection for Spike2
 	    DIOWrite(0x7); 
 	    fsleep(0.01);
    	    DIOval = 0;  DIOWrite(0);
 #endif
 		MakeConnection();
 	}
-
+    
 	else if(c == CONJUG_OUT){
-	  if(debug & DEBUG_CONJ_TIME){
-	    gettimeofday(&now,NULL);
-	    fprintf(stderr,"CT %.4f\n",timediff(&now,&cjtime));
-	    memcpy(&cjtime,&now, sizeof(struct timeval));
-	  }
-	  conjctr = totalchrs;
-	  for(i = 0; i < 4; i++)
-	    conjbuf[i] = 0;
-	  conjbufctr = 0;
+        if(debug & DEBUG_CONJ_TIME){
+            gettimeofday(&now,NULL);
+            fprintf(stderr,"CT %.4f\n",timediff(&now,&cjtime));
+            memcpy(&cjtime,&now, sizeof(struct timeval));
+        }
+        conjctr = totalchrs;
+        for(i = 0; i < 4; i++)
+            conjbuf[i] = 0;
+        conjbufctr = 0;
 	}
 	else if(conjbufctr >= 0 && conjbufctr < 4){
-	  conjbuf[conjbufctr++] = c;
-	  if(c == CONJUG_OUT){
-	    if(seroutfile){
-	      gettimeofday(&now,NULL);
-	      fprintf(seroutfile,"#Double Sj at %d",ufftime(&now));
-	    }
-	    conjbufctr = 0;
-	  }
-	  if(conjbufctr == 4){
-	  i = 0;
-	  lastchar = c;
-	  charctr = 0;
-	  x = ((conjbuf[1]-64) << 6) | ((conjbuf[0]-64));
-	  y = ((conjbuf[3]-64) << 6) | ((conjbuf[2]-64));
-	  if(optionflags[NO_MIRRORS])
-	    conjpos[0] = x - 1024;
-	  else
-	    conjpos[0] = 1024 - x;
-	  conjpos[1] = y - 1024;
-	  conjbufctr = -1;
-	  }
+        conjbuf[conjbufctr++] = c;
+        if(c == CONJUG_OUT){
+            if(seroutfile){
+                gettimeofday(&now,NULL);
+                fprintf(seroutfile,"#Double Sj at %d",ufftime(&now));
+            }
+            conjbufctr = 0;
+        }
+        if(conjbufctr == 4){
+            i = 0;
+            lastchar = c;
+            charctr = 0;
+            x = ((conjbuf[1]-64) << 6) | ((conjbuf[0]-64));
+            y = ((conjbuf[3]-64) << 6) | ((conjbuf[2]-64));
+            if(optionflags[NO_MIRRORS])
+                conjpos[0] = x - 1024;
+            else
+                conjpos[0] = 1024 - x;
+            conjpos[1] = y - 1024;
+            conjbufctr = -1;
+        }
 	}
 	else if(c == SPIKES_OUT){
-	  i = 0;
-	  c = 0;
-	  while(c != SPIKES_OUT){
-	    if((c = ReadSerial(ttys[0])) != MYEOF)
-	      conjbuf[i++] = c;
-	  }
+        i = 0;
+        c = 0;
+        while(c != SPIKES_OUT){
+            if((c = ReadSerial(ttys[0])) != MYEOF)
+                conjbuf[i++] = c;
+        }
 	}
 	else if(isserialcode(c) && monkeypress != WURTZ_STOPPED)
 	{
 #ifdef DEBUG
-		  printf("Code %d\n",(int)c);
+        printf("Code %d\n",(int)c);
 #endif
 		switch(c)
 		{
-		case 10: /* = '\n' -  dont use it */
-			break;
-		case BAD_TRIAL_STATE:
-		  if(seroutfile){
-		  fprintf(seroutfile,"#BadState:");
-		  ShowLastCodes();
-		  }
-		  break;
-		case CONJUG_OUT:
-			cctr = 3;
-			fprintf(stderr,"Conjug read should not be here!\n");
-			break;
-		case WURTZ_STOPPED:
-			TheStim->fix.state = FIX_IS_OFF;
-			TheStim->fixcolor = TheStim->fix.offcolor;
-			monkeypress = -2;
-			TheStim->mode &= (~(INTRIAL));
-			TheStim->mode |= (NEW_FIXATION_BIT);
-			res = c;
-			break;
-		case END_STIM:
-			i = codectr;
-			break;
-		case START_STIM:
-		  fixstate = GOOD_FIXATION;
-		  SerialSend(GOOD_FIXATION);
-/* 
- * for intial training, give one reward as soon as fixating
- */
-
-		  /*
-		   * apr 99 don't need any of this with the new
-		   * structure. START_STIM from BW jsut says that
-		   * monkey is fixating after hearing that fix is on.
-		   * the next_frame loopt deals with
-		   *  everything else
-		   */
-		  if((TheStim->type == STIM_RDS || TheStim->type == STIM_RADIAL) && (i = (int)rint(expt.vals[CHANGE_SEED])) > 0)
-		    {
-		      sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
-			      serial_strings[CHANGE_SEED]);
-		      SerialString(buf,0);
-		    }
-		  else if(TheStim->type == STIM_RDS && (i = (int)rint(expt.vals[BACKJUMP])) > 0)
-		    {
-		      sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
-			      serial_strings[BACKJUMP]);
-		      SerialString(buf,0);
-		    }
-		   else  if(expt.vals[FP_MOVE_SIZE] > 0)
-		    {
-		      if(optionflags[SIMULATE_FP_MOVE])
-			i = 2;
-		      else
-			i = 0;
-		      sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
-			      jumpstrings[i]);
-		      SerialString(buf,0);
-		    }
-		  else if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
-		      sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
-			      serial_strings[RC_STIMCHANGE]);
-		  }
-
-
-			TheStim->fixcolor = TheStim->fix.fixcolor;
-			TheStim->fix.state = FIX_IS_UP;
-			gettimeofday(&wurtzstart,NULL);
-			WurtzTrial();
-			intended = (float)(duration)/mon.framerate;
-			if((option2flag & EXPT_INTERACTIVE))
-			  SetStimulus(TheStim,90.0,SETPHASE,NOEVENT);
-			else
-			  SetStimulus(TheStim,TheStim->vals[START_PHASE],SETPHASE,NOEVENT);
-			//			framesdone=0;
-			drag = 0;
-			break;
-		case END_PREM:
-		  /*			if(monkeypress != WURTZ_STOPPED)
-			  end_timeout();*/
-			break;
-		case BAD_FIXATION:
-		  if (fixstate == BADFIX_STATE) // Already received code
-		    break;
-		  fixstate = BADFIX_STATE;
-		case WURTZ_LATE:
-		case WURTZ_OK:
-		case WURTZ_OK_W:
+            case 10: /* = '\n' -  dont use it */
+                break;
+            case BAD_TRIAL_STATE:
+                if(seroutfile){
+                    fprintf(seroutfile,"#BadState:");
+                    ShowLastCodes();
+                }
+                break;
+            case CONJUG_OUT:
+                cctr = 3;
+                fprintf(stderr,"Conjug read should not be here!\n");
+                break;
+            case WURTZ_STOPPED:
+                TheStim->fix.state = FIX_IS_OFF;
+                TheStim->fixcolor = TheStim->fix.offcolor;
+                monkeypress = -2;
+                TheStim->mode &= (~(INTRIAL));
+                TheStim->mode |= (NEW_FIXATION_BIT);
+                res = c;
+                break;
+            case END_STIM:
+                i = codectr;
+                break;
+            case START_STIM:
+                fixstate = GOOD_FIXATION;
+                SerialSend(GOOD_FIXATION);
+                /* 
+                 * for intial training, give one reward as soon as fixating
+                 */
+                
+                /*
+                 * apr 99 don't need any of this with the new
+                 * structure. START_STIM from BW jsut says that
+                 * monkey is fixating after hearing that fix is on.
+                 * the next_frame loopt deals with
+                 *  everything else
+                 */
+                if((TheStim->type == STIM_RDS || TheStim->type == STIM_RADIAL) && (i = (int)rint(expt.vals[CHANGE_SEED])) > 0)
+                {
+                    sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
+                            serial_strings[CHANGE_SEED]);
+                    SerialString(buf,0);
+                }
+                else if(TheStim->type == STIM_RDS && (i = (int)rint(expt.vals[BACKJUMP])) > 0)
+                {
+                    sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
+                            serial_strings[BACKJUMP]);
+                    SerialString(buf,0);
+                }
+                else  if(expt.vals[FP_MOVE_SIZE] > 0)
+                {
+                    if(optionflags[SIMULATE_FP_MOVE])
+                        i = 2;
+                    else
+                        i = 0;
+                    sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
+                            jumpstrings[i]);
+                    SerialString(buf,0);
+                }
+                else if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
+                    sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
+                            serial_strings[RC_STIMCHANGE]);
+                }
+                
+                
+                TheStim->fixcolor = TheStim->fix.fixcolor;
+                TheStim->fix.state = FIX_IS_UP;
+                gettimeofday(&wurtzstart,NULL);
+                WurtzTrial();
+                intended = (float)(duration)/mon.framerate;
+                if((option2flag & EXPT_INTERACTIVE))
+                    SetStimulus(TheStim,90.0,SETPHASE,NOEVENT);
+                else
+                    SetStimulus(TheStim,TheStim->vals[START_PHASE],SETPHASE,NOEVENT);
+                //			framesdone=0;
+                drag = 0;
+                break;
+            case END_PREM:
+                /*			if(monkeypress != WURTZ_STOPPED)
+                 end_timeout();*/
+                break;
+            case BAD_FIXATION:
+                if (fixstate == BADFIX_STATE) // Already received code
+                    break;
+                fixstate = BADFIX_STATE;
+            case WURTZ_LATE:
+            case WURTZ_OK:
+            case WURTZ_OK_W:
 #ifdef MONITOR_CLOSE
 #endif		  
-		  if(seroutfile)
-		    fprintf(seroutfile,"#Gch%d\n",(int)(c));
-		  gettimeofday(&endtrialtime, NULL);
-
+                if(seroutfile)
+                    fprintf(seroutfile,"#Gch%d\n",(int)(c));
+                gettimeofday(&endtrialtime, NULL);
+                
 #ifdef NIDAQ
-		  DIOWrite(0); DIOval = 0;
+                DIOWrite(0); DIOval = 0;
 #endif
-		  expstate = c;
-			gettimeofday(&now,NULL);
-			if(c != BAD_FIXATION)
-			  fixstate = RESPONDED;
-			if(fixed == NULL){
-			  fixed = (int *)malloc(sizeof(int) * (wurtzbufferlen));
-			  fixy = (float *)malloc(sizeof(float) * (wurtzbufferlen));
-			  fixx = (float *)malloc(sizeof(float) * (wurtzbufferlen));
-			}
-			fixed[wurtzctr] = (int)c;
-			fixx[wurtzctr] = expt.stimvals[FIXPOS_X];
-			fixy[wurtzctr] = expt.stimvals[FIXPOS_Y];
-
-			fixed[wurtzctr+1] = -1;
+                expstate = c;
+                gettimeofday(&now,NULL);
+                if(c != BAD_FIXATION)
+                    fixstate = RESPONDED;
+                if(fixed == NULL){
+                    fixed = (int *)malloc(sizeof(int) * (wurtzbufferlen));
+                    fixy = (float *)malloc(sizeof(float) * (wurtzbufferlen));
+                    fixx = (float *)malloc(sizeof(float) * (wurtzbufferlen));
+                }
+                fixed[wurtzctr] = (int)c;
+                fixx[wurtzctr] = expt.stimvals[FIXPOS_X];
+                fixy[wurtzctr] = expt.stimvals[FIXPOS_Y];
+                
+                fixed[wurtzctr+1] = -1;
 			    if(c== WURTZ_OK){
-			      if(goodtrials %50 == 0 && goodtrials > 0 && penlog)
-				fprintf(penlog,"Rewards %d of %d\n",goodtrials,totaltrials);
-				goodtrials++;
-				if( (afc_s.sacval != 0) && (option2flag & AFC)){
-				    afctrials++;
-				    afc_s.lasttrial = c;
-				}
-			      }
+                    if(goodtrials %50 == 0 && goodtrials > 0 && penlog)
+                        fprintf(penlog,"Rewards %d of %d\n",goodtrials,totaltrials);
+                    goodtrials++;
+                    if( (afc_s.sacval != 0) && (option2flag & AFC)){
+                        afctrials++;
+                        afc_s.lasttrial = c;
+                    }
+                }
 			    else if(c==BAD_FIXATION)
-			      {
-				wrongtrials++;
-				fixtrials++;
-			      }
+                {
+                    wrongtrials++;
+                    fixtrials++;
+                }
 			    else if(c==WURTZ_OK_W){ /* can only get when sacval != 0 */
-				wrongtrials++;
-				if (option2flag & AFC)
-				    afctrials++;
-				afc_s.lasttrial = c;
+                    wrongtrials++;
+                    if (option2flag & AFC)
+                        afctrials++;
+                    afc_s.lasttrial = c;
 			    }
-			  totaltrials++;
-			  srandom(totaltrials);
-			
-			trialdur = down = timediff(&now,&wurtzframetime);
-			trialdur = StimTime(&now);
-			trialdursum += trialdur;
-
-			if(c== WURTZ_OK){
-			    if(option2flag & AFC) 
-			      result = 'G';
-			    else
-			      result = 'F';
-			    jonresult = CORRECT;
-			    presult = 1;
-			    trialdursum = 0;
-			}
-			else if(c==BAD_FIXATION){
-			  result = 'B';
-			  jonresult = FOUL;
-			  presult = 3;
-			  if(optionflags[COUNT_BADFIX_FOR_BONUS])
-			    afc_s.goodinarow = 0;
-			  val = expt.st->nframes/mon.framerate;
-			  if (trialdursum > val && expt.stimmode ==BUTTSEXPT){
-			    stimno++;
-			    if (seroutfile)
-			      fprintf(seroutfile,"Got %.2f sec. Moving on to %d\n",trialdursum,stimno);
-			    trialdursum = 0;
-			  }
-			}
-			else if(c== WURTZ_LATE || fixstate == WURTZ_LATE){
-				result = 'L';
-				jonresult = FOUL;
-				presult = 2;
-				latetrials++;
-			    trialdursum = 0;
-
-			}
-			else if(c== WURTZ_OK_W){
-				result = 'W';
-				jonresult = WRONG;
-				presult = 0;
-				trialdursum = 0;
-/*				start_timeout(c);*/
-			}
-			else
-			  result = '?'; /* shouldn't happen */
-
+                totaltrials++;
+                srandom(totaltrials);
+                
+                trialdur = down = timediff(&now,&wurtzframetime);
+                trialdur = StimTime(&now);
+                trialdursum += trialdur;
+                
+                if(c== WURTZ_OK){
+                    if(option2flag & AFC) 
+                        result = 'G';
+                    else
+                        result = 'F';
+                    jonresult = CORRECT;
+                    presult = 1;
+                    trialdursum = 0;
+                }
+                else if(c==BAD_FIXATION){
+                    result = 'B';
+                    jonresult = FOUL;
+                    presult = 3;
+                    if(optionflags[COUNT_BADFIX_FOR_BONUS])
+                        afc_s.goodinarow = 0;
+                    val = expt.st->nframes/mon.framerate;
+                    if (trialdursum > val && expt.stimmode ==BUTTSEXPT){
+                        stimno++;
+                        if (seroutfile)
+                            fprintf(seroutfile,"Got %.2f sec. Moving on to %d\n",trialdursum,stimno);
+                        trialdursum = 0;
+                    }
+                }
+                else if(c== WURTZ_LATE || fixstate == WURTZ_LATE){
+                    result = 'L';
+                    jonresult = FOUL;
+                    presult = 2;
+                    latetrials++;
+                    trialdursum = 0;
+                    
+                }
+                else if(c== WURTZ_OK_W){
+                    result = 'W';
+                    jonresult = WRONG;
+                    presult = 0;
+                    trialdursum = 0;
+                    /*				start_timeout(c);*/
+                }
+                else
+                    result = '?'; /* shouldn't happen */
+                
                 sprintf(buf,"TRES %c\n",result);
                 notify(buf);
-			trialdur = down = timediff(&now,&wurtzframetime);
-			start = timediff(&now,&progstarttime);
-/* 
- * now saccades can be in any direction, need to take into account
- * abssacval
- */
-			if(fabs(afc_s.sacval[0]) > fabs(afc_s.sacval[1]))
-			  aid = 0;
-
-			else
-			  aid = 1;
-			if(afc_s.newdirs)
-			  sign = afc_s.stimsign;
-			else
-			  sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
-			if(sign < 0)
-			  sign = -1;
-			else if(sign > 0)
-			  sign = 1;
-			else
-			  sign = 0;
-			if(psychfile != NULL){
-			  if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
-			    presult += 100;
-			if(!SACCREQD(afc_s))
-			  presult +=50;
-			    if(abs(afc_s.ccvar) > 0.01 && expt.type2 == EXPTYPE_NONE)
-			      fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-				    presult,serial_strings[expt.mode],expt.currentval[0], 
-				    serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
-			    else if(expt.type3 == FAKESTIM_EXPT && expt.type2 == EXPTYPE_NONE)
-			      fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-				    presult,serial_strings[expt.mode],expt.currentval[0], 
-				    serial_strings[FAKESTIM_SIGNAL],fakestim);
-			    else if(expt.currentval[0] == INTERLEAVE_EXPT_FLIP)
-			      fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-				    presult,serial_strings[expt.mode],expt.currentval[0], 
-				    serial_strings[expt.type2],expt.currentval[3]);
-			    else
-			    fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-				    presult,serial_strings[expt.mode],expt.currentval[0], 
-				    serial_strings[expt.type2],expt.currentval[1]);
-			    fprintf(psychfile," sn=%d %.2f %.2f %.2f",sign,start,down,expt.vals[REWARD_SIZE]);
-			    if(microsaccade >0)
-			      sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade); 
-			    else
-			      sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
-			      
-			    if(expt.type3 != EXPTYPE_NONE)
-			      fprintf(psychfile," %s=%.2f %s\n",serial_strings[expt.type3],expt.currentval[2],str);
-			    else if(expt.mode == TWOCYL_DISP)
-			      fprintf(psychfile," %s=%.2f %s\n",serial_strings[DISP_X],expt.currentval[2],str);
-			    else if(expt.vals[ONETARGET_P] > 0)
-			      fprintf(psychfile," %s=%.2f %s\n",serial_strings[TARGET_RATIO],expt.vals[TARGET_RATIO],str);
-			    else
-
-			    fprintf(psychfile," %s %s=%d\n",str,serial_strings[STIMID],expt.allstimid);
-			    fflush(psychfile);
-			}
-			if(seroutfile != NULL) 
-			  {
-			    if(c == WURTZ_OK || c == WURTZ_OK_W){
-			    }
-			    
-			    if(expt.flag & TIMES_EXPT2)
-			    fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
-				    result,serial_strings[expt.mode],expt.currentval[0], 
-				    serial_strings[expt.type2],expt.currentval[1]);
-			    else if(abs(afc_s.ccvar) > 0.01)
-			    fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
-				    result,serial_strings[expt.mode],expt.currentval[0], 
-				    serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
-			    else if(expt.type2 == OPPOSITE_DELAY &&expt.flag & ADD_EXPT2){
-			    fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
-				    result, serial_strings[expt.mode],expt.currentval[1],serial_strings[SEED_DELAY],GetProperty(&expt,expt.st,SEED_DELAY));
-			    }
-			    else if(expt.flag & ADD_EXPT2 && expt.expno != EXP_FIRST)
-			      {
-			    fprintf(seroutfile,"R%c %s=%.5f",
-				    result, serial_strings[expt.type2],expt.currentval[1]);
-			      }
-			    else
-			    fprintf(seroutfile,"R%c %s=%.5f",
-				    result, serial_strings[expt.mode],expt.currentval[0]);
-			    fprintf(seroutfile," sn=%d",sign);
-			    buf[0] = '=';
-			    buf[1] = 0;
-			    if((i =MakeString(STIMULUS_FLAG, buf,&expt, TheStim, TO_FILE)) >= 0)
-			      fprintf(seroutfile," %s",buf);
-			    if(optionflags[MICROSTIM])
-			      fprintf(seroutfile,"+%2s",toggle_codes[MAXOPTIONBITS+MICROSTIM]);
-			    buf[0] = '=';
-			    buf[1] = 0;
-			    if((i =MakeString(STIMULUS_TYPE_CODE, buf,&expt, TheStim, TO_FILE)) >= 0)
-			      fprintf(seroutfile," %s",buf);
-
-			    fprintf(seroutfile," %.2f %.2f %.2f",start,down,expt.vals[REWARD_SIZE]);
-			    if(expt.type2 == DISTRIBUTION_CONC || expt.mode == DISTRIBUTION_CONC)
-			      fprintf(seroutfile,"%2s=%.2f,%2s=%.0f,%2s=%.2f,%d ",
-				      serial_strings[DISTRIBUTION_MEAN],expt.vals[DISTRIBUTION_MEAN],
-				      serial_strings[DISTRIBUTION_WIDTH],expt.vals[DISTRIBUTION_WIDTH],
-				      serial_strings[RC1INC],expt.vals[RC1INC],currentstim.seqseed);
-			    fprintf(seroutfile," se=%d",expt.st->left->baseseed);
-
-			    if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
-			      fprintf(seroutfile," Corloop");
-			    fprintf(seroutfile,"\n");
-			    fflush(seroutfile);
-			  }
-/*
-* if the monkey makes a bad saccade after the stimulus is done,
-* or a late saccade, need to re-run that stimulus. This is taken
-* care of for premature BAD_FIX's in exploop, but when the stimulus
-* apparently finished OK need to take special action
-*/
-
-			if(jonresult == FOUL && option2flag & AFC && TheStim->fix.state != FIX_IS_UP && TheStim->mode & EXPTPENDING){
-			  stimno--;
-			}
-			if(wurtzctr >= avglen)
-			  {
-			    iptr = &fixed[wurtzctr-avglen+1];
-			    wsum = 0;
-			    for(i = 0; i < avglen; i++)
-			      if(*iptr++ == (int)WURTZ_OK)
-				wsum += 1.0;
-			    wsum = wsum/avglen;
-			    if(wsum < stopcriterion && ++avctr >= avglen &&
-			       c != WURTZ_OK)
-			      {
-				SetStopButton(STOP);
-				avctr = 0;
-			      }
-			  }
-			else
-			  avctr = wurtzctr;
-			ShowTrialCount(down, wsum);
-			if(downtimes == NULL)
-				downtimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
-			if(stimtimes == NULL)
-				stimtimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
-			if(starttimes == NULL)
-				starttimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
-			downtimes[wurtzctr] = down;
-
-			
-			down = timediff(&lastframetime,&wurtzframetime);
-			if(down < 0) /* premature */
-				down = intended;
-			stimtimes[wurtzctr] = down;
-			starttimes[wurtzctr]= timediff(&wurtzframetime, &sessiontime);
-
-/*
- * after writing, close and reopen logfd to make sure
- * the timestamp is altered, allowing external programs to 
- * check for changes
- */
-			if(logfd){
-			  fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],TimeString());
-			  fflush(logfd);
-			  /*
-			  close(logfd);
-			  logfd = fopen(logname,"a");
-			  */
-			}
+                trialdur = down = timediff(&now,&wurtzframetime);
+                start = timediff(&now,&progstarttime);
+                /* 
+                 * now saccades can be in any direction, need to take into account
+                 * abssacval
+                 */
+                if(fabs(afc_s.sacval[0]) > fabs(afc_s.sacval[1]))
+                    aid = 0;
+                
+                else
+                    aid = 1;
+                if(afc_s.newdirs)
+                    sign = afc_s.stimsign;
+                else
+                    sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
+                if(sign < 0)
+                    sign = -1;
+                else if(sign > 0)
+                    sign = 1;
+                else
+                    sign = 0;
+                if(psychfile != NULL){
+                    if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
+                        presult += 100;
+                    if(!SACCREQD(afc_s))
+                        presult +=50;
+                    if(abs(afc_s.ccvar) > 0.01 && expt.type2 == EXPTYPE_NONE)
+                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                                presult,serial_strings[expt.mode],expt.currentval[0], 
+                                serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
+                    else if(expt.type3 == FAKESTIM_EXPT && expt.type2 == EXPTYPE_NONE)
+                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                                presult,serial_strings[expt.mode],expt.currentval[0], 
+                                serial_strings[FAKESTIM_SIGNAL],fakestim);
+                    else if(expt.currentval[0] == INTERLEAVE_EXPT_FLIP)
+                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                                presult,serial_strings[expt.mode],expt.currentval[0], 
+                                serial_strings[expt.type2],expt.currentval[3]);
+                    else
+                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                                presult,serial_strings[expt.mode],expt.currentval[0], 
+                                serial_strings[expt.type2],expt.currentval[1]);
+                    fprintf(psychfile," sn=%d %.2f %.2f %.2f",sign,start,down,expt.vals[REWARD_SIZE]);
+                    if(microsaccade >0)
+                        sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade); 
+                    else
+                        sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
+                    
+                    if(expt.type3 != EXPTYPE_NONE)
+                        fprintf(psychfile," %s=%.2f %s\n",serial_strings[expt.type3],expt.currentval[2],str);
+                    else if(expt.mode == TWOCYL_DISP)
+                        fprintf(psychfile," %s=%.2f %s\n",serial_strings[DISP_X],expt.currentval[2],str);
+                    else if(expt.vals[ONETARGET_P] > 0)
+                        fprintf(psychfile," %s=%.2f %s\n",serial_strings[TARGET_RATIO],expt.vals[TARGET_RATIO],str);
+                    else
+                        
+                        fprintf(psychfile," %s %s=%d\n",str,serial_strings[STIMID],expt.allstimid);
+                    fflush(psychfile);
+                }
+                if(seroutfile != NULL) 
+                {
+                    if(c == WURTZ_OK || c == WURTZ_OK_W){
+                    }
+                    
+                    if(expt.flag & TIMES_EXPT2)
+                        fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
+                                result,serial_strings[expt.mode],expt.currentval[0], 
+                                serial_strings[expt.type2],expt.currentval[1]);
+                    else if(abs(afc_s.ccvar) > 0.01)
+                        fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
+                                result,serial_strings[expt.mode],expt.currentval[0], 
+                                serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
+                    else if(expt.type2 == OPPOSITE_DELAY &&expt.flag & ADD_EXPT2){
+                        fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
+                                result, serial_strings[expt.mode],expt.currentval[1],serial_strings[SEED_DELAY],GetProperty(&expt,expt.st,SEED_DELAY));
+                    }
+                    else if(expt.flag & ADD_EXPT2 && expt.expno != EXP_FIRST)
+                    {
+                        fprintf(seroutfile,"R%c %s=%.5f",
+                                result, serial_strings[expt.type2],expt.currentval[1]);
+                    }
+                    else
+                        fprintf(seroutfile,"R%c %s=%.5f",
+                                result, serial_strings[expt.mode],expt.currentval[0]);
+                    fprintf(seroutfile," sn=%d",sign);
+                    buf[0] = '=';
+                    buf[1] = 0;
+                    if((i =MakeString(STIMULUS_FLAG, buf,&expt, TheStim, TO_FILE)) >= 0)
+                        fprintf(seroutfile," %s",buf);
+                    if(optionflags[MICROSTIM])
+                        fprintf(seroutfile,"+%2s",toggle_codes[MAXOPTIONBITS+MICROSTIM]);
+                    buf[0] = '=';
+                    buf[1] = 0;
+                    if((i =MakeString(STIMULUS_TYPE_CODE, buf,&expt, TheStim, TO_FILE)) >= 0)
+                        fprintf(seroutfile," %s",buf);
+                    
+                    fprintf(seroutfile," %.2f %.2f %.2f",start,down,expt.vals[REWARD_SIZE]);
+                    if(expt.type2 == DISTRIBUTION_CONC || expt.mode == DISTRIBUTION_CONC)
+                        fprintf(seroutfile,"%2s=%.2f,%2s=%.0f,%2s=%.2f,%d ",
+                                serial_strings[DISTRIBUTION_MEAN],expt.vals[DISTRIBUTION_MEAN],
+                                serial_strings[DISTRIBUTION_WIDTH],expt.vals[DISTRIBUTION_WIDTH],
+                                serial_strings[RC1INC],expt.vals[RC1INC],currentstim.seqseed);
+                    fprintf(seroutfile," se=%d",expt.st->left->baseseed);
+                    
+                    if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
+                        fprintf(seroutfile," Corloop");
+                    fprintf(seroutfile,"\n");
+                    fflush(seroutfile);
+                }
+                /*
+                 * if the monkey makes a bad saccade after the stimulus is done,
+                 * or a late saccade, need to re-run that stimulus. This is taken
+                 * care of for premature BAD_FIX's in exploop, but when the stimulus
+                 * apparently finished OK need to take special action
+                 */
+                
+                if(jonresult == FOUL && option2flag & AFC && TheStim->fix.state != FIX_IS_UP && TheStim->mode & EXPTPENDING){
+                    stimno--;
+                }
+                if(wurtzctr >= avglen)
+                {
+                    iptr = &fixed[wurtzctr-avglen+1];
+                    wsum = 0;
+                    for(i = 0; i < avglen; i++)
+                        if(*iptr++ == (int)WURTZ_OK)
+                            wsum += 1.0;
+                    wsum = wsum/avglen;
+                    if(wsum < stopcriterion && ++avctr >= avglen &&
+                       c != WURTZ_OK)
+                    {
+                        SetStopButton(STOP);
+                        avctr = 0;
+                    }
+                }
+                else
+                    avctr = wurtzctr;
+                ShowTrialCount(down, wsum);
+                if(downtimes == NULL)
+                    downtimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
+                if(stimtimes == NULL)
+                    stimtimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
+                if(starttimes == NULL)
+                    starttimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
+                downtimes[wurtzctr] = down;
+                
+                
+                down = timediff(&lastframetime,&wurtzframetime);
+                if(down < 0) /* premature */
+                    down = intended;
+                stimtimes[wurtzctr] = down;
+                starttimes[wurtzctr]= timediff(&wurtzframetime, &sessiontime);
+                
+                /*
+                 * after writing, close and reopen logfd to make sure
+                 * the timestamp is altered, allowing external programs to 
+                 * check for changes
+                 */
+                if(logfd){
+                    fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],TimeString());
+                    fflush(logfd);
+                    /*
+                     close(logfd);
+                     logfd = fopen(logname,"a");
+                     */
+                }
 		        wurtzctr++;
-/*
- *  Alloc new memory early so that writing, for example -1 to fixed[ctr+1] does
- * not overwrite buffer end.
- */
-			if(wurtzctr >= (wurtzbufferlen-5))
-			{
-				ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
-				memcpy(ptr,downtimes,sizeof(float) * wurtzbufferlen);
-				free(downtimes);
-				downtimes = ptr;
-				ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
-				memcpy(ptr,stimtimes,sizeof(float) * wurtzbufferlen);
-				free(stimtimes);
-				stimtimes = ptr;
-				ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
-				memcpy(ptr,starttimes,sizeof(float) * wurtzbufferlen);
-				free(starttimes);
-				starttimes = ptr;
-
-				ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
-				memcpy(ptr,fixx,sizeof(float) * wurtzbufferlen);
-				free(fixx);
-				fixx = ptr;
-
-				ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
-				memcpy(ptr,fixy,sizeof(float) * wurtzbufferlen);
-				free(fixy);
-				fixy = ptr;
-
-
-				iptr = (int *)malloc(sizeof(int) * (wurtzbufferlen + 512));
-				memcpy(iptr,fixed,sizeof(int) * wurtzbufferlen);
-				free(fixed);
-				fixed = iptr;
-				wurtzbufferlen += 512;
-			}
-			if(SACCREQD(afc_s)){
-			    afc_s.jlaststairval = afc_s.jstairval; /* this is before nextval changes */ 
-			    if(afc_s.type == MAGONE_SIGNTWO){
-			      if(afc_s.jsignval < 0)
-				stim_direction = JONLEFT;
-			      else if(afc_s.jsignval > 0)
-				stim_direction = JONRIGHT;
-			      else
-				stim_direction = AMBIGUOUS;
-			    }
-			    else
-			      stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
-
-			    monkey_dir = monkey_direction(jonresult, afc_s);
-			    if(seroutfile)
-			      fprintf(seroutfile,"MD %d %d %.1f %.3f",monkey_dir,jonresult,afc_s.sacval[1],timediff(&now,&endstimtime));
-			    if(afc_s.loopstate != CORRECTION_LOOP && (option2flag & AFC))
-			  {
-			    inc_psychdata(monkey_dir, &expt, expt.stimno); 
-			    afccounters(stim_direction, jonresult);
-			  }
-			    else{
-			      if(seroutfile)
-				fprintf(seroutfile,"MX %d\n",afc_s.loopstate);
-			    }
-/*    
- * if correlation is 0, dont coun't "errors" towards correction loop
- */
-
-    if(expt.mode == DISP_X && expt.type2 == CORRELATION && expt.vals[CORRELATION] == 0)
-			    afc_s.loopstate = loopstate_counters(AMBIGUOUS, jonresult);
-    else
-			    afc_s.loopstate = loopstate_counters(stim_direction, jonresult);
-			    if(option2flag & PERF_STRING)
-				performance_string(afc_s.jlaststairval, jonresult, afc_s.loopstate, &afc_s.performance_1, &afc_s.performance_2, (afc_s.sacval[0] + afc_s.sacval[1]));
-			    if(option2flag & STAIRCASE){ 
-			      SetMonkeyStaircase(jonresult, &afc_s);
-				if(STAIROUT)
-				    printstair(afc_s.stairhist.staircounter,  afc_s.stairhist.startbin,  afc_s.stairhist.lowbin, afc_s.stairhist.highbin, afc_s.stairhist.histstructure);
-			    }    	
-			    /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
-			}
-			res = (int)c;
-
-/*
- * if the monkey gets n right in a row, put up the
- * if show reward bias is set, biased reward may be an expt type
- * reward size
- */
-			oldrw = TheStim->fix.rwsize;
-			if(option2flag & AFC && expt.biasedreward == 0)
-			  {
-			    if(optionflags[SHOW_REWARD_BIAS])
-			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE3];
-			    else if(afc_s.goodinarow >= (afc_s.bonuslevel2) && afc_s.bonuslevel2 > 0)
-			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE3];		 
-			    else if(afc_s.goodinarow >= (afc_s.bonuslevel) && afc_s.bonuslevel > 0)
-			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE2];
-			    else if (afc_s.bonuslevel == 0 && afc_s.bonuslevel2 == 0)
-			      TheStim->fix.rwsize = oldrw;
-			    else
-			      TheStim->fix.rwsize = expt.vals[REWARD_SIZE1];
-			  }
-			else if(option2flag & AFC){
-			}
-			else if(rndbonus > 0 && (i = random())%rndbonus == 0 && !optionflags[INITIAL_TRAINING])
-			      TheStim->fix.rwsize = oldrw * 3;		 
-			SerialSend(REWARD_SIZE);
-			expt.vals[REWARD_SIZE] = TheStim->fix.rwsize;
-			TheStim->fix.rwsize = oldrw;		    
-
-			if(stimstate == WAIT_FOR_RESPONSE && monkeypress != WURTZ_STOPPED)
-			  {
-				monkeypress = c;
-			    if((t1 = timediff(&now,&wurtzstart)) < 0.001)
-			      monkeypress = -3;
-			  }
-			else
-			  monkeypress = c;
-/*
-* what is happening when front thinks there was a premature release but
-* the time is long?
-*/
-			down = timediff(&now,&wurtzframetime);
-			t1 = timediff(&now,&wurtzstart);
-			t2 = timediff(&now,&endstimtime);
-			t3 = timediff(&wurtzframetime,&wurtzstart);
-
-			if(stmode & MOVED_STIMULUS)
-			  {
-			       SerialSend(ORIENTATION);
-			       SerialSend(SETZXOFF);
-			       SerialSend(SETZYOFF);
-			       stmode &= (~MOVED_STIMULUS);
-			  }
-
-/* Send BW the actual number of frames calculated */
-			sprintf(buf,"%s%d\n",serial_strings[NFRAMES_DONE],framesdone);
-			SerialString(buf,0);
-			SerialSignal(END_TRIAL);
-			if(seroutfile != NULL){
-			  fprintf(seroutfile,"ET %d %.2f %.2f %.2f %.2f\n",c,down, t1,t2,t3);
-			  fflush(seroutfile);
-			}
-			mode &= (~HOLD_STATUS);
-			ExptTrialOver(c);
-			StartOverlay();
-			redraw_overlay(expt.plot);
-			EndOverlay();
-			//Ali SetAllPanel(&expt);
-			break;
-		case START_EXPT: /* this is sent when BW starts up send everything */
-			MakeConnection();
-			break;
-		      case BW_IS_READY:
-			charctr = 0;
-			break;
+                /*
+                 *  Alloc new memory early so that writing, for example -1 to fixed[ctr+1] does
+                 * not overwrite buffer end.
+                 */
+                if(wurtzctr >= (wurtzbufferlen-5))
+                {
+                    ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
+                    memcpy(ptr,downtimes,sizeof(float) * wurtzbufferlen);
+                    free(downtimes);
+                    downtimes = ptr;
+                    ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
+                    memcpy(ptr,stimtimes,sizeof(float) * wurtzbufferlen);
+                    free(stimtimes);
+                    stimtimes = ptr;
+                    ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
+                    memcpy(ptr,starttimes,sizeof(float) * wurtzbufferlen);
+                    free(starttimes);
+                    starttimes = ptr;
+                    
+                    ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
+                    memcpy(ptr,fixx,sizeof(float) * wurtzbufferlen);
+                    free(fixx);
+                    fixx = ptr;
+                    
+                    ptr = (float *)malloc(sizeof(float) * (wurtzbufferlen + 512));
+                    memcpy(ptr,fixy,sizeof(float) * wurtzbufferlen);
+                    free(fixy);
+                    fixy = ptr;
+                    
+                    
+                    iptr = (int *)malloc(sizeof(int) * (wurtzbufferlen + 512));
+                    memcpy(iptr,fixed,sizeof(int) * wurtzbufferlen);
+                    free(fixed);
+                    fixed = iptr;
+                    wurtzbufferlen += 512;
+                }
+                if(SACCREQD(afc_s)){
+                    afc_s.jlaststairval = afc_s.jstairval; /* this is before nextval changes */ 
+                    if(afc_s.type == MAGONE_SIGNTWO){
+                        if(afc_s.jsignval < 0)
+                            stim_direction = JONLEFT;
+                        else if(afc_s.jsignval > 0)
+                            stim_direction = JONRIGHT;
+                        else
+                            stim_direction = AMBIGUOUS;
+                    }
+                    else
+                        stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
+                    
+                    monkey_dir = monkey_direction(jonresult, afc_s);
+                    if(seroutfile)
+                        fprintf(seroutfile,"MD %d %d %.1f %.3f",monkey_dir,jonresult,afc_s.sacval[1],timediff(&now,&endstimtime));
+                    if(afc_s.loopstate != CORRECTION_LOOP && (option2flag & AFC))
+                    {
+                        inc_psychdata(monkey_dir, &expt, expt.stimno); 
+                        afccounters(stim_direction, jonresult);
+                    }
+                    else{
+                        if(seroutfile)
+                            fprintf(seroutfile,"MX %d\n",afc_s.loopstate);
+                    }
+                    /*    
+                     * if correlation is 0, dont coun't "errors" towards correction loop
+                     */
+                    
+                    if(expt.mode == DISP_X && expt.type2 == CORRELATION && expt.vals[CORRELATION] == 0)
+                        afc_s.loopstate = loopstate_counters(AMBIGUOUS, jonresult);
+                    else
+                        afc_s.loopstate = loopstate_counters(stim_direction, jonresult);
+                    if(option2flag & PERF_STRING)
+                        performance_string(afc_s.jlaststairval, jonresult, afc_s.loopstate, &afc_s.performance_1, &afc_s.performance_2, (afc_s.sacval[0] + afc_s.sacval[1]));
+                    if(option2flag & STAIRCASE){ 
+                        SetMonkeyStaircase(jonresult, &afc_s);
+                        if(STAIROUT)
+                            printstair(afc_s.stairhist.staircounter,  afc_s.stairhist.startbin,  afc_s.stairhist.lowbin, afc_s.stairhist.highbin, afc_s.stairhist.histstructure);
+                    }    	
+                    /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
+                }
+                res = (int)c;
+                
+                /*
+                 * if the monkey gets n right in a row, put up the
+                 * if show reward bias is set, biased reward may be an expt type
+                 * reward size
+                 */
+                oldrw = TheStim->fix.rwsize;
+                if(option2flag & AFC && expt.biasedreward == 0)
+                {
+                    if(optionflags[SHOW_REWARD_BIAS])
+                        TheStim->fix.rwsize = expt.vals[REWARD_SIZE3];
+                    else if(afc_s.goodinarow >= (afc_s.bonuslevel2) && afc_s.bonuslevel2 > 0)
+                        TheStim->fix.rwsize = expt.vals[REWARD_SIZE3];		 
+                    else if(afc_s.goodinarow >= (afc_s.bonuslevel) && afc_s.bonuslevel > 0)
+                        TheStim->fix.rwsize = expt.vals[REWARD_SIZE2];
+                    else if (afc_s.bonuslevel == 0 && afc_s.bonuslevel2 == 0)
+                        TheStim->fix.rwsize = oldrw;
+                    else
+                        TheStim->fix.rwsize = expt.vals[REWARD_SIZE1];
+                }
+                else if(option2flag & AFC){
+                }
+                else if(rndbonus > 0 && (i = random())%rndbonus == 0 && !optionflags[INITIAL_TRAINING])
+                    TheStim->fix.rwsize = oldrw * 3;		 
+                SerialSend(REWARD_SIZE);
+                expt.vals[REWARD_SIZE] = TheStim->fix.rwsize;
+                TheStim->fix.rwsize = oldrw;		    
+                
+                if(stimstate == WAIT_FOR_RESPONSE && monkeypress != WURTZ_STOPPED)
+                {
+                    monkeypress = c;
+                    if((t1 = timediff(&now,&wurtzstart)) < 0.001)
+                        monkeypress = -3;
+                }
+                else
+                    monkeypress = c;
+                /*
+                 * what is happening when front thinks there was a premature release but
+                 * the time is long?
+                 */
+                down = timediff(&now,&wurtzframetime);
+                t1 = timediff(&now,&wurtzstart);
+                t2 = timediff(&now,&endstimtime);
+                t3 = timediff(&wurtzframetime,&wurtzstart);
+                
+                if(stmode & MOVED_STIMULUS)
+                {
+                    SerialSend(ORIENTATION);
+                    SerialSend(SETZXOFF);
+                    SerialSend(SETZYOFF);
+                    stmode &= (~MOVED_STIMULUS);
+                }
+                
+                /* Send BW the actual number of frames calculated */
+                sprintf(buf,"%s%d\n",serial_strings[NFRAMES_DONE],framesdone);
+                SerialString(buf,0);
+                SerialSignal(END_TRIAL);
+                if(seroutfile != NULL){
+                    fprintf(seroutfile,"ET %d %.2f %.2f %.2f %.2f\n",c,down, t1,t2,t3);
+                    fflush(seroutfile);
+                }
+                mode &= (~HOLD_STATUS);
+                ExptTrialOver(c);
+                StartOverlay();
+                redraw_overlay(expt.plot);
+                EndOverlay();
+                //Ali SetAllPanel(&expt);
+                break;
+            case START_EXPT: /* this is sent when BW starts up send everything */
+                MakeConnection();
+                break;
+            case BW_IS_READY:
+                charctr = 0;
+                break;
 		}
 		lastcodes[++codectr%CODEHIST] = c;
 	}
@@ -9561,13 +9561,13 @@ int GotChar(char c)
 	{
 		charbuf[charctr++] = c;
 		if(charctr >= CBUFLEN)
-		  {
+        {
 		    fprintf(stderr,"%s\nSerial Input too long\n",charbuf);
 		    if(seroutfile)
-		      fprintf(seroutfile,"%s\nSerial Input too long\n",charbuf);
-		InterpretLine(charbuf, &expt,1);
-		charctr = 0;
-		  acknowledge("Serial Input too long",NULL);
+                fprintf(seroutfile,"%s\nSerial Input too long\n",charbuf);
+            InterpretLine(charbuf, &expt,1);
+            charctr = 0;
+            acknowledge("Serial Input too long",NULL);
 		}
 		charbuf[charctr] = 0;
 	}
@@ -9576,7 +9576,7 @@ int GotChar(char c)
 
 void SerialSignal(char flag)
 {
-  char c = (char)flag;
+    char c = (char)flag;
 	if(mode & NO_SERIAL_PORT)
 		return;
 	write(ttys[0],&c,1);
@@ -9586,146 +9586,146 @@ void SerialSignal(char flag)
 
 void CloseLog(void)
 {
-  FILE *fd;
-  char name[BUFSIZ],*t,buf[256];
-  time_t tval;
-  int i;
-
-  if(expt.logfile == NULL || totaltrials < 2)
+    FILE *fd;
+    char name[BUFSIZ],*t,buf[256];
+    time_t tval;
+    int i;
+    
+    if(expt.logfile == NULL || totaltrials < 2)
+        return;
+    tval = time(NULL);
+    t = ctime(&tval);
+    t[7]=0;
+    t[10] = 0;
+    if(t[8] == ' ')
+        t[8]  = '0';
     return;
-  tval = time(NULL);
-  t = ctime(&tval);
-  t[7]=0;
-  t[10] = 0;
-  if(t[8] == ' ')
-    t[8]  = '0';
-  return;
 }
 
 
 void paint_target(float color, int flag)
 {
-  float lcolor = color,contrast;
-  float bcolor = 1-color;
-  int showa = 0,showb = 0,oldoption;
-
-  if(flag)
-    glDrawBuffer(GL_FRONT_AND_BACK);
-
-  // Choice targets always boxes...  
-  oldoption = optionflag;
-  optionflag |= SQUARE_FIXATION;
-  if(option2flag & AFC)
-    showa = showb = 1;
-  else if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
-    showa = 1;
-  else
-    showb = 1;
-/*
- * Choicea is shown for the UP target. So if sacval is negative, and target ratio <1
- * show this at lower contrast.
- */
-  if(ChoiceStima->type != STIM_NONE && showa){
-    contrast = ChoiceStima->pos.contrast;
-    if(afc_s.sacval[0]+afc_s.sacval[1] < 0)
-      ChoiceStima->pos.contrast = contrast * expt.vals[TARGET_RATIO];
-    ChoiceStima->noclear = 1;
-    calc_stimulus(ChoiceStima);
-    paint_stimulus(ChoiceStima);
-    ChoiceStima->pos.contrast = contrast;
-  }
-  if(ChoiceStimb->type != STIM_NONE && showb){
-    contrast = ChoiceStimb->pos.contrast;
-    if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
-      ChoiceStimb->pos.contrast = contrast * expt.vals[TARGET_RATIO];
-    ChoiceStimb->noclear = 1;
-    calc_stimulus(ChoiceStimb);
-    paint_stimulus(ChoiceStimb);
-    ChoiceStimb->pos.contrast = contrast;
-  }
-  draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, color);
-
+    float lcolor = color,contrast;
+    float bcolor = 1-color;
+    int showa = 0,showb = 0,oldoption;
+    
+    if(flag)
+        glDrawBuffer(GL_FRONT_AND_BACK);
+    
+    // Choice targets always boxes...  
+    oldoption = optionflag;
+    optionflag |= SQUARE_FIXATION;
+    if(option2flag & AFC)
+        showa = showb = 1;
+    else if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
+        showa = 1;
+    else
+        showb = 1;
+    /*
+     * Choicea is shown for the UP target. So if sacval is negative, and target ratio <1
+     * show this at lower contrast.
+     */
+    if(ChoiceStima->type != STIM_NONE && showa){
+        contrast = ChoiceStima->pos.contrast;
+        if(afc_s.sacval[0]+afc_s.sacval[1] < 0)
+            ChoiceStima->pos.contrast = contrast * expt.vals[TARGET_RATIO];
+        ChoiceStima->noclear = 1;
+        calc_stimulus(ChoiceStima);
+        paint_stimulus(ChoiceStima);
+        ChoiceStima->pos.contrast = contrast;
+    }
+    if(ChoiceStimb->type != STIM_NONE && showb){
+        contrast = ChoiceStimb->pos.contrast;
+        if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
+            ChoiceStimb->pos.contrast = contrast * expt.vals[TARGET_RATIO];
+        ChoiceStimb->noclear = 1;
+        calc_stimulus(ChoiceStimb);
+        paint_stimulus(ChoiceStimb);
+        ChoiceStimb->pos.contrast = contrast;
+    }
+    draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, color);
+    
     lcolor = TheStim->background + (color - TheStim->background) * expt.vals[TARGET_RATIO];
     if(option2flag & AFC){
-	draw_fix(fixpos[0]+deg2pix(afc_s.sacval[4]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[5]+afc_s.sacval[3]), afc_s.targsize, lcolor);
-	if(optionflags[FOUR_CHOICES]){
-	     draw_fix(fixpos[0]-deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]-deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, bcolor);
-	     draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]-afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]-afc_s.sacval[3]), afc_s.targsize, bcolor);
-	   }
-	if(optionflags[SHOW_REWARD_BIAS] == 1 && fabs(expt.biasedreward) > 0.1){
-	  draw_fix(fixpos[0]+deg2pix(afc_s.abssac[0]+afc_s.abssac[2]),fixpos[1]+deg2pix(afc_s.abssac[1]+afc_s.abssac[3]), afc_s.targsize, 1.0);
-	  draw_fix(fixpos[0]-deg2pix(afc_s.abssac[0]-afc_s.abssac[2]),fixpos[1]-deg2pix(afc_s.abssac[1]-afc_s.abssac[3]), afc_s.targsize, 0.0);
-	}
+        draw_fix(fixpos[0]+deg2pix(afc_s.sacval[4]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[5]+afc_s.sacval[3]), afc_s.targsize, lcolor);
+        if(optionflags[FOUR_CHOICES]){
+            draw_fix(fixpos[0]-deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]-deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, bcolor);
+            draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]-afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]-afc_s.sacval[3]), afc_s.targsize, bcolor);
+        }
+        if(optionflags[SHOW_REWARD_BIAS] == 1 && fabs(expt.biasedreward) > 0.1){
+            draw_fix(fixpos[0]+deg2pix(afc_s.abssac[0]+afc_s.abssac[2]),fixpos[1]+deg2pix(afc_s.abssac[1]+afc_s.abssac[3]), afc_s.targsize, 1.0);
+            draw_fix(fixpos[0]-deg2pix(afc_s.abssac[0]-afc_s.abssac[2]),fixpos[1]-deg2pix(afc_s.abssac[1]-afc_s.abssac[3]), afc_s.targsize, 0.0);
+        }
     }
     if(flag)
-      glDrawBuffer(GL_BACK);
+        glDrawBuffer(GL_BACK);
     optionflag = oldoption;
 }
 
 void ShowPerformanceString(int force)
 {
-  int total;
-  char cbuf[BUFSIZ];
-
-  if(option2flag & PSYCHOPHYSICS_BIT){
-    if (option2flag & PERF_STRING)
-      StairPerfString();
-    return;
-  }
-
-/*
- * if force is negative, dhone show tthe trial count in the panel
- */
-  if(wurtzctr > 0 && (force > 0 || (stimstate != STIMSTOPPED && stimstate != IN_TIMEOUT && force >=0)))
-    ShowTrialCount(downtimes[wurtzctr-1], wsum);
-  if (option2flag & PERF_STRING){
+    int total;
+    char cbuf[BUFSIZ];
+    
+    if(option2flag & PSYCHOPHYSICS_BIT){
+        if (option2flag & PERF_STRING)
+            StairPerfString();
+        return;
+    }
+    
+    /*
+     * if force is negative, dhone show tthe trial count in the panel
+     */
+    if(wurtzctr > 0 && (force > 0 || (stimstate != STIMSTOPPED && stimstate != IN_TIMEOUT && force >=0)))
+        ShowTrialCount(downtimes[wurtzctr-1], wsum);
+    if (option2flag & PERF_STRING){
 	    afc_statusline(afc_s.performance_1, 0);
 	    afc_statusline(afc_s.performance_2, 15); 
 	    total = afc_s.totals.allcorrect+afc_s.totals.allwrong;
 	    sprintf(cbuf,"%d/%d %d/%d, %d/%d (%.0f%%), L=%d+%d R=%d+%d",
-		    afc_s.totals.twenty_tot,(total > 20) ? 20 : total,
-		    afc_s.totals.hundred_tot, (total > 100) ? 100 : total,
-		    afc_s.totals.allcorrect,(afc_s.totals.allcorrect+afc_s.totals.allwrong),
-		    (total > 0) ? (float)(afc_s.totals.allcorrect * 100)/total : 0.0,
-		    ranleft, ranleftc, ranright, ranrightc);
+                afc_s.totals.twenty_tot,(total > 20) ? 20 : total,
+                afc_s.totals.hundred_tot, (total > 100) ? 100 : total,
+                afc_s.totals.allcorrect,(afc_s.totals.allcorrect+afc_s.totals.allwrong),
+                (total > 0) ? (float)(afc_s.totals.allcorrect * 100)/total : 0.0,
+                ranleft, ranleftc, ranright, ranrightc);
 	    afc_statusline(cbuf, 30);
 	}
 }
 
 void afc_statusline(char *s, int line)
 {
-  vcoord x[2];
-  x[0] = -640;
-  x[1] = -475 + line;
-  if(!(mode & RUNNING))
-    return;
-      glDrawBuffer(GL_FRONT_AND_BACK);
-      setmask(OVERLAY);
-        SetGrey(expt.overlay_color);
-        myrect(-640,-450+line,100,-475+line);
-        SetGrey(1.0);
+    vcoord x[2];
+    x[0] = -640;
+    x[1] = -475 + line;
+    if(!(mode & RUNNING))
+        return;
+    glDrawBuffer(GL_FRONT_AND_BACK);
+    setmask(OVERLAY);
+    SetGrey(expt.overlay_color);
+    myrect(-640,-450+line,100,-475+line);
+    SetGrey(1.0);
 	mycmv(x);
 	printString(s,1);
-      glDrawBuffer(GL_BACK);
+    glDrawBuffer(GL_BACK);
 }
 
 
 void PaintGammaCheck(int iw, int ih)
 {
-  int xc,yc,i,j,k;
-  GLubyte *im1,*im2,*p;
-
-  SetColor(0.5,1);
-  myrect((float)(-600), (float)(-500), (float)(iw*2-600), (float)(ih*2)-500);
-
+    int xc,yc,i,j,k;
+    GLubyte *im1,*im2,*p;
+    
+    SetColor(0.5,1);
+    myrect((float)(-600), (float)(-500), (float)(iw*2-600), (float)(ih*2)-500);
+    
     im1 = (GLubyte *)malloc(iw * ih * sizeof(GLubyte));
     p = im1;
     k = 0;
     for(i = 0; i < ih; i++){
-      k = ((i/3) &1) * 3;
-      for(j = 0; j < iw; j++){
-	*p++ = 255 * ((k++/3) & 1);
-      }
+        k = ((i/3) &1) * 3;
+        for(j = 0; j < iw; j++){
+            *p++ = 255 * ((k++/3) & 1);
+        }
     }
     glDrawPixels(iw, ih, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
 }
@@ -9738,8 +9738,8 @@ void chessboard(float w, float h)
     int i, j;
     float a,b,c;
     static float lastc = 0,laps = 0;
-
-   
+    
+    
     c = TheStim->pos.contrast_amp;
     c = expt.vals[TIMEOUT_CONTRAST];
     a = (c+1)/2;
@@ -9747,21 +9747,21 @@ void chessboard(float w, float h)
     x = winsiz[0]/w;
     y = 1 + (winsiz[1]-1)/h;
     if(lastc != c){
-      printf("Lum %.3f %.3f gamma %.3f\n",a,b,gammaval);
+        printf("Lum %.3f %.3f gamma %.3f\n",a,b,gammaval);
     }
     lastc = c;
-
-
+    
+    
     for (i = -x; i < x; i++) {
-	for (j = -y; j < y; j++) {
-	    if (ODD(i + j))
-	      SetColor(a,1);
-	    else
-	      SetColor(b,1);
-	    myrect((float)(i*w), (float)(j*h), (float)(i*w+w), (float)(j*h+h));
-	}
+        for (j = -y; j < y; j++) {
+            if (ODD(i + j))
+                SetColor(a,1);
+            else
+                SetColor(b,1);
+            myrect((float)(i*w), (float)(j*h), (float)(i*w+w), (float)(j*h+h));
+        }
     }
-   
+    
 }
 
 void makeRasterFont(void)
@@ -9775,129 +9775,129 @@ void printString(char *s, int size)
     displayOnMonkeyView(s, -500, -450);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)
-      glListBase(mediumbase);
+        glListBase(mediumbase);
     else if(size == 2)
-      glListBase(bigbase);
+        glListBase(bigbase);
     else
-      glListBase(base);
+        glListBase(base);
     glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
     glPopAttrib();
 }
 
 void BigString(char *s)
 {
-//    glPushAttrib(GL_LIST_BIT);
-//    glListBase(bigbase);
-//    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
-//    glPopAttrib();
-//    
-//    //Ali Draw text
-//    GLuint texName;
-//    glPushAttrib(GL_TEXTURE_BIT);
-//    if (0 == texName) glGenTextures (1, &texName);
-//    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-//    glTexSubImage2D GL_TEXTURE_RECTANGLE_EXT,0,0,0,100,20, 1 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,bitmapData);
-//    glPopAttrib();
-//
-//    
-//    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT); // GL_COLOR_BUFFER_BIT for glBlendFunc, GL_ENABLE_BIT for glEnable / glDisable
-//    
-//    glDisable (GL_DEPTH_TEST); // ensure text is not remove by depth buffer test.
-//    glEnable (GL_BLEND); // for text fading
-//    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
-//    glEnable (GL_TEXTURE_RECTANGLE_EXT);	
-//    
-//    //glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-//    glBegin (GL_QUADS);
-//    glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
-//    glVertex2f (0, 0);
-//	
-//    glTexCoord2f (0.0f, 20.0f); // draw lower left in world coordinates
-//    glVertex2f (0, 0 + 10);
-//	
-//    glTexCoord2f (100, 20); // draw upper right in world coordinates
-//    glVertex2f (0 + 100, 0 + 20);
-//	
-//    glTexCoord2f (100.f, 0.0f); // draw lower right in world coordinates
-//    glVertex2f (0 + 100, 0);
-//    glEnd ();
-//    
-//    glPopAttrib();
-//	
-//    glFinishRenderAPPLE();
-//    glSwapAPPLE();
+    //    glPushAttrib(GL_LIST_BIT);
+    //    glListBase(bigbase);
+    //    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
+    //    glPopAttrib();
+    //    
+    //    //Ali Draw text
+    //    GLuint texName;
+    //    glPushAttrib(GL_TEXTURE_BIT);
+    //    if (0 == texName) glGenTextures (1, &texName);
+    //    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
+    //    glTexSubImage2D GL_TEXTURE_RECTANGLE_EXT,0,0,0,100,20, 1 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,bitmapData);
+    //    glPopAttrib();
+    //
+    //    
+    //    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT); // GL_COLOR_BUFFER_BIT for glBlendFunc, GL_ENABLE_BIT for glEnable / glDisable
+    //    
+    //    glDisable (GL_DEPTH_TEST); // ensure text is not remove by depth buffer test.
+    //    glEnable (GL_BLEND); // for text fading
+    //    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
+    //    glEnable (GL_TEXTURE_RECTANGLE_EXT);	
+    //    
+    //    //glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
+    //    glBegin (GL_QUADS);
+    //    glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
+    //    glVertex2f (0, 0);
+    //	
+    //    glTexCoord2f (0.0f, 20.0f); // draw lower left in world coordinates
+    //    glVertex2f (0, 0 + 10);
+    //	
+    //    glTexCoord2f (100, 20); // draw upper right in world coordinates
+    //    glVertex2f (0 + 100, 0 + 20);
+    //	
+    //    glTexCoord2f (100.f, 0.0f); // draw lower right in world coordinates
+    //    glVertex2f (0 + 100, 0);
+    //    glEnd ();
+    //    
+    //    glPopAttrib();
+    //	
+    //    glFinishRenderAPPLE();
+    //    glSwapAPPLE();
     
 }
 
 void WriteFrameData()
 {
-  FILE *ofd;
-  int i;
-
-  /*
-   * The first one is often garbage because of the state of the spike array
-   * in brainwave
-   */
-
-  if((ofd = fopen("./frames.dat","a")) != NULL)
+    FILE *ofd;
+    int i;
+    
+    /*
+     * The first one is often garbage because of the state of the spike array
+     * in brainwave
+     */
+    
+    if((ofd = fopen("./frames.dat","a")) != NULL)
     {
-      for(i =1; i < framebufctr; i++)
-	fprintf(ofd,"%d\n",framebuf[i]);
-      fclose(ofd);
+        for(i =1; i < framebufctr; i++)
+            fprintf(ofd,"%d\n",framebuf[i]);
+        fclose(ofd);
     }
 }
 
 void expt_over(int flag)
 {
-  int i;
-  char buf[256];
-  FILE *ofd;
-  time_t tval;
-  double t;
-
-  mode &= (~BW_ERROR);
-  if(stimstate == WAIT_FOR_RESPONSE && flag != CANCEL_EXPT){
-    TheStim->mode |= EXPT_OVER; // make sure this is called again after response
-    return;
-  }
-  stimstate = INTERTRIAL;
-  TrialOver();
-  gettimeofday(&endexptime,NULL);
-  pursuedir = 1;
-  StimulusType(expt.st, expt.stimtype); /* reset stim type */
-  if(mode & MORE_PENDING && mode & AUTO_NEXT_EXPT)
-    {
-      if((i = ReadExptFile(NULL, 0,0,0)) >= 0)
-	{
-	  TheStim->mode &= (~(EXPTPENDING | EXPT_OVER | INTRIAL));
-	  if(flag == CANCEL_EXPT) //Ali  && confirm_no("Run Next expt?",NULL))
-	    ReadExptFile(NULL, 1,1, 1);
-	  else
-	    {
-	      runexpt(NULL,NULL,NULL);
-	      return;
-	    }
-	}
+    int i;
+    char buf[256];
+    FILE *ofd;
+    time_t tval;
+    double t;
+    
+    mode &= (~BW_ERROR);
+    if(stimstate == WAIT_FOR_RESPONSE && flag != CANCEL_EXPT){
+        TheStim->mode |= EXPT_OVER; // make sure this is called again after response
+        return;
     }
-  if(penlog && optionflag & STORE_WURTZ_BIT && flag != CANCEL_EXPT){
-    fprintf(penlog,"Expt(%s) %s x %s %s N %d",expt.bwptr->prefix,
-	    serial_names[expt.mode],serial_names[expt.type2],
-	    stimulus_names[expt.st->type],expt.nreps,expt.nsaved);
-    if(expt.type3 != EXPTYPE_NONE)
-      fprintf(penlog," EX3 %s",serial_names[expt.type3]);
-    fprintf(penlog,"\n");
-
-    fflush(penlog);
-    PrintPenLog(1);
-  }
-  Stim2PsychFile();
-
-  /*
-   * Set things back to how they were befre the experiment
-   * NB stimvals XPOS,YPOS can change, so use expt.vals for these.
-   */
-  expt.st->preloaded = 0;
-  if(expt.stimtype == STIM_GRATING2)
+    stimstate = INTERTRIAL;
+    TrialOver();
+    gettimeofday(&endexptime,NULL);
+    pursuedir = 1;
+    StimulusType(expt.st, expt.stimtype); /* reset stim type */
+    if(mode & MORE_PENDING && mode & AUTO_NEXT_EXPT)
+    {
+        if((i = ReadExptFile(NULL, 0,0,0)) >= 0)
+        {
+            TheStim->mode &= (~(EXPTPENDING | EXPT_OVER | INTRIAL));
+            if(flag == CANCEL_EXPT) //Ali  && confirm_no("Run Next expt?",NULL))
+                ReadExptFile(NULL, 1,1, 1);
+            else
+            {
+                runexpt(NULL,NULL,NULL);
+                return;
+            }
+        }
+    }
+    if(penlog && optionflag & STORE_WURTZ_BIT && flag != CANCEL_EXPT){
+        fprintf(penlog,"Expt(%s) %s x %s %s N %d",expt.bwptr->prefix,
+                serial_names[expt.mode],serial_names[expt.type2],
+                stimulus_names[expt.st->type],expt.nreps,expt.nsaved);
+        if(expt.type3 != EXPTYPE_NONE)
+            fprintf(penlog," EX3 %s",serial_names[expt.type3]);
+        fprintf(penlog,"\n");
+        
+        fflush(penlog);
+        PrintPenLog(1);
+    }
+    Stim2PsychFile();
+    
+    /*
+     * Set things back to how they were befre the experiment
+     * NB stimvals XPOS,YPOS can change, so use expt.vals for these.
+     */
+    expt.st->preloaded = 0;
+    if(expt.stimtype == STIM_GRATING2)
     {
 	    expt.st->type = STIM_GRATING2;
 	    SetProperty(&expt,expt.st,SF,expt.stimvals[SF]);
@@ -9905,185 +9905,185 @@ void expt_over(int flag)
 	    SetProperty(&expt,expt.st,SF2,expt.stimvals[SF2]);
 	    SetProperty(&expt,expt.st,TF2,expt.stimvals[TF2]);
     }
-  SetProperty(&expt,expt.st,expt.mode,expt.stimvals[expt.mode]);
-  SetProperty(&expt,expt.st,expt.type2,expt.stimvals[expt.type2]);
-  SetProperty(&expt,expt.st,ORIENTATION,expt.stimvals[ORIENTATION]);
-  SetProperty(&expt,expt.st,PLAID_ANGLE,expt.stimvals[PLAID_ANGLE]);
-  SetProperty(&expt,expt.st,SETZXOFF,expt.vals[SETZXOFF]);
-  SetProperty(&expt,expt.st,SETZYOFF,expt.vals[SETZYOFF]);
-  SetProperty(&expt,expt.st,MODULATION_F,expt.stimvals[MODULATION_F]);
-  if(expt.type3 == FIXPOS_Y)
-    SetProperty(&expt,expt.st,FIXPOS_Y,expt.mean3);
-  expt.stimvals[FIXPOS_X] = expt.fixpos[0];
-  expt.stimvals[FIXPOS_Y] = expt.fixpos[1];
-  SetProperty(&expt,expt.st,FIXPOS_Y,expt.fixpos[1]);
-  SetProperty(&expt,expt.st,FIXPOS_X,expt.fixpos[0]);
-  expt.vals[TARGET_RATIO] = expt.stimvals[TARGET_RATIO];
-
-  expt.st->flag = expt.stflag;
-  if(seroutfile){
-    fprintf(seroutfile,"Resetting: ");
-    i = 0;
-    while(track_resets[i] >= 0){
-      fprintf(seroutfile,"%2s->%.4f ",serial_strings[track_resets[i]],GetProperty(&expt,expt.st,track_resets[i]));
-	i++;
-	}
-  }
-  expt.vals[PLC_MAG] = expt.stimvals[PLC_MAG];
-
-  if(optionflags[MODULATE_DISPARITY] == 2){
-    if(expt.st->vals[MODULATION_F] > 0 && fabs(expt.st->depth_mod) > 0)
-      optionflags[MODULATE_DISPARITY] = 1;
-    else
-      optionflags[MODULATE_DISPARITY] = 0;
-  }
-  if(!(optionflag & FRAME_ONLY_BIT)){
-    sprintf(buf,"Expt over at %s",binocTimeString());
-     statusline(buf);
-  }
-  TheStim->mode &= (~(EXPTPENDING | EXPT_OVER | INTRIAL));
-//Ali  SetRunButton(NULL);
-
-  if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
+    SetProperty(&expt,expt.st,expt.mode,expt.stimvals[expt.mode]);
+    SetProperty(&expt,expt.st,expt.type2,expt.stimvals[expt.type2]);
+    SetProperty(&expt,expt.st,ORIENTATION,expt.stimvals[ORIENTATION]);
+    SetProperty(&expt,expt.st,PLAID_ANGLE,expt.stimvals[PLAID_ANGLE]);
+    SetProperty(&expt,expt.st,SETZXOFF,expt.vals[SETZXOFF]);
+    SetProperty(&expt,expt.st,SETZYOFF,expt.vals[SETZYOFF]);
+    SetProperty(&expt,expt.st,MODULATION_F,expt.stimvals[MODULATION_F]);
+    if(expt.type3 == FIXPOS_Y)
+        SetProperty(&expt,expt.st,FIXPOS_Y,expt.mean3);
+    expt.stimvals[FIXPOS_X] = expt.fixpos[0];
+    expt.stimvals[FIXPOS_Y] = expt.fixpos[1];
+    SetProperty(&expt,expt.st,FIXPOS_Y,expt.fixpos[1]);
+    SetProperty(&expt,expt.st,FIXPOS_X,expt.fixpos[0]);
+    expt.vals[TARGET_RATIO] = expt.stimvals[TARGET_RATIO];
+    
+    expt.st->flag = expt.stflag;
+    if(seroutfile){
+        fprintf(seroutfile,"Resetting: ");
+        i = 0;
+        while(track_resets[i] >= 0){
+            fprintf(seroutfile,"%2s->%.4f ",serial_strings[track_resets[i]],GetProperty(&expt,expt.st,track_resets[i]));
+            i++;
+        }
+    }
+    expt.vals[PLC_MAG] = expt.stimvals[PLC_MAG];
+    
+    if(optionflags[MODULATE_DISPARITY] == 2){
+        if(expt.st->vals[MODULATION_F] > 0 && fabs(expt.st->depth_mod) > 0)
+            optionflags[MODULATE_DISPARITY] = 1;
+        else
+            optionflags[MODULATE_DISPARITY] = 0;
+    }
+    if(!(optionflag & FRAME_ONLY_BIT)){
+        sprintf(buf,"Expt over at %s",binocTimeString());
+        statusline(buf);
+    }
+    TheStim->mode &= (~(EXPTPENDING | EXPT_OVER | INTRIAL));
+    //Ali  SetRunButton(NULL);
+    
+    if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
     {
-      if(flag == CANCEL_EXPT)
-	SerialSignal(CANCEL_EXPT);
-      else
-	SerialSignal(END_EXPT);
+        if(flag == CANCEL_EXPT)
+            SerialSignal(CANCEL_EXPT);
+        else
+            SerialSignal(END_EXPT);
     }
-  if(flag == CANCEL_EXPT){
-    if(seroutfile != NULL){
-      tval = time(NULL);
-      fprintf(seroutfile,"Cancelled at %u\n",ufftime(&now));
-      fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
-	}
-  }
-  else{
-    gettimeofday(&now,NULL);
-    if(seroutfile != NULL){
-      tval = time(NULL);
-      fprintf(seroutfile,"et at %u\n",ufftime(&now));
-      fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
-      fflush(seroutfile);
+    if(flag == CANCEL_EXPT){
+        if(seroutfile != NULL){
+            tval = time(NULL);
+            fprintf(seroutfile,"Cancelled at %u\n",ufftime(&now));
+            fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
+        }
     }
-  }
-  if(demomode == 0){
-  SetStopButton(STOP);
-  clear_display(1);
-  }
-  glFinishRenderAPPLE();
-
- /*
-  * work on expt file _AFTER_ clearing the display and telling BW that the expt is over
-*/
-  if(rcfd){
-    fclose(rcfd);
-    rcfd = NULL;
-    if(optionflags[ONLINE_AUTO_COPY]){
-      sprintf(buf,"cp %s/%s /bgc/data/online/%s",datprefix,rcname,rcname);
-      system(buf);
-      sprintf(buf,"/bgc/bgc/perl/rc2tab /bgc/data/online/%s",rcname);
-      system(buf);
+    else{
+        gettimeofday(&now,NULL);
+        if(seroutfile != NULL){
+            tval = time(NULL);
+            fprintf(seroutfile,"et at %u\n",ufftime(&now));
+            fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
+            fflush(seroutfile);
+        }
     }
-  }
-
-//Ali  if(flag)
-//    framefront();
-  if(SACCREQD(afc_s)){
-    paint_target(TheStim->background,1);
-    optionflag |= (DRAW_FIX_BIT);
-  }
-  //Ali ListExpStims(NULL);
-  if(demomode == 0)
-    stimstate = STIMSTOPPED;
-  else
-    stimno = 0;
-  if(option2flag & PSYCHOPHYSICS_BIT  && flag != CANCEL_EXPT){
-    PrintPsychData(expt.logfile);
-  }
-  sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
-  SerialString(buf,0);
-  optionflag &= (~GO_BIT);
-  if(!testflags[PLAYING_EXPT])
-    mode &= (~ANIMATE_BIT);
-  //Ali SetAllPanel(&expt);
-  if(optionflag & FRAME_ONLY_BIT)
-    WriteFrameData();
-  SaveExptFile("./front.eostim",SAVE_STATE);
+    if(demomode == 0){
+        SetStopButton(STOP);
+        clear_display(1);
+    }
+    glFinishRenderAPPLE();
+    
+    /*
+     * work on expt file _AFTER_ clearing the display and telling BW that the expt is over
+     */
+    if(rcfd){
+        fclose(rcfd);
+        rcfd = NULL;
+        if(optionflags[ONLINE_AUTO_COPY]){
+            sprintf(buf,"cp %s/%s /bgc/data/online/%s",datprefix,rcname,rcname);
+            system(buf);
+            sprintf(buf,"/bgc/bgc/perl/rc2tab /bgc/data/online/%s",rcname);
+            system(buf);
+        }
+    }
+    
+    //Ali  if(flag)
+    //    framefront();
+    if(SACCREQD(afc_s)){
+        paint_target(TheStim->background,1);
+        optionflag |= (DRAW_FIX_BIT);
+    }
+    //Ali ListExpStims(NULL);
+    if(demomode == 0)
+        stimstate = STIMSTOPPED;
+    else
+        stimno = 0;
+    if(option2flag & PSYCHOPHYSICS_BIT  && flag != CANCEL_EXPT){
+        PrintPsychData(expt.logfile);
+    }
+    sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
+    SerialString(buf,0);
+    optionflag &= (~GO_BIT);
+    if(!testflags[PLAYING_EXPT])
+        mode &= (~ANIMATE_BIT);
+    //Ali SetAllPanel(&expt);
+    if(optionflag & FRAME_ONLY_BIT)
+        WriteFrameData();
+    SaveExptFile("./front.eostim",SAVE_STATE);
     notify("EXPTOVER\n");
 }
 
 void Stim2PsychFile()
 {
-  float t,val;
-
-
-  if(psychfile){
-    fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
-	    serial_strings[STIM_SIZE],GetProperty(&expt,expt.st,STIM_SIZE), 
-	    serial_strings[SETCONTRAST],GetProperty(&expt,expt.st,SETCONTRAST),
-	    serial_strings[JVELOCITY],GetProperty(&expt,expt.st,JVELOCITY));
-    t = RunTime();
-    fprintf(psychfile," %.2lf %.2f %.2f",t,
-	    GetProperty(&expt,expt.st,XPOS),
-	    GetProperty(&expt,expt.st,YPOS));
-    fprintf(psychfile," %s=%.2f %s=%.2f\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
-
-    fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
-	    serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION), 
-	    serial_strings[SF],GetProperty(&expt,expt.st,SF),
-	    serial_strings[DOT_SIZE],GetProperty(&expt,expt.st,DOT_SIZE));
-    fprintf(psychfile," %.2lf %.2f %.2f",t,
-	    GetProperty(&expt,expt.st,XPOS),
-	    GetProperty(&expt,expt.st,YPOS));
-    fprintf(psychfile," %s=%.4f %s=%.4f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
-
-    fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
-	    serial_strings[VERSION_CODE],VERSION_NUMBER, 
-	    serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
-	    GetProperty(&expt,expt.st->next,YPOS));
-    fprintf(psychfile," 0 %.2f %.2f",
-	    GetProperty(&expt,expt.st,BACK_ORI),
-	    GetProperty(&expt,expt.st,BACK_SIZE));
-    fprintf(psychfile," %s=%.0f %s=%.2f\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
-
-
-    fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
-	    serial_strings[VERSION_CODE],VERSION_NUMBER, 
-	    serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
-	    GetProperty(&expt,expt.st->next,YPOS));
-    fprintf(psychfile," 0 %.2f %.2f",
-	    GetProperty(&expt,expt.st,BACK_ORI),
-	    GetProperty(&expt,expt.st,BACK_SIZE));
-    fprintf(psychfile," %s=%.0f usenewdir=%d\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
-
-
-    if(expt.st->next && expt.st->next->type != STIM_NONE){
-      fprintf(psychfile,"R8 %s=%.2f %s=%.2f %s=%.2f",
-	    serial_strings[XPOS], GetProperty(&expt,expt.st->next,XPOS),
-	    serial_strings[YPOS], GetProperty(&expt,expt.st->next,YPOS),
-	    serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
-	    GetProperty(&expt,expt.st->next,YPOS));
-    fprintf(psychfile," 0 %.2f %.2f",
-	    GetProperty(&expt,expt.st,BACK_ORI),
-	    GetProperty(&expt,expt.st,BACK_SIZE));
-    fprintf(psychfile," %s=%.4f %s=%.2f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+    float t,val;
+    
+    
+    if(psychfile){
+        fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
+                serial_strings[STIM_SIZE],GetProperty(&expt,expt.st,STIM_SIZE), 
+                serial_strings[SETCONTRAST],GetProperty(&expt,expt.st,SETCONTRAST),
+                serial_strings[JVELOCITY],GetProperty(&expt,expt.st,JVELOCITY));
+        t = RunTime();
+        fprintf(psychfile," %.2lf %.2f %.2f",t,
+                GetProperty(&expt,expt.st,XPOS),
+                GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile," %s=%.2f %s=%.2f\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
+        
+        fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
+                serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION), 
+                serial_strings[SF],GetProperty(&expt,expt.st,SF),
+                serial_strings[DOT_SIZE],GetProperty(&expt,expt.st,DOT_SIZE));
+        fprintf(psychfile," %.2lf %.2f %.2f",t,
+                GetProperty(&expt,expt.st,XPOS),
+                GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile," %s=%.4f %s=%.4f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
+        
+        fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
+                serial_strings[VERSION_CODE],VERSION_NUMBER, 
+                serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
+                GetProperty(&expt,expt.st->next,YPOS));
+        fprintf(psychfile," 0 %.2f %.2f",
+                GetProperty(&expt,expt.st,BACK_ORI),
+                GetProperty(&expt,expt.st,BACK_SIZE));
+        fprintf(psychfile," %s=%.0f %s=%.2f\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+        
+        
+        fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
+                serial_strings[VERSION_CODE],VERSION_NUMBER, 
+                serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
+                GetProperty(&expt,expt.st->next,YPOS));
+        fprintf(psychfile," 0 %.2f %.2f",
+                GetProperty(&expt,expt.st,BACK_ORI),
+                GetProperty(&expt,expt.st,BACK_SIZE));
+        fprintf(psychfile," %s=%.0f usenewdir=%d\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
+        
+        
+        if(expt.st->next && expt.st->next->type != STIM_NONE){
+            fprintf(psychfile,"R8 %s=%.2f %s=%.2f %s=%.2f",
+                    serial_strings[XPOS], GetProperty(&expt,expt.st->next,XPOS),
+                    serial_strings[YPOS], GetProperty(&expt,expt.st->next,YPOS),
+                    serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
+                    GetProperty(&expt,expt.st->next,YPOS));
+            fprintf(psychfile," 0 %.2f %.2f",
+                    GetProperty(&expt,expt.st,BACK_ORI),
+                    GetProperty(&expt,expt.st,BACK_SIZE));
+            fprintf(psychfile," %s=%.4f %s=%.2f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+        }
+        if(expt.st->type == STIM_IMAGE){
+            fprintf(psychfile,"R6 se0=%d se1=%d se2=%d %d %d %d se6=%d imver=%.2f\n",
+                    seedoffsets[0],seedoffsets[1],seedoffsets[2],
+                    seedoffsets[3],seedoffsets[4],seedoffsets[5],
+                    seedoffsets[6],expt.st->stimversion);
+            fprintf(psychfile,"R6 se7=%d se8=%d se9=%d %d %d %d se13=%d imver=%.2f\n",
+                    seedoffsets[7],seedoffsets[8],seedoffsets[9],
+                    seedoffsets[10],seedoffsets[11],seedoffsets[12],
+                    seedoffsets[13],expt.st->stimversion);
+            
+        }
+        fflush(psychfile);
     }
-    if(expt.st->type == STIM_IMAGE){
-    fprintf(psychfile,"R6 se0=%d se1=%d se2=%d %d %d %d se6=%d imver=%.2f\n",
-	    seedoffsets[0],seedoffsets[1],seedoffsets[2],
-	    seedoffsets[3],seedoffsets[4],seedoffsets[5],
-	    seedoffsets[6],expt.st->stimversion);
-    fprintf(psychfile,"R6 se7=%d se8=%d se9=%d %d %d %d se13=%d imver=%.2f\n",
-	    seedoffsets[7],seedoffsets[8],seedoffsets[9],
-	    seedoffsets[10],seedoffsets[11],seedoffsets[12],
-	    seedoffsets[13],expt.st->stimversion);
-
-    }
-    fflush(psychfile);
-  }
-
-
+    
+    
 }
 
 
@@ -10094,29 +10094,29 @@ void HideCursor(void)
 
 void ReopenSerial(void)
 {
-  int i;
-
+    int i;
+    
 #ifdef NIDAQ
-	    DIOWrite(0x7); 
-	    fsleep(0.01);
-	    DIOWrite(0); DIOval = 0;
+    DIOWrite(0x7); 
+    fsleep(0.01);
+    DIOWrite(0); DIOval = 0;
 #endif
-  closeserial(0);
-  if((i = OpenSerial(theport)) <= 0){
-    mode |= NO_SERIAL_PORT;
-    fprintf(stderr,"Can't Open %s (%d)\n",theport,i);
-  }
-  else{
-    printf("Reopened %s (%d)\n",theport,i);
-    fsleep(0.15);
-    if(!(mode & SERIAL_OK))
-      MakeConnection();
-    else{
-      SerialSignal(BW_IS_READY);
-      if(!CheckBW(BW_IS_READY,"Reopen"))
-	mode &= (~SERIAL_OK);
+    closeserial(0);
+    if((i = OpenSerial(theport)) <= 0){
+        mode |= NO_SERIAL_PORT;
+        fprintf(stderr,"Can't Open %s (%d)\n",theport,i);
     }
-  }
+    else{
+        printf("Reopened %s (%d)\n",theport,i);
+        fsleep(0.15);
+        if(!(mode & SERIAL_OK))
+            MakeConnection();
+        else{
+            SerialSignal(BW_IS_READY);
+            if(!CheckBW(BW_IS_READY,"Reopen"))
+                mode &= (~SERIAL_OK);
+        }
+    }
 }
 
 

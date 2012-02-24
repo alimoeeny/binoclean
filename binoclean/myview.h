@@ -3,16 +3,16 @@
 #define CHARWIDTH 12
 
 typedef struct OPTIONDATA{
-int id,val,n;
-void (*proc)();
-char *title;
-char **strings;
-int *vals;
+    int id,val,n;
+    void (*proc)();
+    char *title;
+    char **strings;
+    int *vals;
 } Optiondata;
 
 typedef struct optionset{
-  char **labels;
-  int *vals;
+    char **labels;
+    int *vals;
 }Optionset;
 
 typedef struct _menu_item {
