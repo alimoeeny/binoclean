@@ -36,9 +36,13 @@ Expt expt;
 
 - (void) updateInfoText:(NSNotification *) aNotification
 {
-    [informationTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", 
-                                          [[aNotification userInfo] valueForKey:@"text"],
-                                          [informationTextField stringValue]]];
+    NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
+    NSArray * sa = [s componentsSeparatedByString:@"\n"];
+    s = @"";
+    for (int i=0; i<MIN(14, [sa count]); i++) {
+        s = [NSString stringWithFormat:@"%@\n%@",s,(NSString*)[sa objectAtIndex:i]];
+    }
+    [informationTextField setStringValue:s];
 }
 
 - (void) playButtonPress:(id) sender
@@ -81,7 +85,6 @@ Expt expt;
     }
     else
         NSLog(@"DONT RUN");
-    
 }
 
 - (IBAction) textCommand:(id)sender
