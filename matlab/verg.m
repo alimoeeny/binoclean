@@ -139,6 +139,9 @@ for j = 1:length(strs{1})
         if length(id) > 1
             DATA.Trial.id = sscanf(s(id(2)+1:end),'%d');
         end
+        if isfield(DATA.Trial,'RespDir')
+            PlotPsych(DATA);
+        end
     elseif strncmp(s,'winpos=',7)
         DATA.winpos{1} = sscanf(s(8:end),'%d');
     elseif strncmp(s,'optionwinpos=',10)
@@ -1207,6 +1210,8 @@ function RunButton(a,b, type)
 
         end
     DATA = ReadFromBinoc(DATA);
+    set(DATA.toplevel,'UserData',DATA);
+    
     SetGui(DATA);
      
     function TestIO(a,b)
@@ -1489,3 +1494,16 @@ a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
 
+
+function PlotPsych(DATA)
+
+    e = length(DATA.Expts);
+    id = DATA.Expts{e}.first:length(DATA.Trials)
+    DATA.Expts{e}.Trials = DATA.Trials(id);
+    DATA.Expts{e}.Header.rc = 0;
+    DATA.Expts{e}.Header.expname  = 'Online';
+    GetFigure('Verg:Psych');
+    hold off; 
+    ExptPsych(DATA.Expts{e},'nmin',1,'mintrials',2,'shown');
+    
+    
