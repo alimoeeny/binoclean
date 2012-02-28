@@ -18,7 +18,6 @@ Expt expt;
 @synthesize commandHistoryTextField;
 @synthesize commandTextField;
 @synthesize stimulusValues;
-@synthesize electrodeTypes;
 
 - (id) init
 {
@@ -28,7 +27,6 @@ Expt expt;
         self.stimulusValues = [[NSMutableArray alloc] init]; //  arrayWithObjects:@"none", @"cylinder", @"bar", @"sine", @"rds", @"grating", nil] retain];
         for (int i = 0; i < N_STIMULUS_TYPES; i ++)
             [self.stimulusValues addObject:[NSString stringWithUTF8String:stimulus_names[i]]];
-        self.electrodeTypes = [[NSArray arrayWithObjects:@"AlphaOmega", @"MicroProbe+polyamide", @"FHC-PtIR", nil] retain];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateInfoText:) name:@"updateinfotext" object:nil];
     }
     return self;
@@ -36,35 +34,37 @@ Expt expt;
 
 - (void) updateInfoText:(NSNotification *) aNotification
 {
-    [informationTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", 
-                                          [[aNotification userInfo] valueForKey:@"text"],
-                                          [informationTextField stringValue]]];
+    NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
+    NSArray * sa = [s componentsSeparatedByString:@"\n"];
+    s = @"";
+    for (int i=0; i<MIN(14, [sa count]); i++) {
+        s = [NSString stringWithFormat:@"%@\n%@",s,(NSString*)[sa objectAtIndex:i]];
+    }
+    [informationTextField setStringValue:s];
 }
 
-- (void) playButtonPress:(id) sender
+- (IBAction) elPosButton:(id)sender
 {
-    if ([sender tag])
-    {
-        [sender setTag:0];
-        [sender setState:NSOffState];        
-        StopGo(0);
-    }
-    else
-    {
-        [sender setTag:1];
-        [sender setState:NSOnState];
-        StopGo(1);
-    }
+    NSLog(@"Opening Electrode Position Control Window");
+    stepperGUI * sw = [[stepperGUI alloc] initWithWindowNibName:@"stepperWindow"];
+    NSPoint np;
+    np.x = 100;
+    np.y = 100;
+    [[sw window] setFrameOrigin:np];
+    [[sw window] makeKeyAndOrderFront:nil];
 }
 
-- (IBAction) brucesButton:(id)sender
+- (IBAction) penLogButton:(id)sender
 {
-    if ([[(NSButton *)sender title] isEqualToString:@"Run"]) {
-        NSLog(@"RUN");
-    }
-    else
-        NSLog(@"DONT RUN");
+    NSLog(@"Opening PenLog Window");
+    penLog * pl = [[penLog alloc] initWithWindowNibName:@"penLogWindow"];
+    NSPoint np;
+    np.x = 250;
+    np.y = 250;
+    [[pl window] setFrameOrigin:np];
+    [[pl window]makeKeyAndOrderFront:nil];
 }
+
 
 - (IBAction) FreePipeButton:(id)sender
 {
@@ -81,7 +81,6 @@ Expt expt;
     }
     else
         NSLog(@"DONT RUN");
-    
 }
 
 - (IBAction) textCommand:(id)sender

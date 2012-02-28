@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F6433F914FD361E0088CE53 /* penLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F6433F814FD361E0088CE53 /* penLog.m */; };
+		3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FB14FD3A770088CE53 /* penLogWindow.xib */; };
+		3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FD14FD3E310088CE53 /* stepperWindow.xib */; };
+		4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 4114944914FB150A005EDCDE /* stepperGUI.m */; };
 		41520B6113A25981006CE4A7 /* MonkeyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41520B6013A25981006CE4A7 /* MonkeyWindow.xib */; };
 		41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6313A259C8006CE4A7 /* MonkeyGLView.m */; };
 		41520B6713A25B72006CE4A7 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6513A25B72006CE4A7 /* GLString.m */; };
@@ -82,6 +86,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F6433F714FD361E0088CE53 /* penLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = penLog.h; sourceTree = "<group>"; };
+		3F6433F814FD361E0088CE53 /* penLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = penLog.m; sourceTree = "<group>"; };
+		3F6433FB14FD3A770088CE53 /* penLogWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = penLogWindow.xib; sourceTree = "<group>"; };
+		3F6433FD14FD3E310088CE53 /* stepperWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = stepperWindow.xib; sourceTree = "<group>"; };
+		4114944814FB150A005EDCDE /* stepperGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stepperGUI.h; sourceTree = "<group>"; };
+		4114944914FB150A005EDCDE /* stepperGUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = stepperGUI.m; sourceTree = "<group>"; };
 		41520B6013A25981006CE4A7 /* MonkeyWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MonkeyWindow.xib; sourceTree = "<group>"; };
 		41520B6213A259C7006CE4A7 /* MonkeyGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MonkeyGLView.h; sourceTree = "<group>"; };
 		41520B6313A259C8006CE4A7 /* MonkeyGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonkeyGLView.m; sourceTree = "<group>"; };
@@ -370,6 +380,12 @@
 				419DCE1B13A133B3004E8464 /* binocleanAppDelegate.m */,
 				41B1212513DF795C008869E3 /* mainGUI.h */,
 				41B1212613DF795C008869E3 /* mainGUI.m */,
+				3F6433F714FD361E0088CE53 /* penLog.h */,
+				3F6433F814FD361E0088CE53 /* penLog.m */,
+				4114944814FB150A005EDCDE /* stepperGUI.h */,
+				4114944914FB150A005EDCDE /* stepperGUI.m */,
+				3F6433FB14FD3A770088CE53 /* penLogWindow.xib */,
+				3F6433FD14FD3E310088CE53 /* stepperWindow.xib */,
 				419DCE1D13A133B3004E8464 /* MainMenu.xib */,
 				41520B6213A259C7006CE4A7 /* MonkeyGLView.h */,
 				41520B6313A259C8006CE4A7 /* MonkeyGLView.m */,
@@ -493,6 +509,8 @@
 				41B1211813DF6E21008869E3 /* counterButtonDown114.png in Resources */,
 				41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */,
 				C9308B7E14F82EF50054C963 /* TODO.txt in Resources */,
+				3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */,
+				3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,6 +586,8 @@
 				41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */,
 				41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */,
 				41B1212713DF795C008869E3 /* mainGUI.m in Sources */,
+				4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */,
+				3F6433F914FD361E0088CE53 /* penLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

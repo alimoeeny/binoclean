@@ -9,7 +9,7 @@ Things that need fixing:
 * make the verge window size larger
 * jv keeps reseting to zero
 - save and save as in verg 
-- stepper in binoc lean
+- stepper (openserial, +-5, 10, 20, 50, 100, 200) in binoc lean
 - penetration log in binoc lean
 - information line (at the bottom of the main classic binoc window) should be moved both the verg and binoc lean
 * cancel button does not update at the end of an experiment

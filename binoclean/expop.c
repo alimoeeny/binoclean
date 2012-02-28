@@ -12570,7 +12570,7 @@ void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip)
         else if(expt.flag & TIMES_EXPT2 && (j = i-(expt.nstim[0]+expt.nstim[2])) >= 0) // expt2
         {
             if(!flip)
-                i = expt.nstim[2] + j *  expt.nstim[0];
+                i = expt.nstim[2] + j +  expt.nstim[0];
             if(expt.type2 == STIMULUS_TYPE_CODE)
             {
                 j = (int)(expt.st->type);
