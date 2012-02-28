@@ -92,7 +92,7 @@ void fsleep(float f);
 #define CHARCODES_DEFINE 1
 #define STAIROUT 1
 
-static int electrodeDepth = 0;
+int electrodeDepth = 0;
 #define REVERSED_CABLE 1
 static int motorinvert = 1;
 
@@ -113,7 +113,7 @@ extern Expt expt;
 extern struct timeval cleartime, now;
 static float stepvals[10] = {0,4,1,0,0,0,0,0};
 
-static char *stepport = NULL;
+char *stepport = NULL;
 static int fixedstepsize = 5;
 static int electrodeDepthOffset = 10000;
 struct termios Otermios_p;

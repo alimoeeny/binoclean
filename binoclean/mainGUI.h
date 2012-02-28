@@ -10,6 +10,8 @@
 #import <AppKit/AppKit.h>
 #import "commdefs.h"
 #import "stimuli.h"
+#import "stepperGUI.h"
+#import "penLog.h"
 
 @interface mainGUI : NSWindow{
     NSButton * playButton;
@@ -32,8 +34,6 @@
     NSString * experiment3StimulusValue;
     
     NSMutableArray * stimulusValues;
-    NSMutableArray * electrodeTypes;
-    NSString * electrodeValue;
 }
 
 @property (nonatomic, retain) IBOutlet NSButton * playButton;
@@ -72,14 +72,13 @@
 @property (nonatomic, retain) IBOutlet NSTextField * commandHistoryTextField;
 @property (nonatomic, retain) IBOutlet NSTextField * commandTextField;
 @property (nonatomic, retain) NSMutableArray * stimulusValues;
-@property (nonatomic, retain) NSArray * electrodeTypes;
-@property (nonatomic, retain) NSString * electrodeValue;
+
 
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)windowStyle backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation screen:(NSScreen *)screen;
 
 
-- (IBAction) playButtonPress:(id) sender;
-- (IBAction) brucesButton:(id)sender;
+- (IBAction) elPosButton:(id)sender;
+- (IBAction) penLogButton:(id)sender;
 - (IBAction) brucesNumbers:(id)sender;
 - (IBAction) textCommand:(id)sender;
 - (IBAction) FreePipeButton:(id)sender;
