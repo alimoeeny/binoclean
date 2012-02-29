@@ -604,16 +604,6 @@ void ShowTime()
 }
 
 
-
-//Ali
-void acknowledge(char * a ,int b)
-{
-    printf("Acknowledge! %s", a);
-}
-
-
-
-
 int getframecount()
 {
     float tval;

@@ -24,6 +24,17 @@ static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
 
+
+void acknowledge(char * a ,int b)
+{
+    printf("Acknowledge! %s", a);
+    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
+    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
+    [acknowledgeAlert setDefaultButton:@"I know!"];
+    [acknowledgeAlert setInformativeTextWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b];
+    [acknowledgeAlert runModal];
+}
+
 void displayOnMonkeyView(char *s, int x, int y)
 {
     if (!bold12Attribs) {
