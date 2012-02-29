@@ -2515,25 +2515,6 @@ void InterpretChannelLine(char *line, int chan)
     }
 }
 
-int GetLastPen(){
-    int pen = 1;
-    char buf[BUFSIZ];
-    FILE *fd;
-    
-    if((fd = fopen("lastpen","r")) != NULL){
-        fscanf(fd,"%d",&pen);
-        fclose(fd);
-    }
-    do{
-        sprintf(buf,"pen%d.log",pen);
-        if((fd = fopen(buf,"r")) != NULL){
-            fclose(fd);
-            pen++;
-        }
-    }while(fd != NULL);
-    return(pen-1);
-}
-
 int CheckPenetration()
 {
     char buf[BUFSIZ];
