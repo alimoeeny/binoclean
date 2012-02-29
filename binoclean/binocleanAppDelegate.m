@@ -30,8 +30,8 @@ void acknowledge(char * a ,int b)
     printf("Acknowledge! %s", a);
     NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
     [acknowledgeAlert setMessageText:@"Acknowledge it!"];
-    [acknowledgeAlert setDefaultButton:@"I know!"];
-    [acknowledgeAlert setInformativeTextWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b];
+    [acknowledgeAlert addButtonWithTitle:@"I know!"];
+    [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
     [acknowledgeAlert runModal];
 }
 

@@ -39,7 +39,6 @@ extern char *stepport;
 
 - (void) uDriveButtonPress:(id) sender
 {
-    NSLog(@"uDrive: %@", [sender tag] );
     int step = electrodeDepth + [sender tag] * self.stepSize;
     if (step<300) {
         NewPosition(step);
@@ -48,8 +47,8 @@ extern char *stepport;
     {
         NSAlert * a = [[NSAlert alloc] init];
         [a setMessageText:@"Large Step!"];
-        [a setDefaultButton:@"I know!"];
-        [a setInformativeTextWithFormat:@"You want to move the electrode %d micrometers and it is now a good idea!", step];
+        [a addButtonWithTitle:@"I know!"];
+        [a setInformativeText:[NSString stringWithFormat:@"You want to move the electrode %d micrometers and it is now a good idea!", step]];
         [a runModal];
     }
 }
