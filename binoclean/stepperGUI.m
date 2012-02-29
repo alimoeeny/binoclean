@@ -12,12 +12,13 @@ extern int electrodeDepth;
 extern char *stepport;
 
 @implementation stepperGUI
+@synthesize stepSize;
 
 - (id)initWithWindow:(NSWindow *)window
 {
     self = [super initWithWindow:window];
     if (self) {
-        
+        self.stepSize = 5;
     }
     
     return self;
@@ -38,8 +39,19 @@ extern char *stepport;
 
 - (void) uDriveButtonPress:(id) sender
 {
-    NSLog(@"uDrive: %@", [sender tag]);
-    NewPosition(electrodeDepth + [sender tag]);
+    NSLog(@"uDrive: %@", [sender tag] );
+    int step = electrodeDepth + [sender tag] * self.stepSize;
+    if (step<300) {
+        NewPosition(step);
+    }
+    else
+    {
+        NSAlert * a = [[NSAlert alloc] init];
+        [a setMessageText:@"Large Step!"];
+        [a setDefaultButton:@"I know!"];
+        [a setInformativeTextWithFormat:@"You want to move the electrode %d micrometers and it is now a good idea!", step];
+        [a runModal];
+    }
 }
 
 @end

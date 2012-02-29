@@ -9,6 +9,11 @@
 #import <Cocoa/Cocoa.h>
 
 @interface stepperGUI : NSWindowController
+{
+    NSInteger stepSize;
+}
+
+@property (nonatomic) NSInteger stepSize;
 
 - (IBAction) uDriveInitialize;
 - (IBAction) uDriveButtonPress:(id) sender;
