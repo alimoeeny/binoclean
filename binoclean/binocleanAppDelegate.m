@@ -32,7 +32,7 @@ void acknowledge(char * a ,int b)
     [acknowledgeAlert setMessageText:@"Acknowledge it!"];
     [acknowledgeAlert addButtonWithTitle:@"I know!"];
     [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
-    [acknowledgeAlert runModal];
+    [acknowledgeAlert beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
 }
 
 void displayOnMonkeyView(char *s, int x, int y)

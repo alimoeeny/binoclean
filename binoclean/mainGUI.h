@@ -82,5 +82,6 @@
 - (IBAction) brucesNumbers:(id)sender;
 - (IBAction) textCommand:(id)sender;
 - (IBAction) FreePipeButton:(id)sender;
+- (IBAction) acknowledgeTest:(id)sender;
 
 @end

@@ -92,5 +92,9 @@ Expt expt;
     NSLog(@"Command: %@", [sender stringValue]);
 }
 
+- (IBAction) acknowledgeTest:(id)sender
+{
+    acknowledge("Just testing!", 1234);
+}
 
 @end

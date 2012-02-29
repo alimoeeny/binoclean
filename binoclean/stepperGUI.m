@@ -49,7 +49,7 @@ extern char *stepport;
         [a setMessageText:@"Large Step!"];
         [a addButtonWithTitle:@"I know!"];
         [a setInformativeText:[NSString stringWithFormat:@"You want to move the electrode %d micrometers and it is now a good idea!", step]];
-        [a runModal];
+        [a beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
     }
 }
 
