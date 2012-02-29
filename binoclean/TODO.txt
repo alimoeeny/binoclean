@@ -20,4 +20,4 @@ Things that need fixing:
 - psychmon resets for each experiment (it should reset only if the experiment type is changed)
 - we need a "PCLEAR" button.
 - in addition to "PSYCH"mon it would be nice to have all the other types of plots orientation tuning, dx tuning ... 
-- 
+- display these (verge or binoc): total Number of trials, trials done so far, time lapsed, time since the end of the last experiment
