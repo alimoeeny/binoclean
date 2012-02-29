@@ -7,10 +7,17 @@ Things that need fixing:
 - graticule on eye tracking  THis is a spike2 problem when it gets xylim = 0. Need to recalc grid each time maybe
 - integrate with psych mon
 * make the verge window size larger
-* jv keeps reseting to zero
+- Ali:THIS PROBLEM IS NOT RESOLVED - jv keeps reseting to zero
 - save and save as in verg 
 - stepper (openserial, +-5, 10, 20, 50, 100, 200) in binoc lean
 - penetration log in binoc lean
 - information line (at the bottom of the main classic binoc window) should be moved both the verg and binoc lean
 * cancel button does not update at the end of an experiment
 * add ablksize control to verg. code is "bs"
+* acknowledge should popup a visual alert.
+- psychmon does not take into account the second experiment (plots only one line while it should plot 3)
+- psychmon does not show the number of repetitions of each condition correctly
+- psychmon resets for each experiment (it should reset only if the experiment type is changed)
+- we need a "PCLEAR" button.
+- in addition to "PSYCH"mon it would be nice to have all the other types of plots orientation tuning, dx tuning ... 
+- 
