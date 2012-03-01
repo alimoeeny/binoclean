@@ -12,7 +12,6 @@
 #import "drawinfo.h"
 #import "stimdefs.h"
 
-Stimulus *TheStim;
 int winsiz [2];
 
 // ==================================

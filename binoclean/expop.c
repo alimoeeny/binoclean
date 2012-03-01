@@ -132,7 +132,7 @@ int maxseed = 0;
 static char *helpfiles[MAXHELPFILES] = {NULL};
 static char *helplabels[MAXHELPFILES] = {NULL};
 static int nhelpfiles = 0;
-static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, 0};
+static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, HIGHXTYPE, 0};
 
 FILE *imoutfd = NULL;
 int command_pending;
@@ -2051,6 +2051,23 @@ struct plotdata *ReadPlot(char *s)
         maxn = n;
     plot->nstim[0] = maxn;
     return(plot);
+}
+
+
+void ListQuickExpts()
+{
+    int i = 0;
+    char buf[BUFSIZ];
+    
+    for (i = 0; i < nquickexpts; i++){
+        sprintf(buf,"qe=%s\n",quicknames[i]);
+        notify(buf);
+    }
+    if (expt.showflags != NULL){
+        sprintf(buf,"pf=%s\n",expt.showflags);
+        notify(buf);
+    }
+            
 }
 
 void ListExpStims(int w)
@@ -7195,36 +7212,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                 sprintf(cbuf,"%s%s%d",scode,temp,st->mode);
             break;
         case SHOWFLAGS_CODE:
-            sprintf(cbuf,"%s%s",scode,temp);
-            i = 0;
-            while(toggle_strings[i] != NULL)
-            {
-                if(( i < 32 && alloptions & (1<<i))){
-                    sprintf(temp,"+%s",toggle_codes[i]);
-                    strcat(cbuf,temp);
-                }
-                else if( i >= 32 &&(all2options & (1<<(i-32)))){
-                    sprintf(temp,"+%s",toggle_codes[i]);
-                    strcat(cbuf,temp);
-                }
-                else if (i >= MAXOPTIONBITS && allflags[i-MAXOPTIONBITS]){
-                    sprintf(temp,"+%s",toggle_codes[i]);
-                    strcat(cbuf,temp);
-                    
-                }
-                i++;
-            }
-            strcat(cbuf,":");
-            i = 0;
-            while(flag_codes[i])
-            {
-                if(allstimflags & (1<<i) && flag_codes[i])
-                {
-                    sprintf(temp,"+%s",flag_codes[i]);
-                    strcat(cbuf,temp);
-                }
-                i++;
-            }
+            sprintf(cbuf,"%s",expt.showflags);
             break;
         case EXPTSTRING:
             sprintf(cbuf,"%s%s%s",serial_strings[EXPTYPE_CODE3],temp,serial_strings[expt.type3]);
@@ -10161,6 +10149,10 @@ int PrepareExptStim(int show, int caller)
             SetDotDistribution();
         precalc_rds_disps(expt.st);
     }
+    if (expt.type2 != EXPTYPE_NONE && expt.nstim[1] > 1)
+        val = stp->vals[1];
+    else
+        val = 0;
     
     sprintf(cbuf,"exvals %.4f %.4f %.4f %d\n",stp->vals[0],stp->vals[1],stp->vals[EXP_THIRD],expt.st->left->baseseed);
     SerialString(cbuf,0);
@@ -13601,6 +13593,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"cmdfile",6)  && (s = strchr(line,'=')) != 0){
         expt.cmdinfile = myscopy(expt.cmdinfile,++s);
         nonewline(expt.cmdinfile);
+        return(0);
     }
     else if(!strncmp(line,"psychfile",6)  && (s = strchr(line,'=')) != 0){
         psychfilename = myscopy(psychfilename,++s);
@@ -13641,6 +13634,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }	
     else if(!strncmp(line,"StimInOverlay",10)){
         optionflags[STIMULUS_IN_OVERLAY] = 1;
+        return(0);
+
     }
     else if(!strncmp(line,"spike2",6)){
         pcmode = SPIKE2;
@@ -13959,6 +13954,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
              */
             LabelAndPath(s, qlabel, qpath, qname);
             t = qname;
+            quicknames[nquickexpts] = myscopy(quicknames[nquickexpts],s);
+            nquickexpts++;
             /* Do nothing if this is already on the list */
             //Ali	  if(oldnquick && quick_menu){
             //	    for(i = 0; i <= oldnquick; i++){
@@ -14150,16 +14147,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             break;
         case SHOWFLAGS_CODE:
-            newtoggles++;
-            if(!reading_quickexp)
-                alloptions = all2options = allstimflags = 0;
-            flag = 0;
-            while(s[j] != 0){
-                if(s[j] == '+' || s[j] == '-')
-                    ShowFlag(&s[j++],flag);
-                else if(s[j++] == ':')
-                    flag++;
-            }
+            expt.showflags = myscopy(expt.showflags,s);
             break;
         case OPTION_CODE:
             if(isdigit(s[0])){

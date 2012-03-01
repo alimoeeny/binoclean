@@ -13,7 +13,6 @@
 #import <sys/time.h>
 #include <sys/resource.h>
 
-Stimulus *TheStim, tempstim,*stimptr,*ChoiceStima,*ChoiceStimb;
 Expt expt;
 Monitor mon;
 int binocmain(int argc, char * argv[]);

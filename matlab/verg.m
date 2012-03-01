@@ -113,6 +113,8 @@ for j = 1:length(strs{1})
         DATA.inexpt = 1;
     elseif strncmp(s,'EXPTOVER',8)
         DATA.inexpt = 0;
+        DATA.Expts{DATA.nexpts}.End = now;
+        DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
         SetGui(DATA);
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
@@ -131,6 +133,8 @@ for j = 1:length(strs{1})
             DATA.Trial.RespDir = sscanf(s(7:end),'%d');
         elseif s(6) == 'W'
             DATA.Trial.RespDir = sscanf(s(7:end),'%d');
+        else
+            DATA.Trial.RespDir = 0;
         end
         DATA = SetTrial(DATA, DATA.Trial);
         DATA.nt = DATA.nt+1;
@@ -465,10 +469,15 @@ function DATA = SetDefaults(DATA)
 scrsz = get(0,'Screensize');
 DATA.Trial.Trial = 1;
 DATA.Trial.sv = [];
+DATA.psych.show = 1;
+DATA.psych.blockmode = 'all';
+DATA.psych.blockid = [];
+
 DATA.nt = 1;
 DATA.exptype = [];
 DATA.nexpts = 0;
 DATA.Expts = {};
+DATA.Trials = [];
 DATA.showxy = [1 1 1]; %XY L, R, Conjugate crosses
 DATA.currentstim = 1;  %foregr/backgre/Choice Targest
 DATA.xyfsdvals = [1 2 5 10 20 40];
@@ -612,7 +621,16 @@ end
 
 function ShowStatus(DATA)
 
-s = sprintf('Trials %d/%d Ex:%d/%d',DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4));
+    if DATA.inexpt
+        str = datestr(DATA.Expts{DATA.nexpts}.Start);
+        str = ['Started ' str(13:17)];
+    else
+        str = datestr(DATA.Expts{DATA.nexpts}.End);
+        str = ['Ended ' str(13:17)];
+    end
+    s = sprintf('Trials %d/%d Ex:%d/%d %s',...
+    DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),...
+    DATA.trialcounts(4),str);
 if isfield(DATA,'toplevel')
 set(DATA.toplevel,'Name',s);
 end
@@ -1031,8 +1049,9 @@ function MenuGui(a,b)
         SetGui(DATA);
         start(DATA.timerobj);
      elseif flag == 4
-         stop(DATA.timerobj)
+        stop(DATA.timerobj)
      elseif flag == 5
+        DATA = ReadFromBinoc(DATA,'reset');   
         start(DATA.timerobj);
      elseif flag == 6
          OpenPipes(DATA, 0);
@@ -1198,8 +1217,11 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.Stimvals.et = DATA.exptype{1};
             DATA.Expts{DATA.nexpts}.Stimvals.e2 = DATA.exptype{2};
             DATA.Expts{DATA.nexpts}.Stimvals.e3 = DATA.exptype{3};
+            DATA.Expts{DATA.nexpts}.Start = now;
             else
                fprintf(DATA.outid,'\\ecancel\n');
+                DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
+                DATA.Expts{DATA.nexpts}.End = now;
             end
             it = findobj(DATA.toplevel,'Tag','do');
             set(it,'value',1);
@@ -1207,7 +1229,7 @@ function RunButton(a,b, type)
         elseif type == 2
             fprintf(DATA.outid,'\\estop\n');
             DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
-
+            DATA.Expts{DATA.nexpts}.End = now;
         end
     DATA = ReadFromBinoc(DATA);
     set(DATA.toplevel,'UserData',DATA);
@@ -1495,15 +1517,72 @@ set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
 
 
+    
+    
+function ChoosePsych(a,b, mode)
+    DATA = GetDataFromFig(a);
+    onoff = {'off' 'on'};
+    
+    if strmatch(mode,{'Current','All'})
+        DATA.psych.blockmode = mode;
+        PlotPsych(DATA);
+    elseif strmatch(mode,'Pause')
+        DATA.psych.show = ~DATA.psych.show;
+        set(a,'Checked',onoff{DATA.psych.show+1});
+    end
+    set(DATA.toplevel,'UserData',DATA);
+
+
+
+function SetFigure(tag, DATA)
+
+    [a,isnew] = GetFigure(tag);
+    if isnew
+        DATA.figs.(tag) = a;
+        if strcmp(tag,'VergPsych')
+            hm = uimenu(a, 'Label','Expts');
+            uimenu(hm,'Label', 'Current','Callback',{@ChoosePsych, 'Current'});
+            uimenu(hm,'Label', 'All','Callback',{@ChoosePsych, 'All'});
+            set(a,'UserData',DATA.toplevel);
+        end
+    end
+    
+function DATA = CheckExpts(DATA)
+
+    for j = 1:length(DATA.Expts)
+        if j < length(DATA.Expts) && ~isfield(DATA.Expts{j},'last')
+            DATA.Expts{j}.last = DATA.Expts{j+1}.first -1;
+        end
+    end
+    
 function PlotPsych(DATA)
+    
+    
+    
+    if isempty(DATA.Expts) || isempty(DATA.Trials)
+        return;
+    end
+    DATA = CheckExpts(DATA);
 
     e = length(DATA.Expts);
-    id = DATA.Expts{e}.first:length(DATA.Trials)
+    id = DATA.Expts{e}.first:length(DATA.Trials);
+    if strmatch(DATA.psych.blockmode,'All')
+        allid = [];
+        for j = 1:e-1
+            if DATA.Expts{j}.Stimvals.et == DATA.Expts{e}.Stimvals.et & ...
+               DATA.Expts{j}.Stimvals.e2 == DATA.Expts{e}.Stimvals.e2
+                allid= [allid DATA.Expts{j}.first:DATA.Expts{j}.last];
+            end
+        end
+        id = [allid id];
+    end
     DATA.Expts{e}.Trials = DATA.Trials(id);
     DATA.Expts{e}.Header.rc = 0;
     DATA.Expts{e}.Header.expname  = 'Online';
-    GetFigure('Verg:Psych');
+    if DATA.psych.show
+    SetFigure('VergPsych', DATA);
     hold off; 
     ExptPsych(DATA.Expts{e},'nmin',1,'mintrials',2,'shown');
+    end
     
     

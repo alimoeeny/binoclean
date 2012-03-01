@@ -516,7 +516,7 @@ static int      S;
 
 
 Stimulus *stimptr,*ChoiceStima,*ChoiceStimb;
-Stimulus *TheStim,*tempstim;
+static Stimulus *TheStim,*tempstim;
 /*j some of jons added functions*/
 void afc_statusline(char *s, int line);
 void paint_target(float color, int flag);
@@ -1451,7 +1451,7 @@ int SendTrialCount()
 {
     char buf[BUFSIZ];
     
-    sprintf(buf,"STIMC %d %d %d %d\n",goodtrials, totaltrials,stimno,expt.nreps*expt.nstim[5]);
+    sprintf(buf,"STIMC %d %d %d %d\n",goodtrials, totaltrials,stimno+1,expt.nreps*expt.nstim[5]);
     notify(buf);
 }
 
@@ -1466,6 +1466,7 @@ void SendAllToGui()
         notify(buf);
     }
     ListExpStims(NULL);
+    ListQuickExpts();
 }
 
 void SendAll()

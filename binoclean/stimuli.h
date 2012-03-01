@@ -424,6 +424,7 @@ struct EXPERIMENT{
     int cmdtype;
     int stflag;
     int hightype;
+    char *showflags;
 };
 
 typedef struct EXPERIMENT Expt;

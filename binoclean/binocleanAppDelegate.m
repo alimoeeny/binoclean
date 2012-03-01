@@ -8,7 +8,6 @@
 
 #import "binocleanAppDelegate.h"
 
-Stimulus *TheStim;
 Expt expt;
 int stimstate;
 BOOL dataReadyInInputPipe;
