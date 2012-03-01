@@ -23,7 +23,6 @@ static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
 
-
 void acknowledge(char * a ,int b)
 {
     printf("Acknowledge! %s", a);

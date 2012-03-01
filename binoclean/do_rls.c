@@ -15,6 +15,10 @@ static FILE *rlsfd = NULL;
 extern FILE *seroutfile;
 extern Expt expt;
 
+//Ali
+char * VERSION_NUMBER;
+
+
 int init_rls(Stimulus *st,  Substim *sst, float density);
 
 #define NSEEDS 10

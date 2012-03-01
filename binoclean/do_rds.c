@@ -12,6 +12,10 @@
 #define myseed rnd_init
 #define myrand rnd_i
 
+//Ali
+char * VERSION_NUMBER;
+
+
 int dispcounts[MAXDISPS];
 static int twod = 1;
 extern int option2flag;

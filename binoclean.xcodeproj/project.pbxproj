@@ -434,6 +434,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 419DCE3713A133B3004E8464 /* Build configuration list for PBXNativeTarget "binoclean" */;
 			buildPhases = (
+				41302B8514FFD4CB002FB482 /* ShellScript */,
 				419DCE0013A133B3004E8464 /* Sources */,
 				419DCE0113A133B3004E8464 /* Frameworks */,
 				419DCE0213A133B3004E8464 /* Resources */,
@@ -526,6 +527,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		41302B8514FFD4CB002FB482 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\n# Auto Increment Version Script\nbuildPlist=\"binoclean/binoclean-Info.plist\"\nbuildVersion=$(/usr/libexec/PlistBuddy -c \"Print CFBuildVersion\" $buildPlist)\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBuildNumber\" $buildPlist)\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBuildNumber $buildNumber\" $buildPlist\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildVersion.$buildNumber\" $buildPlist\n/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $buildVersion.$buildNumber\" $buildPlist";
+		};
 		419DCE2313A133B3004E8464 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

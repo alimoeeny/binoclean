@@ -16,11 +16,12 @@
 Expt expt;
 Monitor mon;
 int binocmain(int argc, char * argv[]);
+char * VERSION_NUMBER;
 
-//this is Ali's final working version
 int main(int argc, char *argv[])
 {
     setpriority(PRIO_PROCESS, 0, -10);
+    VERSION_NUMBER = [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String];
     binocmain(argc, argv);
     return NSApplicationMain(argc, (const char **)argv);
 }

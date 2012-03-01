@@ -51,6 +51,7 @@
 
 //Ali
 #define NOEVENT 0
+char * VERSION_NUMBER;
 
 /*GLUquadricObj *gluq;*/
 static GLuint base,bigbase,mediumbase;

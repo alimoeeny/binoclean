@@ -91,6 +91,8 @@
 #define MANUALEVENT 1
 #define TRUE 1
 #import "stimuli.h"
+char * VERSION_NUMBER;
+
 
 #define MAXRF 10
 extern Expstim oldrfs[];
