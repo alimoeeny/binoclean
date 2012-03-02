@@ -631,6 +631,16 @@
  * in commdefs.h
  */
 
+typedef struct stringcode {
+    char *code;
+    char *label;
+    int icode;
+    char *value;
+    
+} StringCode;
+#define MONITOR_FILE 0
+
+
 #ifdef CHARCODES_DEFINE
 
 #ifdef DOSVERSION
@@ -639,6 +649,13 @@
 #define NCODES MAXTOTALCODES
 #endif
 
+
+
+StringCode commstrings[] = {
+    {"monitor","Monitor Filename",  MONITOR_FILE, NULL},
+    {"lo", "Log File", LOGFILE_CODE, NULL},
+    {NULL, NULL, 0, NULL}
+};
 
 /* codes for BW to tell Front things 
  * N.B. THESE CIDES MUST BE DIFFERNT FORM toggle_codes in front.c
@@ -1505,11 +1522,14 @@ char *channel_strings[] = {
 	NULL
 };
 
+
+
 #else
 extern char *serial_strings[];
 extern char *channel_strings[];
 extern char *stimulus_names[];
 extern char *bwtoggle_codes[];
+extern StringCode commstrings[];
 #ifndef DOSVERSION
 extern char *mode_names[];
 extern int nfplaces[MAXTOTALCODES];
@@ -1657,4 +1677,7 @@ extern char *jumpnames[];
 #define JUMP_STIM_ORTHO 3
 #define JUMP_STIM_CHANGE 4
 #define NJUMPTYPES 5
+
+
+
 

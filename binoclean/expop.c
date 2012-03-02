@@ -21,7 +21,7 @@
 #import "stimdefs.h"
 
 #import "protos.h"
-#import "cmptime.h"
+
 #define MAXREPS 500
 #define MAXTRIALS 300
 #define ZEROBLOCKING 10
@@ -1470,6 +1470,12 @@ void PrintCodes(int mode)
         }
         notify(tmp);
     }
+    i = 0;
+    while(commstrings[i].code != NULL){
+        sprintf(tmp,"SCODE %s %d %s\n",commstrings[i].code,commstrings[i].icode,commstrings[i].label);
+        notify(tmp);
+        i++;
+    }
     SendExptTypesToGui();
     SendToggleCodesToGui();
 }
@@ -1498,22 +1504,25 @@ int SendExptTypesToGui()
     char s[BUFSIZ],tmp[BUFSIZ];
     
     sprintf(s,"Expts1 ");
-    for (i = 0; i < NEXPTS1; i++){
-        sprintf(tmp,"%d ",firstmenu[i].val);
+    i = 0;
+    while(firstmenu[i].label != NULL){
+        sprintf(tmp,"%d ",firstmenu[i++].val);
         strcat(s,tmp);
     }
     strcat(s,"\n");
     notify(s);
     sprintf(s,"Expts2 ");
-    for (i = 0; i < NEXPTS2; i++){
-        sprintf(tmp,"%d ",secondmenu[i].val);
+    i = 0;
+    while(secondmenu[i].label != NULL){
+        sprintf(tmp,"%d ",secondmenu[i++].val);
         strcat(s,tmp);
     }
     strcat(s,"\n");
     notify(s);
     sprintf(s,"Expts3 ");
-    for (i = 0; i < NEXPTS3; i++){
-        sprintf(tmp,"%d ",thirdmenu[i].val);
+    i = 0;
+    while(thirdmenu[i].label != NULL){
+        sprintf(tmp,"%d ",thirdmenu[i++].val);
         strcat(s,tmp);
     }
     strcat(s,"\n");
@@ -2117,6 +2126,7 @@ void ListExpStims(int w)
     notify("ECCLEAR\n");
     for(i = 0; i < expt.nstim[4]; i++){
         sprintf(buf,"EC%d %.2f\n",i,expt.exp3vals[i]);
+        notify(buf);
     }
 }
 
@@ -2715,7 +2725,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                 else
                     strcpy(sfile,t);
                 if((seroutfile = fopen(sfile,"a")) != NULL)
-                    fprintf(seroutfile,"Reopened %s by binoc Version %s compiled %s",ctime(&tval),VERSION_NUMBER,CMPTIME);
+                    fprintf(seroutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);
                 else
                 {
                     sprintf(buf,"Can't open serial file %s:",sfile);
@@ -7005,6 +7015,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
         sprintf(temp,"=");
     else
         sprintf(temp,"");
+    sprintf(cbuf,"");
     
     switch(code)
     {
@@ -7210,8 +7221,8 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                     i++;
                 }
             }
-            else
-                sprintf(cbuf,"%s%s%d",scode,temp,st->mode);
+ //           else
+ //               sprintf(cbuf,"%s%s%d",scode,temp,st->mode);
             break;
         case SHOWFLAGS_CODE:
             sprintf(cbuf,"%s",expt.showflags);
@@ -7991,7 +8002,7 @@ void InitExpt()
     }
     if(psychfilelog){
         tstart = time(NULL);
-        fprintf(psychfilelog,"Expt at %s by binoc Version %s compiled %s\n",nonewline(ctime(&tstart)),VERSION_NUMBER,CMPTIME);
+        fprintf(psychfilelog,"Expt at %s by binoc Version %s\n",nonewline(ctime(&tstart)),VERSION_NUMBER);
         fprintf(psychfilelog,"\nStimulus %s\n",DescribeStim(expt.st));
         for(j = 0; j < MAXTOTALCODES; j++){
             cbuf[0] = 0;
@@ -13693,6 +13704,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"monitor",5) && (s = strchr(line,'=')) != 0)
     {
         sscanf(++s,"%s",buf);
+        commstrings[MONITOR_FILE].value = myscopy(commstrings[MONITOR_FILE].value,buf);
         ReadMonitorSetup(buf);
         return(-1);
     }
@@ -14150,6 +14162,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case SHOWFLAGS_CODE:
             expt.showflags = myscopy(expt.showflags,s);
+            
             break;
         case OPTION_CODE:
             if(isdigit(s[0])){

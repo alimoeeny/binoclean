@@ -9,7 +9,7 @@
 #import "binocleanAppDelegate.h"
 
 Expt expt;
-int stimstate;
+//int stimstate;
 BOOL dataReadyInInputPipe;
 char * inputLineChars = NULL;
 int winsiz [2];
@@ -208,7 +208,7 @@ void notify(char * s)
     
 //    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
-    StopGo(1);
+ //   StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
 }
 

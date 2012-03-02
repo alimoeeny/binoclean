@@ -29,7 +29,7 @@
 #import "WinDefs.h"
 #import "sprotos.h"
 #import "protos.h"
-#import "cmptime.h"
+
 
 
 /*
@@ -168,7 +168,7 @@ float trialdur = 0,trialdursum=0;
 float *stimtimes = NULL, *downtimes = NULL, *starttimes = NULL;
 int *fixed = 0;
 float *fixx = NULL, *fixy = NULL;
-int goodtrials = 0, totaltrials = 0, premtrials = 0, fixtrials = 0, wrongtrials = 0, afctrials = 0,latetrials=0;
+int goodtrials = 0, totaltrials = 0, premtrials = 0, fixtrials = 0, wrongtrials = 0, afctrials = 0,latetrials=0, badtrials = 0;
 int avglen = 20,avctr = 0;
 float stopcriterion = 0.0;
 float cmarker_size = 15;
@@ -1072,7 +1072,7 @@ char **argv;
     /*
      * first pass through argv leave any stimfiles named in argv
      */
-    printf("VERSION %s compiled %s\n",VERSION_NUMBER,CMPTIME);
+    printf("VERSION %s\n",VERSION_NUMBER);
 	
     while(i < argc) //Ali: for some reason xcode passes these additional arguments that messes up things.
     {
@@ -1452,7 +1452,7 @@ int SendTrialCount()
 {
     char buf[BUFSIZ];
     
-    sprintf(buf,"STIMC %d %d %d %d\n",goodtrials, totaltrials,stimno+1,expt.nreps*expt.nstim[5]);
+    sprintf(buf,"STIMC %d %d %d %d %d %d %d\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stimno+1,expt.nreps*expt.nstim[5]);
     notify(buf);
 }
 
@@ -1466,6 +1466,9 @@ void SendAllToGui()
         MakeString(i, buf, &expt, expt.st,TO_GUI);
         notify(buf);
     }
+    i =0;
+
+    
     ListExpStims(NULL);
     ListQuickExpts();
 }
@@ -5737,6 +5740,7 @@ void paint_frame(int type, int showfix)
 int CheckFix()
 {
     int oldstate = stimstate;
+    int i = (optionflag & FIXATION_CHECK);
     
     if((optionflag & FIXATION_CHECK) && fixstate == BADFIX_STATE)
 	{
@@ -6605,8 +6609,10 @@ int next_frame(Stimulus *st)
                 change_frame();
                 oldstimpos[0] = TheStim->pos.xy[0];
                 oldstimpos[1] = TheStim->pos.xy[1];
-                ResetExpStim(1); //before stimno is incremented
-                ShuffleStimulus(WURTZ_LATE);
+                if (stimno >=0) { // dont do this if not in expt
+                    ResetExpStim(1); //before stimno is incremented
+                    ShuffleStimulus(WURTZ_LATE);
+                }
             }
 #if defined(Linux) || defined(WIN32)
             else
@@ -9168,8 +9174,7 @@ int GotChar(char c)
                 }
 			    else if(c==BAD_FIXATION)
                 {
-                    wrongtrials++;
-                    fixtrials++;
+                    badtrials++;
                 }
 			    else if(c==WURTZ_OK_W){ /* can only get when sacval != 0 */
                     wrongtrials++;

@@ -86,6 +86,17 @@ for j = 1:length(strs{1})
         id = strfind(s,' ');
         code = str2num(s(id(1)+1:id(2)-1))+1;
         DATA.stimulusnames{code} = s(id(2)+1:end);
+    elseif strncmp(s,'SCODE',5)
+        id = strfind(s,' ');
+        icode = str2num(s(id(2)+1:id(3)-1))+1;
+        label = s(id(3)+1:end);
+        sid = strmatch(label,{DATA.strcodes.code},'exact');
+        if isempty(sid)
+            sid = length(DATA.strcodes)+1;
+        end
+        DATA.strcodes(sid).label = s(id(3)+1:end);
+        DATA.strcodes(sid).icode = icode;
+        DATA.strcodes(sid).code = s(1:id(1)-1);
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
@@ -266,6 +277,12 @@ for j = 1:length(strs{1})
     elseif strncmp(s, 'st', 2)
         id = strmatch(s(4:end),DATA.stimulusnames,'exact');
         DATA.stimtype(DATA.currentstim) = id;
+    elseif strmatch(s,{DATA.strcodes.code})
+        sid = strmatch(s,{DATA.strcodes.code});
+        id = strfind(s,'=');
+        if id
+            DATA.binocstr.(DATA.strcodes(id).code)=s(id(1)+1:end);
+        end
     elseif strncmp(s, 'Bs', 2)
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
     elseif s(1) == 'E'
@@ -355,6 +372,14 @@ function SendState(DATA)
     f = fields(DATA.binoc{2});
     
     fprintf(DATA.outid,'eventpause\n');
+    fprintf(DATA.outid,'mo=fore\n');
+    f = fields(DATA.binocstr);
+    for j = 1:length(f)
+        if length(DATA.binocstr.(f{j})) > 0
+            fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binocstr.(f{j}));
+        end
+    end
+    f = fields(DATA.binoc{2});
     fprintf(DATA.outid,'mo=back\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
 
@@ -369,6 +394,9 @@ function SendState(DATA)
     for j = 1:length(f)
         fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{1}.(f{j}));
     end
+    SendCode(DATA,'optionflag');
+    SendCode(DATA,'expts');
+    
     fprintf(DATA.outid,'eventcontinue\n');
 
 function SaveExpt(DATA, name)
@@ -531,6 +559,11 @@ DATA.tag.penlog = 'Penetration Log';
 DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
 DATA.comcodes(1).const = 1;
+DATA.strcodes(1).label = 'Monitor file';
+DATA.strcodes(1).code = 'monitor';
+DATA.strcodes(1).icode = 0; 
+
+DATA.binocstr.monitor = '/local/monitors/Default';
 DATA.expts{1} = [];
 DATA.expts{2} = [];
 DATA.expts{3} = [];
@@ -628,9 +661,9 @@ function ShowStatus(DATA)
         str = datestr(DATA.Expts{DATA.nexpts}.End);
         str = ['Ended ' str(13:17)];
     end
-    s = sprintf('Trials %d/%d Ex:%d/%d %s',...
-    DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),...
-    DATA.trialcounts(4),str);
+    s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...
+    DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4),...
+    DATA.trialcounts(6),DATA.trialcounts(7),str);
 if isfield(DATA,'toplevel')
 set(DATA.toplevel,'Name',s);
 end
@@ -1054,8 +1087,10 @@ function MenuGui(a,b)
         DATA = ReadFromBinoc(DATA,'reset');   
         start(DATA.timerobj);
      elseif flag == 6
+        stop(DATA.timerobj);
          OpenPipes(DATA, 0);
          SendState(DATA);
+        start(DATA.timerobj);
      else
         DATA = ReadFromBinoc(DATA);   
         SetGui(DATA);
@@ -1174,21 +1209,27 @@ function CheckInput(a,b, fig, varargin)
         nbytes = sscanf(char(a'),'SENDING%d');
      elseif strncmp(char(a'),'SENDING',7)
          nbytes = sscanf(char(a'),'SENDING%d');
-     else
-         s = char(a');
-         fprintf('No Bytes %s\n',s);
-         if length(s)
-         a = s(end);
-         while char(a) ~= 'G' | strcmp(s(end-6:end),'SENDING') == 0
-            a = fread(DATA.inid,1);
-            s = [s char(a)];
-         end
-         a = fread(DATA.inid,7);
-         nbytes = sscanf(char(a'),'%d');
-         fprintf('Read %s\n',s);
          else
-             nbytes = 0;
-         end
+             s = char(a');
+             fprintf('No Bytes %s\n',s);
+             if length(s)
+                 id = strfind(s,'SENDING')
+                 if length(id)
+                     fprintf('Found SENDING at char %d\n',id);
+                     nbytes = sscanf(s(id(1)),'SENDING%d')
+                 else
+                    a = s(end);
+                    while char(a) ~= 'G' | strcmp(s(end-6:end),'SENDING') == 0
+                        a = fread(DATA.inid,1);
+                        s = [s char(a)];
+                    end
+                 a = fread(DATA.inid,7);
+                 nbytes = sscanf(char(a'),'%d');
+                 fprintf('Read %s\n',s);
+                 end
+             else
+                 nbytes = 0;
+             end
      end
      if DATA.verbose > 1
      fprintf('Need %d bytes\n',nbytes);
@@ -1218,18 +1259,18 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.Stimvals.e2 = DATA.exptype{2};
             DATA.Expts{DATA.nexpts}.Stimvals.e3 = DATA.exptype{3};
             DATA.Expts{DATA.nexpts}.Start = now;
+            DATA.optionflags.do = 1;
             else
                fprintf(DATA.outid,'\\ecancel\n');
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
+            DATA.optionflags.do = 0;
             end
-            it = findobj(DATA.toplevel,'Tag','do');
-            set(it,'value',1);
-            
         elseif type == 2
             fprintf(DATA.outid,'\\estop\n');
             DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
             DATA.Expts{DATA.nexpts}.End = now;
+            DATA.optionflags.do = 0;
         end
     DATA = ReadFromBinoc(DATA);
     set(DATA.toplevel,'UserData',DATA);
@@ -1463,7 +1504,31 @@ function HitToggle(a,b, flag)
     fprintf('op=0\n%s\n',s);
     fprintf(DATA.outid,'op=0\n%s\n',s);
     ReadFromBinoc(DATA);
+    SetGui(DATA);
  
+   
+    
+function SendCode(DATA, code)
+    if strcmp(code,'optionflag')
+    s = 'op=';
+    f = fields(DATA.optionflags);
+    for j = 1:length(f)
+        if DATA.optionflags.(f{j})
+            s = [s '+' f{j}];
+        else
+%            s = [s '-' f{j}];
+        end
+    end
+    fprintf(DATA.outid,'op=0\n%s\n',s);
+    elseif strcmp(code,'expts')
+        s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
+        fprintf(DATA.outid,'%s\n',s);
+        s = sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2));
+        fprintf(DATA.outid,'%s\n',s);
+        s = sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3));
+        fprintf(DATA.outid,'%s\n',s);
+        end
+        
 function StimToggle(a,b, flag)       
     DATA = GetDataFromFig(a);
 %    flag = get(a,'Tag');
@@ -1510,7 +1575,9 @@ a =  get(DATA.txtrec,'string');
 n = size(a,1);
 if txt(end) == '='
     code = txt(1:end-1);
+    if isfield(DATA.binoc{DATA.currentstim},code)
     txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
+    end
 end
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
