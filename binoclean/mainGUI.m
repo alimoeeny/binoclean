@@ -34,13 +34,18 @@ Expt expt;
 
 - (void) updateInfoText:(NSNotification *) aNotification
 {
-    NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
-    NSArray * sa = [s componentsSeparatedByString:@"\n"];
-    s = @"";
-    for (int i=0; i<MIN(14, [sa count]); i++) {
-        s = [NSString stringWithFormat:@"%@\n%@",s,(NSString*)[sa objectAtIndex:i]];
+    if([[informationTextField stringValue] rangeOfString:[[aNotification userInfo] valueForKey:@"text"]].location == NSNotFound)
+    {
+        int r = 14;
+        NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
+        NSArray * c = [s componentsSeparatedByString:@"\n"];
+        if([c count]>r)
+        {
+            int b = [s rangeOfString:[c objectAtIndex:r]].location;
+            s = [s substringToIndex:b];
+        }
+        [informationTextField setStringValue:s];
     }
-    [informationTextField setStringValue:s];
 }
 
 - (IBAction) elPosButton:(id)sender
