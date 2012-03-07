@@ -16,4 +16,5 @@ profile
 *.DS_Store
 *.m~
 .dropbox
+Icon$'\r'
 
