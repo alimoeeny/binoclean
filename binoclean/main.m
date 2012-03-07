@@ -21,7 +21,10 @@ char * VERSION_NUMBER;
 int main(int argc, char *argv[])
 {
     setpriority(PRIO_PROCESS, 0, -10);
-    VERSION_NUMBER = [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String];
+    
+    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+    VERSION_NUMBER = [version UTF8String];    
     binocmain(argc, argv);
     return NSApplicationMain(argc, (const char **)argv);
+    [version release];
 }
