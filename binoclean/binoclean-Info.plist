@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildNumber</key>
-	<string>126</string>
+	<string>375</string>
 	<key>CFBuildVersion</key>
 	<string>binoclean.0.1</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -11,7 +11,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>BinocLean-Icon01.png</string>
 	<key>CFBundleIdentifier</key>
 	<string>gov.nih.nei.lsr.binoclean</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -21,11 +21,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>binoclean.0.1.126</string>
+	<string>binoclean.0.1.375</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>binoclean.0.1.126.Fri Mar  2 13:38:11 EST 2012</string>
+	<string>binoclean.0.1.375.Wed Mar  7 16:43:19 EST 2012</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.medical</string>
 	<key>LSMinimumSystemVersion</key>

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F1ACAE315016DBF007987D1 /* BinocLean-Icon01.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */; };
 		3F6433F914FD361E0088CE53 /* penLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F6433F814FD361E0088CE53 /* penLog.m */; };
 		3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FB14FD3A770088CE53 /* penLogWindow.xib */; };
 		3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FD14FD3E310088CE53 /* stepperWindow.xib */; };
@@ -86,6 +87,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "BinocLean-Icon01.png"; path = "../BinocLean-Icon01.png"; sourceTree = "<group>"; };
 		3F6433F714FD361E0088CE53 /* penLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = penLog.h; sourceTree = "<group>"; };
 		3F6433F814FD361E0088CE53 /* penLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = penLog.m; sourceTree = "<group>"; };
 		3F6433FB14FD3A770088CE53 /* penLogWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = penLogWindow.xib; sourceTree = "<group>"; };
@@ -218,18 +220,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		41520B5F13A258F1006CE4A7 /* Binoc */ = {
+		410044511507A45700022ACE /* do */ = {
 			isa = PBXGroup;
 			children = (
-				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
-				41AA181D13AA71D7009AC8E2 /* ni_dio.c */,
-				41BF8DEB13A174FE00C8B6BA /* expop.c */,
-				41BF8DEC13A174FE00C8B6BA /* binoc.c */,
-				41BF8DED13A174FE00C8B6BA /* xrand.c */,
-				41BF8DEE13A174FE00C8B6BA /* wurtz.c */,
-				41BF8DEF13A174FE00C8B6BA /* stimulus.c */,
-				41BF8DF013A174FE00C8B6BA /* stepper.c */,
-				41BF8DF113A174FE00C8B6BA /* stairpop.c */,
 				41BF8DF213A174FE00C8B6BA /* do_twobar.c */,
 				41BF8DF313A174FE00C8B6BA /* do_sqcorrug.c */,
 				41BF8DF413A174FE00C8B6BA /* do_sq.c */,
@@ -242,22 +235,23 @@
 				41BF8DFB13A174FE00C8B6BA /* do_cyl.c */,
 				41BF8DFC13A174FE00C8B6BA /* do_corrug.c */,
 				41BF8DFD13A174FE00C8B6BA /* do_bar.c */,
-				41BF8DFE13A174FE00C8B6BA /* bw_io.c */,
 				41BF8DFF13A174FE00C8B6BA /* do_test.c */,
 				41BF8E0013A174FE00C8B6BA /* do_image.c */,
-				41BF8E0113A174FE00C8B6BA /* cyber.c */,
+			);
+			name = do;
+			sourceTree = "<group>";
+		};
+		410044521507A47400022ACE /* headers */ = {
+			isa = PBXGroup;
+			children = (
+				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
 				41BF8E0313A174FE00C8B6BA /* sprotos.h */,
-				41BF8E0413A174FE00C8B6BA /* confirm.c */,
-				41BF8E0513A174FE00C8B6BA /* miscw.c */,
 				41BF8E0613A174FE00C8B6BA /* miscw.h */,
 				41BF8E0713A174FE00C8B6BA /* myview.h */,
 				41BF8E0813A174FE00C8B6BA /* xprotos.h */,
 				41BF8E0913A174FE00C8B6BA /* stimdefs.h */,
 				41BF8E0A13A174FE00C8B6BA /* fpslider.h */,
 				41BF8E0B13A174FE00C8B6BA /* commdefs.h */,
-				41BF8E0C13A174FE00C8B6BA /* useenv.c */,
-				41BF8E0E13A174FE00C8B6BA /* myscopy.c */,
-				41BF8E0F13A174FE00C8B6BA /* serial.c */,
 				41BF8E1013A174FE00C8B6BA /* WinDefs.h */,
 				41BF8E1213A174FE00C8B6BA /* serial.h */,
 				41BF8E1313A174FE00C8B6BA /* janti.h */,
@@ -266,10 +260,34 @@
 				41BF8E1613A174FE00C8B6BA /* jonfront.h */,
 				41BF8E1713A174FE00C8B6BA /* stimuli.h */,
 				41BF8E1813A174FE00C8B6BA /* jondefs.h */,
-				41BF8E1913A174FE00C8B6BA /* stair.c */,
 				41BF8E1A13A174FE00C8B6BA /* mymath.h */,
-				41BF8E1B13A174FE00C8B6BA /* misc.c */,
 				41BF8E1C13A174FE00C8B6BA /* misc.h */,
+			);
+			name = headers;
+			sourceTree = "<group>";
+		};
+		41520B5F13A258F1006CE4A7 /* Binoc */ = {
+			isa = PBXGroup;
+			children = (
+				410044511507A45700022ACE /* do */,
+				410044521507A47400022ACE /* headers */,
+				41BF8DEC13A174FE00C8B6BA /* binoc.c */,
+				41BF8DEB13A174FE00C8B6BA /* expop.c */,
+				41BF8DEF13A174FE00C8B6BA /* stimulus.c */,
+				41BF8DF013A174FE00C8B6BA /* stepper.c */,
+				41AA181D13AA71D7009AC8E2 /* ni_dio.c */,
+				41BF8DED13A174FE00C8B6BA /* xrand.c */,
+				41BF8DEE13A174FE00C8B6BA /* wurtz.c */,
+				41BF8DF113A174FE00C8B6BA /* stairpop.c */,
+				41BF8DFE13A174FE00C8B6BA /* bw_io.c */,
+				41BF8E0113A174FE00C8B6BA /* cyber.c */,
+				41BF8E0413A174FE00C8B6BA /* confirm.c */,
+				41BF8E0513A174FE00C8B6BA /* miscw.c */,
+				41BF8E0C13A174FE00C8B6BA /* useenv.c */,
+				41BF8E0E13A174FE00C8B6BA /* myscopy.c */,
+				41BF8E0F13A174FE00C8B6BA /* serial.c */,
+				41BF8E1913A174FE00C8B6BA /* stair.c */,
+				41BF8E1B13A174FE00C8B6BA /* misc.c */,
 				41BF8E1D13A174FE00C8B6BA /* myfree.c */,
 			);
 			name = Binoc;
@@ -312,6 +330,7 @@
 		417AEA8A13DE21C1006F7A77 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */,
 				41B1211613DF6E21008869E3 /* counterButtonDown114.png */,
 				41B1211713DF6E21008869E3 /* counterButtonUP114.png */,
 				417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */,
@@ -510,6 +529,7 @@
 				C9308B7E14F82EF50054C963 /* TODO.txt in Resources */,
 				3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */,
 				3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */,
+				3F1ACAE315016DBF007987D1 /* BinocLean-Icon01.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
