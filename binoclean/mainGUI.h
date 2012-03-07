@@ -34,6 +34,9 @@
     NSString * experiment3StimulusValue;
     
     NSMutableArray * stimulusValues;
+    
+    penLog * pl;
+    stepperGUI * sw;
 }
 
 @property (nonatomic, retain) IBOutlet NSButton * playButton;
@@ -72,6 +75,9 @@
 @property (nonatomic, retain) IBOutlet NSTextField * commandHistoryTextField;
 @property (nonatomic, retain) IBOutlet NSTextField * commandTextField;
 @property (nonatomic, retain) NSMutableArray * stimulusValues;
+
+@property (nonatomic, retain) penLog * pl;
+@property (nonatomic, retain) stepperGUI * sw;
 
 
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)windowStyle backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation screen:(NSScreen *)screen;

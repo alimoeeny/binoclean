@@ -113,7 +113,7 @@ extern Expt expt;
 extern struct timeval cleartime, now;
 static float stepvals[10] = {0,4,1,0,0,0,0,0};
 
-char *stepport = NULL;
+static char *stepport = NULL;
 static int fixedstepsize = 5;
 static int electrodeDepthOffset = 10000;
 struct termios Otermios_p;
@@ -336,6 +336,7 @@ int OpenStepSerial(char *port)
 #endif
     
     stepsetup();
+    notifyPositionChange(electrodeDepth);
     return(motorPort);
 }
 
@@ -469,7 +470,6 @@ void steptest_button()
 
 void stepproc(float step)
 {
-    
     NewPosition(electrodeDepth+(int)(step * 1000));
 }
 
@@ -595,6 +595,7 @@ void setCurrentPosition(int pos)
 #ifdef DEBUG
 	printf("Stepper: %s\n",str);
 #endif
+    notifyPositionChange(electrodeDepth);
     return;
 }
 
@@ -721,7 +722,7 @@ void NewPosition(int pos)
         /* empirical approximation for the duration of the movement artifact */
         cleardelay = 0.11 + fabs(diff) * 0.027 - pow(fabs(diff),1.13) * 0.0113;
     }
-    
+    notifyPositionChange(electrodeDepth);
 }
 
 

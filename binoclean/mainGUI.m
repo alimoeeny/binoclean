@@ -18,6 +18,8 @@ Expt expt;
 @synthesize commandHistoryTextField;
 @synthesize commandTextField;
 @synthesize stimulusValues;
+@synthesize pl;
+@synthesize sw;
 
 - (id) init
 {
@@ -51,23 +53,27 @@ Expt expt;
 - (IBAction) elPosButton:(id)sender
 {
     NSLog(@"Opening Electrode Position Control Window");
-    stepperGUI * sw = [[stepperGUI alloc] initWithWindowNibName:@"stepperWindow"];
+    if(!self.sw)
+    {
+    self.sw = [[stepperGUI alloc] initWithWindowNibName:@"stepperWindow"];
     NSPoint np;
     np.x = 100;
     np.y = 100;
-    [[sw window] setFrameOrigin:np];
-    [[sw window] makeKeyAndOrderFront:nil];
+    [[self.sw window] setFrameOrigin:np];
+    [[self.sw window] makeKeyAndOrderFront:nil];
 }
-
+}
 - (IBAction) penLogButton:(id)sender
 {
     NSLog(@"Opening PenLog Window");
-    penLog * pl = [[penLog alloc] initWithWindowNibName:@"penLogWindow"];
-    NSPoint np;
-    np.x = 250;
-    np.y = 250;
-    [[pl window] setFrameOrigin:np];
-    [[pl window]makeKeyAndOrderFront:nil];
+    if (!self.pl) {
+        self.pl = [[penLog alloc] initWithWindowNibName:@"penLogWindow"];
+        NSPoint np;
+        np.x = 250;
+        np.y = 250;
+        [[self.pl window] setFrameOrigin:np];
+        [[self.pl window]makeKeyAndOrderFront:nil];
+    }
 }
 
 

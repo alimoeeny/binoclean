@@ -11,11 +11,15 @@
 @interface stepperGUI : NSWindowController
 {
     NSInteger stepSize;
+    NSInteger motorId;
 }
 
 @property (nonatomic) NSInteger stepSize;
+@property (nonatomic) NSInteger motorId;
 
 - (IBAction) uDriveInitialize;
 - (IBAction) uDriveButtonPress:(id) sender;
+- (IBAction) reopen:(id)sender;
+- (IBAction) setMotorIdComboChanged:(id)sender;
 
 @end

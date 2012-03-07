@@ -23,3 +23,5 @@ Things that need fixing:
 * display these (verge or binoc): total Number of trials, trials done so far, time lapsed, time since the end of the last experiment
 *keep list of quickexpts in binoc to feed to verg.
 -expt cancel often doesn't work
+- Verg needs to send back \mimic
+

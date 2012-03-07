@@ -2585,8 +2585,19 @@ int SendPenInfo(){
     }
 }
 
-
-
+// this function's job is to make sure all the necessary values for writing a pen log is in sync with the cocoa GUI
+int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance)
+{
+    expt.vals[PENXPOS] = _penXpos;
+    expt.vals[PENYPOS] = _penYpos;
+    expt.driveadapter = _angleAdapter;
+    expt.hemisphere = _hemisphere;
+    userid = _userid;
+    protrudemm = _protrudemm;
+    electrodeid = _electrodeid;
+    expt.vals[IMPEDANCE] = _impedance;
+    return 0;
+}
 
 int OpenPenetrationLog(int pen){
     char buf[BUFSIZ],xbits[BUFSIZ];

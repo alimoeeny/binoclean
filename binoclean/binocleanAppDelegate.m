@@ -52,6 +52,11 @@ void updateInfoText(char *s)
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:s] forKey:@"text"]];
 }
 
+void notifyPositionChange(int newPosition)
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"electrodeposition" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"%d", newPosition] forKey:@"newposition"]];    
+}
+
 void sendNotification()
 {
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
