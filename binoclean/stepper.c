@@ -159,7 +159,7 @@ static FILE *stepfd = NULL;
 #define QUERY_MARK_INFRAGRANULAR (MARK_INFRAGRANULAR| (QUERY_BIT))
 #define QUERY_MARK_EXIT (MARK_EXIT| (QUERY_BIT))
 
-char *stepstrings[] = {"5","10","20","50","100","200",NULL};
+char *stepstrings[] = {"5","10","20","30","50","100","200",NULL};
 int stepsizes[] = {5,10,20,50,100,200};
 
 void toggle_callback();
@@ -689,6 +689,7 @@ void NewPosition(int pos)
     ioctl(motorPort,TIOCMGET,&portstate);
     if(!(portstate & TIOCM_CTS)){
         fprintf(stderr,"Stepper Not Ready\n");
+        acknowledge("Stepper Not Ready!");
         if(optionflags[STEP_CLEAR_SPIKES]){
             memcpy(&cleartime,&now,sizeof(struct timeval));
             /* empirical approximation for the duration of the movement artifact */

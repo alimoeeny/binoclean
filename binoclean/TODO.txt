@@ -24,4 +24,8 @@ Things that need fixing:
 *keep list of quickexpts in binoc to feed to verg.
 -expt cancel often doesn't work
 - Verg needs to send back \mimic
+- Electrode Position does not update on the display
+- uDrive commands larger than 300 should be confimed not rejected
+- uDrive commands that are rejected should be reverted (not applied to the variable)
+
 

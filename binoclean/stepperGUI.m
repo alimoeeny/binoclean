@@ -17,14 +17,26 @@ extern char stepperport[256];
 @synthesize stepSize;
 @synthesize motorId;
 
+@synthesize upButton;
+@synthesize downButton;
+@synthesize electrodePosition;
+@synthesize newPositionTextField;
+
 - (id)initWithWindow:(NSWindow *)window
 {
     self = [super initWithWindow:window];
     if (self) {
         self.stepSize = 5;
     }
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(electrodeMoved:) name:@"electrodeposition" object:nil];
     return self;
+}
+
+- (void) electrodeMoved:(NSNotification *) aNotification
+{
+    [electrodePosition setStringValue:[NSString stringWithFormat:@"%d um", electrodeDepth]];
+    [newPositionTextField setStringValue:[NSString stringWithFormat:@"%d", electrodeDepth]];
+    [self enableNewMovements];
 }
 
 - (void)windowDidLoad
@@ -41,24 +53,66 @@ extern char stepperport[256];
 
 - (void) uDriveButtonPress:(id) sender
 {
-    int step = electrodeDepth + [sender tag] * self.stepSize;
-    if (step<300) {
-        NewPosition(step);
+    int step = [sender tag] * self.stepSize;
+    [self moveElectrode:step];
+}
+
+- (void) uDriveRepositionMove:(id) sender
+{
+    int step = [[newPositionTextField stringValue] intValue] - electrodeDepth;
+    [self moveElectrode:step];
+}
+
+- (void) uDriveRepositionSet:(id) sender
+{
+    int newPos = [[sender stringValue] intValue];
+    setCurrentPosition(newPos);
+}
+
+- (void) moveElectrode:(int) step
+{
+    if (abs(step) > 300) {
+        NSAlert * a = [NSAlert alertWithMessageText:@"Large Step!" defaultButton:@"No, Don't move the electrode" alternateButton:@"Sure, Go Ahead!" otherButton:nil informativeTextWithFormat:@"You want to move the electrode %d micrometers and it is quite a long distance.\r Are you sure it is a good idea?!", step];
+//        NSAlert * a = [[NSAlert alloc] init];
+//        [a setMessageText:@"Large Step!"];
+//        [a addButtonWithTitle:@"Sure, Go Ahead!"];
+//        [a addButtonWithTitle:@"No, Don't move the electrode"];
+//        [a setInformativeText:[NSString stringWithFormat:@"You want to move the electrode %d micrometers and it is quite a long distance.\r Are you sure it is a good idea?!", step]];
+        [a beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:self didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:) contextInfo:nil];
     }
     else
     {
-        NSAlert * a = [[NSAlert alloc] init];
-        [a setMessageText:@"Large Step!"];
-        [a addButtonWithTitle:@"Sure!"];
-        [a setInformativeText:[NSString stringWithFormat:@"You want to move the electrode %d micrometers and it is not a good idea!", step]];
-        [a beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+        NewPosition(electrodeDepth + step);
+        [self disableNewMovements];
     }
+}
+
+- (void) alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    if (returnCode==0) {
+        NewPosition(electrodeDepth + [contextInfo intValue]);
+    } else {
+        //Nothing!
+    }
+}
+
+- (void) disableNewMovements
+{
+    [upButton setHidden:YES];
+    [downButton setHidden:YES];
+}
+
+- (void) enableNewMovements
+{
+    [upButton setHidden:NO];
+    [downButton setHidden:NO];    
 }
 
 - (IBAction) reopen:(id)sender
 {
     close(motorPort);
     OpenStepSerial(stepperport);
+    [self enableNewMovements];
 }
 
 - (IBAction) setMotorIdComboChanged:(id)sender

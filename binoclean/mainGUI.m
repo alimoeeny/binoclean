@@ -55,14 +55,15 @@ Expt expt;
     NSLog(@"Opening Electrode Position Control Window");
     if(!self.sw)
     {
-    self.sw = [[stepperGUI alloc] initWithWindowNibName:@"stepperWindow"];
-    NSPoint np;
-    np.x = 100;
-    np.y = 100;
-    [[self.sw window] setFrameOrigin:np];
-    [[self.sw window] makeKeyAndOrderFront:nil];
+        self.sw = [[stepperGUI alloc] initWithWindowNibName:@"stepperWindow"];
+        NSPoint np;
+        np.x = 100;
+        np.y = 100;
+        [[self.sw window] setFrameOrigin:np];
+        [[self.sw window] makeKeyAndOrderFront:nil];
+    }
 }
-}
+
 - (IBAction) penLogButton:(id)sender
 {
     NSLog(@"Opening PenLog Window");
