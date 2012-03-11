@@ -1,0 +1,12 @@
+et=dx
+nt=5
+em=0
+ei=0.006
+cc=1.03
+Covariate=Vs
+op=+cs-I0+2a
+e2=e0
+sa=3
+psychfile=/local/data/psych/icarus/recruit/VSRDATE
+
+
