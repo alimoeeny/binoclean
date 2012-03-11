@@ -163,64 +163,6 @@
 		C969F91F150D233B00D7A5A7 /* rdssineor in Resources */ = {isa = PBXBuildFile; fileRef = C969F888150D233B00D7A5A7 /* rdssineor */; };
 		C969F920150D233B00D7A5A7 /* rdsopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F889150D233B00D7A5A7 /* rdsopos */; };
 		C969F921150D233B00D7A5A7 /* rdssine in Resources */ = {isa = PBXBuildFile; fileRef = C969F88A150D233B00D7A5A7 /* rdssine */; };
-		C969F922150D233B00D7A5A7 /* cylUDtestb in Resources */ = {isa = PBXBuildFile; fileRef = C969F88C150D233B00D7A5A7 /* cylUDtestb */; };
-		C969F923150D233B00D7A5A7 /* speed in Resources */ = {isa = PBXBuildFile; fileRef = C969F88D150D233B00D7A5A7 /* speed */; };
-		C969F924150D233B00D7A5A7 /* TwoCyl in Resources */ = {isa = PBXBuildFile; fileRef = C969F88E150D233B00D7A5A7 /* TwoCyl */; };
-		C969F925150D233B00D7A5A7 /* idispTrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F88F150D233B00D7A5A7 /* idispTrain */; };
-		C969F926150D233B00D7A5A7 /* cyltune in Resources */ = {isa = PBXBuildFile; fileRef = C969F890150D233B00D7A5A7 /* cyltune */; };
-		C969F927150D233B00D7A5A7 /* 1per in Resources */ = {isa = PBXBuildFile; fileRef = C969F891150D233B00D7A5A7 /* 1per */; };
-		C969F928150D233B00D7A5A7 /* 4per in Resources */ = {isa = PBXBuildFile; fileRef = C969F892150D233B00D7A5A7 /* 4per */; };
-		C969F929150D233B00D7A5A7 /* cylrangeB in Resources */ = {isa = PBXBuildFile; fileRef = C969F893150D233B00D7A5A7 /* cylrangeB */; };
-		C969F92A150D233B00D7A5A7 /* bgc in Resources */ = {isa = PBXBuildFile; fileRef = C969F894150D233B00D7A5A7 /* bgc */; };
-		C969F92B150D233B00D7A5A7 /* dxstim in Resources */ = {isa = PBXBuildFile; fileRef = C969F895150D233B00D7A5A7 /* dxstim */; };
-		C969F92C150D233B00D7A5A7 /* TwoCylBdisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F896150D233B00D7A5A7 /* TwoCylBdisp */; };
-		C969F92D150D233B00D7A5A7 /* nplanes in Resources */ = {isa = PBXBuildFile; fileRef = C969F897150D233B00D7A5A7 /* nplanes */; };
-		C969F92E150D233B00D7A5A7 /* OrDirRls in Resources */ = {isa = PBXBuildFile; fileRef = C969F898150D233B00D7A5A7 /* OrDirRls */; };
-		C969F92F150D233B00D7A5A7 /*  in Resources */ = {isa = PBXBuildFile; fileRef = C969F899150D233B00D7A5A7 /*  */; };
-		C969F930150D233B00D7A5A7 /* rdsidisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F89A150D233B00D7A5A7 /* rdsidisp */; };
-		C969F931150D233B00D7A5A7 /* idisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F89B150D233B00D7A5A7 /* idisp */; };
-		C969F932150D233B00D7A5A7 /* TwoCylF in Resources */ = {isa = PBXBuildFile; fileRef = C969F89C150D233B00D7A5A7 /* TwoCylF */; };
-		C969F933150D233B00D7A5A7 /* cylrw in Resources */ = {isa = PBXBuildFile; fileRef = C969F89D150D233B00D7A5A7 /* cylrw */; };
-		C969F935150D233B00D7A5A7 /* ali.stm in Resources */ = {isa = PBXBuildFile; fileRef = C969F89F150D233B00D7A5A7 /* ali.stm */; };
-		C969F936150D233B00D7A5A7 /* Orthopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A0150D233B00D7A5A7 /* Orthopos */; };
-		C969F937150D233B00D7A5A7 /* pursue in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A1150D233B00D7A5A7 /* pursue */; };
-		C969F938150D233B00D7A5A7 /* dir in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A2150D233B00D7A5A7 /* dir */; };
-		C969F939150D233B00D7A5A7 /* cylpsych in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A3150D233B00D7A5A7 /* cylpsych */; };
-		C969F93A150D233B00D7A5A7 /* TwoCylBdispAd in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A4150D233B00D7A5A7 /* TwoCylBdispAd */; };
-		C969F93B150D233B00D7A5A7 /* 2per in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A5150D233B00D7A5A7 /* 2per */; };
-		C969F93C150D233B00D7A5A7 /* dxrds in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A6150D233B00D7A5A7 /* dxrds */; };
-		C969F93D150D233B00D7A5A7 /* dydx in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A7150D233B00D7A5A7 /* dydx */; };
-		C969F93E150D233B00D7A5A7 /* dxppos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A8150D233B00D7A5A7 /* dxppos */; };
-		C969F93F150D233B00D7A5A7 /* dxopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A9150D233B00D7A5A7 /* dxopos */; };
-		C969F940150D233B00D7A5A7 /* cylrange in Resources */ = {isa = PBXBuildFile; fileRef = C969F8AA150D233B00D7A5A7 /* cylrange */; };
-		C969F941150D233B00D7A5A7 /* addexpt in Resources */ = {isa = PBXBuildFile; fileRef = C969F8AB150D233B00D7A5A7 /* addexpt */; };
-		C969F942150D233B00D7A5A7 /* TwoCylIdisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F8AC150D233B00D7A5A7 /* TwoCylIdisp */; };
-		C969F943150D233B00D7A5A7 /* gridordx in Resources */ = {isa = PBXBuildFile; fileRef = C969F8AD150D233B00D7A5A7 /* gridordx */; };
-		C969F944150D233B00D7A5A7 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C969F8AE150D233B00D7A5A7 /* ali */; };
-		C969F945150D233B00D7A5A7 /* size in Resources */ = {isa = PBXBuildFile; fileRef = C969F8AF150D233B00D7A5A7 /* size */; };
-		C969F946150D233B00D7A5A7 /* dxdir in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B0150D233B00D7A5A7 /* dxdir */; };
-		C969F947150D233B00D7A5A7 /* vhdisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B1150D233B00D7A5A7 /* vhdisp */; };
-		C969F948150D233B00D7A5A7 /* pursuepsych in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B2150D233B00D7A5A7 /* pursuepsych */; };
-		C969F949150D233B00D7A5A7 /* Parapos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B3150D233B00D7A5A7 /* Parapos */; };
-		C969F94A150D233B00D7A5A7 /* newali.stm in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B4150D233B00D7A5A7 /* newali.stm */; };
-		C969F94B150D233B00D7A5A7 /* cylrangeC in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B5150D233B00D7A5A7 /* cylrangeC */; };
-		C969F94C150D233B00D7A5A7 /* rdspursue in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B6150D233B00D7A5A7 /* rdspursue */; };
-		C969F94D150D233B00D7A5A7 /* CylUDtesta in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B7150D233B00D7A5A7 /* CylUDtesta */; };
-		C969F94E150D233B00D7A5A7 /* rdsrlsor in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B8150D233B00D7A5A7 /* rdsrlsor */; };
-		C969F94F150D233B00D7A5A7 /* TwoCylTrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F8B9150D233B00D7A5A7 /* TwoCylTrain */; };
-		C969F950150D233B00D7A5A7 /* Orthopos1.0 in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BA150D233B00D7A5A7 /* Orthopos1.0 */; };
-		C969F951150D233B00D7A5A7 /* dxsz in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BB150D233B00D7A5A7 /* dxsz */; };
-		C969F952150D233B00D7A5A7 /* rlsor in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BC150D233B00D7A5A7 /* rlsor */; };
-		C969F954150D233B00D7A5A7 /* TwoCylBdispA in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BE150D233B00D7A5A7 /* TwoCylBdispA */; };
-		C969F955150D233B00D7A5A7 /* idispRand in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BF150D233B00D7A5A7 /* idispRand */; };
-		C969F956150D233B00D7A5A7 /* dxxpos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C0150D233B00D7A5A7 /* dxxpos */; };
-		C969F957150D233B00D7A5A7 /* Parapos1.0 in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C1150D233B00D7A5A7 /* Parapos1.0 */; };
-		C969F958150D233B00D7A5A7 /* CylUDtrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C2150D233B00D7A5A7 /* CylUDtrain */; };
-		C969F959150D233B00D7A5A7 /* cylrangeA in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C3150D233B00D7A5A7 /* cylrangeA */; };
-		C969F95B150D233B00D7A5A7 /* cylVDcorr in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C5150D233B00D7A5A7 /* cylVDcorr */; };
-		C969F95C150D233B00D7A5A7 /* cylpsychtrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C6150D233B00D7A5A7 /* cylpsychtrain */; };
-		C969F95D150D233B00D7A5A7 /* cylinder in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C7150D233B00D7A5A7 /* cylinder */; };
-		C969F95E150D233B00D7A5A7 /* latest in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C8150D233B00D7A5A7 /* latest */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -428,64 +370,6 @@
 		C969F888150D233B00D7A5A7 /* rdssineor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssineor; sourceTree = "<group>"; };
 		C969F889150D233B00D7A5A7 /* rdsopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsopos; sourceTree = "<group>"; };
 		C969F88A150D233B00D7A5A7 /* rdssine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssine; sourceTree = "<group>"; };
-		C969F88C150D233B00D7A5A7 /* cylUDtestb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylUDtestb; sourceTree = "<group>"; };
-		C969F88D150D233B00D7A5A7 /* speed */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = speed; sourceTree = "<group>"; };
-		C969F88E150D233B00D7A5A7 /* TwoCyl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCyl; sourceTree = "<group>"; };
-		C969F88F150D233B00D7A5A7 /* idispTrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = idispTrain; sourceTree = "<group>"; };
-		C969F890150D233B00D7A5A7 /* cyltune */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cyltune; sourceTree = "<group>"; };
-		C969F891150D233B00D7A5A7 /* 1per */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 1per; sourceTree = "<group>"; };
-		C969F892150D233B00D7A5A7 /* 4per */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 4per; sourceTree = "<group>"; };
-		C969F893150D233B00D7A5A7 /* cylrangeB */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrangeB; sourceTree = "<group>"; };
-		C969F894150D233B00D7A5A7 /* bgc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bgc; sourceTree = "<group>"; };
-		C969F895150D233B00D7A5A7 /* dxstim */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxstim; sourceTree = "<group>"; };
-		C969F896150D233B00D7A5A7 /* TwoCylBdisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylBdisp; sourceTree = "<group>"; };
-		C969F897150D233B00D7A5A7 /* nplanes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = nplanes; sourceTree = "<group>"; };
-		C969F898150D233B00D7A5A7 /* OrDirRls */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OrDirRls; sourceTree = "<group>"; };
-		C969F899150D233B00D7A5A7 /*  */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ""; sourceTree = "<group>"; };
-		C969F89A150D233B00D7A5A7 /* rdsidisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsidisp; sourceTree = "<group>"; };
-		C969F89B150D233B00D7A5A7 /* idisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = idisp; sourceTree = "<group>"; };
-		C969F89C150D233B00D7A5A7 /* TwoCylF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylF; sourceTree = "<group>"; };
-		C969F89D150D233B00D7A5A7 /* cylrw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrw; sourceTree = "<group>"; };
-		C969F89F150D233B00D7A5A7 /* ali.stm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali.stm; sourceTree = "<group>"; };
-		C969F8A0150D233B00D7A5A7 /* Orthopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Orthopos; sourceTree = "<group>"; };
-		C969F8A1150D233B00D7A5A7 /* pursue */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pursue; sourceTree = "<group>"; };
-		C969F8A2150D233B00D7A5A7 /* dir */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dir; sourceTree = "<group>"; };
-		C969F8A3150D233B00D7A5A7 /* cylpsych */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylpsych; sourceTree = "<group>"; };
-		C969F8A4150D233B00D7A5A7 /* TwoCylBdispAd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylBdispAd; sourceTree = "<group>"; };
-		C969F8A5150D233B00D7A5A7 /* 2per */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 2per; sourceTree = "<group>"; };
-		C969F8A6150D233B00D7A5A7 /* dxrds */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxrds; sourceTree = "<group>"; };
-		C969F8A7150D233B00D7A5A7 /* dydx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dydx; sourceTree = "<group>"; };
-		C969F8A8150D233B00D7A5A7 /* dxppos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxppos; sourceTree = "<group>"; };
-		C969F8A9150D233B00D7A5A7 /* dxopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxopos; sourceTree = "<group>"; };
-		C969F8AA150D233B00D7A5A7 /* cylrange */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrange; sourceTree = "<group>"; };
-		C969F8AB150D233B00D7A5A7 /* addexpt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addexpt; sourceTree = "<group>"; };
-		C969F8AC150D233B00D7A5A7 /* TwoCylIdisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylIdisp; sourceTree = "<group>"; };
-		C969F8AD150D233B00D7A5A7 /* gridordx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gridordx; sourceTree = "<group>"; };
-		C969F8AE150D233B00D7A5A7 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
-		C969F8AF150D233B00D7A5A7 /* size */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = size; sourceTree = "<group>"; };
-		C969F8B0150D233B00D7A5A7 /* dxdir */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxdir; sourceTree = "<group>"; };
-		C969F8B1150D233B00D7A5A7 /* vhdisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vhdisp; sourceTree = "<group>"; };
-		C969F8B2150D233B00D7A5A7 /* pursuepsych */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pursuepsych; sourceTree = "<group>"; };
-		C969F8B3150D233B00D7A5A7 /* Parapos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parapos; sourceTree = "<group>"; };
-		C969F8B4150D233B00D7A5A7 /* newali.stm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = newali.stm; sourceTree = "<group>"; };
-		C969F8B5150D233B00D7A5A7 /* cylrangeC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrangeC; sourceTree = "<group>"; };
-		C969F8B6150D233B00D7A5A7 /* rdspursue */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdspursue; sourceTree = "<group>"; };
-		C969F8B7150D233B00D7A5A7 /* CylUDtesta */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CylUDtesta; sourceTree = "<group>"; };
-		C969F8B8150D233B00D7A5A7 /* rdsrlsor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsrlsor; sourceTree = "<group>"; };
-		C969F8B9150D233B00D7A5A7 /* TwoCylTrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylTrain; sourceTree = "<group>"; };
-		C969F8BA150D233B00D7A5A7 /* Orthopos1.0 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Orthopos1.0; sourceTree = "<group>"; };
-		C969F8BB150D233B00D7A5A7 /* dxsz */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxsz; sourceTree = "<group>"; };
-		C969F8BC150D233B00D7A5A7 /* rlsor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rlsor; sourceTree = "<group>"; };
-		C969F8BE150D233B00D7A5A7 /* TwoCylBdispA */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylBdispA; sourceTree = "<group>"; };
-		C969F8BF150D233B00D7A5A7 /* idispRand */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = idispRand; sourceTree = "<group>"; };
-		C969F8C0150D233B00D7A5A7 /* dxxpos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxxpos; sourceTree = "<group>"; };
-		C969F8C1150D233B00D7A5A7 /* Parapos1.0 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parapos1.0; sourceTree = "<group>"; };
-		C969F8C2150D233B00D7A5A7 /* CylUDtrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CylUDtrain; sourceTree = "<group>"; };
-		C969F8C3150D233B00D7A5A7 /* cylrangeA */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrangeA; sourceTree = "<group>"; };
-		C969F8C5150D233B00D7A5A7 /* cylVDcorr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylVDcorr; sourceTree = "<group>"; };
-		C969F8C6150D233B00D7A5A7 /* cylpsychtrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylpsychtrain; sourceTree = "<group>"; };
-		C969F8C7150D233B00D7A5A7 /* cylinder */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylinder; sourceTree = "<group>"; };
-		C969F8C8150D233B00D7A5A7 /* latest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = latest; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -743,7 +627,6 @@
 			isa = PBXGroup;
 			children = (
 				C969F831150D233A00D7A5A7 /* lem */,
-				C969F88B150D233B00D7A5A7 /* ali */,
 			);
 			path = stims;
 			sourceTree = "<group>";
@@ -842,71 +725,6 @@
 				C969F88A150D233B00D7A5A7 /* rdssine */,
 			);
 			path = lem;
-			sourceTree = "<group>";
-		};
-		C969F88B150D233B00D7A5A7 /* ali */ = {
-			isa = PBXGroup;
-			children = (
-				C969F88C150D233B00D7A5A7 /* cylUDtestb */,
-				C969F88D150D233B00D7A5A7 /* speed */,
-				C969F88E150D233B00D7A5A7 /* TwoCyl */,
-				C969F88F150D233B00D7A5A7 /* idispTrain */,
-				C969F890150D233B00D7A5A7 /* cyltune */,
-				C969F891150D233B00D7A5A7 /* 1per */,
-				C969F892150D233B00D7A5A7 /* 4per */,
-				C969F893150D233B00D7A5A7 /* cylrangeB */,
-				C969F894150D233B00D7A5A7 /* bgc */,
-				C969F895150D233B00D7A5A7 /* dxstim */,
-				C969F896150D233B00D7A5A7 /* TwoCylBdisp */,
-				C969F897150D233B00D7A5A7 /* nplanes */,
-				C969F898150D233B00D7A5A7 /* OrDirRls */,
-				C969F899150D233B00D7A5A7 /*  */,
-				C969F89A150D233B00D7A5A7 /* rdsidisp */,
-				C969F89B150D233B00D7A5A7 /* idisp */,
-				C969F89C150D233B00D7A5A7 /* TwoCylF */,
-				C969F89D150D233B00D7A5A7 /* cylrw */,
-				C969F89F150D233B00D7A5A7 /* ali.stm */,
-				C969F8A0150D233B00D7A5A7 /* Orthopos */,
-				C969F8A1150D233B00D7A5A7 /* pursue */,
-				C969F8A2150D233B00D7A5A7 /* dir */,
-				C969F8A3150D233B00D7A5A7 /* cylpsych */,
-				C969F8A4150D233B00D7A5A7 /* TwoCylBdispAd */,
-				C969F8A5150D233B00D7A5A7 /* 2per */,
-				C969F8A6150D233B00D7A5A7 /* dxrds */,
-				C969F8A7150D233B00D7A5A7 /* dydx */,
-				C969F8A8150D233B00D7A5A7 /* dxppos */,
-				C969F8A9150D233B00D7A5A7 /* dxopos */,
-				C969F8AA150D233B00D7A5A7 /* cylrange */,
-				C969F8AB150D233B00D7A5A7 /* addexpt */,
-				C969F8AC150D233B00D7A5A7 /* TwoCylIdisp */,
-				C969F8AD150D233B00D7A5A7 /* gridordx */,
-				C969F8AE150D233B00D7A5A7 /* ali */,
-				C969F8AF150D233B00D7A5A7 /* size */,
-				C969F8B0150D233B00D7A5A7 /* dxdir */,
-				C969F8B1150D233B00D7A5A7 /* vhdisp */,
-				C969F8B2150D233B00D7A5A7 /* pursuepsych */,
-				C969F8B3150D233B00D7A5A7 /* Parapos */,
-				C969F8B4150D233B00D7A5A7 /* newali.stm */,
-				C969F8B5150D233B00D7A5A7 /* cylrangeC */,
-				C969F8B6150D233B00D7A5A7 /* rdspursue */,
-				C969F8B7150D233B00D7A5A7 /* CylUDtesta */,
-				C969F8B8150D233B00D7A5A7 /* rdsrlsor */,
-				C969F8B9150D233B00D7A5A7 /* TwoCylTrain */,
-				C969F8BA150D233B00D7A5A7 /* Orthopos1.0 */,
-				C969F8BB150D233B00D7A5A7 /* dxsz */,
-				C969F8BC150D233B00D7A5A7 /* rlsor */,
-				C969F8BE150D233B00D7A5A7 /* TwoCylBdispA */,
-				C969F8BF150D233B00D7A5A7 /* idispRand */,
-				C969F8C0150D233B00D7A5A7 /* dxxpos */,
-				C969F8C1150D233B00D7A5A7 /* Parapos1.0 */,
-				C969F8C2150D233B00D7A5A7 /* CylUDtrain */,
-				C969F8C3150D233B00D7A5A7 /* cylrangeA */,
-				C969F8C5150D233B00D7A5A7 /* cylVDcorr */,
-				C969F8C6150D233B00D7A5A7 /* cylpsychtrain */,
-				C969F8C7150D233B00D7A5A7 /* cylinder */,
-				C969F8C8150D233B00D7A5A7 /* latest */,
-			);
-			path = ali;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1084,64 +902,6 @@
 				C969F91F150D233B00D7A5A7 /* rdssineor in Resources */,
 				C969F920150D233B00D7A5A7 /* rdsopos in Resources */,
 				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
-				C969F922150D233B00D7A5A7 /* cylUDtestb in Resources */,
-				C969F923150D233B00D7A5A7 /* speed in Resources */,
-				C969F924150D233B00D7A5A7 /* TwoCyl in Resources */,
-				C969F925150D233B00D7A5A7 /* idispTrain in Resources */,
-				C969F926150D233B00D7A5A7 /* cyltune in Resources */,
-				C969F927150D233B00D7A5A7 /* 1per in Resources */,
-				C969F928150D233B00D7A5A7 /* 4per in Resources */,
-				C969F929150D233B00D7A5A7 /* cylrangeB in Resources */,
-				C969F92A150D233B00D7A5A7 /* bgc in Resources */,
-				C969F92B150D233B00D7A5A7 /* dxstim in Resources */,
-				C969F92C150D233B00D7A5A7 /* TwoCylBdisp in Resources */,
-				C969F92D150D233B00D7A5A7 /* nplanes in Resources */,
-				C969F92E150D233B00D7A5A7 /* OrDirRls in Resources */,
-				C969F92F150D233B00D7A5A7 /*  in Resources */,
-				C969F930150D233B00D7A5A7 /* rdsidisp in Resources */,
-				C969F931150D233B00D7A5A7 /* idisp in Resources */,
-				C969F932150D233B00D7A5A7 /* TwoCylF in Resources */,
-				C969F933150D233B00D7A5A7 /* cylrw in Resources */,
-				C969F935150D233B00D7A5A7 /* ali.stm in Resources */,
-				C969F936150D233B00D7A5A7 /* Orthopos in Resources */,
-				C969F937150D233B00D7A5A7 /* pursue in Resources */,
-				C969F938150D233B00D7A5A7 /* dir in Resources */,
-				C969F939150D233B00D7A5A7 /* cylpsych in Resources */,
-				C969F93A150D233B00D7A5A7 /* TwoCylBdispAd in Resources */,
-				C969F93B150D233B00D7A5A7 /* 2per in Resources */,
-				C969F93C150D233B00D7A5A7 /* dxrds in Resources */,
-				C969F93D150D233B00D7A5A7 /* dydx in Resources */,
-				C969F93E150D233B00D7A5A7 /* dxppos in Resources */,
-				C969F93F150D233B00D7A5A7 /* dxopos in Resources */,
-				C969F940150D233B00D7A5A7 /* cylrange in Resources */,
-				C969F941150D233B00D7A5A7 /* addexpt in Resources */,
-				C969F942150D233B00D7A5A7 /* TwoCylIdisp in Resources */,
-				C969F943150D233B00D7A5A7 /* gridordx in Resources */,
-				C969F944150D233B00D7A5A7 /* ali in Resources */,
-				C969F945150D233B00D7A5A7 /* size in Resources */,
-				C969F946150D233B00D7A5A7 /* dxdir in Resources */,
-				C969F947150D233B00D7A5A7 /* vhdisp in Resources */,
-				C969F948150D233B00D7A5A7 /* pursuepsych in Resources */,
-				C969F949150D233B00D7A5A7 /* Parapos in Resources */,
-				C969F94A150D233B00D7A5A7 /* newali.stm in Resources */,
-				C969F94B150D233B00D7A5A7 /* cylrangeC in Resources */,
-				C969F94C150D233B00D7A5A7 /* rdspursue in Resources */,
-				C969F94D150D233B00D7A5A7 /* CylUDtesta in Resources */,
-				C969F94E150D233B00D7A5A7 /* rdsrlsor in Resources */,
-				C969F94F150D233B00D7A5A7 /* TwoCylTrain in Resources */,
-				C969F950150D233B00D7A5A7 /* Orthopos1.0 in Resources */,
-				C969F951150D233B00D7A5A7 /* dxsz in Resources */,
-				C969F952150D233B00D7A5A7 /* rlsor in Resources */,
-				C969F954150D233B00D7A5A7 /* TwoCylBdispA in Resources */,
-				C969F955150D233B00D7A5A7 /* idispRand in Resources */,
-				C969F956150D233B00D7A5A7 /* dxxpos in Resources */,
-				C969F957150D233B00D7A5A7 /* Parapos1.0 in Resources */,
-				C969F958150D233B00D7A5A7 /* CylUDtrain in Resources */,
-				C969F959150D233B00D7A5A7 /* cylrangeA in Resources */,
-				C969F95B150D233B00D7A5A7 /* cylVDcorr in Resources */,
-				C969F95C150D233B00D7A5A7 /* cylpsychtrain in Resources */,
-				C969F95D150D233B00D7A5A7 /* cylinder in Resources */,
-				C969F95E150D233B00D7A5A7 /* latest in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
