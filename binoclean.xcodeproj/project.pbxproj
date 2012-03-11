@@ -181,7 +181,6 @@
 		C969F931150D233B00D7A5A7 /* idisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F89B150D233B00D7A5A7 /* idisp */; };
 		C969F932150D233B00D7A5A7 /* TwoCylF in Resources */ = {isa = PBXBuildFile; fileRef = C969F89C150D233B00D7A5A7 /* TwoCylF */; };
 		C969F933150D233B00D7A5A7 /* cylrw in Resources */ = {isa = PBXBuildFile; fileRef = C969F89D150D233B00D7A5A7 /* cylrw */; };
-		C969F934150D233B00D7A5A7 /* newali.m) in Resources */ = {isa = PBXBuildFile; fileRef = C969F89E150D233B00D7A5A7 /* newali.m) */; };
 		C969F935150D233B00D7A5A7 /* ali.stm in Resources */ = {isa = PBXBuildFile; fileRef = C969F89F150D233B00D7A5A7 /* ali.stm */; };
 		C969F936150D233B00D7A5A7 /* Orthopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A0150D233B00D7A5A7 /* Orthopos */; };
 		C969F937150D233B00D7A5A7 /* pursue in Resources */ = {isa = PBXBuildFile; fileRef = C969F8A1150D233B00D7A5A7 /* pursue */; };
@@ -212,14 +211,12 @@
 		C969F950150D233B00D7A5A7 /* Orthopos1.0 in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BA150D233B00D7A5A7 /* Orthopos1.0 */; };
 		C969F951150D233B00D7A5A7 /* dxsz in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BB150D233B00D7A5A7 /* dxsz */; };
 		C969F952150D233B00D7A5A7 /* rlsor in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BC150D233B00D7A5A7 /* rlsor */; };
-		C969F953150D233B00D7A5A7 /* #commdefs.h# in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BD150D233B00D7A5A7 /* #commdefs.h# */; };
 		C969F954150D233B00D7A5A7 /* TwoCylBdispA in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BE150D233B00D7A5A7 /* TwoCylBdispA */; };
 		C969F955150D233B00D7A5A7 /* idispRand in Resources */ = {isa = PBXBuildFile; fileRef = C969F8BF150D233B00D7A5A7 /* idispRand */; };
 		C969F956150D233B00D7A5A7 /* dxxpos in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C0150D233B00D7A5A7 /* dxxpos */; };
 		C969F957150D233B00D7A5A7 /* Parapos1.0 in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C1150D233B00D7A5A7 /* Parapos1.0 */; };
 		C969F958150D233B00D7A5A7 /* CylUDtrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C2150D233B00D7A5A7 /* CylUDtrain */; };
 		C969F959150D233B00D7A5A7 /* cylrangeA in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C3150D233B00D7A5A7 /* cylrangeA */; };
-		C969F95A150D233B00D7A5A7 /* newali.rtw in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C4150D233B00D7A5A7 /* newali.rtw */; };
 		C969F95B150D233B00D7A5A7 /* cylVDcorr in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C5150D233B00D7A5A7 /* cylVDcorr */; };
 		C969F95C150D233B00D7A5A7 /* cylpsychtrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C6150D233B00D7A5A7 /* cylpsychtrain */; };
 		C969F95D150D233B00D7A5A7 /* cylinder in Resources */ = {isa = PBXBuildFile; fileRef = C969F8C7150D233B00D7A5A7 /* cylinder */; };
@@ -449,7 +446,6 @@
 		C969F89B150D233B00D7A5A7 /* idisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = idisp; sourceTree = "<group>"; };
 		C969F89C150D233B00D7A5A7 /* TwoCylF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylF; sourceTree = "<group>"; };
 		C969F89D150D233B00D7A5A7 /* cylrw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrw; sourceTree = "<group>"; };
-		C969F89E150D233B00D7A5A7 /* newali.m) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "newali.m)"; sourceTree = "<group>"; };
 		C969F89F150D233B00D7A5A7 /* ali.stm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali.stm; sourceTree = "<group>"; };
 		C969F8A0150D233B00D7A5A7 /* Orthopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Orthopos; sourceTree = "<group>"; };
 		C969F8A1150D233B00D7A5A7 /* pursue */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pursue; sourceTree = "<group>"; };
@@ -480,14 +476,12 @@
 		C969F8BA150D233B00D7A5A7 /* Orthopos1.0 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Orthopos1.0; sourceTree = "<group>"; };
 		C969F8BB150D233B00D7A5A7 /* dxsz */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxsz; sourceTree = "<group>"; };
 		C969F8BC150D233B00D7A5A7 /* rlsor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rlsor; sourceTree = "<group>"; };
-		C969F8BD150D233B00D7A5A7 /* #commdefs.h# */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "#commdefs.h#"; sourceTree = "<group>"; };
 		C969F8BE150D233B00D7A5A7 /* TwoCylBdispA */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TwoCylBdispA; sourceTree = "<group>"; };
 		C969F8BF150D233B00D7A5A7 /* idispRand */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = idispRand; sourceTree = "<group>"; };
 		C969F8C0150D233B00D7A5A7 /* dxxpos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dxxpos; sourceTree = "<group>"; };
 		C969F8C1150D233B00D7A5A7 /* Parapos1.0 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parapos1.0; sourceTree = "<group>"; };
 		C969F8C2150D233B00D7A5A7 /* CylUDtrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CylUDtrain; sourceTree = "<group>"; };
 		C969F8C3150D233B00D7A5A7 /* cylrangeA */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylrangeA; sourceTree = "<group>"; };
-		C969F8C4150D233B00D7A5A7 /* newali.rtw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = newali.rtw; sourceTree = "<group>"; };
 		C969F8C5150D233B00D7A5A7 /* cylVDcorr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylVDcorr; sourceTree = "<group>"; };
 		C969F8C6150D233B00D7A5A7 /* cylpsychtrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylpsychtrain; sourceTree = "<group>"; };
 		C969F8C7150D233B00D7A5A7 /* cylinder */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cylinder; sourceTree = "<group>"; };
@@ -871,7 +865,6 @@
 				C969F89B150D233B00D7A5A7 /* idisp */,
 				C969F89C150D233B00D7A5A7 /* TwoCylF */,
 				C969F89D150D233B00D7A5A7 /* cylrw */,
-				C969F89E150D233B00D7A5A7 /* newali.m) */,
 				C969F89F150D233B00D7A5A7 /* ali.stm */,
 				C969F8A0150D233B00D7A5A7 /* Orthopos */,
 				C969F8A1150D233B00D7A5A7 /* pursue */,
@@ -902,14 +895,12 @@
 				C969F8BA150D233B00D7A5A7 /* Orthopos1.0 */,
 				C969F8BB150D233B00D7A5A7 /* dxsz */,
 				C969F8BC150D233B00D7A5A7 /* rlsor */,
-				C969F8BD150D233B00D7A5A7 /* #commdefs.h# */,
 				C969F8BE150D233B00D7A5A7 /* TwoCylBdispA */,
 				C969F8BF150D233B00D7A5A7 /* idispRand */,
 				C969F8C0150D233B00D7A5A7 /* dxxpos */,
 				C969F8C1150D233B00D7A5A7 /* Parapos1.0 */,
 				C969F8C2150D233B00D7A5A7 /* CylUDtrain */,
 				C969F8C3150D233B00D7A5A7 /* cylrangeA */,
-				C969F8C4150D233B00D7A5A7 /* newali.rtw */,
 				C969F8C5150D233B00D7A5A7 /* cylVDcorr */,
 				C969F8C6150D233B00D7A5A7 /* cylpsychtrain */,
 				C969F8C7150D233B00D7A5A7 /* cylinder */,
@@ -1111,7 +1102,6 @@
 				C969F931150D233B00D7A5A7 /* idisp in Resources */,
 				C969F932150D233B00D7A5A7 /* TwoCylF in Resources */,
 				C969F933150D233B00D7A5A7 /* cylrw in Resources */,
-				C969F934150D233B00D7A5A7 /* newali.m) in Resources */,
 				C969F935150D233B00D7A5A7 /* ali.stm in Resources */,
 				C969F936150D233B00D7A5A7 /* Orthopos in Resources */,
 				C969F937150D233B00D7A5A7 /* pursue in Resources */,
@@ -1142,14 +1132,12 @@
 				C969F950150D233B00D7A5A7 /* Orthopos1.0 in Resources */,
 				C969F951150D233B00D7A5A7 /* dxsz in Resources */,
 				C969F952150D233B00D7A5A7 /* rlsor in Resources */,
-				C969F953150D233B00D7A5A7 /* #commdefs.h# in Resources */,
 				C969F954150D233B00D7A5A7 /* TwoCylBdispA in Resources */,
 				C969F955150D233B00D7A5A7 /* idispRand in Resources */,
 				C969F956150D233B00D7A5A7 /* dxxpos in Resources */,
 				C969F957150D233B00D7A5A7 /* Parapos1.0 in Resources */,
 				C969F958150D233B00D7A5A7 /* CylUDtrain in Resources */,
 				C969F959150D233B00D7A5A7 /* cylrangeA in Resources */,
-				C969F95A150D233B00D7A5A7 /* newali.rtw in Resources */,
 				C969F95B150D233B00D7A5A7 /* cylVDcorr in Resources */,
 				C969F95C150D233B00D7A5A7 /* cylpsychtrain in Resources */,
 				C969F95D150D233B00D7A5A7 /* cylinder in Resources */,
