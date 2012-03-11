@@ -73,6 +73,7 @@
 		41BF8E3D13A174FE00C8B6BA /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1B13A174FE00C8B6BA /* misc.c */; };
 		41BF8E3E13A174FE00C8B6BA /* myfree.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1D13A174FE00C8B6BA /* myfree.c */; };
 		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
+		C90350CC150D279800DFD9D3 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C90350CB150D279800DFD9D3 /* ali */; };
 		C9308B7E14F82EF50054C963 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = C9308B7D14F82EF50054C963 /* TODO.txt */; };
 		C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */ = {isa = PBXBuildFile; fileRef = C969F832150D233A00D7A5A7 /* lempsy110 */; };
 		C969F8CA150D233B00D7A5A7 /* bwlatest in Resources */ = {isa = PBXBuildFile; fileRef = C969F833150D233A00D7A5A7 /* bwlatest */; };
@@ -279,6 +280,7 @@
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
 		C969F832150D233A00D7A5A7 /* lempsy110 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy110; sourceTree = "<group>"; };
@@ -623,9 +625,18 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		C90350CA150D279800DFD9D3 /* ali */ = {
+			isa = PBXGroup;
+			children = (
+				C90350CB150D279800DFD9D3 /* ali */,
+			);
+			path = ali;
+			sourceTree = "<group>";
+		};
 		C969F830150D233A00D7A5A7 /* stims */ = {
 			isa = PBXGroup;
 			children = (
+				C90350CA150D279800DFD9D3 /* ali */,
 				C969F831150D233A00D7A5A7 /* lem */,
 			);
 			path = stims;
@@ -902,6 +913,7 @@
 				C969F91F150D233B00D7A5A7 /* rdssineor in Resources */,
 				C969F920150D233B00D7A5A7 /* rdsopos in Resources */,
 				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
+				C90350CC150D279800DFD9D3 /* ali in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
