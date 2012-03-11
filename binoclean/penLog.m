@@ -11,7 +11,7 @@
 extern char *vstrings[];
 extern char *userstrings;
 extern char *electrodestrings[100];
-int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance);
+int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance, int pennumber);
 
 int GetLastPen(){
     int pen = 1;
@@ -78,7 +78,7 @@ int GetLastPen(){
  
         self.penNumber = [NSString stringWithFormat:@"%d", GetLastPen()];
         
-        self.monkeyNames = [[NSArray arrayWithObjects:@"UnKnown", @"Icarus", @"Daedalus", @"JBE", @"Lemuix", @"BigGuy", nil] retain];
+        self.monkeyNames = [[NSArray arrayWithObjects:@"UnKnown", @"Icarus", @"Daedalus", @"JBE", @"Lemieux", @"BigGuy", nil] retain];
         
         self.monkeyValue = @"UnKnown";
         if ([[NSUserDefaults standardUserDefaults] valueForKey:@"monkeyname"]) {
@@ -156,17 +156,18 @@ int GetLastPen(){
     int protrudemm = [self.tubeProtrusion intValue];
     int electrodeid = 0; electrodeid = [self.electrodeTypes indexOfObject:self.electrodeValue];
     int _impedance = [self.impedance intValue];
-    UpdatePenInfo_Ali([self.uDriveX floatValue], [self.uDriveY floatValue], anglA, hemis, userid, protrudemm, electrodeid, _impedance);
+    int pennumber = [self.penNumber intValue];
+    UpdatePenInfo_Ali([self.uDriveX floatValue], [self.uDriveY floatValue], anglA, hemis, userid, protrudemm, electrodeid, _impedance, pennumber);
     
          if ([self.monkeyValue isEqualToString:@"Icarus"])   { [[[NSFileManager alloc] init] changeCurrentDirectoryPath:@"/local/icarus"];}
     else if ([self.monkeyValue isEqualToString:@"Daedalus"]) { [[[NSFileManager alloc] init] changeCurrentDirectoryPath:@"/local/dae"];}
     else if ([self.monkeyValue isEqualToString:@"JBE"])      { [[[NSFileManager alloc] init] changeCurrentDirectoryPath:@"/local/jbe"];}
-    else if ([self.monkeyValue isEqualToString:@"Lemiux"])   { [[[NSFileManager alloc] init] changeCurrentDirectoryPath:@"/local/lem"];}
+    else if ([self.monkeyValue isEqualToString:@"Lemieux"])   { [[[NSFileManager alloc] init] changeCurrentDirectoryPath:@"/local/lem"];}
     else { 
-        acknowledge(@"We need to know which monkey we are penetrating!\r Don't we?! \r \r NOTHING SAVED !");
+        acknowledge("We need to know which monkey we are penetrating!\r Don't we?! \r \r NOTHING SAVED !");
         return;
     }
-    
+    chdir("/local/lem");
     OpenPenetrationLog([self.penNumber intValue]);
     [[NSUserDefaults standardUserDefaults] setValue:self.penNumber forKey:@"pennumber"];
     [[NSUserDefaults standardUserDefaults] setValue:self.monkeyValue forKey:@"monkeyname"];

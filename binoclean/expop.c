@@ -134,7 +134,7 @@ int maxseed = 0;
 static char *helpfiles[MAXHELPFILES] = {NULL};
 static char *helplabels[MAXHELPFILES] = {NULL};
 static int nhelpfiles = 0;
-static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, HIGHXTYPE, 0};
+static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, HIGHXTYPE, MONKEYNAME, 0};
 
 FILE *imoutfd = NULL;
 int command_pending;
@@ -2586,7 +2586,7 @@ int SendPenInfo(){
 }
 
 // this function's job is to make sure all the necessary values for writing a pen log is in sync with the cocoa GUI
-int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance)
+int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance, int _penNumber)
 {
     expt.vals[PENXPOS] = _penXpos;
     expt.vals[PENYPOS] = _penYpos;
@@ -2596,6 +2596,12 @@ int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _he
     protrudemm = _protrudemm;
     electrodeid = _electrodeid;
     expt.vals[IMPEDANCE] = _impedance;
+    expt.vals[PENNUMCOUNTER] = _penNumber;
+    
+    SendToGui(PENXPOS);
+    SendToGui(PENYPOS);
+    SendToGui(PENETRATION_TEXT);
+    SendToGui(PENNUMCOUNTER);
     return 0;
 }
 
@@ -2622,6 +2628,7 @@ int OpenPenetrationLog(int pen){
         if((penlog = fopen(buf,"a")) != NULL){
             tval = time(NULL);
             fprintf(penlog,"Opened %s pen %d %.1f,%.1f%s\n",nonewline(ctime(&tval)),expt.ipen,expt.vals[PENXPOS],expt.vals[PENYPOS],xbits);
+            fprintf(stdout,"Logfile is %s\n",buf);
         }
         sprintf(buf,"%d %.1f,%.1f",expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]));
         expt.pnum = myscopy(expt.pnum,buf);
@@ -2656,8 +2663,16 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
     char *t,*r,buf[256],name[BUFSIZ],sfile[BUFSIZ],path[BUFSIZ];
     
     s = nonewline(s);
+    if (*s == NULL)
+        return;
     switch(flag)
     {
+        case MONKEYNAME:
+            expt.monkey = myscopy(expt.monkey,s);
+            sprintf(buf,"/local/%s",expt.monkey);
+            chdir(buf);
+            break;
+            
         case HELPFILE_PATH:
             if(nhelpfiles == 0)
                 expt.helpfile = myscopy(expt.helpfile,s);
@@ -14185,15 +14200,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                         optionflags[i] = 0;
                 }
             }
-            
-            else while(s[j] != 0)
+            if (strchr(s,'+')) {
+                
+            while(s[j] != 0)
             {
                 if(s[j] == '+' || s[j] == '-')
                     ChangeFlag(&s[j++]);
                 else
                     j++;
             }
-            
+            }
             setoption();
             SerialSend(OPTION_CODE);
             break;
@@ -14317,6 +14333,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case UFF_PREFIX:
         case USERID:
         case BACKGROUND_IMAGE: 
+        case MONKEYNAME:
             SetExptString(ex, TheStim, code, s);
             SerialSend(code);
             break;
@@ -14558,6 +14575,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 break;
         }
     }
+    if (frompc == 2 && code >= 0)  // send to verg
+        notify(line);
     return(code);
 }
 

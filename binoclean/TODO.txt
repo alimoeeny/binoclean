@@ -28,4 +28,6 @@ Things that need fixing:
 - uDrive commands larger than 300 should be confimed not rejected
 - uDrive commands that are rejected should be reverted (not applied to the variable)
 
-
+-warning if can't open penlog
+-if cant cwd, cwd to /local
+- make sure exceptions are handled properly in updateInfoText in mainGUI and in case of a problem it should Log it to console.

@@ -13,6 +13,7 @@
 #import <sys/time.h> 
 #import <termios.h> 
 #import <stdarg.h> 
+#import <unistd.h>
 #import <math.h> 
 #import <string.h> 
 #import "mymath.h" 
@@ -1456,13 +1457,23 @@ int SendTrialCount()
     notify(buf);
 }
 
+void SendToGui(int code)
+{
+    int i;
+    time_t tval;
+    char buf[BUFSIZ];
+            
+    MakeString(code, buf, &expt, expt.st,TO_GUI);
+    notify(buf);
+    
+}
 
 void SendAllToGui()
 {
     int i;
     time_t tval;
     char buf[BUFSIZ];
-    for(i = 0; i < MAXSERIALCODES; i++){
+    for(i = 0; i < MAXTOTALCODES; i++){
         MakeString(i, buf, &expt, expt.st,TO_GUI);
         notify(buf);
     }
@@ -4208,7 +4219,6 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             if(st->next != NULL){
                 cval = StimulusProperty(st, SETCONTRAST);
                 bval = StimulusProperty(st->next, SETCONTRAST);
-            }
             if(val < 0){
                 SetStimulus(st, 1 - (cval+bval), SETCONTRAST, NULL);
                 SetStimulus(st->next, (cval+bval), SETCONTRAST, NULL);
@@ -4216,6 +4226,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             else{
                 SetStimulus(st, (cval+bval), SETCONTRAST, NULL);
                 SetStimulus(st->next, 1 - (cval+bval), SETCONTRAST, NULL);
+            }
             }
             break;
         case CONTRAST_PAIRS:
@@ -8383,7 +8394,9 @@ void SaveExptFile(char *filename,int flag)
 {
 	char cbuf[BUFSIZ];
 	char spacestr[BUFSIZ];
-	int i,j,go = 0;
+
+    
+    int i,j,go = 0;
 	FILE *ofd;
 	static int write_fail_acknowledged;
     
@@ -8392,6 +8405,7 @@ void SaveExptFile(char *filename,int flag)
 	if(seroutfile){
         fprintf(seroutfile,"#Save %d %s VS%.1f\n",flag,filename,afc_s.sacval[1]);
 	}
+    printf("Saving expt in %s\n",getcwd(cbuf, BUFSIZ));
 	if((ofd = fopen(filename,"w")) != NULL)
     {
 	    cbuf[0] = '=';

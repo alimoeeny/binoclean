@@ -58,6 +58,11 @@ strs = textscan(line,'%s','delimiter','\n');
 for j = 1:length(strs{1})
     s = regexprep(strs{1}{j},'\s+\#.*$','');
     eid = strfind(s,'=');
+    if ~isempty(eid)
+        code = s(1:eid(1)-1);
+    else
+        code = s;
+    end
     if length(s) == 0
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
@@ -90,13 +95,14 @@ for j = 1:length(strs{1})
         id = strfind(s,' ');
         icode = str2num(s(id(2)+1:id(3)-1))+1;
         label = s(id(3)+1:end);
-        sid = strmatch(label,{DATA.strcodes.code},'exact');
+        code = s(id(1)+1:id(2)-1);
+        sid = strmatch(code,{DATA.strcodes.code},'exact');
         if isempty(sid)
             sid = length(DATA.strcodes)+1;
         end
-        DATA.strcodes(sid).label = s(id(3)+1:end);
+        DATA.strcodes(sid).label = label;
         DATA.strcodes(sid).icode = icode;
-        DATA.strcodes(sid).code = s(1:id(1)-1);
+        DATA.strcodes(sid).code = code;
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
@@ -250,6 +256,8 @@ for j = 1:length(strs{1})
         if strncmp(s,'op=0',4) %everything else off
             for j = 1:length(f) DATA.optionflags.(f{j}) = 0; end
         end
+        s = strrep(s,'+2a','+afc');
+        s = strrep(s,'-2a','-afc');
         s = [s '+'];
         id = regexp(s,'[+-]');
         
@@ -277,11 +285,16 @@ for j = 1:length(strs{1})
     elseif strncmp(s, 'st', 2)
         id = strmatch(s(4:end),DATA.stimulusnames,'exact');
         DATA.stimtype(DATA.currentstim) = id;
-    elseif strmatch(s,{DATA.strcodes.code})
-        sid = strmatch(s,{DATA.strcodes.code});
+        DATA.binocstr.st = s(4:end);
+    elseif strmatch(code,{DATA.strcodes.code},'exact')
         id = strfind(s,'=');
         if id
-            DATA.binocstr.(DATA.strcodes(id).code)=s(id(1)+1:end);
+            sid = strmatch(code,{DATA.strcodes.code});
+            if isempty(sid)
+                DATA.binocstr.(code)=s(id(1)+1:end);
+            else
+                DATA.binocstr.(DATA.strcodes(sid).code)=s(id(1)+1:end);
+            end
         end
     elseif strncmp(s, 'Bs', 2)
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
@@ -369,7 +382,7 @@ else
 end
 
 function SendState(DATA)
-    f = fields(DATA.binoc{2});
+    f = fields(DATA.binoc{1});
     
     fprintf(DATA.outid,'eventpause\n');
     fprintf(DATA.outid,'mo=fore\n');
@@ -379,6 +392,7 @@ function SendState(DATA)
             fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binocstr.(f{j}));
         end
     end
+    if length(DATA.binoc) > 1 && isstruct(DATA.binoc{2})
     f = fields(DATA.binoc{2});
     fprintf(DATA.outid,'mo=back\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
@@ -386,7 +400,7 @@ function SendState(DATA)
     for j = 1:length(f)
         fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{2}.(f{j}));
     end
-    
+    end
     
     fprintf(DATA.outid,'mo=fore\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
@@ -680,7 +694,7 @@ function DATA = InitInterface(DATA)
     end
     f = fields(DATA.showflags);
     nc = 5;
-    nr = 19 + length(f)./nc;
+    nr = 19 + ceil(length(f)./nc);
     cw = 0.99/nc;
     DATA.toplevel = cntrl_box;
     lst = uicontrol(gcf, 'Style','edit','String', '',...
@@ -1577,6 +1591,8 @@ if txt(end) == '='
     code = txt(1:end-1);
     if isfield(DATA.binoc{DATA.currentstim},code)
     txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
+    elseif isfield(DATA.binocstr,code)
+        txt = ['?' txt '?' DATA.binocstr.(code)];
     end
 end
 a(n+1,1:length(txt)) = txt;

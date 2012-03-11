@@ -444,7 +444,8 @@
 // their value. But they need a serial-string so that they can be set
 // Since they are not send to PC, they can be > 2 chars long
 #define HIGHXTYPE MAXSERIALCODES+161
-#define MAXSAVECODES MAXSERIALCODES+162 //357
+#define MONKEYNAME MAXSERIALCODES+162
+#define MAXSAVECODES MAXSERIALCODES+163 //357
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -654,6 +655,7 @@ typedef struct stringcode {
 StringCode commstrings[] = {
     {"monitor","Monitor Filename",  MONITOR_FILE, NULL},
     {"lo", "Log File", LOGFILE_CODE, NULL},
+    {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -1030,6 +1032,7 @@ char *serial_strings[NCODES+1] = {
 "FakeSig", /* dummy stimulation magnitude*/
 "pBlack", /* fraction of black dots*/
 "hxtype", /* control +hx interleave */
+"monkey",
 
 // these codes are all ones that do not need to be saved
 "ar", /* Aspect Ratio */
@@ -1448,6 +1451,7 @@ char *serial_names[] = {
     "FakeStim Signal", 
     "p(black dot)", 
     "High X type",
+    "Monkey Name",
     
     "Aspect Ratio",
     "Hidden Codes",
