@@ -97,7 +97,7 @@ Expt expt;
 
 - (IBAction) textCommand:(id)sender
 {
-    InterpretLine([[sender stringValue] UTF8String], &expt, 2);
+    InterpretLine([[sender stringValue] UTF8String], &expt, 0);
     [commandHistoryTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", 
                                               [sender stringValue],
                                               [commandHistoryTextField stringValue]]];

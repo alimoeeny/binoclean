@@ -14575,7 +14575,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 break;
         }
     }
-    if (frompc == 2 && code >= 0)  // send to verg
+    if (frompc < 2 && code >= 0)  // send to verg if it came from Spike2 or binoc GUI
         notify(line);
     return(code);
 }

@@ -130,8 +130,10 @@ for j = 1:length(strs{1})
         DATA.inexpt = 1;
     elseif strncmp(s,'EXPTOVER',8)
         DATA.inexpt = 0;
+        if DATA.nexpts > 0  %may be 0 here if verg is fired up after a crash
         DATA.Expts{DATA.nexpts}.End = now;
         DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
+        end
         SetGui(DATA);
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
@@ -184,6 +186,7 @@ for j = 1:length(strs{1})
         
     elseif strncmp(s,'pf=',3)
         DATA.currentstim = 4;
+        s = strrep(s,'+2a','+afc');
         s = [s '+'];
         id = regexp(s,'[+-]');
         f = fields(DATA.optionflags);
@@ -301,6 +304,22 @@ for j = 1:length(strs{1})
     elseif s(1) == 'E'
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
+        elseif strncmp(s,'ECCLEAR',5)
+            DATA.exptstimlist{3} = {};
+        elseif strncmp(s,'ECLEAR',5)
+            DATA.exptstimlist{1} = {};
+        elseif s(2) == 'C'
+            n = sscanf(s(3:end),'%d');
+            id = findstr(s,' ');
+            if length(n)
+                DATA.exptstimlist{3}{n(1)+1} = s(id(1)+1:end);
+                if isfield(DATA,'toplevel')
+                    it = findobj(DATA.toplevel,'Tag','Expt3StimList');
+                    if length(it) == 1
+                        set(it,'string',DATA.exptstimlist{3});
+                    end
+                end
+            end
         elseif s(2) == 'B'
             n = sscanf(s(3:end),'%d');
             id = findstr(s,' ');
@@ -381,10 +400,25 @@ else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
 end
 
-function SendState(DATA)
+function SendState(DATA, varargin)
+
+    sendview = 0;
+    j = 1;
+    while j <= length(varargin)
+        if strncmpi(varargin{j},'All',4)
+            sendview = 1;
+        end
+        j = j+1;
+    end
+    
     f = fields(DATA.binoc{1});
     
     fprintf(DATA.outid,'eventpause\n');
+    
+    if sendview
+        SendCode(DATA,{'px''py''vd'});
+    end
+    
     fprintf(DATA.outid,'mo=fore\n');
     f = fields(DATA.binocstr);
     for j = 1:length(f)
@@ -1103,7 +1137,7 @@ function MenuGui(a,b)
      elseif flag == 6
         stop(DATA.timerobj);
          OpenPipes(DATA, 0);
-         SendState(DATA);
+         SendState(DATA,'all');
         start(DATA.timerobj);
      else
         DATA = ReadFromBinoc(DATA);   
@@ -1129,7 +1163,7 @@ function MenuGui(a,b)
     id = strmatch(DATA.exptype{2},DATA.expmenucodes{2});
     SetMenuItem(DATA.toplevel, 'Expt2List', id);
     id = strmatch(DATA.exptype{3},DATA.expmenucodes{3});
-    SetMenuItem(DATA.toplevel, 'Expt3ist', id);
+    SetMenuItem(DATA.toplevel, 'Expt3List', id);
     SetMenuItem(DATA.toplevel, 'ForegroundType', DATA.stimtype(1));
     SetMenuItem(DATA.toplevel, 'BackgroundType', DATA.stimtype(2));
 
@@ -1523,6 +1557,14 @@ function HitToggle(a,b, flag)
    
     
 function SendCode(DATA, code)
+    
+    if iscellstr(code)
+        for j = 1:length(code)
+            SendCode(DATA,code{j});
+            return;
+        end
+    end
+    
     if strcmp(code,'optionflag')
     s = 'op=';
     f = fields(DATA.optionflags);
@@ -1534,6 +1576,7 @@ function SendCode(DATA, code)
         end
     end
     fprintf(DATA.outid,'op=0\n%s\n',s);
+    fprintf(DATA.outid,'%s\n',StimToggleString(DATA));
     elseif strcmp(code,'expts')
         s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
         fprintf(DATA.outid,'%s\n',s);
@@ -1541,12 +1584,18 @@ function SendCode(DATA, code)
         fprintf(DATA.outid,'%s\n',s);
         s = sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3));
         fprintf(DATA.outid,'%s\n',s);
-        end
+    elseif isfield(DATA.binoc,code)
+        s = fprintf(DATA.outid,'%s=%.6f\n',code,DATA.binoc.(code));
+    end
         
 function StimToggle(a,b, flag)       
     DATA = GetDataFromFig(a);
 %    flag = get(a,'Tag');
     DATA.stimflags{1}.(flag) = get(a,'value');
+    fprintf(DATA.outid,'%s\n',StimToggleString(DATA));
+    ReadFromBinoc(DATA);
+
+function s = StimToggleString(DATA)
     s = 'fl=';
     f = fields(DATA.stimflags{1});
     for j = 1:length(f)
@@ -1556,9 +1605,7 @@ function StimToggle(a,b, flag)
 %            s = [s '-' f{j}];
         end
     end
-    fprintf(DATA.outid,'%s\n',s);
-    ReadFromBinoc(DATA);
-
+        
 function OtherToggles(a,b,flag)
 
     DATA = GetDataFromFig(a);

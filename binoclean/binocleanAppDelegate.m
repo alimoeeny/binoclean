@@ -94,7 +94,10 @@ void ReadInputPipe()
                 freeToGo = 1;
             }
             else
+            {
+                printf("Interpret:%s",inputLineChars);
                 InterpretLine(inputLineChars, &expt, 2);
+            }
         }
         inputLineChars = NULL;
         [inputPipeBuffer removeAllObjects];
