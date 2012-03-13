@@ -44,7 +44,13 @@ Expt expt;
         if([c count]>r)
         {
             int b = [s rangeOfString:[c objectAtIndex:r]].location;
-            s = [s substringToIndex:b];
+            @try {
+                if (b>0)
+                    s = [s substringToIndex:b];            
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Bad String");
+            }
         }
         [informationTextField setStringValue:s];
     }

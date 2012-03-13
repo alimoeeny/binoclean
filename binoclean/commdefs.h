@@ -267,7 +267,7 @@
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 197 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 199 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
@@ -445,7 +445,7 @@
 // Since they are not send to PC, they can be > 2 chars long
 #define HIGHXTYPE MAXSERIALCODES+161
 #define MONKEYNAME MAXSERIALCODES+162
-#define MAXSAVECODES MAXSERIALCODES+163 //357
+#define MAXSAVECODES MAXSERIALCODES+163 //362
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -803,10 +803,10 @@ char *serial_strings[NCODES+1] = {
     "sz", /* STIM_SIZE +24 */
     "cb", /* Background Correlation +24 */
     "sd", /* Seed Delay */
-    "1t", /* Trigger level 1 */
-    "2t", /* Trigger level 2 */
-    "3t", /* Trigger level 3 */
-    "4t", /* Trigger level 4 */
+    "xx", /* Trigger level 1 */
+    "xx", /* Trigger level 2 */
+    "xx", /* Trigger level 3 */
+    "xx", /* Trigger level 4 */
     "cs", /* Seed for reverse correlation */
     "fn", /* frame repeat value for reverse correlation */
     "cx", /* stimchange code */

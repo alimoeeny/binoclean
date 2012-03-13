@@ -1473,6 +1473,19 @@ void SendAllToGui()
     int i;
     time_t tval;
     char buf[BUFSIZ];
+    
+    if(expt.st->next != NULL){
+        notify("mo=back\n");
+        for (i = 0; i < LAST_STIMULUS_CODE;  i++)
+        {
+            MakeString(i, buf, &expt, expt.st->next,TO_GUI);
+            notify(buf);
+        }
+        MakeString(STIMULUS_FLAG, buf, &expt, expt.st->next,TO_GUI);
+        notify(buf);
+        notify("mo=fore\n");
+        
+    }
     for(i = 0; i < MAXTOTALCODES; i++){
         MakeString(i, buf, &expt, expt.st,TO_GUI);
         notify(buf);
@@ -2904,10 +2917,8 @@ void redraw_overlay(struct plotdata  *plot)
     }
     if(stimstate == STIMSTOPPED)
         ShowTime();
-    es = plot->stims;
-    for(i = 0; i < plot->nstim[0]; i++,es++)
-        if(es->flag & BOX_ON)
-            ShowBox(es, BOX_COLOR);
+
+
     if((pl = plot->linedata) != NULL)
         for(i = 0; i <= expt.nlines; i++,pl+=4)
             MyLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
@@ -2933,8 +2944,8 @@ void redraw_overlay(struct plotdata  *plot)
        && option2flag & PERF_STRING)
         setmask(ALLPLANES);
     /*  statusline(NULL);  redraws info line too often*/
-    glstatusline(NULL,2);
-    ShowPerformanceString(-1);
+//    glstatusline(NULL,2);
+//    ShowPerformanceString(-1);
     if(optionflag & SHOW_CONJUG_BIT)
     {
         draw_conjpos(cmarker_size,PLOT_COLOR);
@@ -3431,6 +3442,31 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->pos.sf = st->f = (left + right)/2;
             st->sf_disp = (left - right)/2;
             break;
+        case LRBINTERLEAVE:
+        case MONOCULARITY_EXPT:
+            /*
+             * this is normally set via ExptProperty, but is called here
+             * for RC sequences, so does not call setoption, SerialSend, etc
+             */
+            
+            /* 0 = Binoc, -1 = LEFT, 1 = RIGHT */
+            optionflag &= (~MONOCULAR_MODE);
+            // if setblank, make mode binocular, so that both eyes are wiped
+            newmonoc = 0;
+            if(setblank){
+                ;
+            }
+		    
+            else if(val < -0.4){
+                optionflag |= LEFT_FIXATION_CHECK;
+                newmonoc = LEFT_FIXATION_CHECK;
+            }
+            else if (val > 0.4){
+                optionflag |= RIGHT_FIXATION_CHECK;
+                newmonoc = RIGHT_FIXATION_CHECK;
+            }
+            mode |= NEED_REPAINT;
+            break;
         case ORI_RIGHT:
             right = val * M_PI/180.0;
             left = pos->angle + st->ori_disp;
@@ -3903,6 +3939,24 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case OPPOSITE_DELAY:
             SetStimulus(st,val,DISP_X,event);
             SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY] * -1);
+            break;
+        case STIMORTHOG_POS:
+            fval = 0; // for now, force other direction to be centered
+            cval = StimulusProperty(st,ASPECT_RATIO);
+            if(cval > 1){
+                cosa = cos(expt.st->pos.angle);
+                sina = sin(expt.st->pos.angle);
+            }
+            else{
+                cosa = cos(expt.st->pos.angle+M_PI_2);
+                sina = sin(expt.st->pos.angle+M_PI_2);
+            }
+            bval = (val * sina - fval * cosa);
+            cval = (fval * sina + val * cosa);
+            bval =  pix2deg(expt.rf->pos[0]) - bval;
+            cval +=  pix2deg(expt.rf->pos[1]);
+            SetStimulus(st,bval,XPOS,event);
+            SetStimulus(st,cval,YPOS,event);
             break;
         case ABS_ORTHOG_POS:
             fval = GetProperty(&expt, st, PARA_POS);
@@ -5922,7 +5976,7 @@ int next_frame(Stimulus *st)
 	    markercolor = 1.0;
     
     markercolor = 1.0;
-    glstatusline(NULL,2);
+//    glstatusline(NULL,2);
 #ifdef MONITOR_CLOSE
     if(seroutfile && laststate != stimstate){
         fprintf(seroutfile,"#State %d %d VS%.1f\n",stimstate,fixstate,afc_s.sacval[1]);
@@ -6039,11 +6093,7 @@ int next_frame(Stimulus *st)
             }
             else
                 search_background();
-            if(newtimeout < 5){
-                redraw_overlay(expt.plot);
-                if(debug) glstatusline("Stopped",3);
-                glSwapAPPLE();
-            }
+            glSwapAPPLE();
             gettimeofday(&now,NULL);
             if(timediff(&now,&alarmstart) >  1){
                 RunWaterAlarm();
@@ -8610,6 +8660,7 @@ void SaveExptFile(char *filename,int flag)
          * becuase this included qe= lines, which we do not want. The other lines,
          * for custom EXPVALs are wanted
          */
+        
 		write_expvals(ofd,flag);
 		if(expt.hemisphere)
             fprintf(ofd,"RightHemisphere\n");
@@ -9557,10 +9608,7 @@ int GotChar(char c)
                 }
                 mode &= (~HOLD_STATUS);
                 ExptTrialOver(c);
-                StartOverlay();
-                redraw_overlay(expt.plot);
-                EndOverlay();
-                //Ali SetAllPanel(&expt);
+                    SendTrialCount();
                 break;
             case START_EXPT: /* this is sent when BW starts up send everything */
                 MakeConnection();

@@ -13,8 +13,7 @@
 #import <sys/time.h>
 #include <sys/resource.h>
 
-Expt expt;
-Monitor mon;
+
 int binocmain(int argc, char * argv[]);
 char * VERSION_NUMBER;
 

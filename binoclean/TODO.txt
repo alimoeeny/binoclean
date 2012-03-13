@@ -31,3 +31,10 @@ Things that need fixing:
 -warning if can't open penlog
 -if cant cwd, cwd to /local
 - make sure exceptions are handled properly in updateInfoText in mainGUI and in case of a problem it should Log it to console.
+-quick expts in autosave files
+-rds6.4 resets sl to 1
+-stop redundant calls to info.
+-monocRC Fast seq doesn't work, and blank is not in stim list. 
+-AFC shows set but is not after loading lem bwlatest
+-turning of hx doesn't always work - eg from bwlatest to plaidor45
+-vhpos expt type not implemented

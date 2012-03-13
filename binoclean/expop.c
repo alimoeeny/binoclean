@@ -924,9 +924,9 @@ void write_expvals(FILE *ofd, int flag)
     if(flag == QUICK_SAVE)
         return;
     for(i = 1; i <= nquickexpts; i++){
-        if(quicksubid[i] >= 0)
-            fprintf(ofd,"qe=\"%s\"%s\n",quicksubnames[quicksubid[i]],quicknames[i]);
-        else
+//        if(quicksubid[i] >= 0)
+//            fprintf(ofd,"qe=\"%s\"%s\n",quicksubnames[quicksubid[i]],quicknames[i]);
+//        else
             fprintf(ofd,"qe=%s\n",quicknames[i]);
     }
     fprintf(ofd,"usenewdirs=%d\n",usenewdirs);
@@ -1454,7 +1454,7 @@ unsigned int ufftime(struct timeval *thetime)
 
 void PrintCodes(int mode)
 {
-    char s[BUFSIZ*2],tmp[BUFSIZ];
+    char s[BUFSIZ*2],tmp[BUFSIZ],ctype = 'N';
     int i,showcode = 1;
     
     sprintf(s,"");
@@ -1462,11 +1462,19 @@ void PrintCodes(int mode)
     {
         if(serial_strings[i] == NULL)
             return;
+        switch(i){
+            case STIMULUS_FLAG:
+            ctype = 'C';
+                break;
+            default:
+                ctype = 'N';
+                break;
+        }
         if(serial_names[i] == NULL){
-            sprintf(tmp,"CODE %s %d none\n",serial_strings[i],i);
+            sprintf(tmp,"CODE %s %d none%c\n",serial_strings[i],i,ctype);
         }
         else{
-            sprintf(tmp,"CODE %s %d %s\n",serial_strings[i],i,serial_names[i]);
+            sprintf(tmp,"CODE %s %d %s%c\n",serial_strings[i],i,serial_names[i],ctype);
         }
         notify(tmp);
     }
@@ -2111,7 +2119,7 @@ void ListExpStims(int w)
     for(i = 0; i < (expt.nstim[0]+expt.nstim[2]); i++, es++)
     {
         MakePlotLabel(&expt, cbuf, i, 0);
-        sprintf(buf, "E%d %s\n",i,cbuf);
+        sprintf(buf, "E%d=%s\n",i,cbuf);
         notify(buf);
     }
     
@@ -2119,13 +2127,13 @@ void ListExpStims(int w)
     for(i = expt.nstim[0]+expt.nstim[2]; i < (expt.nstim[0]+expt.nstim[2]+expt.nstim[1]) ; i++, es++)
     {
         MakePlotLabel(&expt, cbuf, i, 0);
-        sprintf(buf, "EB%d %s\n",i-(expt.nstim[0]+expt.nstim[2]),cbuf);
+        sprintf(buf, "EB%d=%s\n",i-(expt.nstim[0]+expt.nstim[2]),cbuf);
         notify(buf);
         
     }
     notify("ECCLEAR\n");
     for(i = 0; i < expt.nstim[4]; i++){
-        sprintf(buf,"EC%d %.2f\n",i,expt.exp3vals[i]);
+        sprintf(buf,"EC%d=%.2f\n",i,expt.exp3vals[i]);
         notify(buf);
     }
 }
@@ -6183,7 +6191,7 @@ void setstimulusorder(int warnings)
     int seed, baseseed, nrpt, rpts[MAXSTIM][MAXREPS];
     int rptid[MAXSTIM][MAXREPS];
     FILE *out;
-    
+    int noneed = 0;
     
     if(!(mode & RUNNING))
         return;
@@ -6306,7 +6314,7 @@ void setstimulusorder(int warnings)
             twoseq[tw] = 0;		
             threeseq[tw] = 0;
         }
-        for(i = 0; i< ntoset;)
+        for(i = 0; i< ntoset && noneed < 10;)
         {
             tried = 0;
             thisblk = blksize * (1 + (i/(nstim * blksize)));
@@ -6402,7 +6410,10 @@ void setstimulusorder(int warnings)
                         ni = stimorder[i] = stillneed[j];
                         isset[ni]++;
                         setorderbits(i++);
+                        noneed = 0;
                     }
+                    else
+                        noneed++;
                     
                     /*
                      do
@@ -7138,6 +7149,13 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             else 
                 ret = -1;
             break;
+        case MONKEYNAME:
+            if(expt.monkey != NULL)
+                sprintf(cbuf,"%s%s%s",serial_strings[MONKEYNAME],temp,expt.monkey);
+            else
+                ret = -1;
+            break;
+            
         case LOGFILE_CODE:
             if(expt.logfile != NULL)
                 sprintf(cbuf,"%s%s%s",serial_strings[LOGFILE_CODE],temp,expt.logfile);
@@ -7217,7 +7235,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s%s%.3f",scode,temp,expt.isi);
             break;
         case STIMULUS_FLAG:
-            if(flag == TO_FILE)
+            if(flag == TO_FILE || flag == TO_GUI)
             {
                 sprintf(cbuf,"%s%s",scode,temp);
                 i = 0;
@@ -10449,7 +10467,7 @@ int ExpStimOver(int retval, int lastchar)
      ReplayExpt(NULL);
      */
     SerialString("EndStim\n",0);
-    SendTrialCount();
+
     return(retval);
 }
 
@@ -13518,7 +13536,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     //	printf("%s\n",line);
     gettimeofday(&now,NULL);
-    ex->cmdtype = frompc;
+    if (frompc > 0)
+        ex->cmdtype = 1;
     if(lineflag & BACKSTIM_BIT)
         TheStim = ex->st->next;
     TheStim = stimptr;
@@ -13545,6 +13564,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         SerialString(buf,0);
         return;
     }
+    else if(!strncmp(line,"newexpt",7)){
+        ResetExpt();
+    }
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
@@ -13556,6 +13578,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sscanf(++s,"%d",&optionflags[SHOW_REWARD_BIAS]);
         }
         return(0);
+    }
+    else if(!strncmp(line,"slider",6) && frompc){ //old commands that we don't want to drop down to codes below
+        return;
     }
     else if(!strncmp(line,"splitctr",10) && frompc){
         if(seroutfile)
@@ -14200,7 +14225,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                         optionflags[i] = 0;
                 }
             }
-            if (strchr(s,'+')) {
+            if (strchr(s,'+') || strchr(s,'-')) {
                 
             while(s[j] != 0)
             {
@@ -14575,8 +14600,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 break;
         }
     }
-    if (frompc < 2 && code >= 0)  // send to verg if it came from Spike2 or binoc GUI
+    if (frompc < 2 && code >= 0){  // send to verg if it came from Spike2 or binoc GUI
         notify(line);
+        notify("\n");
+    }
     return(code);
 }
 

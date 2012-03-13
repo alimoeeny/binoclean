@@ -47,6 +47,7 @@ if length(varargin)
         return;
     elseif strncmpi(varargin{1},'quick',5)
         DATA = ReadStimFile(DATA, varargin{2});
+        AddTextToGui(DATA, ['qe=' varargin{2}]);
         SetGui(DATA);
         set(DATA.toplevel,'UserData',DATA);
     end
@@ -106,9 +107,10 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
-        DATA.comcodes(code).label = s(id(3)+1:end);
+        DATA.comcodes(code).label = s(id(3)+1:end-1);
         DATA.comcodes(code).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(code).const = code;
+        DATA.comcodes(code).type = s(end);
     elseif strncmp(s,'exps',4)
         ex = 1;
         DATA.expts{ex} = [];
@@ -183,7 +185,8 @@ for j = 1:length(strs{1})
         DATA.currentstim = 3;
     elseif strncmp(s,'mo=ChoiceD',10)
         DATA.currentstim = 4;
-        
+    elseif strncmp(s,'over',4)
+        DATA.over = 1;
     elseif strncmp(s,'pf=',3)
         DATA.currentstim = 4;
         s = strrep(s,'+2a','+afc');
@@ -211,7 +214,8 @@ for j = 1:length(strs{1})
             submenu = '';
         s = s(4:end);
         end
-        [a,b] = fileparts(s);
+        [a,b,c] = fileparts(s);
+        b = [b c];
         id = [];
         if isfield(DATA.quickexpts,'filename') %check we don't alreayd have this
         id = strmatch(s,{DATA.quickexpts.filename});
@@ -284,6 +288,8 @@ for j = 1:length(strs{1})
     elseif strncmp(s, 'penwinxy', 8)
     elseif strncmp(s, 'optionwinxy', 8)
     elseif strncmp(s, 'psychfile', 8)
+    elseif strncmp(s, 'slider', 6)
+        id = strmatch(s(4:end),DATA.stimulusnames,'exact');
 
     elseif strncmp(s, 'st', 2)
         id = strmatch(s(4:end),DATA.stimulusnames,'exact');
@@ -310,7 +316,7 @@ for j = 1:length(strs{1})
             DATA.exptstimlist{1} = {};
         elseif s(2) == 'C'
             n = sscanf(s(3:end),'%d');
-            id = findstr(s,' ');
+            id = findstr(s,'=');
             if length(n)
                 DATA.exptstimlist{3}{n(1)+1} = s(id(1)+1:end);
                 if isfield(DATA,'toplevel')
@@ -322,7 +328,7 @@ for j = 1:length(strs{1})
             end
         elseif s(2) == 'B'
             n = sscanf(s(3:end),'%d');
-            id = findstr(s,' ');
+            id = findstr(s,'=');
             if length(n)
                 DATA.exptstimlist{2}{n(1)+1} = s(id(1)+1:end);
                 if isfield(DATA,'toplevel')
@@ -334,7 +340,7 @@ for j = 1:length(strs{1})
             end
         else
             n = sscanf(s(2:end),'%d');
-            id = findstr(s,' ');
+            id = findstr(s,'=');
             if length(n)
                 DATA.exptstimlist{1}{n(1)+1} = s(id(1)+1:end);
                 if isfield(DATA,'toplevel')
@@ -348,13 +354,17 @@ for j = 1:length(strs{1})
                 DATA.exptstimlist{1} = {};
             end
         end
-    elseif strmatch(s,{DATA.comcodes.code})
-        id = strmatch(s,{DATA.comcodes.code});
-        code = DATA.comcodes(id(1)).code;
+    elseif strmatch(code,{DATA.comcodes.code},'exact')
+        cid = strmatch(code,{DATA.comcodes.code},'exact');
+        code = DATA.comcodes(cid(1)).code;
         id = strfind(s,'=');
         if id
-            val = sscanf(s(id(1)+1:end),'%f');
-            DATA.binoc{DATA.currentstim}.(code) = val;
+            if DATA.comcodes(cid(1)).type == 'C'
+                DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
+            else
+                val = sscanf(s(id(1)+1:end),'%f');
+                DATA.binoc{DATA.currentstim}.(code) = val;
+            end
         end
     else
         id = strfind(s,'=');
@@ -373,13 +383,22 @@ function DATA = ReadStimFile(DATA, name)
         
 fid = fopen(name,'r');
 if fid > 0
+            
     if DATA.outid > 0
-    fprintf(DATA.outid,'eventpause\n');
+    fprintf(DATA.outid,'\neventpause\nnewexpt\n');
     end
+    for j = 2:length(DATA.overcmds) %commands to execute at and
+            fprintf(DATA.outid,[DATA.overcmds{j} '\n']);
+        end
+    DATA.over = 0;
+    DATA.overcmds = {};
+    
     tline = fgets(fid);
     while ischar(tline)
         DATA = InterpretLine(DATA,tline);
-        if DATA.outid > 0
+        if DATA.over
+            DATA.overcmds = {DATA.overcmds{:} tline};
+        elseif DATA.outid > 0
             tline = strrep(tline,'\','\\');
             fprintf(DATA.outid,tline);
         end
@@ -387,7 +406,7 @@ if fid > 0
     end
     fclose(fid);
     if DATA.outid > 0
-        fprintf(DATA.outid,'eventcontinue\n');
+        fprintf(DATA.outid,'\neventcontinue\n');
     end
     for ex = 1:3
         if length(DATA.expts{ex})
@@ -413,7 +432,7 @@ function SendState(DATA, varargin)
     
     f = fields(DATA.binoc{1});
     
-    fprintf(DATA.outid,'eventpause\n');
+    fprintf(DATA.outid,'\neventpause\n');
     
     if sendview
         SendCode(DATA,{'px''py''vd'});
@@ -432,7 +451,11 @@ function SendState(DATA, varargin)
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
 
     for j = 1:length(f)
+        if ischar(DATA.binoc{2}.(f{j}))
+        fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binoc{2}.(f{j}));
+        else
         fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{2}.(f{j}));
+        end
     end
     end
     
@@ -440,12 +463,24 @@ function SendState(DATA, varargin)
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
     for j = 1:length(f)
-        fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{1}.(f{j}));
+        if strmatch(f{j},{'Bh' 'Bc' 'Bs'},'exact')
+        elseif ischar(DATA.binoc{1}.(f{j}))
+        fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binoc{2}.(f{j}));
+        else
+        fprintf(DATA.outid,'%s=%s\n',f{j},sprintf('%.6f ',DATA.binoc{1}.(f{j})));
+        end
+    end
+    for j = 1:length(DATA.quickexpts)
+        if length(DATA.quickexpts(j).submenu)
+            fprintf(DATA.outid,'qe="%s"%s\n',DATA.quickexpts(j).submenu,DATA.quickexpts(j).filename);
+        else
+            fprintf(DATA.outid,'qe=%s\n',DATA.quickexpts(j).filename);
+        end
     end
     SendCode(DATA,'optionflag');
     SendCode(DATA,'expts');
     
-    fprintf(DATA.outid,'eventcontinue\n');
+    fprintf(DATA.outid,'\neventcontinue\n');
 
 function SaveExpt(DATA, name)
     fid = fopen(name,'w');
@@ -531,6 +566,9 @@ function val = ReadVal(s, DATA)
     [val, n] = sscanf(s,'%f');
     if n == 0
         val = sscanf(s(3:end),'%f');
+        if isempty(val)
+            val = 0;
+        end
         if strmatch(s(1:2),ccodes)
             id = strmatch(s(1:2),ccodes);
             val = val + DATA.binoc{1}.(truecodes{id});
@@ -548,6 +586,7 @@ DATA.Trial.sv = [];
 DATA.psych.show = 1;
 DATA.psych.blockmode = 'all';
 DATA.psych.blockid = [];
+DATA.overcmds = {};
 
 DATA.nt = 1;
 DATA.exptype = [];
@@ -607,6 +646,7 @@ DATA.tag.penlog = 'Penetration Log';
 DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
 DATA.comcodes(1).const = 1;
+DATA.comcodes(1).type = 'num';
 DATA.strcodes(1).label = 'Monitor file';
 DATA.strcodes(1).code = 'monitor';
 DATA.strcodes(1).icode = 0; 
@@ -705,9 +745,11 @@ function ShowStatus(DATA)
     if DATA.inexpt
         str = datestr(DATA.Expts{DATA.nexpts}.Start);
         str = ['Started ' str(13:17)];
-    else
+    elseif DATA.nexpts > 0
         str = datestr(DATA.Expts{DATA.nexpts}.End);
         str = ['Ended ' str(13:17)];
+    else
+        str = [];
     end
     s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...
     DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4),...
@@ -939,6 +981,8 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Stop Timer','Callback',{@ReadIO, 4});
     uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5});
     uimenu(hm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
+    uimenu(hm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
+    uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8});
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
@@ -967,8 +1011,12 @@ function DATA = InitInterface(DATA)
         end
     elseif strmatch(type,{'st' 'bs'})
         id = strmatch(type,{'st' 'bs'});
+        if val > 0
         DATA.stimtype(id) = val;
         fprintf(DATA.outid,'%s=%s\n',type,DATA.stimulusnames{val});
+        else
+            fprintf('Cant set stim < 1\n');
+        end
     end
     set(DATA.toplevel,'UserData',DATA);
      
@@ -1133,12 +1181,27 @@ function MenuGui(a,b)
         stop(DATA.timerobj)
      elseif flag == 5
         DATA = ReadFromBinoc(DATA,'reset');   
+        fprintf(DATA.outid,'\neventcontinue\n');
+        if ~strcmp(get(DATA.timerobj,'Running'),'on')
         start(DATA.timerobj);
+        end
      elseif flag == 6
         stop(DATA.timerobj);
-         OpenPipes(DATA, 0);
+         DATA = OpenPipes(DATA, 0);
          SendState(DATA,'all');
+         fprintf(DATA.outid,'QueryState\n');
+        DATA = ReadFromBinoc(DATA);   
         start(DATA.timerobj);
+        
+     elseif flag == 7
+         if DATA.verbose > 0
+             DATA.verbose = 0;
+             set(a,'Label','verbose pipes');
+         else
+             DATA.verbose = 2;
+             set(a,'Label','Quiet pipes');
+         end
+         set(DATA.toplevel,'UserData',DATA);
      else
         DATA = ReadFromBinoc(DATA);   
         SetGui(DATA);
@@ -1158,11 +1221,12 @@ function MenuGui(a,b)
     SetTextItem(DATA.toplevel,'Expt2Mean',DATA.mean(2));
     SetTextItem(DATA.toplevel,'Expt3Mean',DATA.mean(3));
     SetTextItem(DATA.toplevel,'DataFileName',DATA.datafile);
-    id = strmatch(DATA.exptype{1},DATA.expmenucodes{1});
+    SetTextItem(DATA.toplevel,'binoc.nr',DATA.binoc{1}.nr);
+    id = strmatch(DATA.exptype{1},DATA.expmenucodes{1},'exact');
     SetMenuItem(DATA.toplevel, 'Expt1List', id);
-    id = strmatch(DATA.exptype{2},DATA.expmenucodes{2});
+    id = strmatch(DATA.exptype{2},DATA.expmenucodes{2},'exact');
     SetMenuItem(DATA.toplevel, 'Expt2List', id);
-    id = strmatch(DATA.exptype{3},DATA.expmenucodes{3});
+    id = strmatch(DATA.exptype{3},DATA.expmenucodes{3},'exact');
     SetMenuItem(DATA.toplevel, 'Expt3List', id);
     SetMenuItem(DATA.toplevel, 'ForegroundType', DATA.stimtype(1));
     SetMenuItem(DATA.toplevel, 'BackgroundType', DATA.stimtype(2));
@@ -1205,6 +1269,11 @@ if length(value) == 1
      it = findobj(top,'Tag',tag);
      if ~isempty(it)
          set(it,'value',value);
+     end
+elseif length(value) > 1
+     it = findobj(top,'Tag',tag);
+     if ~isempty(it)
+         set(it,'value',value(1));
      end
 end
 
@@ -1418,7 +1487,7 @@ bp = [0.01 0.99-1/nr 1./nc 1./nr];
 for j = 1:length(f)
     bp(1) = floor(j/nr) .* 1./nc;
     bp(2) = 1- (rem(j,nr) .* 1./nr);
-    uicontrol(gcf,'style','checkbox','string',DATA.optionstrings.(f{j}), ...
+    uicontrol(gcf,'style','checkbox','string',[DATA.optionstrings.(f{j}) '(' f{j} ')'], ...
         'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
 end
 nf = j;
@@ -1564,28 +1633,37 @@ function SendCode(DATA, code)
             return;
         end
     end
-    
-    if strcmp(code,'optionflag')
-    s = 'op=';
-    f = fields(DATA.optionflags);
-    for j = 1:length(f)
-        if DATA.optionflags.(f{j})
-            s = [s '+' f{j}];
-        else
-%            s = [s '-' f{j}];
-        end
+    s = CodeText(DATA, code);
+    if length(s)
+    fprintf(DATA.outid,'%s\n',s);
     end
-    fprintf(DATA.outid,'op=0\n%s\n',s);
-    fprintf(DATA.outid,'%s\n',StimToggleString(DATA));
+    
+function s = CodeText(DATA,code)
+s = [];
+if strcmp(code,'optionflag')
+        s = 'op=';
+        f = fields(DATA.optionflags);
+        for j = 1:length(f)
+            if DATA.optionflags.(f{j})
+                s = [s '+' f{j}];
+            else
+    %            s = [s '-' f{j}];
+            end
+        end
+        s = sprintf('op=0\n%s\n',s);
+        s= [s sprintf('%s\n',StimToggleString(DATA))];
+        fprintf('%s\n',s);
+    elseif strcmp(code,'nr')
+        s = sprintf('%s=%d\n',code,DATA.binoc{1}.nr);
+    elseif strmatch(code,{'nt' 'n2' 'n3'})
+        id = strmatch(code,{'nt' 'n2' 'n3'});
+        s = sprintf('%s=%d\n',code,DATA.nstim(id));
     elseif strcmp(code,'expts')
-        s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
-        fprintf(DATA.outid,'%s\n',s);
-        s = sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2));
-        fprintf(DATA.outid,'%s\n',s);
-        s = sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3));
-        fprintf(DATA.outid,'%s\n',s);
+        s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
+        s = [s sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2))];
+        s = [s sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3))];
     elseif isfield(DATA.binoc,code)
-        s = fprintf(DATA.outid,'%s=%.6f\n',code,DATA.binoc.(code));
+        s = sprintf('%s=%.6f\n',code,DATA.binoc.(code));
     end
         
 function StimToggle(a,b, flag)       
@@ -1630,13 +1708,19 @@ if DATA.outid > 0
 end
 fprintf('%s\n',txt);
 set(a,'string','');
-
+if isempty(txt)
+return;
+end
 DATA = ReadFromBinoc(DATA,'from TextEntered ');
 a =  get(DATA.txtrec,'string');
 n = size(a,1);
 if txt(end) == '='
     code = txt(1:end-1);
-    if isfield(DATA.binoc{DATA.currentstim},code)
+    if strcmp(code,'op')
+       txt = ['?' CodeText(DATA, 'optionflag')];       
+    elseif strmatch(code,{'nr' 'nt' 'n2' 'n3'})
+       txt = ['?' CodeText(DATA, code)];       
+    elseif isfield(DATA.binoc{DATA.currentstim},code)
     txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
     elseif isfield(DATA.binocstr,code)
         txt = ['?' txt '?' DATA.binocstr.(code)];
@@ -1646,6 +1730,13 @@ a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
 
+function AddTextToGui(DATA, txt)
+a =  get(DATA.txtrec,'string');
+n = size(a,1);
+a(n+1,1:length(txt)) = txt;
+set(DATA.txtrec,'string',a);
+set(DATA.txtrec,'listboxtop',n+1);
+        
 
     
     
@@ -1653,9 +1744,12 @@ function ChoosePsych(a,b, mode)
     DATA = GetDataFromFig(a);
     onoff = {'off' 'on'};
     
-    if strmatch(mode,{'Current','All'})
+    if strmatch(mode,{'Current','All' 'None'})
         DATA.psych.blockmode = mode;
         PlotPsych(DATA);
+        c = get(get(a,'parent'),'children');
+        set(c,'checked','off');
+        set(a,'checked','on');
     elseif strmatch(mode,'Pause')
         DATA.psych.show = ~DATA.psych.show;
         set(a,'Checked',onoff{DATA.psych.show+1});
@@ -1673,6 +1767,7 @@ function SetFigure(tag, DATA)
             hm = uimenu(a, 'Label','Expts');
             uimenu(hm,'Label', 'Current','Callback',{@ChoosePsych, 'Current'});
             uimenu(hm,'Label', 'All','Callback',{@ChoosePsych, 'All'});
+            uimenu(hm,'Label', 'None','Callback',{@ChoosePsych, 'None'});
             set(a,'UserData',DATA.toplevel);
         end
     end
@@ -1690,6 +1785,9 @@ function PlotPsych(DATA)
     
     
     if isempty(DATA.Expts) || isempty(DATA.Trials)
+        return;
+    end
+    if strmatch(DATA.psych.blockmode,'None')
         return;
     end
     DATA = CheckExpts(DATA);

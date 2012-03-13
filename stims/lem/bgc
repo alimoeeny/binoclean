@@ -3,7 +3,7 @@ monitor=/local/monitors/Default
 mo=0
 mo=+db+zb
 op=0
-op=+gs+72+se+fc+fb+ap+wt+cf+ws+sw+bw+cs+bm+gm+da+cS-C3+FN
+op=+gs+72+se+fc+fb+ap+wt+cf+ws+sw+bw+cs+bm+gm+da+cS-Cnf3+FN
 mo=fore
 xo=3.08        #Fore X offset
 yo=-3.28        #Fore Y offset
@@ -190,7 +190,7 @@ cj=0.00	#mean conjugate
 rw=0.0800	#Reward Size
 vh=1.00	#Vergence RAMP and Hold
 ti1.000	#TIMEOUT
-so=0 0 0 0	#Software Offsets 62 
+so=0 0 0 800	#Software Offsets 62 
 ra=1.00	#Ramp Amplitude
 lb=0.00	#Initial Blank Period
 vw=0.00	#Vergence Window
@@ -505,5 +505,6 @@ afcwinxy=200 200
 Sa=0.45
 St=0.2
 cmdfile=/bgc/data/psych/lem/exptcmd
+monkey=lem
 
 
