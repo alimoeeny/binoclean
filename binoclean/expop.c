@@ -1464,6 +1464,7 @@ void PrintCodes(int mode)
             return;
         switch(i){
             case STIMULUS_FLAG:
+            case SHOWFLAGS_CODE:
             ctype = 'C';
                 break;
             default:
@@ -4278,6 +4279,22 @@ int ReadCommand(char *s)
         check_for_monkey = 0;
         printf("Not Checking for running without monkey\n");
     }
+    else if(!strncmp(s,"test",4)){
+//        InterpretLine("op=+iz",&expt, 2);
+//                ChangeFlag("+iz");
+//        PlotAlloc(&expt);
+//        PlotAlloc(&expt);
+            glDrawBuffer(GL_BACK);
+//        statusline("test");
+
+        
+//        ShowTrialsNeeded();
+//        setstimuli(1);
+//        ListExpStims(NULL);
+        //CheckOption(57);
+//    setoption();
+//    SerialSend(OPTION_CODE);
+    }
     else if(!strncasecmp(s,"rndinit",4)){
         InitRndArray(expt.st->left->baseseed,10000000);
     }
@@ -5890,6 +5907,7 @@ void plotpsychdata(struct plotdata *plot)
     glLineStipple(1,0xff);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth(1);
+ 
 }
 
 

@@ -38,3 +38,5 @@ Things that need fixing:
 -AFC shows set but is not after loading lem bwlatest
 -turning of hx doesn't always work - eg from bwlatest to plaidor45
 -vhpos expt type not implemented
+-why doenst keyboard tab work when binoclean is running
+-turn off screensaver in binoc

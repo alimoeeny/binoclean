@@ -1863,6 +1863,7 @@ void ButtonReleased(vcoord *start, vcoord *end, WindowEvent e)
     if(e.mouseButton == Button2 && TheStim->type == STIM_NONE){
         RewardOn(0);
     }
+    glDrawBuffer(GL_BACK);
 }
 
 void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
@@ -2293,6 +2294,7 @@ void Box(int a, int b, int c, int d, float color)
     pt[1] = winsiz[1] - b;
     myvx(pt);
     glEnd();
+    glDrawBuffer(GL_BACK);
 }
 
 
@@ -2314,6 +2316,8 @@ void VisLine(int a, int b, int c, int d, float color)
     pt[1] = d - winsiz[1];
     myvx(pt);
     glEnd();
+    glDrawBuffer(GL_BACK);
+    
 }
 
 float getangle(vcoord *wp, vcoord *sp)
@@ -2380,6 +2384,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
     myvx(pt);
     glEnd();
     glPopMatrix();
+       glDrawBuffer(GL_BACK);
     return(pt[1]);
 }
 
@@ -4709,7 +4714,7 @@ void search_background()
 {
     int i,j,xstep,ystep,rnd,nb;
     int oldoption = optionflag;
-    float val,vborder,hborder;
+    float val,vborder,hborder,rndval;
     int forcecalc = 1;
     ystep = xstep = 70;
     
@@ -4758,6 +4763,8 @@ void search_background()
         tempstim->left->nbars = tempstim->right->nbars = nb;
         tempstim->noclear = 1;
         
+ 
+        rndval = (float)(newtimeout*expt.st->angleinc);
         init_stimulus(tempstim);
         srandom(TheStim->left->baseseed);
         nb = 0;
@@ -4767,7 +4774,7 @@ void search_background()
             for(j = ystep/2-1024/2+vborder; j < 1024/2-vborder; j += ystep)
             {
                 rnd = random();
-                val = (float)(rnd%134);
+                val = (float)(rnd%134) + rndval;
                 if(rnd & 0x100)
                     val = (val * val)/99.7;
                 else
@@ -4840,6 +4847,7 @@ void start_timeout(int mode)
         }
         glClear(GL_COLOR_BUFFER_BIT);
         glFlushRenderAPPLE();
+        glDrawBuffer(GL_BACK);
     }
 	gettimeofday(&starttimeout,NULL);
     
@@ -4860,6 +4868,7 @@ void start_timeout(int mode)
             glDrawBuffer(GL_FRONT_AND_BACK);
             setmask(ALLMODE);
             search_background();
+               glDrawBuffer(GL_BACK);
             break;
 	    case BAD_FIXATION:
             fixstate = BADFIX_STATE;
@@ -4937,6 +4946,7 @@ void end_timeout()
     sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
     SerialString(buf,0);
     newtimeout = 1;
+       glDrawBuffer(GL_BACK);
     
 }
 
@@ -5925,6 +5935,7 @@ void testcolor()
         myvx(x);
     }
     glEnd();
+       glDrawBuffer(GL_BACK);
 }
 
 
@@ -6019,6 +6030,7 @@ int next_frame(Stimulus *st)
                     setmask(ALLMODE);
                     search_background();
                     end_timeout();
+                       glDrawBuffer(GL_BACK);
                 }
             }
             if(timeout_type == SHAKE_TIMEOUT_PART1)
@@ -6586,7 +6598,7 @@ int next_frame(Stimulus *st)
             glDrawBuffer(GL_BACK);
             glFinishRenderAPPLE();
             stimstate = WAIT_FOR_RESPONSE;
-            ShowTrialCount(0.0, wsum);
+
             break;
         case WAIT_FOR_RESPONSE:
             if(rdspair(expt.st))
@@ -6714,7 +6726,6 @@ int next_frame(Stimulus *st)
                     fprintf(seroutfile,"#stimno %d\n",stimno);
                 fixstate = INTERTRIAL;
                 stimstate = POSTTRIAL;
-                ShowTrialCount(0.0, wsum);
                 fsleep(0.05);
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);

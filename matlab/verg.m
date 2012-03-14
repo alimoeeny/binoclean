@@ -188,7 +188,6 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'over',4)
         DATA.over = 1;
     elseif strncmp(s,'pf=',3)
-        DATA.currentstim = 4;
         s = strrep(s,'+2a','+afc');
         s = [s '+'];
         id = regexp(s,'[+-]');
@@ -434,11 +433,11 @@ function SendState(DATA, varargin)
     
     fprintf(DATA.outid,'\neventpause\n');
     
+    
+    fprintf(DATA.outid,'mo=fore\n');
     if sendview
         SendCode(DATA,{'px''py''vd'});
     end
-    
-    fprintf(DATA.outid,'mo=fore\n');
     f = fields(DATA.binocstr);
     for j = 1:length(f)
         if length(DATA.binocstr.(f{j})) > 0
@@ -451,7 +450,8 @@ function SendState(DATA, varargin)
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
 
     for j = 1:length(f)
-        if ischar(DATA.binoc{2}.(f{j}))
+        if strmatch(f{j},DATA.redundantcodes,'exact')
+        elseif ischar(DATA.binoc{2}.(f{j}))
         fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binoc{2}.(f{j}));
         else
         fprintf(DATA.outid,'%s=%.6f\n',f{j},DATA.binoc{2}.(f{j}));
@@ -463,9 +463,10 @@ function SendState(DATA, varargin)
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
     for j = 1:length(f)
-        if strmatch(f{j},{'Bh' 'Bc' 'Bs'},'exact')
+        if strmatch(f{j},DATA.redundantcodes,'exact')
+            fprintf('Not sending %s\n',f{j});
         elseif ischar(DATA.binoc{1}.(f{j}))
-        fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binoc{2}.(f{j}));
+        fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binoc{1}.(f{j}));
         else
         fprintf(DATA.outid,'%s=%s\n',f{j},sprintf('%.6f ',DATA.binoc{1}.(f{j})));
         end
@@ -582,6 +583,7 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.Trial.Trial = 1;
+DATA.windowcolor = [0.8 0.8 0.8];
 DATA.Trial.sv = [];
 DATA.psych.show = 1;
 DATA.psych.blockmode = 'all';
@@ -602,7 +604,7 @@ DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
 DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
-DATA.verbose = 2;
+DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
@@ -625,6 +627,8 @@ DATA.stimulusnames{13} = 'corrug';
 DATA.stimulusnames{14} = 'sqcorrug';
 DATA.stimulusnames{15} = 'twobar';
 DATA.stimulusnames{16} = 'rls';
+DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'oP' 'pP' 'sO' 'bO'};
+DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
 
 DATA.badnames = {'2a''4a' '72'};
 DATA.badcodes = [20 20 20];
@@ -914,7 +918,7 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.01;
     bp(2) = bp(2)+bp(4);
     bp(3) = cw;
-    uicontrol(gcf,'style','text','string','Fore',  'units', 'norm', 'position',bp);
+    uicontrol(gcf,'style','text','string','Fore',  'units', 'norm', 'Tag','CurrentStimLabel','position',bp);
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = cw;
     uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
@@ -1230,7 +1234,13 @@ function MenuGui(a,b)
     SetMenuItem(DATA.toplevel, 'Expt3List', id);
     SetMenuItem(DATA.toplevel, 'ForegroundType', DATA.stimtype(1));
     SetMenuItem(DATA.toplevel, 'BackgroundType', DATA.stimtype(2));
-
+    it= findobj(DATA.toplevel,'Tag','CurrentStimLabel');
+    set(it,'string',DATA.stimlabels{DATA.currentstim});
+    if DATA.currentstim > 1
+        set(it,'backgroundcolor','r');
+    else
+        set(it,'backgroundcolor', DATA.windowcolor);
+    end
     it = findobj(DATA.toplevel,'Tag','RunButton');
     if DATA.inexpt
         set(it,'string','Cancel');
@@ -1703,13 +1713,22 @@ function OtherToggles(a,b,flag)
 function TextEntered(a,b)
     DATA = GetDataFromFig(a);
 txt = get(a,'string');
+if isempty(txt)
+return;
+end
+id = strfind(txt,'=')
+if isstrprop(txt(1),'digit') || txt(1) == '-'
+    txt = [DATA.lastcmd txt];
+elseif length(id)
+    DATA.lastcmd = txt(1:id(1));
+end
 if DATA.outid > 0
     fprintf(DATA.outid,'%s\n',txt);
 end
 fprintf('%s\n',txt);
 set(a,'string','');
-if isempty(txt)
-return;
+if txt(end) ~= '='
+    DATA = InterpretLine(DATA,txt);
 end
 DATA = ReadFromBinoc(DATA,'from TextEntered ');
 a =  get(DATA.txtrec,'string');
@@ -1729,6 +1748,9 @@ end
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
+set(DATA.toplevel,'UserData',DATA);
+SetGui(DATA);
+
 
 function AddTextToGui(DATA, txt)
 a =  get(DATA.txtrec,'string');
