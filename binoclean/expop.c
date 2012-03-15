@@ -858,11 +858,11 @@ void SetExpVals()
     }
 }
 
-int *AdjustEyePos(int len)
+double *AdjustEyePos(int len)
 {
     int i,j,n,k;
     float sum[4];
-    static int adj[4]= {0};
+    static double adj[4]= {0};
     
     /*
      * Go backwards from wurtzctr until have enough good trials
@@ -890,7 +890,7 @@ int *AdjustEyePos(int len)
 
 int CheckEyeDrift()
 {
-    int *err;
+    double *err;
     int i,ngood = 0;
     
     for(i = lasteyecheck; i < wurtzctr; i++)
@@ -2885,7 +2885,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     int postframes;
     int evtype = NULL;
     
-    if(exp->cmdtype == 2)
+    if(exp->cmdtype == 2) // from verg
         evtype = MANUALEVENT;
     
     
@@ -7091,7 +7091,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             strcat(cbuf,"\n\0");
             break;
         case SOFTOFF_CODE:
-            sprintf(cbuf,"%s%s%d %d %d %d",serial_strings[code],
+            sprintf(cbuf,"%s%s%.2f %.2f %.2f %2f",serial_strings[code],
                     temp,expt.softoff[0],expt.softoff[1],
                     expt.softoff[2],expt.softoff[3]);
             break;
@@ -13548,8 +13548,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     //	printf("%s\n",line);
     gettimeofday(&now,NULL);
-    if (frompc > 0)
-        ex->cmdtype = 1;
+/*
+ * exp->cmdtype controls whether or not this line is send down the serial line. If it has come from verg, needs 
+ * to go. So SetExptProberpty will set the event type to match
+ */
+    ex->cmdtype = frompc;
     if(lineflag & BACKSTIM_BIT)
         TheStim = ex->st->next;
     TheStim = stimptr;
@@ -14186,7 +14189,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             break;
         case SOFTOFF_CODE:
-            sscanf(s,"%d %d %d %d",&expt.softoff[0],
+            sscanf(s,"%f %f %f %f",&expt.softoff[0],
                    &expt.softoff[1],&expt.softoff[2],
                    &expt.softoff[3]);
             //ALi SetWPanel();

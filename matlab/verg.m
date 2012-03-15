@@ -136,7 +136,8 @@ for j = 1:length(strs{1})
         DATA.Expts{DATA.nexpts}.End = now;
         DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
         end
-        SetGui(DATA);
+        DATA = GetState(DATA);
+        SetGui(DATA,'set');
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
         DATA.extypes{1} = DATA.extypes{1}+1;
@@ -536,8 +537,12 @@ if readflag
 fprintf(DATA.outid,'QueryState\n');
 DATA = ReadFromBinoc(DATA);
 end
-SetGui(DATA);
-        
+SetGui(DATA,'set');
+ 
+    
+function DATA = GetState(DATA)
+    fprintf(DATA.outid,'QueryState\n');
+    DATA = ReadFromBinoc(DATA);
 
 function DATA = SetTrial(DATA, T)
     Trial = T;
@@ -617,7 +622,7 @@ DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
 DATA.electrodestring = 'default';
-DATA.monkey = 'lem';
+DATA.binocstr.monkey = 'lem';
 DATA.penid = 0;
 DATA.stimulusnames{1} = 'none';
 DATA.stimulusnames{4} = 'grating';
@@ -1044,31 +1049,52 @@ function DATA = InitInterface(DATA)
     
 function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);
-    if strcmp(type,'list')
-        rfile = ['/local/' DATA.binoc{1}.monkey '/front.*'];
+        fprintf('Recover called with %s\n',type);
+    if strmatch(type,{'list'});
+        rfile = ['/local/' DATA.binocstr.monkey '/front.*'];
         d = dir(rfile);
 
+        if strcmp(type,'list')
         hm = get(a,'parent');
+        else
+            hm = a;
+        end
         c = get(hm,'Children');
         delete(c);
+        uimenu(hm,'Label','List','callback',{@RecoverFile, 'list'});
+        [a,id] = sort([d.datenum]);
+        d = d(id);
         for j = 1:length(d)
             uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(7:end)});
         end
     elseif strmatch(type,{'eostim' 'ebstim' '1stim' '2stim' '3stim' '0stim'})
-        rfile = ['/local/' DATA.binoc{1}.monkey '/front.' type];
-        ReadStimFile(DATA, rfile);
+        rfile = ['/local/' DATA.binocstr.monkey '/front.' type];
+        dfile = ['/local/' DATA.binocstr.monkey '/front.today'];
+        copyfile(rfile,dfile);
+        ReadStimFile(DATA, dfile);
+    else
+        fprintf('Recover called with %s\n',type);
     end
     
     
 function SaveFile(a,b,type)
 
     DATA = GetDataFromFig(a);
+    if ~isfield(DATA,'stimfilename')
+        DATA.stimfilename = ['/local/' DATA.binocstr.monkey '/stims/auto.stm'];
+    end
     if strcmp(type,'current')
         filename = DATA.stimfilename;
         SaveExpt(DATA, filename)
     elseif strcmp(type,'saveas')
+        [a,b,c] = fileparts(DATA.stimfilename);
+        if isempty(c)
+            DATA.stimfilename = [DATA.stimfilename '.stm'];
+        end
         [outname, path] = uiputfile(DATA.stimfilename, 'Save Expt As');
+        if outname ~= 0
         SaveExpt(DATA, [path '/' outname]);
+        end
     end
     
  function EditList(a,b)
@@ -1247,15 +1273,15 @@ function MenuGui(a,b)
      end
 
  function SetGui(DATA,varargin)
+     if ~isfield(DATA,'toplevel')
+         return;
+     end
      j = 1;
      while j <= length(varargin)
          if strncmpi(varargin{j},'set',3)
              set(DATA.toplevel,'UserData',DATA);
          end
          j = j+1;
-     end
-     if ~isfield(DATA,'toplevel')
-         return;
      end
     SetTextItem(DATA.toplevel,'Expt1Nstim',DATA.nstim(1));
     SetTextItem(DATA.toplevel,'Expt2Nstim',DATA.nstim(2));
@@ -1441,7 +1467,8 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.End = now;
             DATA.optionflags.do = 0;
         end
-    DATA = ReadFromBinoc(DATA);
+    DATA = GetState(DATA);
+%    DATA = ReadFromBinoc(DATA);
     set(DATA.toplevel,'UserData',DATA);
     
     SetGui(DATA);
@@ -1758,7 +1785,8 @@ txt = get(a,'string');
 if isempty(txt)
 return;
 end
-id = strfind(txt,'=')
+
+id = strfind(txt,'=');
 if isstrprop(txt(1),'digit') || txt(1) == '-'
     txt = [DATA.lastcmd txt];
 elseif length(id)
@@ -1767,7 +1795,21 @@ end
 if DATA.outid > 0
     fprintf(DATA.outid,'%s\n',txt);
 end
-fprintf('%s\n',txt);
+
+
+str = [];
+if id
+    code = txt(1:id(1)-1);
+    id = strmatch(code,{DATA.comcodes.code},'exact');
+    if length(id)
+        str = DATA.comcodes(id(1)).label;
+    else
+    id =  strmatch(code,{DATA.strcodes.code},'exact');
+    if length(id)
+        str = DATA.strcodes(id(1)).label;
+    end
+    end
+end
 set(a,'string','');
 if txt(end) ~= '='
     DATA = InterpretLine(DATA,txt);
@@ -1778,14 +1820,28 @@ n = size(a,1);
 if txt(end) == '='
     code = txt(1:end-1);
     if strcmp(code,'op')
-       txt = ['?' CodeText(DATA, 'optionflag')];       
+       txt = ['?' CodeText(DATA, 'optionflag')]; 
+       str = 'Optionflag';
     elseif strmatch(code,{'nr' 'nt' 'n2' 'n3'})
        txt = ['?' CodeText(DATA, code)];       
+       str = 'Nstim';
     elseif isfield(DATA.binoc{DATA.currentstim},code)
-    txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
+       txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
+       id = strmatch(code,{DATA.comcodes.code},'exact');
+       if length(id)
+        str = DATA.comcodes(id(1)).label;
+       end
     elseif isfield(DATA.binocstr,code)
         txt = ['?' txt '?' DATA.binocstr.(code)];
+       id =  strmatch(code,{DATA.strcodes.code},'exact');
+       if length(id)
+           str = DATA.strcodes(id(1)).label;
+       end
     end
+
+end
+if length(str)
+    txt = [txt '(' str ')'];
 end
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);

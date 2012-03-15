@@ -95,7 +95,7 @@ int PrintInfo(FILE *fd);
 int SetTargets();
 void RunWaterAlarm();
 void SetExpVals();
-int *AdjustEyePos(int len);
+//int *AdjustEyePos(int len);
 int CheckEyeDrift();
 void write_windowpos(FILE *ofd);
 void write_expvals(FILE *ofd, int flag);
