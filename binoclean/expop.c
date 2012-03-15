@@ -3091,8 +3091,10 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
             expt.vals[flag] = val;
             dx = sin(expt.vals[FP_MOVE_DIR]) * val * expt.vals[CHANGE_SEED];
             dy = cos(expt.vals[FP_MOVE_DIR]) * val * expt.vals[CHANGE_SEED];
+            if (fabs(val) > 0){
             expt.st->pos.xy[0] = deg2pix(expt.vals[XPOS] - dx);
             expt.st->pos.xy[1] = deg2pix(expt.vals[YPOS] - dy);
+            }
             break;
         case REWARD_SIZE1:
         case REWARD_SIZE2:

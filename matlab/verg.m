@@ -293,9 +293,11 @@ for j = 1:length(strs{1})
         id = strmatch(s(4:end),DATA.stimulusnames,'exact');
 
     elseif strncmp(s, 'st', 2)
-        id = strmatch(s(4:end),DATA.stimulusnames,'exact');
+        id = strmatch(deblank(s(4:end)),DATA.stimulusnames,'exact');
+        if length(id) == 1
         DATA.stimtype(DATA.currentstim) = id;
-        DATA.binocstr.st = s(4:end);
+        DATA.binocstr.st = deblank(s(4:end));
+        end
     elseif strmatch(code,{DATA.strcodes.code},'exact')
         id = strfind(s,'=');
         if id
@@ -633,7 +635,7 @@ DATA.stimulusnames{13} = 'corrug';
 DATA.stimulusnames{14} = 'sqcorrug';
 DATA.stimulusnames{15} = 'twobar';
 DATA.stimulusnames{16} = 'rls';
-DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp'};
+DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp' 'O2' 'lf' 'rf'};
 DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
 
 DATA.badnames = {'2a' '4a' '72'};
@@ -1244,7 +1246,14 @@ function MenuGui(a,b)
         SetGui(DATA);
      end
 
- function SetGui(DATA)
+ function SetGui(DATA,varargin)
+     j = 1;
+     while j <= length(varargin)
+         if strncmpi(varargin{j},'set',3)
+             set(DATA.toplevel,'UserData',DATA);
+         end
+         j = j+1;
+     end
      if ~isfield(DATA,'toplevel')
          return;
      end
@@ -1664,7 +1673,7 @@ function HitToggle(a,b, flag)
     fprintf('op=0\n%s\n',s);
     fprintf(DATA.outid,'op=0\n%s\n',s);
     ReadFromBinoc(DATA);
-    SetGui(DATA);
+    SetGui(DATA,'set');
  
    
     
