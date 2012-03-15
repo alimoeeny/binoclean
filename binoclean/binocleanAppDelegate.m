@@ -80,21 +80,25 @@ void ReadInputPipe()
     {
         for (int i = 0; i < inputPipeBuffer.count; i++) 
         {
-            inputLineChars = [[inputPipeBuffer objectAtIndex:i] UTF8String];
-            if (strncmp(inputLineChars, "whatsup", 7) == 0) 
-                sendNotification();
-            else if (strncmp(inputLineChars, "eventpause", 10) == 0) 
-            {
-                NSLog(@"PAUSED");
-                freeToGo = 0;
+            if(![(NSString *)[inputPipeBuffer objectAtIndex:i] isEqualToString:@""]){
+                inputLineChars = [[inputPipeBuffer objectAtIndex:i] UTF8String];
+                if (strncmp(inputLineChars, "whatsup", 7) == 0) 
+                    sendNotification();
+                else if (strncmp(inputLineChars, "eventpause", 10) == 0) 
+                {
+                    NSLog(@"PAUSED");
+                    freeToGo = 0;
+                }
+                else if (strncmp(inputLineChars, "eventcontinue", 10) == 0) 
+                {
+                    NSLog(@"FREE TO GO Again");
+                    freeToGo = 1;
+                }
+                else  {
+                    //                printf("Interpret:%s",inputLineChars);
+                    InterpretLine(inputLineChars, &expt, 2);
+                }
             }
-            else if (strncmp(inputLineChars, "eventcontinue", 10) == 0) 
-            {
-                NSLog(@"FREE TO GO Again");
-                freeToGo = 1;
-            }
-            else
-                InterpretLine(inputLineChars, &expt, 2);
         }
         inputLineChars = NULL;
         [inputPipeBuffer removeAllObjects];

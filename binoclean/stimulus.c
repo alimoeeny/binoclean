@@ -1128,6 +1128,7 @@ void calc_stimulus(Stimulus *st)
         case STIM_CHECKER:
         case STIM_RDS:
         case STIM_RLS:
+        case STIM_CYLINDER:
             /* 
              * Width and Length Disparities not allowed for this stimulus
              */
@@ -1950,6 +1951,7 @@ void calc_stimulus(Stimulus *st)
             st->next->pos.xy[1] = st->pos.xy[1];
             st->next->pos.lastxy[0] = st->pos.lastxy[0];
             st->next->pos.lastxy[1] = st->pos.lastxy[1];
+            st->next->flag = st->flag;
         }
         if(backdone == 0)
             calc_stimulus(st->next);

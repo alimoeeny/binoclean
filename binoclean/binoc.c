@@ -13,6 +13,7 @@
 #import <sys/time.h> 
 #import <termios.h> 
 #import <stdarg.h> 
+#import <unistd.h>
 #import <math.h> 
 #import <string.h> 
 #import "mymath.h" 
@@ -1456,15 +1457,60 @@ int SendTrialCount()
     notify(buf);
 }
 
-
-void SendAllToGui()
+void SendToGui(int code)
 {
     int i;
     time_t tval;
     char buf[BUFSIZ];
-    for(i = 0; i < MAXSERIALCODES; i++){
-        MakeString(i, buf, &expt, expt.st,TO_GUI);
+            
+    MakeString(code, buf, &expt, expt.st,TO_GUI);
+    notify(buf);
+    
+}
+
+void SendAllToGui()
+{
+    int i,j;
+    time_t tval;
+    char buf[BUFSIZ];
+    
+    
+    if(ChoiceStima->type != STIM_NONE){
+        notify("mo=ChoiceU\n");
+        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        {
+            buf[0] = '=';
+            buf[1] = 0;
+            if((j = MakeString(i, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
+                notify(buf);
+        }
+    }
+    if(ChoiceStimb->type != STIM_NONE){
+        notify("mo=ChoiceD\n");
+        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        {
+            buf[0] = '=';
+            buf[1] = 0;
+            if((j = MakeString(i, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
+                notify(buf);
+        }
+    }
+
+    if(expt.st->next != NULL){
+        notify("mo=back\n");
+        for (i = 0; i < LAST_STIMULUS_CODE;  i++)
+        {
+            MakeString(i, buf, &expt, expt.st->next,TO_GUI);
+            notify(buf);
+        }
+        MakeString(STIMULUS_FLAG, buf, &expt, expt.st->next,TO_GUI);
         notify(buf);
+        
+    }
+    notify("mo=fore\n");
+    for(i = 0; i < MAXTOTALCODES; i++){
+        if((j=MakeString(i, buf, &expt, expt.st,TO_GUI))>=0)
+            notify(buf);
     }
     i =0;
 
@@ -1839,6 +1885,7 @@ void ButtonReleased(vcoord *start, vcoord *end, WindowEvent e)
     if(e.mouseButton == Button2 && TheStim->type == STIM_NONE){
         RewardOn(0);
     }
+    glDrawBuffer(GL_BACK);
 }
 
 void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
@@ -2269,6 +2316,7 @@ void Box(int a, int b, int c, int d, float color)
     pt[1] = winsiz[1] - b;
     myvx(pt);
     glEnd();
+    glDrawBuffer(GL_BACK);
 }
 
 
@@ -2290,6 +2338,8 @@ void VisLine(int a, int b, int c, int d, float color)
     pt[1] = d - winsiz[1];
     myvx(pt);
     glEnd();
+    glDrawBuffer(GL_BACK);
+    
 }
 
 float getangle(vcoord *wp, vcoord *sp)
@@ -2356,6 +2406,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
     myvx(pt);
     glEnd();
     glPopMatrix();
+       glDrawBuffer(GL_BACK);
     return(pt[1]);
 }
 
@@ -2893,10 +2944,8 @@ void redraw_overlay(struct plotdata  *plot)
     }
     if(stimstate == STIMSTOPPED)
         ShowTime();
-    es = plot->stims;
-    for(i = 0; i < plot->nstim[0]; i++,es++)
-        if(es->flag & BOX_ON)
-            ShowBox(es, BOX_COLOR);
+
+
     if((pl = plot->linedata) != NULL)
         for(i = 0; i <= expt.nlines; i++,pl+=4)
             MyLine(pl[0],pl[1],pl[2],pl[3],LINES_COLOR);
@@ -2922,8 +2971,8 @@ void redraw_overlay(struct plotdata  *plot)
        && option2flag & PERF_STRING)
         setmask(ALLPLANES);
     /*  statusline(NULL);  redraws info line too often*/
-    glstatusline(NULL,2);
-    ShowPerformanceString(-1);
+//    glstatusline(NULL,2);
+//    ShowPerformanceString(-1);
     if(optionflag & SHOW_CONJUG_BIT)
     {
         draw_conjpos(cmarker_size,PLOT_COLOR);
@@ -3420,6 +3469,31 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->pos.sf = st->f = (left + right)/2;
             st->sf_disp = (left - right)/2;
             break;
+        case LRBINTERLEAVE:
+        case MONOCULARITY_EXPT:
+            /*
+             * this is normally set via ExptProperty, but is called here
+             * for RC sequences, so does not call setoption, SerialSend, etc
+             */
+            
+            /* 0 = Binoc, -1 = LEFT, 1 = RIGHT */
+            optionflag &= (~MONOCULAR_MODE);
+            // if setblank, make mode binocular, so that both eyes are wiped
+            newmonoc = 0;
+            if(setblank){
+                ;
+            }
+		    
+            else if(val < -0.4){
+                optionflag |= LEFT_FIXATION_CHECK;
+                newmonoc = LEFT_FIXATION_CHECK;
+            }
+            else if (val > 0.4){
+                optionflag |= RIGHT_FIXATION_CHECK;
+                newmonoc = RIGHT_FIXATION_CHECK;
+            }
+            mode |= NEED_REPAINT;
+            break;
         case ORI_RIGHT:
             right = val * M_PI/180.0;
             left = pos->angle + st->ori_disp;
@@ -3893,14 +3967,32 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             SetStimulus(st,val,DISP_X,event);
             SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY] * -1);
             break;
+        case STIMORTHOG_POS:
+            fval = 0; // for now, force other direction to be centered
+            cval = StimulusProperty(st,ASPECT_RATIO);
+            if(cval > 1){
+                cosa = cos(expt.st->pos.angle);
+                sina = sin(expt.st->pos.angle);
+            }
+            else{
+                cosa = cos(expt.st->pos.angle+M_PI_2);
+                sina = sin(expt.st->pos.angle+M_PI_2);
+            }
+            bval = (val * sina - fval * cosa);
+            cval = (fval * sina + val * cosa);
+            bval =  pix2deg(expt.rf->pos[0]) - bval;
+            cval +=  pix2deg(expt.rf->pos[1]);
+            SetStimulus(st,bval,XPOS,event);
+            SetStimulus(st,cval,YPOS,event);
+            break;
         case ABS_ORTHOG_POS:
             fval = GetProperty(&expt, st, PARA_POS);
             cosa = cos(expt.rf->angle * M_PI/180.0);
             sina = sin(expt.rf->angle * M_PI/180.0);
             bval = -(val * sina - fval * cosa);
             cval = (fval * sina + val * cosa);
-            SetStimulus(st,bval,XPOS,event);
-            SetStimulus(st,cval,YPOS,event);
+            SetStimulus(st,bval,RF_X,event);
+            SetStimulus(st,cval,RF_Y,event);
             break;
         case ORTHOG_POS:
             fval = GetProperty(&expt, st, PARA_POS);
@@ -3955,8 +4047,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             sina = sin(expt.rf->angle * M_PI/180.0);
             bval = -(val * sina - fval * cosa);
             cval = (fval * sina + val * cosa);
-            SetStimulus(st,bval,XPOS,event);
-            SetStimulus(st,cval,YPOS,event);
+            SetStimulus(st,bval,RF_X,event);
+            SetStimulus(st,cval,RF_Y,event);
             break;
         case DISP_X:
             if(val > INTERLEAVE_EXPT){
@@ -4208,7 +4300,6 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             if(st->next != NULL){
                 cval = StimulusProperty(st, SETCONTRAST);
                 bval = StimulusProperty(st->next, SETCONTRAST);
-            }
             if(val < 0){
                 SetStimulus(st, 1 - (cval+bval), SETCONTRAST, NULL);
                 SetStimulus(st->next, (cval+bval), SETCONTRAST, NULL);
@@ -4216,6 +4307,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             else{
                 SetStimulus(st, (cval+bval), SETCONTRAST, NULL);
                 SetStimulus(st->next, 1 - (cval+bval), SETCONTRAST, NULL);
+            }
             }
             break;
         case CONTRAST_PAIRS:
@@ -4644,7 +4736,7 @@ void search_background()
 {
     int i,j,xstep,ystep,rnd,nb;
     int oldoption = optionflag;
-    float val,vborder,hborder;
+    float val,vborder,hborder,rndval;
     int forcecalc = 1;
     ystep = xstep = 70;
     
@@ -4693,6 +4785,8 @@ void search_background()
         tempstim->left->nbars = tempstim->right->nbars = nb;
         tempstim->noclear = 1;
         
+ 
+        rndval = (float)(newtimeout*expt.st->angleinc);
         init_stimulus(tempstim);
         srandom(TheStim->left->baseseed);
         nb = 0;
@@ -4702,7 +4796,7 @@ void search_background()
             for(j = ystep/2-1024/2+vborder; j < 1024/2-vborder; j += ystep)
             {
                 rnd = random();
-                val = (float)(rnd%134);
+                val = (float)(rnd%134) + rndval;
                 if(rnd & 0x100)
                     val = (val * val)/99.7;
                 else
@@ -4775,6 +4869,7 @@ void start_timeout(int mode)
         }
         glClear(GL_COLOR_BUFFER_BIT);
         glFlushRenderAPPLE();
+        glDrawBuffer(GL_BACK);
     }
 	gettimeofday(&starttimeout,NULL);
     
@@ -4795,6 +4890,7 @@ void start_timeout(int mode)
             glDrawBuffer(GL_FRONT_AND_BACK);
             setmask(ALLMODE);
             search_background();
+               glDrawBuffer(GL_BACK);
             break;
 	    case BAD_FIXATION:
             fixstate = BADFIX_STATE;
@@ -4872,6 +4968,7 @@ void end_timeout()
     sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
     SerialString(buf,0);
     newtimeout = 1;
+       glDrawBuffer(GL_BACK);
     
 }
 
@@ -5860,6 +5957,7 @@ void testcolor()
         myvx(x);
     }
     glEnd();
+       glDrawBuffer(GL_BACK);
 }
 
 
@@ -5911,7 +6009,7 @@ int next_frame(Stimulus *st)
 	    markercolor = 1.0;
     
     markercolor = 1.0;
-    glstatusline(NULL,2);
+//    glstatusline(NULL,2);
 #ifdef MONITOR_CLOSE
     if(seroutfile && laststate != stimstate){
         fprintf(seroutfile,"#State %d %d VS%.1f\n",stimstate,fixstate,afc_s.sacval[1]);
@@ -5954,6 +6052,7 @@ int next_frame(Stimulus *st)
                     setmask(ALLMODE);
                     search_background();
                     end_timeout();
+                       glDrawBuffer(GL_BACK);
                 }
             }
             if(timeout_type == SHAKE_TIMEOUT_PART1)
@@ -6028,11 +6127,7 @@ int next_frame(Stimulus *st)
             }
             else
                 search_background();
-            if(newtimeout < 5){
-                redraw_overlay(expt.plot);
-                if(debug) glstatusline("Stopped",3);
-                glSwapAPPLE();
-            }
+            glSwapAPPLE();
             gettimeofday(&now,NULL);
             if(timediff(&now,&alarmstart) >  1){
                 RunWaterAlarm();
@@ -6525,7 +6620,7 @@ int next_frame(Stimulus *st)
             glDrawBuffer(GL_BACK);
             glFinishRenderAPPLE();
             stimstate = WAIT_FOR_RESPONSE;
-            ShowTrialCount(0.0, wsum);
+
             break;
         case WAIT_FOR_RESPONSE:
             if(rdspair(expt.st))
@@ -6653,7 +6748,6 @@ int next_frame(Stimulus *st)
                     fprintf(seroutfile,"#stimno %d\n",stimno);
                 fixstate = INTERTRIAL;
                 stimstate = POSTTRIAL;
-                ShowTrialCount(0.0, wsum);
                 fsleep(0.05);
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);
@@ -8383,7 +8477,9 @@ void SaveExptFile(char *filename,int flag)
 {
 	char cbuf[BUFSIZ];
 	char spacestr[BUFSIZ];
-	int i,j,go = 0;
+
+    
+    int i,j,go = 0;
 	FILE *ofd;
 	static int write_fail_acknowledged;
     
@@ -8392,6 +8488,7 @@ void SaveExptFile(char *filename,int flag)
 	if(seroutfile){
         fprintf(seroutfile,"#Save %d %s VS%.1f\n",flag,filename,afc_s.sacval[1]);
 	}
+    printf("Saving expt in %s\n",getcwd(cbuf, BUFSIZ));
 	if((ofd = fopen(filename,"w")) != NULL)
     {
 	    cbuf[0] = '=';
@@ -8596,6 +8693,7 @@ void SaveExptFile(char *filename,int flag)
          * becuase this included qe= lines, which we do not want. The other lines,
          * for custom EXPVALs are wanted
          */
+        
 		write_expvals(ofd,flag);
 		if(expt.hemisphere)
             fprintf(ofd,"RightHemisphere\n");
@@ -9543,10 +9641,7 @@ int GotChar(char c)
                 }
                 mode &= (~HOLD_STATUS);
                 ExptTrialOver(c);
-                StartOverlay();
-                redraw_overlay(expt.plot);
-                EndOverlay();
-                //Ali SetAllPanel(&expt);
+                    SendTrialCount();
                 break;
             case START_EXPT: /* this is sent when BW starts up send everything */
                 MakeConnection();

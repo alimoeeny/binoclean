@@ -73,7 +73,97 @@
 		41BF8E3D13A174FE00C8B6BA /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1B13A174FE00C8B6BA /* misc.c */; };
 		41BF8E3E13A174FE00C8B6BA /* myfree.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1D13A174FE00C8B6BA /* myfree.c */; };
 		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
+		C90350CC150D279800DFD9D3 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C90350CB150D279800DFD9D3 /* ali */; };
 		C9308B7E14F82EF50054C963 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = C9308B7D14F82EF50054C963 /* TODO.txt */; };
+		C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */ = {isa = PBXBuildFile; fileRef = C969F832150D233A00D7A5A7 /* lempsy110 */; };
+		C969F8CA150D233B00D7A5A7 /* bwlatest in Resources */ = {isa = PBXBuildFile; fileRef = C969F833150D233A00D7A5A7 /* bwlatest */; };
+		C969F8CB150D233B00D7A5A7 /* savetest in Resources */ = {isa = PBXBuildFile; fileRef = C969F834150D233A00D7A5A7 /* savetest */; };
+		C969F8CC150D233B00D7A5A7 /* rdsvpos in Resources */ = {isa = PBXBuildFile; fileRef = C969F835150D233A00D7A5A7 /* rdsvpos */; };
+		C969F8CD150D233B00D7A5A7 /* Butts in Resources */ = {isa = PBXBuildFile; fileRef = C969F836150D233A00D7A5A7 /* Butts */; };
+		C969F8CE150D233B00D7A5A7 /* imszbw in Resources */ = {isa = PBXBuildFile; fileRef = C969F837150D233A00D7A5A7 /* imszbw */; };
+		C969F8CF150D233B00D7A5A7 /* ButtsFpmove in Resources */ = {isa = PBXBuildFile; fileRef = C969F838150D233A00D7A5A7 /* ButtsFpmove */; };
+		C969F8D0150D233B00D7A5A7 /* rdsppos in Resources */ = {isa = PBXBuildFile; fileRef = C969F839150D233A00D7A5A7 /* rdsppos */; };
+		C969F8D1150D233B00D7A5A7 /* bgc in Resources */ = {isa = PBXBuildFile; fileRef = C969F83A150D233A00D7A5A7 /* bgc */; };
+		C969F8D2150D233B00D7A5A7 /* parapos in Resources */ = {isa = PBXBuildFile; fileRef = C969F83B150D233A00D7A5A7 /* parapos */; };
+		C969F8D3150D233B00D7A5A7 /* GridTest in Resources */ = {isa = PBXBuildFile; fileRef = C969F83C150D233A00D7A5A7 /* GridTest */; };
+		C969F8D4150D233B00D7A5A7 /* rdsor in Resources */ = {isa = PBXBuildFile; fileRef = C969F83D150D233A00D7A5A7 /* rdsor */; };
+		C969F8D5150D233B00D7A5A7 /* bwHgroup in Resources */ = {isa = PBXBuildFile; fileRef = C969F83E150D233A00D7A5A7 /* bwHgroup */; };
+		C969F8D6150D233B00D7A5A7 /* rdsrls in Resources */ = {isa = PBXBuildFile; fileRef = C969F83F150D233A00D7A5A7 /* rdsrls */; };
+		C969F8D7150D233B00D7A5A7 /* rdssz in Resources */ = {isa = PBXBuildFile; fileRef = C969F840150D233A00D7A5A7 /* rdssz */; };
+		C969F8D8150D233B00D7A5A7 /* imorbw in Resources */ = {isa = PBXBuildFile; fileRef = C969F841150D233A00D7A5A7 /* imorbw */; };
+		C969F8D9150D233B00D7A5A7 /* lempsy90 in Resources */ = {isa = PBXBuildFile; fileRef = C969F842150D233A00D7A5A7 /* lempsy90 */; };
+		C969F8DA150D233B00D7A5A7 /* opossaccade in Resources */ = {isa = PBXBuildFile; fileRef = C969F843150D233A00D7A5A7 /* opossaccade */; };
+		C969F8DB150D233B00D7A5A7 /* checkeror in Resources */ = {isa = PBXBuildFile; fileRef = C969F844150D233A00D7A5A7 /* checkeror */; };
+		C969F8DC150D233B00D7A5A7 /* Gaborafc in Resources */ = {isa = PBXBuildFile; fileRef = C969F845150D233A00D7A5A7 /* Gaborafc */; };
+		C969F8DD150D233B00D7A5A7 /* idisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F846150D233A00D7A5A7 /* idisp */; };
+		C969F8DE150D233B00D7A5A7 /* ACRC in Resources */ = {isa = PBXBuildFile; fileRef = C969F847150D233A00D7A5A7 /* ACRC */; };
+		C969F8DF150D233B00D7A5A7 /* rdsrc1 in Resources */ = {isa = PBXBuildFile; fileRef = C969F848150D233A00D7A5A7 /* rdsrc1 */; };
+		C969F8E0150D233B00D7A5A7 /* bwVgroup in Resources */ = {isa = PBXBuildFile; fileRef = C969F849150D233A00D7A5A7 /* bwVgroup */; };
+		C969F8E1150D233B00D7A5A7 /* plaidortask in Resources */ = {isa = PBXBuildFile; fileRef = C969F84A150D233A00D7A5A7 /* plaidortask */; };
+		C969F8E2150D233B00D7A5A7 /* rdsac in Resources */ = {isa = PBXBuildFile; fileRef = C969F84B150D233A00D7A5A7 /* rdsac */; };
+		C969F8E3150D233B00D7A5A7 /* rlsorRC6 in Resources */ = {isa = PBXBuildFile; fileRef = C969F84C150D233A00D7A5A7 /* rlsorRC6 */; };
+		C969F8E4150D233B00D7A5A7 /* rdssinesz in Resources */ = {isa = PBXBuildFile; fileRef = C969F84D150D233A00D7A5A7 /* rdssinesz */; };
+		C969F8E5150D233B00D7A5A7 /* itrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F84E150D233A00D7A5A7 /* itrain */; };
+		C969F8E6150D233B00D7A5A7 /* AddBWtrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F84F150D233A00D7A5A7 /* AddBWtrain */; };
+		C969F8E7150D233B00D7A5A7 /* rdscprc in Resources */ = {isa = PBXBuildFile; fileRef = C969F850150D233A00D7A5A7 /* rdscprc */; };
+		C969F8E8150D233B00D7A5A7 /* itone in Resources */ = {isa = PBXBuildFile; fileRef = C969F851150D233A00D7A5A7 /* itone */; };
+		C969F8E9150D233B00D7A5A7 /* vhpos in Resources */ = {isa = PBXBuildFile; fileRef = C969F852150D233A00D7A5A7 /* vhpos */; };
+		C969F8EA150D233B00D7A5A7 /* qtest in Resources */ = {isa = PBXBuildFile; fileRef = C969F853150D233A00D7A5A7 /* qtest */; };
+		C969F8EB150D233B00D7A5A7 /* imtask in Resources */ = {isa = PBXBuildFile; fileRef = C969F854150D233A00D7A5A7 /* imtask */; };
+		C969F8EC150D233B00D7A5A7 /* lempsy45 in Resources */ = {isa = PBXBuildFile; fileRef = C969F855150D233A00D7A5A7 /* lempsy45 */; };
+		C969F8ED150D233B00D7A5A7 /* checkor in Resources */ = {isa = PBXBuildFile; fileRef = C969F856150D233A00D7A5A7 /* checkor */; };
+		C969F8EE150D233B00D7A5A7 /* lempsy1 in Resources */ = {isa = PBXBuildFile; fileRef = C969F857150D233A00D7A5A7 /* lempsy1 */; };
+		C969F8EF150D233B00D7A5A7 /* orsubspfine in Resources */ = {isa = PBXBuildFile; fileRef = C969F858150D233A00D7A5A7 /* orsubspfine */; };
+		C969F8F0150D233B00D7A5A7 /* rds4.3 in Resources */ = {isa = PBXBuildFile; fileRef = C969F859150D233A00D7A5A7 /* rds4.3 */; };
+		C969F8F1150D233B00D7A5A7 /* rds7.6 in Resources */ = {isa = PBXBuildFile; fileRef = C969F85A150D233A00D7A5A7 /* rds7.6 */; };
+		C969F8F2150D233B00D7A5A7 /* itrainstart in Resources */ = {isa = PBXBuildFile; fileRef = C969F85B150D233A00D7A5A7 /* itrainstart */; };
+		C969F8F3150D233B00D7A5A7 /* HGroupLatest in Resources */ = {isa = PBXBuildFile; fileRef = C969F85C150D233A00D7A5A7 /* HGroupLatest */; };
+		C969F8F4150D233B00D7A5A7 /* GridRCtest in Resources */ = {isa = PBXBuildFile; fileRef = C969F85D150D233A00D7A5A7 /* GridRCtest */; };
+		C969F8F5150D233B00D7A5A7 /* bwrange5 in Resources */ = {isa = PBXBuildFile; fileRef = C969F85E150D233A00D7A5A7 /* bwrange5 */; };
+		C969F8F6150D233B00D7A5A7 /* orsubspace in Resources */ = {isa = PBXBuildFile; fileRef = C969F85F150D233A00D7A5A7 /* orsubspace */; };
+		C969F8F7150D233B00D7A5A7 /* hdisp in Resources */ = {isa = PBXBuildFile; fileRef = C969F860150D233A00D7A5A7 /* hdisp */; };
+		C969F8F8150D233B00D7A5A7 /* twodce in Resources */ = {isa = PBXBuildFile; fileRef = C969F861150D233A00D7A5A7 /* twodce */; };
+		C969F8F9150D233B00D7A5A7 /* rdssinels in Resources */ = {isa = PBXBuildFile; fileRef = C969F862150D233A00D7A5A7 /* rdssinels */; };
+		C969F8FA150D233B00D7A5A7 /* rdsdir in Resources */ = {isa = PBXBuildFile; fileRef = C969F863150D233A00D7A5A7 /* rdsdir */; };
+		C969F8FB150D233B00D7A5A7 /* imsfbw in Resources */ = {isa = PBXBuildFile; fileRef = C969F864150D233A00D7A5A7 /* imsfbw */; };
+		C969F8FC150D233B00D7A5A7 /* oposrc in Resources */ = {isa = PBXBuildFile; fileRef = C969F865150D233A00D7A5A7 /* oposrc */; };
+		C969F8FD150D233B00D7A5A7 /* lroposrc in Resources */ = {isa = PBXBuildFile; fileRef = C969F866150D233A00D7A5A7 /* lroposrc */; };
+		C969F8FE150D233B00D7A5A7 /* rdssinews in Resources */ = {isa = PBXBuildFile; fileRef = C969F867150D233A00D7A5A7 /* rdssinews */; };
+		C969F8FF150D233B00D7A5A7 /* test in Resources */ = {isa = PBXBuildFile; fileRef = C969F868150D233A00D7A5A7 /* test */; };
+		C969F900150D233B00D7A5A7 /* plaidor45 in Resources */ = {isa = PBXBuildFile; fileRef = C969F869150D233A00D7A5A7 /* plaidor45 */; };
+		C969F901150D233B00D7A5A7 /* bwVgroup8 in Resources */ = {isa = PBXBuildFile; fileRef = C969F86A150D233A00D7A5A7 /* bwVgroup8 */; };
+		C969F902150D233B00D7A5A7 /* orthopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F86B150D233A00D7A5A7 /* orthopos */; };
+		C969F903150D233B00D7A5A7 /* binoc.history in Resources */ = {isa = PBXBuildFile; fileRef = C969F86C150D233A00D7A5A7 /* binoc.history */; };
+		C969F904150D233B00D7A5A7 /* VGroupLatest in Resources */ = {isa = PBXBuildFile; fileRef = C969F86D150D233A00D7A5A7 /* VGroupLatest */; };
+		C969F905150D233B00D7A5A7 /* ortask_im in Resources */ = {isa = PBXBuildFile; fileRef = C969F86E150D233A00D7A5A7 /* ortask_im */; };
+		C969F906150D233B00D7A5A7 /* pposrc in Resources */ = {isa = PBXBuildFile; fileRef = C969F86F150D233A00D7A5A7 /* pposrc */; };
+		C969F907150D233B00D7A5A7 /* lempsy30 in Resources */ = {isa = PBXBuildFile; fileRef = C969F870150D233A00D7A5A7 /* lempsy30 */; };
+		C969F908150D233B00D7A5A7 /* rdstf in Resources */ = {isa = PBXBuildFile; fileRef = C969F871150D233A00D7A5A7 /* rdstf */; };
+		C969F909150D233B00D7A5A7 /* monocRC in Resources */ = {isa = PBXBuildFile; fileRef = C969F872150D233A00D7A5A7 /* monocRC */; };
+		C969F90A150D233B00D7A5A7 /* ortrain in Resources */ = {isa = PBXBuildFile; fileRef = C969F873150D233A00D7A5A7 /* ortrain */; };
+		C969F90B150D233B00D7A5A7 /* lastpsych in Resources */ = {isa = PBXBuildFile; fileRef = C969F874150D233A00D7A5A7 /* lastpsych */; };
+		C969F90C150D233B00D7A5A7 /* lempsy70 in Resources */ = {isa = PBXBuildFile; fileRef = C969F875150D233A00D7A5A7 /* lempsy70 */; };
+		C969F90D150D233B00D7A5A7 /* rds6.4 in Resources */ = {isa = PBXBuildFile; fileRef = C969F876150D233A00D7A5A7 /* rds6.4 */; };
+		C969F90E150D233B00D7A5A7 /* rdswhite in Resources */ = {isa = PBXBuildFile; fileRef = C969F877150D233A00D7A5A7 /* rdswhite */; };
+		C969F90F150D233B00D7A5A7 /* plaidor45.save in Resources */ = {isa = PBXBuildFile; fileRef = C969F878150D233A00D7A5A7 /* plaidor45.save */; };
+		C969F910150D233B00D7A5A7 /* ACRCfr in Resources */ = {isa = PBXBuildFile; fileRef = C969F879150D233A00D7A5A7 /* ACRCfr */; };
+		C969F911150D233B00D7A5A7 /* rdsszrc in Resources */ = {isa = PBXBuildFile; fileRef = C969F87A150D233A00D7A5A7 /* rdsszrc */; };
+		C969F912150D233B00D7A5A7 /* rds2.1 in Resources */ = {isa = PBXBuildFile; fileRef = C969F87B150D233A00D7A5A7 /* rds2.1 */; };
+		C969F913150D233B00D7A5A7 /* bwVgroup4 in Resources */ = {isa = PBXBuildFile; fileRef = C969F87C150D233A00D7A5A7 /* bwVgroup4 */; };
+		C969F914150D233B00D7A5A7 /* Gabor in Resources */ = {isa = PBXBuildFile; fileRef = C969F87D150D233A00D7A5A7 /* Gabor */; };
+		C969F915150D233B00D7A5A7 /* bwtask in Resources */ = {isa = PBXBuildFile; fileRef = C969F87E150D233A00D7A5A7 /* bwtask */; };
+		C969F916150D233B00D7A5A7 /* lempsy60 in Resources */ = {isa = PBXBuildFile; fileRef = C969F87F150D233B00D7A5A7 /* lempsy60 */; };
+		C969F917150D233B00D7A5A7 /* imor in Resources */ = {isa = PBXBuildFile; fileRef = C969F880150D233B00D7A5A7 /* imor */; };
+		C969F918150D233B00D7A5A7 /* bwVgroup5 in Resources */ = {isa = PBXBuildFile; fileRef = C969F881150D233B00D7A5A7 /* bwVgroup5 */; };
+		C969F919150D233B00D7A5A7 /* rds3.2 in Resources */ = {isa = PBXBuildFile; fileRef = C969F882150D233B00D7A5A7 /* rds3.2 */; };
+		C969F91A150D233B00D7A5A7 /* Gabor_noafc in Resources */ = {isa = PBXBuildFile; fileRef = C969F883150D233B00D7A5A7 /* Gabor_noafc */; };
+		C969F91B150D233B00D7A5A7 /* agb in Resources */ = {isa = PBXBuildFile; fileRef = C969F884150D233B00D7A5A7 /* agb */; };
+		C969F91C150D233B00D7A5A7 /* lempsy105 in Resources */ = {isa = PBXBuildFile; fileRef = C969F885150D233B00D7A5A7 /* lempsy105 */; };
+		C969F91D150D233B00D7A5A7 /* latest in Resources */ = {isa = PBXBuildFile; fileRef = C969F886150D233B00D7A5A7 /* latest */; };
+		C969F91E150D233B00D7A5A7 /* fullor in Resources */ = {isa = PBXBuildFile; fileRef = C969F887150D233B00D7A5A7 /* fullor */; };
+		C969F91F150D233B00D7A5A7 /* rdssineor in Resources */ = {isa = PBXBuildFile; fileRef = C969F888150D233B00D7A5A7 /* rdssineor */; };
+		C969F920150D233B00D7A5A7 /* rdsopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F889150D233B00D7A5A7 /* rdsopos */; };
+		C969F921150D233B00D7A5A7 /* rdssine in Resources */ = {isa = PBXBuildFile; fileRef = C969F88A150D233B00D7A5A7 /* rdssine */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -190,8 +280,98 @@
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
+		C969F832150D233A00D7A5A7 /* lempsy110 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy110; sourceTree = "<group>"; };
+		C969F833150D233A00D7A5A7 /* bwlatest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwlatest; sourceTree = "<group>"; };
+		C969F834150D233A00D7A5A7 /* savetest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = savetest; sourceTree = "<group>"; };
+		C969F835150D233A00D7A5A7 /* rdsvpos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsvpos; sourceTree = "<group>"; };
+		C969F836150D233A00D7A5A7 /* Butts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Butts; sourceTree = "<group>"; };
+		C969F837150D233A00D7A5A7 /* imszbw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = imszbw; sourceTree = "<group>"; };
+		C969F838150D233A00D7A5A7 /* ButtsFpmove */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ButtsFpmove; sourceTree = "<group>"; };
+		C969F839150D233A00D7A5A7 /* rdsppos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsppos; sourceTree = "<group>"; };
+		C969F83A150D233A00D7A5A7 /* bgc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bgc; sourceTree = "<group>"; };
+		C969F83B150D233A00D7A5A7 /* parapos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = parapos; sourceTree = "<group>"; };
+		C969F83C150D233A00D7A5A7 /* GridTest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GridTest; sourceTree = "<group>"; };
+		C969F83D150D233A00D7A5A7 /* rdsor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsor; sourceTree = "<group>"; };
+		C969F83E150D233A00D7A5A7 /* bwHgroup */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwHgroup; sourceTree = "<group>"; };
+		C969F83F150D233A00D7A5A7 /* rdsrls */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsrls; sourceTree = "<group>"; };
+		C969F840150D233A00D7A5A7 /* rdssz */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssz; sourceTree = "<group>"; };
+		C969F841150D233A00D7A5A7 /* imorbw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = imorbw; sourceTree = "<group>"; };
+		C969F842150D233A00D7A5A7 /* lempsy90 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy90; sourceTree = "<group>"; };
+		C969F843150D233A00D7A5A7 /* opossaccade */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = opossaccade; sourceTree = "<group>"; };
+		C969F844150D233A00D7A5A7 /* checkeror */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = checkeror; sourceTree = "<group>"; };
+		C969F845150D233A00D7A5A7 /* Gaborafc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Gaborafc; sourceTree = "<group>"; };
+		C969F846150D233A00D7A5A7 /* idisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = idisp; sourceTree = "<group>"; };
+		C969F847150D233A00D7A5A7 /* ACRC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ACRC; sourceTree = "<group>"; };
+		C969F848150D233A00D7A5A7 /* rdsrc1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsrc1; sourceTree = "<group>"; };
+		C969F849150D233A00D7A5A7 /* bwVgroup */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwVgroup; sourceTree = "<group>"; };
+		C969F84A150D233A00D7A5A7 /* plaidortask */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = plaidortask; sourceTree = "<group>"; };
+		C969F84B150D233A00D7A5A7 /* rdsac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsac; sourceTree = "<group>"; };
+		C969F84C150D233A00D7A5A7 /* rlsorRC6 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rlsorRC6; sourceTree = "<group>"; };
+		C969F84D150D233A00D7A5A7 /* rdssinesz */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssinesz; sourceTree = "<group>"; };
+		C969F84E150D233A00D7A5A7 /* itrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = itrain; sourceTree = "<group>"; };
+		C969F84F150D233A00D7A5A7 /* AddBWtrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AddBWtrain; sourceTree = "<group>"; };
+		C969F850150D233A00D7A5A7 /* rdscprc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdscprc; sourceTree = "<group>"; };
+		C969F851150D233A00D7A5A7 /* itone */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = itone; sourceTree = "<group>"; };
+		C969F852150D233A00D7A5A7 /* vhpos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vhpos; sourceTree = "<group>"; };
+		C969F853150D233A00D7A5A7 /* qtest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = qtest; sourceTree = "<group>"; };
+		C969F854150D233A00D7A5A7 /* imtask */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = imtask; sourceTree = "<group>"; };
+		C969F855150D233A00D7A5A7 /* lempsy45 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy45; sourceTree = "<group>"; };
+		C969F856150D233A00D7A5A7 /* checkor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = checkor; sourceTree = "<group>"; };
+		C969F857150D233A00D7A5A7 /* lempsy1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy1; sourceTree = "<group>"; };
+		C969F858150D233A00D7A5A7 /* orsubspfine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = orsubspfine; sourceTree = "<group>"; };
+		C969F859150D233A00D7A5A7 /* rds4.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rds4.3; sourceTree = "<group>"; };
+		C969F85A150D233A00D7A5A7 /* rds7.6 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rds7.6; sourceTree = "<group>"; };
+		C969F85B150D233A00D7A5A7 /* itrainstart */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = itrainstart; sourceTree = "<group>"; };
+		C969F85C150D233A00D7A5A7 /* HGroupLatest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HGroupLatest; sourceTree = "<group>"; };
+		C969F85D150D233A00D7A5A7 /* GridRCtest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GridRCtest; sourceTree = "<group>"; };
+		C969F85E150D233A00D7A5A7 /* bwrange5 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwrange5; sourceTree = "<group>"; };
+		C969F85F150D233A00D7A5A7 /* orsubspace */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = orsubspace; sourceTree = "<group>"; };
+		C969F860150D233A00D7A5A7 /* hdisp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hdisp; sourceTree = "<group>"; };
+		C969F861150D233A00D7A5A7 /* twodce */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twodce; sourceTree = "<group>"; };
+		C969F862150D233A00D7A5A7 /* rdssinels */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssinels; sourceTree = "<group>"; };
+		C969F863150D233A00D7A5A7 /* rdsdir */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsdir; sourceTree = "<group>"; };
+		C969F864150D233A00D7A5A7 /* imsfbw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = imsfbw; sourceTree = "<group>"; };
+		C969F865150D233A00D7A5A7 /* oposrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = oposrc; sourceTree = "<group>"; };
+		C969F866150D233A00D7A5A7 /* lroposrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lroposrc; sourceTree = "<group>"; };
+		C969F867150D233A00D7A5A7 /* rdssinews */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssinews; sourceTree = "<group>"; };
+		C969F868150D233A00D7A5A7 /* test */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test; sourceTree = "<group>"; };
+		C969F869150D233A00D7A5A7 /* plaidor45 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = plaidor45; sourceTree = "<group>"; };
+		C969F86A150D233A00D7A5A7 /* bwVgroup8 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwVgroup8; sourceTree = "<group>"; };
+		C969F86B150D233A00D7A5A7 /* orthopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = orthopos; sourceTree = "<group>"; };
+		C969F86C150D233A00D7A5A7 /* binoc.history */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = binoc.history; sourceTree = "<group>"; };
+		C969F86D150D233A00D7A5A7 /* VGroupLatest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGroupLatest; sourceTree = "<group>"; };
+		C969F86E150D233A00D7A5A7 /* ortask_im */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ortask_im; sourceTree = "<group>"; };
+		C969F86F150D233A00D7A5A7 /* pposrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pposrc; sourceTree = "<group>"; };
+		C969F870150D233A00D7A5A7 /* lempsy30 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy30; sourceTree = "<group>"; };
+		C969F871150D233A00D7A5A7 /* rdstf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdstf; sourceTree = "<group>"; };
+		C969F872150D233A00D7A5A7 /* monocRC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = monocRC; sourceTree = "<group>"; };
+		C969F873150D233A00D7A5A7 /* ortrain */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ortrain; sourceTree = "<group>"; };
+		C969F874150D233A00D7A5A7 /* lastpsych */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lastpsych; sourceTree = "<group>"; };
+		C969F875150D233A00D7A5A7 /* lempsy70 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy70; sourceTree = "<group>"; };
+		C969F876150D233A00D7A5A7 /* rds6.4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rds6.4; sourceTree = "<group>"; };
+		C969F877150D233A00D7A5A7 /* rdswhite */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdswhite; sourceTree = "<group>"; };
+		C969F878150D233A00D7A5A7 /* plaidor45.save */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = plaidor45.save; sourceTree = "<group>"; };
+		C969F879150D233A00D7A5A7 /* ACRCfr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ACRCfr; sourceTree = "<group>"; };
+		C969F87A150D233A00D7A5A7 /* rdsszrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsszrc; sourceTree = "<group>"; };
+		C969F87B150D233A00D7A5A7 /* rds2.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = rds2.1; sourceTree = "<group>"; };
+		C969F87C150D233A00D7A5A7 /* bwVgroup4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwVgroup4; sourceTree = "<group>"; };
+		C969F87D150D233A00D7A5A7 /* Gabor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Gabor; sourceTree = "<group>"; };
+		C969F87E150D233A00D7A5A7 /* bwtask */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwtask; sourceTree = "<group>"; };
+		C969F87F150D233B00D7A5A7 /* lempsy60 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy60; sourceTree = "<group>"; };
+		C969F880150D233B00D7A5A7 /* imor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = imor; sourceTree = "<group>"; };
+		C969F881150D233B00D7A5A7 /* bwVgroup5 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwVgroup5; sourceTree = "<group>"; };
+		C969F882150D233B00D7A5A7 /* rds3.2 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rds3.2; sourceTree = "<group>"; };
+		C969F883150D233B00D7A5A7 /* Gabor_noafc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Gabor_noafc; sourceTree = "<group>"; };
+		C969F884150D233B00D7A5A7 /* agb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = agb; sourceTree = "<group>"; };
+		C969F885150D233B00D7A5A7 /* lempsy105 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy105; sourceTree = "<group>"; };
+		C969F886150D233B00D7A5A7 /* latest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = latest; sourceTree = "<group>"; };
+		C969F887150D233B00D7A5A7 /* fullor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fullor; sourceTree = "<group>"; };
+		C969F888150D233B00D7A5A7 /* rdssineor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssineor; sourceTree = "<group>"; };
+		C969F889150D233B00D7A5A7 /* rdsopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsopos; sourceTree = "<group>"; };
+		C969F88A150D233B00D7A5A7 /* rdssine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssine; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -345,6 +525,7 @@
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
+				C969F830150D233A00D7A5A7 /* stims */,
 				C94CF80313C8B69E00985271 /* filetypes.c */,
 				C9308B7D14F82EF50054C963 /* TODO.txt */,
 				419DCE0E13A133B3004E8464 /* binoclean */,
@@ -444,6 +625,119 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		C90350CA150D279800DFD9D3 /* ali */ = {
+			isa = PBXGroup;
+			children = (
+				C90350CB150D279800DFD9D3 /* ali */,
+			);
+			path = ali;
+			sourceTree = "<group>";
+		};
+		C969F830150D233A00D7A5A7 /* stims */ = {
+			isa = PBXGroup;
+			children = (
+				C90350CA150D279800DFD9D3 /* ali */,
+				C969F831150D233A00D7A5A7 /* lem */,
+			);
+			path = stims;
+			sourceTree = "<group>";
+		};
+		C969F831150D233A00D7A5A7 /* lem */ = {
+			isa = PBXGroup;
+			children = (
+				C969F832150D233A00D7A5A7 /* lempsy110 */,
+				C969F833150D233A00D7A5A7 /* bwlatest */,
+				C969F834150D233A00D7A5A7 /* savetest */,
+				C969F835150D233A00D7A5A7 /* rdsvpos */,
+				C969F836150D233A00D7A5A7 /* Butts */,
+				C969F837150D233A00D7A5A7 /* imszbw */,
+				C969F838150D233A00D7A5A7 /* ButtsFpmove */,
+				C969F839150D233A00D7A5A7 /* rdsppos */,
+				C969F83A150D233A00D7A5A7 /* bgc */,
+				C969F83B150D233A00D7A5A7 /* parapos */,
+				C969F83C150D233A00D7A5A7 /* GridTest */,
+				C969F83D150D233A00D7A5A7 /* rdsor */,
+				C969F83E150D233A00D7A5A7 /* bwHgroup */,
+				C969F83F150D233A00D7A5A7 /* rdsrls */,
+				C969F840150D233A00D7A5A7 /* rdssz */,
+				C969F841150D233A00D7A5A7 /* imorbw */,
+				C969F842150D233A00D7A5A7 /* lempsy90 */,
+				C969F843150D233A00D7A5A7 /* opossaccade */,
+				C969F844150D233A00D7A5A7 /* checkeror */,
+				C969F845150D233A00D7A5A7 /* Gaborafc */,
+				C969F846150D233A00D7A5A7 /* idisp */,
+				C969F847150D233A00D7A5A7 /* ACRC */,
+				C969F848150D233A00D7A5A7 /* rdsrc1 */,
+				C969F849150D233A00D7A5A7 /* bwVgroup */,
+				C969F84A150D233A00D7A5A7 /* plaidortask */,
+				C969F84B150D233A00D7A5A7 /* rdsac */,
+				C969F84C150D233A00D7A5A7 /* rlsorRC6 */,
+				C969F84D150D233A00D7A5A7 /* rdssinesz */,
+				C969F84E150D233A00D7A5A7 /* itrain */,
+				C969F84F150D233A00D7A5A7 /* AddBWtrain */,
+				C969F850150D233A00D7A5A7 /* rdscprc */,
+				C969F851150D233A00D7A5A7 /* itone */,
+				C969F852150D233A00D7A5A7 /* vhpos */,
+				C969F853150D233A00D7A5A7 /* qtest */,
+				C969F854150D233A00D7A5A7 /* imtask */,
+				C969F855150D233A00D7A5A7 /* lempsy45 */,
+				C969F856150D233A00D7A5A7 /* checkor */,
+				C969F857150D233A00D7A5A7 /* lempsy1 */,
+				C969F858150D233A00D7A5A7 /* orsubspfine */,
+				C969F859150D233A00D7A5A7 /* rds4.3 */,
+				C969F85A150D233A00D7A5A7 /* rds7.6 */,
+				C969F85B150D233A00D7A5A7 /* itrainstart */,
+				C969F85C150D233A00D7A5A7 /* HGroupLatest */,
+				C969F85D150D233A00D7A5A7 /* GridRCtest */,
+				C969F85E150D233A00D7A5A7 /* bwrange5 */,
+				C969F85F150D233A00D7A5A7 /* orsubspace */,
+				C969F860150D233A00D7A5A7 /* hdisp */,
+				C969F861150D233A00D7A5A7 /* twodce */,
+				C969F862150D233A00D7A5A7 /* rdssinels */,
+				C969F863150D233A00D7A5A7 /* rdsdir */,
+				C969F864150D233A00D7A5A7 /* imsfbw */,
+				C969F865150D233A00D7A5A7 /* oposrc */,
+				C969F866150D233A00D7A5A7 /* lroposrc */,
+				C969F867150D233A00D7A5A7 /* rdssinews */,
+				C969F868150D233A00D7A5A7 /* test */,
+				C969F869150D233A00D7A5A7 /* plaidor45 */,
+				C969F86A150D233A00D7A5A7 /* bwVgroup8 */,
+				C969F86B150D233A00D7A5A7 /* orthopos */,
+				C969F86C150D233A00D7A5A7 /* binoc.history */,
+				C969F86D150D233A00D7A5A7 /* VGroupLatest */,
+				C969F86E150D233A00D7A5A7 /* ortask_im */,
+				C969F86F150D233A00D7A5A7 /* pposrc */,
+				C969F870150D233A00D7A5A7 /* lempsy30 */,
+				C969F871150D233A00D7A5A7 /* rdstf */,
+				C969F872150D233A00D7A5A7 /* monocRC */,
+				C969F873150D233A00D7A5A7 /* ortrain */,
+				C969F874150D233A00D7A5A7 /* lastpsych */,
+				C969F875150D233A00D7A5A7 /* lempsy70 */,
+				C969F876150D233A00D7A5A7 /* rds6.4 */,
+				C969F877150D233A00D7A5A7 /* rdswhite */,
+				C969F878150D233A00D7A5A7 /* plaidor45.save */,
+				C969F879150D233A00D7A5A7 /* ACRCfr */,
+				C969F87A150D233A00D7A5A7 /* rdsszrc */,
+				C969F87B150D233A00D7A5A7 /* rds2.1 */,
+				C969F87C150D233A00D7A5A7 /* bwVgroup4 */,
+				C969F87D150D233A00D7A5A7 /* Gabor */,
+				C969F87E150D233A00D7A5A7 /* bwtask */,
+				C969F87F150D233B00D7A5A7 /* lempsy60 */,
+				C969F880150D233B00D7A5A7 /* imor */,
+				C969F881150D233B00D7A5A7 /* bwVgroup5 */,
+				C969F882150D233B00D7A5A7 /* rds3.2 */,
+				C969F883150D233B00D7A5A7 /* Gabor_noafc */,
+				C969F884150D233B00D7A5A7 /* agb */,
+				C969F885150D233B00D7A5A7 /* lempsy105 */,
+				C969F886150D233B00D7A5A7 /* latest */,
+				C969F887150D233B00D7A5A7 /* fullor */,
+				C969F888150D233B00D7A5A7 /* rdssineor */,
+				C969F889150D233B00D7A5A7 /* rdsopos */,
+				C969F88A150D233B00D7A5A7 /* rdssine */,
+			);
+			path = lem;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -491,6 +785,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = "LSR-NEI";
 			};
 			buildConfigurationList = 419DCDFE13A133B2004E8464 /* Build configuration list for PBXProject "binoclean" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -530,6 +825,96 @@
 				3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */,
 				3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */,
 				3F1ACAE315016DBF007987D1 /* BinocLean-Icon01.png in Resources */,
+				C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */,
+				C969F8CA150D233B00D7A5A7 /* bwlatest in Resources */,
+				C969F8CB150D233B00D7A5A7 /* savetest in Resources */,
+				C969F8CC150D233B00D7A5A7 /* rdsvpos in Resources */,
+				C969F8CD150D233B00D7A5A7 /* Butts in Resources */,
+				C969F8CE150D233B00D7A5A7 /* imszbw in Resources */,
+				C969F8CF150D233B00D7A5A7 /* ButtsFpmove in Resources */,
+				C969F8D0150D233B00D7A5A7 /* rdsppos in Resources */,
+				C969F8D1150D233B00D7A5A7 /* bgc in Resources */,
+				C969F8D2150D233B00D7A5A7 /* parapos in Resources */,
+				C969F8D3150D233B00D7A5A7 /* GridTest in Resources */,
+				C969F8D4150D233B00D7A5A7 /* rdsor in Resources */,
+				C969F8D5150D233B00D7A5A7 /* bwHgroup in Resources */,
+				C969F8D6150D233B00D7A5A7 /* rdsrls in Resources */,
+				C969F8D7150D233B00D7A5A7 /* rdssz in Resources */,
+				C969F8D8150D233B00D7A5A7 /* imorbw in Resources */,
+				C969F8D9150D233B00D7A5A7 /* lempsy90 in Resources */,
+				C969F8DA150D233B00D7A5A7 /* opossaccade in Resources */,
+				C969F8DB150D233B00D7A5A7 /* checkeror in Resources */,
+				C969F8DC150D233B00D7A5A7 /* Gaborafc in Resources */,
+				C969F8DD150D233B00D7A5A7 /* idisp in Resources */,
+				C969F8DE150D233B00D7A5A7 /* ACRC in Resources */,
+				C969F8DF150D233B00D7A5A7 /* rdsrc1 in Resources */,
+				C969F8E0150D233B00D7A5A7 /* bwVgroup in Resources */,
+				C969F8E1150D233B00D7A5A7 /* plaidortask in Resources */,
+				C969F8E2150D233B00D7A5A7 /* rdsac in Resources */,
+				C969F8E3150D233B00D7A5A7 /* rlsorRC6 in Resources */,
+				C969F8E4150D233B00D7A5A7 /* rdssinesz in Resources */,
+				C969F8E5150D233B00D7A5A7 /* itrain in Resources */,
+				C969F8E6150D233B00D7A5A7 /* AddBWtrain in Resources */,
+				C969F8E7150D233B00D7A5A7 /* rdscprc in Resources */,
+				C969F8E8150D233B00D7A5A7 /* itone in Resources */,
+				C969F8E9150D233B00D7A5A7 /* vhpos in Resources */,
+				C969F8EA150D233B00D7A5A7 /* qtest in Resources */,
+				C969F8EB150D233B00D7A5A7 /* imtask in Resources */,
+				C969F8EC150D233B00D7A5A7 /* lempsy45 in Resources */,
+				C969F8ED150D233B00D7A5A7 /* checkor in Resources */,
+				C969F8EE150D233B00D7A5A7 /* lempsy1 in Resources */,
+				C969F8EF150D233B00D7A5A7 /* orsubspfine in Resources */,
+				C969F8F0150D233B00D7A5A7 /* rds4.3 in Resources */,
+				C969F8F1150D233B00D7A5A7 /* rds7.6 in Resources */,
+				C969F8F2150D233B00D7A5A7 /* itrainstart in Resources */,
+				C969F8F3150D233B00D7A5A7 /* HGroupLatest in Resources */,
+				C969F8F4150D233B00D7A5A7 /* GridRCtest in Resources */,
+				C969F8F5150D233B00D7A5A7 /* bwrange5 in Resources */,
+				C969F8F6150D233B00D7A5A7 /* orsubspace in Resources */,
+				C969F8F7150D233B00D7A5A7 /* hdisp in Resources */,
+				C969F8F8150D233B00D7A5A7 /* twodce in Resources */,
+				C969F8F9150D233B00D7A5A7 /* rdssinels in Resources */,
+				C969F8FA150D233B00D7A5A7 /* rdsdir in Resources */,
+				C969F8FB150D233B00D7A5A7 /* imsfbw in Resources */,
+				C969F8FC150D233B00D7A5A7 /* oposrc in Resources */,
+				C969F8FD150D233B00D7A5A7 /* lroposrc in Resources */,
+				C969F8FE150D233B00D7A5A7 /* rdssinews in Resources */,
+				C969F8FF150D233B00D7A5A7 /* test in Resources */,
+				C969F900150D233B00D7A5A7 /* plaidor45 in Resources */,
+				C969F901150D233B00D7A5A7 /* bwVgroup8 in Resources */,
+				C969F902150D233B00D7A5A7 /* orthopos in Resources */,
+				C969F903150D233B00D7A5A7 /* binoc.history in Resources */,
+				C969F904150D233B00D7A5A7 /* VGroupLatest in Resources */,
+				C969F905150D233B00D7A5A7 /* ortask_im in Resources */,
+				C969F906150D233B00D7A5A7 /* pposrc in Resources */,
+				C969F907150D233B00D7A5A7 /* lempsy30 in Resources */,
+				C969F908150D233B00D7A5A7 /* rdstf in Resources */,
+				C969F909150D233B00D7A5A7 /* monocRC in Resources */,
+				C969F90A150D233B00D7A5A7 /* ortrain in Resources */,
+				C969F90B150D233B00D7A5A7 /* lastpsych in Resources */,
+				C969F90C150D233B00D7A5A7 /* lempsy70 in Resources */,
+				C969F90D150D233B00D7A5A7 /* rds6.4 in Resources */,
+				C969F90E150D233B00D7A5A7 /* rdswhite in Resources */,
+				C969F90F150D233B00D7A5A7 /* plaidor45.save in Resources */,
+				C969F910150D233B00D7A5A7 /* ACRCfr in Resources */,
+				C969F911150D233B00D7A5A7 /* rdsszrc in Resources */,
+				C969F912150D233B00D7A5A7 /* rds2.1 in Resources */,
+				C969F913150D233B00D7A5A7 /* bwVgroup4 in Resources */,
+				C969F914150D233B00D7A5A7 /* Gabor in Resources */,
+				C969F915150D233B00D7A5A7 /* bwtask in Resources */,
+				C969F916150D233B00D7A5A7 /* lempsy60 in Resources */,
+				C969F917150D233B00D7A5A7 /* imor in Resources */,
+				C969F918150D233B00D7A5A7 /* bwVgroup5 in Resources */,
+				C969F919150D233B00D7A5A7 /* rds3.2 in Resources */,
+				C969F91A150D233B00D7A5A7 /* Gabor_noafc in Resources */,
+				C969F91B150D233B00D7A5A7 /* agb in Resources */,
+				C969F91C150D233B00D7A5A7 /* lempsy105 in Resources */,
+				C969F91D150D233B00D7A5A7 /* latest in Resources */,
+				C969F91E150D233B00D7A5A7 /* fullor in Resources */,
+				C969F91F150D233B00D7A5A7 /* rdssineor in Resources */,
+				C969F920150D233B00D7A5A7 /* rdsopos in Resources */,
+				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
+				C90350CC150D279800DFD9D3 /* ali in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -738,7 +1123,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.6;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -760,7 +1145,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.6;
 				SYMROOT = /bgc/bgc/c/binoclean/Release;
 				WRAPPER_EXTENSION = app;
 			};

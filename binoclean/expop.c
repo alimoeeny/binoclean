@@ -134,7 +134,7 @@ int maxseed = 0;
 static char *helpfiles[MAXHELPFILES] = {NULL};
 static char *helplabels[MAXHELPFILES] = {NULL};
 static int nhelpfiles = 0;
-static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, HIGHXTYPE, 0};
+static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, HIGHXTYPE, MONKEYNAME, 0};
 
 FILE *imoutfd = NULL;
 int command_pending;
@@ -924,9 +924,9 @@ void write_expvals(FILE *ofd, int flag)
     if(flag == QUICK_SAVE)
         return;
     for(i = 1; i <= nquickexpts; i++){
-        if(quicksubid[i] >= 0)
-            fprintf(ofd,"qe=\"%s\"%s\n",quicksubnames[quicksubid[i]],quicknames[i]);
-        else
+//        if(quicksubid[i] >= 0)
+//            fprintf(ofd,"qe=\"%s\"%s\n",quicksubnames[quicksubid[i]],quicknames[i]);
+//        else
             fprintf(ofd,"qe=%s\n",quicknames[i]);
     }
     fprintf(ofd,"usenewdirs=%d\n",usenewdirs);
@@ -1454,7 +1454,7 @@ unsigned int ufftime(struct timeval *thetime)
 
 void PrintCodes(int mode)
 {
-    char s[BUFSIZ*2],tmp[BUFSIZ];
+    char s[BUFSIZ*2],tmp[BUFSIZ],ctype = 'N';
     int i,showcode = 1;
     
     sprintf(s,"");
@@ -1462,11 +1462,20 @@ void PrintCodes(int mode)
     {
         if(serial_strings[i] == NULL)
             return;
+        switch(i){
+            case STIMULUS_FLAG:
+            case SHOWFLAGS_CODE:
+            ctype = 'C';
+                break;
+            default:
+                ctype = 'N';
+                break;
+        }
         if(serial_names[i] == NULL){
-            sprintf(tmp,"CODE %s %d none\n",serial_strings[i],i);
+            sprintf(tmp,"CODE %s %d none%c\n",serial_strings[i],i,ctype);
         }
         else{
-            sprintf(tmp,"CODE %s %d %s\n",serial_strings[i],i,serial_names[i]);
+            sprintf(tmp,"CODE %s %d %s%c\n",serial_strings[i],i,serial_names[i],ctype);
         }
         notify(tmp);
     }
@@ -2111,7 +2120,7 @@ void ListExpStims(int w)
     for(i = 0; i < (expt.nstim[0]+expt.nstim[2]); i++, es++)
     {
         MakePlotLabel(&expt, cbuf, i, 0);
-        sprintf(buf, "E%d %s\n",i,cbuf);
+        sprintf(buf, "E%d=%s\n",i,cbuf);
         notify(buf);
     }
     
@@ -2119,13 +2128,13 @@ void ListExpStims(int w)
     for(i = expt.nstim[0]+expt.nstim[2]; i < (expt.nstim[0]+expt.nstim[2]+expt.nstim[1]) ; i++, es++)
     {
         MakePlotLabel(&expt, cbuf, i, 0);
-        sprintf(buf, "EB%d %s\n",i-(expt.nstim[0]+expt.nstim[2]),cbuf);
+        sprintf(buf, "EB%d=%s\n",i-(expt.nstim[0]+expt.nstim[2]),cbuf);
         notify(buf);
         
     }
     notify("ECCLEAR\n");
     for(i = 0; i < expt.nstim[4]; i++){
-        sprintf(buf,"EC%d %.2f\n",i,expt.exp3vals[i]);
+        sprintf(buf,"EC%d=%.2f\n",i,expt.exp3vals[i]);
         notify(buf);
     }
 }
@@ -2586,7 +2595,7 @@ int SendPenInfo(){
 }
 
 // this function's job is to make sure all the necessary values for writing a pen log is in sync with the cocoa GUI
-int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance)
+int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _hemisphere, int _userid, int _protrudemm, int _electrodeid, int _impedance, int _penNumber)
 {
     expt.vals[PENXPOS] = _penXpos;
     expt.vals[PENYPOS] = _penYpos;
@@ -2596,6 +2605,12 @@ int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _he
     protrudemm = _protrudemm;
     electrodeid = _electrodeid;
     expt.vals[IMPEDANCE] = _impedance;
+    expt.vals[PENNUMCOUNTER] = _penNumber;
+    
+    SendToGui(PENXPOS);
+    SendToGui(PENYPOS);
+    SendToGui(PENETRATION_TEXT);
+    SendToGui(PENNUMCOUNTER);
     return 0;
 }
 
@@ -2622,6 +2637,7 @@ int OpenPenetrationLog(int pen){
         if((penlog = fopen(buf,"a")) != NULL){
             tval = time(NULL);
             fprintf(penlog,"Opened %s pen %d %.1f,%.1f%s\n",nonewline(ctime(&tval)),expt.ipen,expt.vals[PENXPOS],expt.vals[PENYPOS],xbits);
+            fprintf(stdout,"Logfile is %s\n",buf);
         }
         sprintf(buf,"%d %.1f,%.1f",expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]));
         expt.pnum = myscopy(expt.pnum,buf);
@@ -2656,8 +2672,16 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
     char *t,*r,buf[256],name[BUFSIZ],sfile[BUFSIZ],path[BUFSIZ];
     
     s = nonewline(s);
+    if (*s == NULL)
+        return;
     switch(flag)
     {
+        case MONKEYNAME:
+            expt.monkey = myscopy(expt.monkey,s);
+            sprintf(buf,"/local/%s",expt.monkey);
+            chdir(buf);
+            break;
+            
         case HELPFILE_PATH:
             if(nhelpfiles == 0)
                 expt.helpfile = myscopy(expt.helpfile,s);
@@ -3067,8 +3091,10 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
             expt.vals[flag] = val;
             dx = sin(expt.vals[FP_MOVE_DIR]) * val * expt.vals[CHANGE_SEED];
             dy = cos(expt.vals[FP_MOVE_DIR]) * val * expt.vals[CHANGE_SEED];
+            if (fabs(val) > 0){
             expt.st->pos.xy[0] = deg2pix(expt.vals[XPOS] - dx);
             expt.st->pos.xy[1] = deg2pix(expt.vals[YPOS] - dy);
+            }
             break;
         case REWARD_SIZE1:
         case REWARD_SIZE2:
@@ -4254,6 +4280,22 @@ int ReadCommand(char *s)
     else if(!strncasecmp(s,"nomonkey",7)){
         check_for_monkey = 0;
         printf("Not Checking for running without monkey\n");
+    }
+    else if(!strncmp(s,"test",4)){
+//        InterpretLine("op=+iz",&expt, 2);
+//                ChangeFlag("+iz");
+//        PlotAlloc(&expt);
+//        PlotAlloc(&expt);
+            glDrawBuffer(GL_BACK);
+//        statusline("test");
+
+        
+//        ShowTrialsNeeded();
+//        setstimuli(1);
+//        ListExpStims(NULL);
+        //CheckOption(57);
+//    setoption();
+//    SerialSend(OPTION_CODE);
     }
     else if(!strncasecmp(s,"rndinit",4)){
         InitRndArray(expt.st->left->baseseed,10000000);
@@ -5867,6 +5909,7 @@ void plotpsychdata(struct plotdata *plot)
     glLineStipple(1,0xff);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth(1);
+ 
 }
 
 
@@ -6168,7 +6211,7 @@ void setstimulusorder(int warnings)
     int seed, baseseed, nrpt, rpts[MAXSTIM][MAXREPS];
     int rptid[MAXSTIM][MAXREPS];
     FILE *out;
-    
+    int noneed = 0;
     
     if(!(mode & RUNNING))
         return;
@@ -6291,7 +6334,7 @@ void setstimulusorder(int warnings)
             twoseq[tw] = 0;		
             threeseq[tw] = 0;
         }
-        for(i = 0; i< ntoset;)
+        for(i = 0; i< ntoset && noneed < 10;)
         {
             tried = 0;
             thisblk = blksize * (1 + (i/(nstim * blksize)));
@@ -6387,7 +6430,10 @@ void setstimulusorder(int warnings)
                         ni = stimorder[i] = stillneed[j];
                         isset[ni]++;
                         setorderbits(i++);
+                        noneed = 0;
                     }
+                    else
+                        noneed++;
                     
                     /*
                      do
@@ -7030,15 +7076,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     
     switch(code)
     {
-        case CYBER_CHANNELS:
-            sprintf(cbuf,"");
-            for(i = 0; i < 8; i++){
-                sprintf(temp,"%s%d %d %d %d %d %d %.4f\n",serial_strings[code],i+1,
-                        cyberprops[i].gain[0],cyberprops[i].gain[1],cyberprops[i].ac[0],cyberprops[i].ac[1],
-                        cyberprops[i].lp,cyberprops[i].dc);
-                strcat(cbuf,temp);
-            }
-            break;
+
         case RF_SET:
             c = '*';
         case RF_DIMENSIONS:
@@ -7123,6 +7161,13 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             else 
                 ret = -1;
             break;
+        case MONKEYNAME:
+            if(expt.monkey != NULL)
+                sprintf(cbuf,"%s%s%s",serial_strings[MONKEYNAME],temp,expt.monkey);
+            else
+                ret = -1;
+            break;
+            
         case LOGFILE_CODE:
             if(expt.logfile != NULL)
                 sprintf(cbuf,"%s%s%s",serial_strings[LOGFILE_CODE],temp,expt.logfile);
@@ -7202,7 +7247,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s%s%.3f",scode,temp,expt.isi);
             break;
         case STIMULUS_FLAG:
-            if(flag == TO_FILE)
+            if(flag == TO_FILE || flag == TO_GUI)
             {
                 sprintf(cbuf,"%s%s",scode,temp);
                 i = 0;
@@ -10434,7 +10479,7 @@ int ExpStimOver(int retval, int lastchar)
      ReplayExpt(NULL);
      */
     SerialString("EndStim\n",0);
-    SendTrialCount();
+
     return(retval);
 }
 
@@ -13503,7 +13548,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     //	printf("%s\n",line);
     gettimeofday(&now,NULL);
-    ex->cmdtype = frompc;
+    if (frompc > 0)
+        ex->cmdtype = 1;
     if(lineflag & BACKSTIM_BIT)
         TheStim = ex->st->next;
     TheStim = stimptr;
@@ -13530,6 +13576,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         SerialString(buf,0);
         return;
     }
+    else if(!strncmp(line,"newexpt",7)){
+        ResetExpt();
+    }
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
@@ -13541,6 +13590,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sscanf(++s,"%d",&optionflags[SHOW_REWARD_BIAS]);
         }
         return(0);
+    }
+    else if(!strncmp(line,"slider",6) && frompc){ //old commands that we don't want to drop down to codes below
+        return;
     }
     else if(!strncmp(line,"splitctr",10) && frompc){
         if(seroutfile)
@@ -14185,15 +14237,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                         optionflags[i] = 0;
                 }
             }
-            
-            else while(s[j] != 0)
+            if (strchr(s,'+') || strchr(s,'-')) {
+                
+            while(s[j] != 0)
             {
                 if(s[j] == '+' || s[j] == '-')
                     ChangeFlag(&s[j++]);
                 else
                     j++;
             }
-            
+            }
             setoption();
             SerialSend(OPTION_CODE);
             break;
@@ -14317,6 +14370,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case UFF_PREFIX:
         case USERID:
         case BACKGROUND_IMAGE: 
+        case MONKEYNAME:
             SetExptString(ex, TheStim, code, s);
             SerialSend(code);
             break;
@@ -14557,6 +14611,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             case CYBER_CHANNELS:
                 break;
         }
+    }
+    if (frompc < 2 && code >= 0){  // send to verg if it came from Spike2 or binoc GUI
+        notify(line);
+        notify("\n");
     }
     return(code);
 }

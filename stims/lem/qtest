@@ -1,0 +1,32 @@
+#Ori psych with narrowband subspace stimulus
+mo=fore
+st=image
+immode=preload
+immode=orbw
+impref=/local/Images/bpnoise
+ob=10
+op=+fS+2a+I0+hx+ic-iu-im
+Dw=12
+Dm=82.5
+Ri=15
+#coarser range until matlab works and stim built...
+et=Dc
+em=0.2
+ei=0.1log
+nt=4
+e2=or
+m2=5
+i2=90
+n2=2
+sa=3
+po=0.2
+e3=fx
+n3=3
+m3=0
+i3=0.025lin
+over
+sq=0
+vs=0
+op=-fS-2A-I0-hx-ic
+
+

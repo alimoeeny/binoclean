@@ -267,7 +267,7 @@
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 197 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 199 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
@@ -444,7 +444,8 @@
 // their value. But they need a serial-string so that they can be set
 // Since they are not send to PC, they can be > 2 chars long
 #define HIGHXTYPE MAXSERIALCODES+161
-#define MAXSAVECODES MAXSERIALCODES+162 //357
+#define MONKEYNAME MAXSERIALCODES+162
+#define MAXSAVECODES MAXSERIALCODES+163 //362
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -654,6 +655,8 @@ typedef struct stringcode {
 StringCode commstrings[] = {
     {"monitor","Monitor Filename",  MONITOR_FILE, NULL},
     {"lo", "Log File", LOGFILE_CODE, NULL},
+    {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
+    {"monkey", "Monkey name", MONKEYNAME, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -801,10 +804,10 @@ char *serial_strings[NCODES+1] = {
     "sz", /* STIM_SIZE +24 */
     "cb", /* Background Correlation +24 */
     "sd", /* Seed Delay */
-    "1t", /* Trigger level 1 */
-    "2t", /* Trigger level 2 */
-    "3t", /* Trigger level 3 */
-    "4t", /* Trigger level 4 */
+    "xx", /* Trigger level 1 */
+    "xx", /* Trigger level 2 */
+    "xx", /* Trigger level 3 */
+    "xx", /* Trigger level 4 */
     "cs", /* Seed for reverse correlation */
     "fn", /* frame repeat value for reverse correlation */
     "cx", /* stimchange code */
@@ -932,7 +935,7 @@ char *serial_strings[NCODES+1] = {
 "pa", /* Polar Angle */
 "o0",
 "o1",
-"cy", /* cyber channels */
+"xx", /* cyber channels */
 "rs", /* RF Sign */
 "el", /* End Length */
 "lw", /* Line Width for online plots */
@@ -1030,6 +1033,7 @@ char *serial_strings[NCODES+1] = {
 "FakeSig", /* dummy stimulation magnitude*/
 "pBlack", /* fraction of black dots*/
 "hxtype", /* control +hx interleave */
+"monkey",
 
 // these codes are all ones that do not need to be saved
 "ar", /* Aspect Ratio */
@@ -1448,6 +1452,7 @@ char *serial_names[] = {
     "FakeStim Signal", 
     "p(black dot)", 
     "High X type",
+    "Monkey Name",
     
     "Aspect Ratio",
     "Hidden Codes",

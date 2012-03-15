@@ -1,0 +1,17 @@
+st=image
+impref=/local/Images/bpnoise
+immode=orbw
+immode=preload
+et=sf
+em=2.0
+ei=1.0log
+nt=5
+e2=ob
+m2=70
+i2=120
+n2=2
+sl=0
+e3=e0
+
+
+

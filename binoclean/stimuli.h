@@ -425,6 +425,7 @@ struct EXPERIMENT{
     int stflag;
     int hightype;
     char *showflags;
+    char *monkey;
 };
 
 typedef struct EXPERIMENT Expt;
