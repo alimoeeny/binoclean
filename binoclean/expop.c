@@ -7074,15 +7074,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     
     switch(code)
     {
-        case CYBER_CHANNELS:
-            sprintf(cbuf,"");
-            for(i = 0; i < 8; i++){
-                sprintf(temp,"%s%d %d %d %d %d %d %.4f\n",serial_strings[code],i+1,
-                        cyberprops[i].gain[0],cyberprops[i].gain[1],cyberprops[i].ac[0],cyberprops[i].ac[1],
-                        cyberprops[i].lp,cyberprops[i].dc);
-                strcat(cbuf,temp);
-            }
-            break;
+
         case RF_SET:
             c = '*';
         case RF_DIMENSIONS:

@@ -656,6 +656,7 @@ StringCode commstrings[] = {
     {"monitor","Monitor Filename",  MONITOR_FILE, NULL},
     {"lo", "Log File", LOGFILE_CODE, NULL},
     {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
+    {"monkey", "Monkey name", MONKEYNAME, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -934,7 +935,7 @@ char *serial_strings[NCODES+1] = {
 "pa", /* Polar Angle */
 "o0",
 "o1",
-"cy", /* cyber channels */
+"xx", /* cyber channels */
 "rs", /* RF Sign */
 "el", /* End Length */
 "lw", /* Line Width for online plots */

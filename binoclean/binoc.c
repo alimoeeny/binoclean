@@ -1470,10 +1470,32 @@ void SendToGui(int code)
 
 void SendAllToGui()
 {
-    int i;
+    int i,j;
     time_t tval;
     char buf[BUFSIZ];
     
+    
+    if(ChoiceStima->type != STIM_NONE){
+        notify("mo=ChoiceU\n");
+        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        {
+            buf[0] = '=';
+            buf[1] = 0;
+            if((j = MakeString(i, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
+                notify(buf);
+        }
+    }
+    if(ChoiceStimb->type != STIM_NONE){
+        notify("mo=ChoiceD\n");
+        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        {
+            buf[0] = '=';
+            buf[1] = 0;
+            if((j = MakeString(i, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
+                notify(buf);
+        }
+    }
+
     if(expt.st->next != NULL){
         notify("mo=back\n");
         for (i = 0; i < LAST_STIMULUS_CODE;  i++)
@@ -1483,12 +1505,12 @@ void SendAllToGui()
         }
         MakeString(STIMULUS_FLAG, buf, &expt, expt.st->next,TO_GUI);
         notify(buf);
-        notify("mo=fore\n");
         
     }
+    notify("mo=fore\n");
     for(i = 0; i < MAXTOTALCODES; i++){
-        MakeString(i, buf, &expt, expt.st,TO_GUI);
-        notify(buf);
+        if((j=MakeString(i, buf, &expt, expt.st,TO_GUI))>=0)
+            notify(buf);
     }
     i =0;
 
@@ -3969,8 +3991,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             sina = sin(expt.rf->angle * M_PI/180.0);
             bval = -(val * sina - fval * cosa);
             cval = (fval * sina + val * cosa);
-            SetStimulus(st,bval,XPOS,event);
-            SetStimulus(st,cval,YPOS,event);
+            SetStimulus(st,bval,RF_X,event);
+            SetStimulus(st,cval,RF_Y,event);
             break;
         case ORTHOG_POS:
             fval = GetProperty(&expt, st, PARA_POS);
@@ -4025,8 +4047,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             sina = sin(expt.rf->angle * M_PI/180.0);
             bval = -(val * sina - fval * cosa);
             cval = (fval * sina + val * cosa);
-            SetStimulus(st,bval,XPOS,event);
-            SetStimulus(st,cval,YPOS,event);
+            SetStimulus(st,bval,RF_X,event);
+            SetStimulus(st,cval,RF_Y,event);
             break;
         case DISP_X:
             if(val > INTERLEAVE_EXPT){

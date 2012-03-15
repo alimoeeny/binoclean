@@ -189,10 +189,12 @@ for j = 1:length(strs{1})
         DATA.over = 1;
     elseif strncmp(s,'pf=',3)
         s = strrep(s,'+2a','+afc');
+        if s(end) == ':'
+            s = s(1:end-1);
+        end
         s = [s '+'];
         id = regexp(s,'[+-]');
         f = fields(DATA.optionflags);
-
         for j= 1:length(id)-1
             code = strmatch(s(id(j)+1:id(j+1)-1),f);
             if isempty(code)
@@ -471,6 +473,7 @@ function SendState(DATA, varargin)
         fprintf(DATA.outid,'%s=%s\n',f{j},sprintf('%.6f ',DATA.binoc{1}.(f{j})));
         end
     end
+    fprintf(DATA.outid,'clearquick\n');
     for j = 1:length(DATA.quickexpts)
         if length(DATA.quickexpts(j).submenu)
             fprintf(DATA.outid,'qe="%s"%s\n',DATA.quickexpts(j).submenu,DATA.quickexpts(j).filename);
@@ -589,6 +592,9 @@ DATA.psych.show = 1;
 DATA.psych.blockmode = 'all';
 DATA.psych.blockid = [];
 DATA.overcmds = {};
+DATA.exptstimlist = { {} {} {} };
+DATA.stimtypenames = {'fore' 'back' 'ChoiceU' 'ChoiceD'};
+
 
 DATA.nt = 1;
 DATA.exptype = [];
@@ -627,10 +633,10 @@ DATA.stimulusnames{13} = 'corrug';
 DATA.stimulusnames{14} = 'sqcorrug';
 DATA.stimulusnames{15} = 'twobar';
 DATA.stimulusnames{16} = 'rls';
-DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'oP' 'pP' 'sO' 'bO'};
+DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp'};
 DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
 
-DATA.badnames = {'2a''4a' '72'};
+DATA.badnames = {'2a' '4a' '72'};
 DATA.badcodes = [20 20 20];
 
 DATA.comcodes = [];
@@ -959,6 +965,12 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Close','Callback',{@verg, 'close'});
     uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
     uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
+    sm = uimenu(hm,'Label','Recover','Callback',{@RecoverFile, 'toplist'});
+    uimenu(sm,'Label','List','Callback',{@RecoverFile, 'list'});
+    uimenu(sm,'Label','front.eostim','Callback',{@RecoverFile, 'eostim'});
+    uimenu(sm,'Label','front.ebstim','Callback',{@RecoverFile, 'ebstim'});
+    uimenu(sm,'Label','front.1stim','Callback',{@RecoverFile, '1stim'});
+    uimenu(sm,'Label','front.2stim','Callback',{@RecoverFile, '2stim'});
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     if isfield(DATA.quickexpts,'submenu')
     subs = unique({DATA.quickexpts.submenu});
@@ -1017,13 +1029,34 @@ function DATA = InitInterface(DATA)
         id = strmatch(type,{'st' 'bs'});
         if val > 0
         DATA.stimtype(id) = val;
+        fprintf(DATA.outid,'mo=%s',DATA.stimtypenames{id});
         fprintf(DATA.outid,'%s=%s\n',type,DATA.stimulusnames{val});
+        DATA.currentstim = id;
+        SetGui(DATA);
         else
             fprintf('Cant set stim < 1\n');
         end
     end
     set(DATA.toplevel,'UserData',DATA);
-     
+
+    
+function RecoverFile(a, b, type)
+    DATA = GetDataFromFig(a);
+    if strcmp(type,'list')
+        rfile = ['/local/' DATA.binoc{1}.monkey '/front.*'];
+        d = dir(rfile);
+
+        hm = get(a,'parent');
+        c = get(hm,'Children');
+        delete(c);
+        for j = 1:length(d)
+            uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(7:end)});
+        end
+    elseif strmatch(type,{'eostim' 'ebstim' '1stim' '2stim' '3stim' '0stim'})
+        rfile = ['/local/' DATA.binoc{1}.monkey '/front.' type];
+        ReadStimFile(DATA, rfile);
+    end
+    
     
 function SaveFile(a,b,type)
 
@@ -1194,7 +1227,7 @@ function MenuGui(a,b)
          DATA = OpenPipes(DATA, 0);
          SendState(DATA,'all');
          fprintf(DATA.outid,'QueryState\n');
-        DATA = ReadFromBinoc(DATA);   
+        DATA = ReadFromBinoc(DATA,'verbose');   
         start(DATA.timerobj);
         
      elseif flag == 7
@@ -1298,7 +1331,7 @@ function CheckInput(a,b, fig, varargin)
  function DATA = ReadFromBinoc(DATA, varargin)
      global rbusy;
      
-     verbose = 0;
+     verbose = DATA.verbose;
      autocall = 0;
      j = 1;
      while j <= length(varargin)
@@ -1323,12 +1356,12 @@ function CheckInput(a,b, fig, varargin)
      if DATA.outid <= 1
          return;
      end
-     if DATA.verbose >1
+     if verbose >1
      fprintf('%s:',datestr(now,'HH:MM:SS.FFF'))
      end
      fprintf(DATA.outid,'whatsup\n');
      a = fread(DATA.inid,14);
-     if DATA.verbose >1
+     if verbose >1
          fprintf('OK\n');
      end
      if strncmp(char(a'),'SENDINGstart1',12)
@@ -1358,12 +1391,12 @@ function CheckInput(a,b, fig, varargin)
                  nbytes = 0;
              end
      end
-     if DATA.verbose > 1
+     if verbose > 1
      fprintf('Need %d bytes\n',nbytes);
      end
      if nbytes > 0
          a = fread(DATA.inid,nbytes);
-         if DATA.verbose
+         if verbose
          fprintf('%s',char(a'));
          fprintf('Read %d bytes took %.2f\n',length(a),mytoc(ts));
          end
