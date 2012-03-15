@@ -469,7 +469,7 @@ static void drawCube (GLfloat fSize)
     if (fDrawHelp)
         [helpStringTex drawAtPoint:NSMakePoint (floor ((width - [helpStringTex frameSize].width) / 2.0f), floor ((height - [helpStringTex frameSize].height) / 3.0f))];
     
-    if (fDrawCaps) {
+    if (1) { //(fDrawCaps) {
         long renderer;
         [[self pixelFormat] getValues:&renderer forAttribute:NSOpenGLPFARendererID forVirtualScreen:[[self openGLContext] currentVirtualScreen]];
         drawCaps (gDisplayCaps, gNumDisplays, renderer, width);

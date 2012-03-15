@@ -11,6 +11,7 @@
 		3F6433F914FD361E0088CE53 /* penLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F6433F814FD361E0088CE53 /* penLog.m */; };
 		3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FB14FD3A770088CE53 /* penLogWindow.xib */; };
 		3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FD14FD3E310088CE53 /* stepperWindow.xib */; };
+		3FB524D0151252E9002392D2 /* BinocLean-Icon01.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FB524CF151252E9002392D2 /* BinocLean-Icon01.png */; };
 		4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 4114944914FB150A005EDCDE /* stepperGUI.m */; };
 		41520B6113A25981006CE4A7 /* MonkeyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41520B6013A25981006CE4A7 /* MonkeyWindow.xib */; };
 		41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6313A259C8006CE4A7 /* MonkeyGLView.m */; };
@@ -182,6 +183,7 @@
 		3F6433F814FD361E0088CE53 /* penLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = penLog.m; sourceTree = "<group>"; };
 		3F6433FB14FD3A770088CE53 /* penLogWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = penLogWindow.xib; sourceTree = "<group>"; };
 		3F6433FD14FD3E310088CE53 /* stepperWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = stepperWindow.xib; sourceTree = "<group>"; };
+		3FB524CF151252E9002392D2 /* BinocLean-Icon01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BinocLean-Icon01.png"; sourceTree = "<group>"; };
 		4114944814FB150A005EDCDE /* stepperGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stepperGUI.h; sourceTree = "<group>"; };
 		4114944914FB150A005EDCDE /* stepperGUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = stepperGUI.m; sourceTree = "<group>"; };
 		41520B6013A25981006CE4A7 /* MonkeyWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MonkeyWindow.xib; sourceTree = "<group>"; };
@@ -488,13 +490,6 @@
 			name = GLUtils;
 			sourceTree = "<group>";
 		};
-		41520B7513A26D10006CE4A7 /* ObjBinoc */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = ObjBinoc;
-			sourceTree = "<group>";
-		};
 		4156A61613C5FDDB002DC9AA /* Matlab */ = {
 			isa = PBXGroup;
 			children = (
@@ -510,6 +505,7 @@
 		417AEA8A13DE21C1006F7A77 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				3FB524CF151252E9002392D2 /* BinocLean-Icon01.png */,
 				3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */,
 				41B1211613DF6E21008869E3 /* counterButtonDown114.png */,
 				41B1211713DF6E21008869E3 /* counterButtonUP114.png */,
@@ -589,7 +585,6 @@
 				41520B6313A259C8006CE4A7 /* MonkeyGLView.m */,
 				41520B6013A25981006CE4A7 /* MonkeyWindow.xib */,
 				419DCE0F13A133B3004E8464 /* Supporting Files */,
-				41520B7513A26D10006CE4A7 /* ObjBinoc */,
 			);
 			path = binoclean;
 			sourceTree = "<group>";
@@ -915,6 +910,7 @@
 				C969F920150D233B00D7A5A7 /* rdsopos in Resources */,
 				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
 				C90350CC150D279800DFD9D3 /* ali in Resources */,
+				3FB524D0151252E9002392D2 /* BinocLean-Icon01.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -25,12 +25,12 @@ NSMutableDictionary *bold12Attribs;
 
 void acknowledge(char * a ,int b)
 {
-    printf("Acknowledge! %s", a);
-    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
-    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
-    [acknowledgeAlert addButtonWithTitle:@"I know!"];
-    [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
-    [acknowledgeAlert beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+    NSLog(@"Acknowledge! %s", a);
+//    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
+//    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
+//    [acknowledgeAlert addButtonWithTitle:@"I know!"];
+//    [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
+//    [acknowledgeAlert beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
 }
 
 void displayOnMonkeyView(char *s, int x, int y)
@@ -144,7 +144,6 @@ void notify(char * s)
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     NSLog([[[NSFileManager alloc] init] currentDirectoryPath]);
-    //    int useDIO = 1;
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
@@ -162,16 +161,16 @@ void notify(char * s)
     
     
     unlink(IN_PIPE);
-    if (mkfifo(IN_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
+    if (mkfifo(IN_PIPE, S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
         NSLog(@"Can't create the pipe");
-        [NSAlert alertWithMessageText:@"Can't create the input pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the input pipe. You can try to remove it manually by rm /tmp/binocinputpipe "];   
+//        [NSAlert alertWithMessageText:@"Can't create the input pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the input pipe. You can try to remove it manually by rm /tmp/binocinputpipe "];   
         abort();
     }
     
     unlink(OUT_PIPE);
-    if (mkfifo(OUT_PIPE, S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH) == -1) {
+    if (mkfifo(OUT_PIPE, S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
         NSLog(@"Can't create the output pipe");
-        [NSAlert alertWithMessageText:@"Can't create the output pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the output pipe. You can try to remove it manually by rm /tmp/binocoutputpipe "];   
+//        [NSAlert alertWithMessageText:@"Can't create the output pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the output pipe. You can try to remove it manually by rm /tmp/binocoutputpipe "];   
         abort();
     }
     
@@ -212,16 +211,14 @@ void notify(char * s)
         //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
         
-        [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, nil]]; 
+        [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, [NSNumber numberWithBool:NO], NSFullScreenModeApplicationPresentationOptions, nil]]; 
         NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
     }
     
     
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
-//    ReadExptFile("/local/demo/stims/bgc.txt", 1, 0, 0);
     StartRunning();
- //   StopGo(1);
     WriteToOutputPipe(@"SENDINGstart1\n");
 }
 

@@ -72,13 +72,14 @@ extern char stepperport[256];
 - (void) moveElectrode:(int) step
 {
     if (abs(step) > 300) {
-        NSAlert * a = [NSAlert alertWithMessageText:@"Large Step!" defaultButton:@"No, Don't move the electrode" alternateButton:@"Sure, Go Ahead!" otherButton:nil informativeTextWithFormat:@"You want to move the electrode %d micrometers and it is quite a long distance.\r Are you sure it is a good idea?!", step];
+        NSLog(@"Large Step!");
+//        NSAlert * a = [NSAlert alertWithMessageText:@"Large Step!" defaultButton:@"No, Don't move the electrode" alternateButton:@"Sure, Go Ahead!" otherButton:nil informativeTextWithFormat:@"You want to move the electrode %d micrometers and it is quite a long distance.\r Are you sure it is a good idea?!", step];
 //        NSAlert * a = [[NSAlert alloc] init];
 //        [a setMessageText:@"Large Step!"];
 //        [a addButtonWithTitle:@"Sure, Go Ahead!"];
 //        [a addButtonWithTitle:@"No, Don't move the electrode"];
 //        [a setInformativeText:[NSString stringWithFormat:@"You want to move the electrode %d micrometers and it is quite a long distance.\r Are you sure it is a good idea?!", step]];
-        [a beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:self didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:) contextInfo:nil];
+//        [a beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:self didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:) contextInfo:nil];
     }
     else
     {
