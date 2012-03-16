@@ -1,0 +1,17 @@
+tty1=/dev/tty.USA49Wfd5P1.1
+tty2=/dev/tty.USA49Wfd5P2.2
+monitor=/local/monitors/Default
+stepperid=1
+fullscreen=2
+winsize=1440x1050
+#winsize=1440x1050+1600
+#winsize=1024x768+100
+framerate=60
+electrode=16Contact CNT 100u 88-09
+electrode=24Contact 75u 95-10
+electrode=24Contact 75u 49-10
+electrode=24Contact CNT 75u 97-10i
+electrode=24Contact CNT 10u 75-09
+electrode=24Contact 50u 96-10
+ch10+,fs5
+

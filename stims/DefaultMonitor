@@ -1,0 +1,7 @@
+name=Dell Screen in Offcie
+vd=83.5  	#VIEWD_CODE
+px=0.0567	#XPIXEL_CODE  217pix = 12.3cm Sep 17 2009
+py=0.0567	#YPIXEL_CODE
+ga=2.3		#Gamma val set for monitor
+winsize=1600x1200
+fz=60

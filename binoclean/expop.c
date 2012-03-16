@@ -14189,11 +14189,14 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             break;
         case SOFTOFF_CODE:
-            sscanf(s,"%f %f %f %f",&expt.softoff[0],
+            sscanf(s,"%lf %lf %lf %lf",&expt.softoff[0],
                    &expt.softoff[1],&expt.softoff[2],
                    &expt.softoff[3]);
             //ALi SetWPanel();
-            SerialSend(code);
+            if (frompc == 1) // from spike 2
+                SendToGui(SOFTOFF_CODE);
+            else
+                SerialSend(code);
             return(code);
         case UKA_VALS:
             i = sscanf(s,"%f %f %f %f %f",&in[0],&in[1],&in[2],&in[3],&in[4]);

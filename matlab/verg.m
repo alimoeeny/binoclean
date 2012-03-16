@@ -172,8 +172,10 @@ for j = 1:length(strs{1})
         DATA.winpos{1} = sscanf(s(8:end),'%d');
     elseif strncmp(s,'optionwinpos=',10)
         DATA.winpos{2} = sscanf(s(eid(1)+1:end),'%d');
-    elseif strncmp(s,'penlogwinpos=',10)
+    elseif strncmp(s,'softoffwinpos=',10)
         DATA.winpos{3} = sscanf(s(eid(1)+1:end),'%d');
+    elseif strncmp(s,'penlogwinpos=',10)
+        DATA.winpos{4} = sscanf(s(eid(1)+1:end),'%d');
 
     elseif strncmp(s,'STIMC ',6)
         DATA.trialcounts = sscanf(s(7:end),'%d');
@@ -649,7 +651,7 @@ DATA.badcodes = [20 20 20];
 DATA.comcodes = [];
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
-DATA.winpos{3} = [];
+DATA.winpos{3} = [600 scrsz(4)-100 400 100];
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.incr = [0 0 0];
@@ -658,6 +660,7 @@ DATA.quickexpts = [];
 DATA.stepsize = [20 10];
 DATA.stepperpos = -2000;
 DATA.tag.stepper = 'Stepper';
+DATA.tag.softoff = 'Softoff';
 DATA.tag.options = 'Options';
 DATA.tag.penlog = 'Penetration Log';
 DATA.comcodes(1).label = 'Xoffset';
@@ -1008,6 +1011,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8});
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
+    uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, '\centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
@@ -1579,8 +1583,109 @@ for j = 1:length(f)
     uicontrol(gcf,'style','checkbox','string',str, ...
         'units', 'norm', 'position',bp,'value',DATA.stimflags{1}.(f{j}),'Tag',f{j},'callback',{@StimToggle, f{j}});
 
-    end
+end
 
+    
+function SoftoffPopup(a,b, type)
+  DATA = GetDataFromFig(a);
+  
+  
+  id = strmatch(type,{'RH' 'LH' 'RV' 'LV' 'null' 'clear' 'popup'});
+  if isempty(id)
+      return;
+  elseif id < 5
+      DATA.binoc{1}.so(id) = str2num(get(a,'string'));
+      SendCode(DATA, 'so');
+      set(DATA.toplevel,'UserData',DATA);
+  elseif id == 5
+     fprintf(DATA.outid,'sonull\n');
+     DATA = ReadFromBinoc(DATA);
+     SetTextItem(gcf,'RH',DATA.binoc{1}.so(1));
+     SetTextItem(gcf,'LH',DATA.binoc{1}.so(2));
+     SetTextItem(gcf,'RV',DATA.binoc{1}.so(3));
+     SetTextItem(gcf,'LV',DATA.binoc{1}.so(4));
+  elseif id == 6
+     fprintf(DATA.outid,'so=0 0 0 0\n');
+     SetTextItem(gcf,'RH',0);
+     SetTextItem(gcf,'LH',0);
+     SetTextItem(gcf,'RV',0);
+     SetTextItem(gcf,'LV',0);
+  end
+  
+  if ~strcmp(type,'popup')
+      return;
+  end
+  cntrl_box = findobj('Tag',DATA.tag.softoff,'type','figure');
+  if ~isempty(cntrl_box)
+      figure(cntrl_box);
+      return;
+  end
+if length(DATA.winpos{3}) ~= 4
+    DATA.winpos{3} = get(DATA.toplevel,'position');
+end
+cntrl_box = figure('Position', DATA.winpos{3},...
+        'NumberTitle', 'off', 'Tag',DATA.tag.softoff,'Name','Softoff','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+    
+nr = 2;
+bp = [0.01 0.99-1/nr 0.115 1./nr];
+    uicontrol(gcf,'style','text','string','RH', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(1)), ...
+        'Callback', {@SoftoffPopup, 'RH'},'Tag','RH',...
+        'units', 'norm', 'position',bp);
+   
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','LH', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(2)), ...
+        'Callback', {@SoftoffPopup, 'LH'},'Tag','LH',...
+        'units', 'norm', 'position',bp);
+    
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','RV', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(3)), ...
+        'Callback', {@SoftoffPopup, 'RV'},'Tag','RV',...
+        'units', 'norm', 'position',bp);
+    
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','LV', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(4)), ...
+        'Callback', {@SoftoffPopup, 'LV'},'Tag','LV',...
+        'units', 'norm', 'position',bp);    
+
+bp(1) = 0.01;
+bp(2) = bp(2)- 1./nr;
+
+    uicontrol(gcf,'style','pushbutton','string','Null', ...
+        'Callback', {@SoftoffPopup, 'null'} ,...
+        'units', 'norm', 'position',bp,'value',1);
+    
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','pushbutton','string','Clear', ...
+        'Callback', {@SoftoffPopup, 'clear'} ,...
+        'units', 'norm', 'position',bp,'value',1);
+    
+set(gcf,'CloseRequestFcn',{@CloseWindow, 3});
+
+    
+function CloseWindow(a,b,wid)
+  DATA = GetDataFromFig(a);
+  x = get(a, 'position');
+  DATA.winpos{wid} = x;
+  set(DATA.toplevel,'UserData',DATA);
+  close(a);
+        
     
 function StepperPopup(a,b)
   DATA = GetDataFromFig(a);
@@ -1712,7 +1817,7 @@ function SendCode(DATA, code)
             return;
         end
     end
-    s = CodeText(DATA, code);
+    s = CodeText(DATA, code)
     if length(s)
     fprintf(DATA.outid,'%s\n',s);
     end
@@ -1741,8 +1846,8 @@ if strcmp(code,'optionflag')
         s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
         s = [s sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2))];
         s = [s sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3))];
-    elseif isfield(DATA.binoc,code)
-        s = sprintf('%s=%.6f\n',code,DATA.binoc.(code));
+    elseif isfield(DATA.binoc{DATA.currentstim},code)
+        s = sprintf('%s=%s\n',code,num2str(DATA.binoc{DATA.currentstim}.(code)'));
     end
         
 function StimToggle(a,b, flag)       
