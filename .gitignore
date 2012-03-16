@@ -17,4 +17,5 @@ profile
 *.m~
 .dropbox
 Icon$'\r'
+._*
 
