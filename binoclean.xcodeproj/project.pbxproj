@@ -17,7 +17,6 @@
 		41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6313A259C8006CE4A7 /* MonkeyGLView.m */; };
 		41520B6713A25B72006CE4A7 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6513A25B72006CE4A7 /* GLString.m */; };
 		41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6A13A25BB3006CE4A7 /* GLCheck.c */; };
-		41520B6E13A25BD7006CE4A7 /* trackball.c in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6D13A25BD7006CE4A7 /* trackball.c */; };
 		41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6F13A25BF6006CE4A7 /* drawInfo.m */; };
 		417AEA8513DE21BB006F7A77 /* playButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8113DE21BB006F7A77 /* playButton.png */; };
 		417AEA8613DE21BB006F7A77 /* playButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8213DE21BB006F7A77 /* playButtonSilver.png */; };
@@ -193,8 +192,6 @@
 		41520B6613A25B72006CE4A7 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		41520B6913A25BB3006CE4A7 /* GLCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLCheck.h; sourceTree = "<group>"; };
 		41520B6A13A25BB3006CE4A7 /* GLCheck.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLCheck.c; sourceTree = "<group>"; };
-		41520B6C13A25BD7006CE4A7 /* trackball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trackball.h; sourceTree = "<group>"; };
-		41520B6D13A25BD7006CE4A7 /* trackball.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = trackball.c; sourceTree = "<group>"; };
 		41520B6F13A25BF6006CE4A7 /* drawInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = drawInfo.m; sourceTree = "<group>"; };
 		41520B7013A25BF6006CE4A7 /* drawInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawInfo.h; sourceTree = "<group>"; };
 		4156A61113C5FDD2002DC9AA /* GetDataFromFig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetDataFromFig.m; sourceTree = "<group>"; };
@@ -480,8 +477,6 @@
 			children = (
 				41520B6F13A25BF6006CE4A7 /* drawInfo.m */,
 				41520B7013A25BF6006CE4A7 /* drawInfo.h */,
-				41520B6C13A25BD7006CE4A7 /* trackball.h */,
-				41520B6D13A25BD7006CE4A7 /* trackball.c */,
 				41520B6913A25BB3006CE4A7 /* GLCheck.h */,
 				41520B6A13A25BB3006CE4A7 /* GLCheck.c */,
 				41520B6513A25B72006CE4A7 /* GLString.m */,
@@ -995,7 +990,6 @@
 				41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */,
 				41520B6713A25B72006CE4A7 /* GLString.m in Sources */,
 				41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */,
-				41520B6E13A25BD7006CE4A7 /* trackball.c in Sources */,
 				41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */,
 				41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */,
 				41B1212713DF795C008869E3 /* mainGUI.m in Sources */,

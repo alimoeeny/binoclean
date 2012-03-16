@@ -167,7 +167,7 @@ int GetLastPen(){
         acknowledge("We need to know which monkey we are penetrating!\r Don't we?! \r \r NOTHING SAVED !");
         return;
     }
-    chdir("/local/lem");
+
     OpenPenetrationLog([self.penNumber intValue]);
     [[NSUserDefaults standardUserDefaults] setValue:self.penNumber forKey:@"pennumber"];
     [[NSUserDefaults standardUserDefaults] setValue:self.monkeyValue forKey:@"monkeyname"];

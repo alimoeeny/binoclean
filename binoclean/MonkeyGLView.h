@@ -70,12 +70,6 @@ typedef struct {
 
 + (NSOpenGLPixelFormat*) basicPixelFormat;
 
-- (void) updateProjection;
-- (void) updateModelView;
-- (void) resizeGL;
-- (void) resetCamera;
-
-- (void) updateObjectRotationForTimeDelta:(CFAbsoluteTime)deltaTime;
 - (void)animationTimer:(NSTimer *)timer;
 
 - (void) createHelpString;

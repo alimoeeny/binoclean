@@ -8,29 +8,11 @@
 
 #import "MonkeyGLView.h"
 #import "GLCheck.h"
-#import "trackball.h"
 #import "drawinfo.h"
 #import "stimdefs.h"
 
 int winsiz [2];
 
-// ==================================
-
-// simple cube data
-GLint cube_num_vertices = 8;
-
-GLfloat cube_vertices [8][3] = {
-    {1.0, 1.0, 1.0}, {1.0, -1.0, 1.0}, {-1.0, -1.0, 1.0}, {-1.0, 1.0, 1.0},
-    {1.0, 1.0, -1.0}, {1.0, -1.0, -1.0}, {-1.0, -1.0, -1.0}, {-1.0, 1.0, -1.0} };
-
-GLfloat cube_vertex_colors [8][3] = {
-    {1.0, 1.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 1.0, 1.0},
-    {1.0, 0.0, 1.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0} };
-
-GLint num_faces = 6;
-
-short cube_faces [6][4] = {
-    {3, 2, 1, 0}, {2, 3, 7, 6}, {0, 1, 5, 4}, {3, 0, 4, 7}, {1, 2, 6, 5}, {4, 5, 6, 7} };
 
 recVec gOrigin = {0.0, 0.0, 0.0};
 
@@ -126,35 +108,6 @@ GLenum glReportError (void)
 
 #pragma mark ---- OpenGL Utils ----
 
-// ---------------------------------
-
-// draw our simple cube based on current modelview and projection matrices
-static void drawCube (GLfloat fSize)
-{
-	long f, i;
-	if (1) {
-		glColor3f (1.0, 0.5, 0.0);
-		glBegin (GL_QUADS);
-		for (f = 0; f < num_faces; f++)
-			for (i = 0; i < 4; i++) {
-				glColor3f (cube_vertex_colors[cube_faces[f][i]][0], cube_vertex_colors[cube_faces[f][i]][1], cube_vertex_colors[cube_faces[f][i]][2]);
-				glVertex3f(cube_vertices[cube_faces[f][i]][0] * fSize, cube_vertices[cube_faces[f][i]][1] * fSize, cube_vertices[cube_faces[f][i]][2] * fSize);
-			}
-		glEnd ();
-	}
-	if (1) {
-		glColor3f (0.0, 0.0, 0.0);
-		for (f = 0; f < num_faces; f++) {
-			glBegin (GL_LINE_LOOP);
-            for (i = 0; i < 4; i++)
-                glVertex3f(cube_vertices[cube_faces[f][i]][0] * fSize, cube_vertices[cube_faces[f][i]][1] * fSize, cube_vertices[cube_faces[f][i]][2] * fSize);
-			glEnd ();
-		}
-	}
-}
-
-// ===================================
-
 @implementation MonkeyGLView
 
 // pixel format definition
@@ -172,183 +125,6 @@ static void drawCube (GLfloat fSize)
 
 // ---------------------------------
 
-// update the projection matrix based on camera and view info
-- (void) updateProjection
-{
-    //	GLdouble ratio, radians, wd2;
-    //	GLdouble left, right, top, bottom, near, far;
-    //    
-    //    [[self openGLContext] makeCurrentContext];
-    //    
-    //	// set projection
-    //	glMatrixMode (GL_PROJECTION);
-    //	glLoadIdentity ();
-    ////Ali 20/6/2011
-    ////    near = -camera.viewPos.z - shapeSize * 0.5;
-    ////	if (near < 0.00001)
-    ////		near = 0.00001;
-    ////	far = -camera.viewPos.z + shapeSize * 0.5;
-    ////	if (far < 1.0)
-    ////		far = 1.0;
-    ////	radians = 0.0174532925 * camera.aperture / 2; // half aperture degrees to radians 
-    ////	wd2 = near * tan(radians);
-    ////	ratio = camera.viewWidth / (float) camera.viewHeight;
-    //	if (ratio >= 1.0) {
-    //		left  = -ratio * wd2;
-    //		right = ratio * wd2;
-    //		top = wd2;
-    //		bottom = -wd2;	
-    //	} else {
-    //		left  = -wd2;
-    //		right = wd2;
-    //		top = wd2 / ratio;
-    //		bottom = -wd2 / ratio;	
-    //	}
-    //	glFrustum (left, right, bottom, top, near, far);
-    //	[self updateCameraString];
-}
-
-// ---------------------------------
-
-// updates the contexts model view matrix for object and camera moves
-- (void) updateModelView
-{
-    //    [[self openGLContext] makeCurrentContext];
-	
-	// move view
-    //	glMatrixMode (GL_MODELVIEW);
-    //	glLoadIdentity ();
-    //Ali 20/6/2011
-    //	gluLookAt (camera.viewPos.x, camera.viewPos.y, camera.viewPos.z,
-    //			   camera.viewPos.x + camera.viewDir.x,
-    //			   camera.viewPos.y + camera.viewDir.y,
-    //			   camera.viewPos.z + camera.viewDir.z,
-    //			   camera.viewUp.x, camera.viewUp.y ,camera.viewUp.z);
-    
-	// if we have trackball rotation to map (this IS the test I want as it can be explicitly 0.0f)
-    //	if ((gTrackingViewInfo == self) && gTrackBallRotation[0] != 0.0f) 
-    //		glRotatef (gTrackBallRotation[0], gTrackBallRotation[1], gTrackBallRotation[2], gTrackBallRotation[3]);
-    //	else {
-    //	}
-	// accumlated world rotation via trackball
-    //	glRotatef (worldRotation[0], worldRotation[1], worldRotation[2], worldRotation[3]);
-	// object itself rotating applied after camera rotation
-    //	glRotatef (objectRotation[0], objectRotation[1], objectRotation[2], objectRotation[3]);
-    //	rRot[0] = 0.0f; // reset animation rotations (do in all cases to prevent rotating while moving with trackball)
-    //	rRot[1] = 0.0f;
-    //	rRot[2] = 0.0f;
-    //	[self updateCameraString];
-}
-
-// ---------------------------------
-
-// handles resizing of GL need context update and if the window dimensions change, a
-// a window dimension update, reseting of viewport and an update of the projection matrix
-- (void) resizeGL
-{
-    //	NSRect rectView = [self bounds];
-	
-	// ensure camera knows size changed
-    //Ali 20/6/2011
-    //	if ((camera.viewHeight != rectView.size.height) ||
-    //	    (camera.viewWidth != rectView.size.width)) {
-    //		camera.viewHeight = rectView.size.height;
-    //		camera.viewWidth = rectView.size.width;
-    //		
-    //		//glViewport (0, 0, camera.viewWidth, camera.viewHeight);
-    //		[self updateProjection];  // update projection matrix
-    //		[self updateInfoString];
-    //	}
-}
-
-// ---------------------------------
-
-// move camera in z axis
--(void)mouseDolly: (NSPoint) location
-{
-    //Ali 20/6/2011
-    //
-    //	GLfloat dolly = (gDollyPanStartPoint[1] -location.y) * -camera.viewPos.z / 300.0f;
-    //	camera.viewPos.z += dolly;
-    //	if (camera.viewPos.z == 0.0) // do not let z = 0.0
-    //		camera.viewPos.z = 0.0001;
-    //	gDollyPanStartPoint[0] = location.x;
-    //	gDollyPanStartPoint[1] = location.y;
-}
-
-// ---------------------------------
-
-// move camera in x/y plane
-- (void)mousePan: (NSPoint) location
-{
-    //	GLfloat panX = (gDollyPanStartPoint[0] - location.x) / (900.0f / -camera.viewPos.z);
-    //	GLfloat panY = (gDollyPanStartPoint[1] - location.y) / (900.0f / -camera.viewPos.z);
-    //	camera.viewPos.x -= panX;
-    //	camera.viewPos.y -= panY;
-    //	gDollyPanStartPoint[0] = location.x;
-    //	gDollyPanStartPoint[1] = location.y;
-}
-
-// ---------------------------------
-
-// sets the camera data to initial conditions
-- (void) resetCamera
-{
-    //    camera.aperture = 40;
-    //    camera.rotPoint = gOrigin;
-    //    
-    //    camera.viewPos.x = 0.0;
-    //    camera.viewPos.y = 0.0;
-    //    camera.viewPos.z = -10.0;
-    //    camera.viewDir.x = -camera.viewPos.x; 
-    //    camera.viewDir.y = -camera.viewPos.y; 
-    //    camera.viewDir.z = -camera.viewPos.z;
-    //    
-    //    camera.viewUp.x = 0;  
-    //    camera.viewUp.y = 1; 
-    //    camera.viewUp.z = 0;
-}
-
-// ---------------------------------
-
-// given a delta time in seconds and current rotation accel, velocity and position, update overall object rotation
-- (void) updateObjectRotationForTimeDelta:(CFAbsoluteTime)deltaTime
-{
-	// update rotation based on vel and accel
-	float rotation[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	GLfloat fVMax = 2.0;
-	short i;
-	// do velocities
-	for (i = 0; i < 3; i++) {
-		rVel[i] += rAccel[i] * deltaTime * 30.0;
-		
-		if (rVel[i] > fVMax) {
-			rAccel[i] *= -1.0;
-			rVel[i] = fVMax;
-		} else if (rVel[i] < -fVMax) {
-			rAccel[i] *= -1.0;
-			rVel[i] = -fVMax;
-		}
-		
-		rRot[i] += rVel[i] * deltaTime * 30.0;
-		
-		while (rRot[i] > 360.0)
-			rRot[i] -= 360.0;
-		while (rRot[i] < -360.0)
-			rRot[i] += 360.0;
-	}
-	rotation[0] = rRot[0];
-	rotation[1] = 1.0f;
-    //	addToRotationTrackball (rotation, objectRotation);
-	rotation[0] = rRot[1];
-	rotation[1] = 0.0f; rotation[2] = 1.0f;
-    //	addToRotationTrackball (rotation, objectRotation);
-	rotation[0] = rRot[2];
-	rotation[2] = 0.0f; rotation[3] = 1.0f;
-    //	addToRotationTrackball (rotation, objectRotation);
-}
-
-// ---------------------------------
 
 // per-window timer function, basic time based animation preformed here
 - (void)animationTimer:(NSTimer *)timer
@@ -405,38 +181,6 @@ static void drawCube (GLfloat fSize)
 	msgStringTex = [[GLString alloc] initWithString:string withAttributes:stanStringAttrib withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] withBoxColor:[NSColor colorWithDeviceRed:0.5f green:0.5f blue:0.5f alpha:0.5f] withBorderColor:[NSColor colorWithDeviceRed:0.8f green:0.8f blue:0.8f alpha:0.8f]];
 }
 
-// ---------------------------------
-
-- (void) updateCameraString
-{ // update info string texture
-    //	static recCamera savedCamera; 
-    //	
-    //	// This is a compromise between a heavy comparison
-    //	// and updating the camera texture when not needed
-    //	// what is faster the comparison or the texture update
-    //	// only empirical data on a particular configuration
-    //	// will yield a real answer
-    //	
-    //	if  ( (savedCamera.viewPos.x == camera.viewPos.x) &&
-    //         (savedCamera.viewPos.y == camera.viewPos.y) &&
-    //         (savedCamera.viewPos.z == camera.viewPos.z) &&
-    //         (savedCamera.viewDir.x == camera.viewDir.x) &&
-    //         (savedCamera.viewDir.y == camera.viewDir.y) &&
-    //         (savedCamera.viewDir.z == camera.viewDir.z) &&
-    //         (savedCamera.aperture == camera.aperture) )
-    //	{
-    //		return; // Don't update texture! (which usually is more expensive than the comparison above)
-    //	} else {
-    //		NSString * string = [NSString stringWithFormat:@"Camera at (%0.1f, %0.1f, %0.1f) looking at (%0.1f, %0.1f, %0.1f) with %0.1f aperture", camera.viewPos.x, camera.viewPos.y, camera.viewPos.z, camera.viewDir.x, camera.viewDir.y, camera.viewDir.z, camera.aperture];
-    //		if (camStringTex)
-    //			[camStringTex setString:string withAttributes:stanStringAttrib];
-    //		else {
-    //			camStringTex = [[GLString alloc] initWithString:string withAttributes:stanStringAttrib withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] withBoxColor:[NSColor colorWithDeviceRed:0.5f green:0.5f blue:0.5f alpha:0.5f] withBorderColor:[NSColor colorWithDeviceRed:0.8f green:0.8f blue:0.8f alpha:0.8f]];
-    //		}
-    //	}
-    //	
-    //	savedCamera = camera;
-}
 
 // ---------------------------------
 
@@ -678,20 +422,6 @@ static void drawCube (GLfloat fSize)
     e.modifierKey = 0;
     e.mouseButton = Button1;
     HandleMouse(e);
-    
-    //	NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    //	location.y = camera.viewHeight - location.y;
-    //	if (gTrackball) {
-    //		rollToTrackball (location.x, location.y, gTrackBallRotation);
-    //		[self setNeedsDisplay: YES];
-    //	} else if (gDolly) {
-    //		[self mouseDolly: location];
-    //		[self updateProjection];  // update projection matrix (not normally done on draw)
-    //		[self setNeedsDisplay: YES];
-    //	} else if (gPan) {
-    //		[self mousePan: location];
-    //		[self setNeedsDisplay: YES];
-    //	}
 }
 
 // ---------------------------------
@@ -719,14 +449,12 @@ static void drawCube (GLfloat fSize)
 	[self mouseDragged: theEvent];
 }
 
-// ---------------------------------
 
 - (void)otherMouseDragged:(NSEvent *)theEvent
 {
 	[self mouseDragged: theEvent];
 }
 
-// ---------------------------------
 
 - (void) drawRect:(NSRect)rect
 {		

@@ -2679,7 +2679,14 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         case MONKEYNAME:
             expt.monkey = myscopy(expt.monkey,s);
             sprintf(buf,"/local/%s",expt.monkey);
-            chdir(buf);
+            if (chdir(buf)!=0)
+            {
+                acknowledge("Can't chdir to the /local/MONKEYNAME directory");
+                sprintf(buf,"/local");
+                if (chdir(buf)) {
+                    acknowledge("Can't chdir to /local either");
+                }
+            }
             break;
             
         case HELPFILE_PATH:
