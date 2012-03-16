@@ -40,3 +40,4 @@ Things that need fixing:
 * why doenst keyboard tab work when binoclean is running
 * turn off screensaver in binoc
 - in verg, remove stepper from the pop menu
+- Quitting with command-Q now leaves DIO in bad state
