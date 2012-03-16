@@ -1380,11 +1380,11 @@ char **argv;
             if(verbose)
                 printf("Reading %d....\n",loadfiles[nfiles]);
             //Ali: for some reason xcode passes these additional arguments that messes up things.
-            /*if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
+            if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
              fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
              exit_program();
              } 
-             */
+             
             nfiles++;
             /* 
              * the exptfile will be re-read after the interface is made below.
