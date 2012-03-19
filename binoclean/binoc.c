@@ -1382,7 +1382,7 @@ char **argv;
             //Ali: for some reason xcode passes these additional arguments that messes up things.
             if(ReadExptFile(loadfiles[nfiles],2,0,1) < 0){
              fprintf(stderr,"Error Reading %s - Check Path\n",loadfiles[nfiles]);
-             exit_program();
+             //Ali: exit_program();
              } 
              
             nfiles++;

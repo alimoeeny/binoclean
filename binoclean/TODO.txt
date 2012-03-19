@@ -41,3 +41,4 @@ Things that need fixing:
 * turn off screensaver in binoc
 - in verg, remove stepper from the pop menu
 - Quitting with command-Q now leaves DIO in bad state
+- in verg turning the right eye / left eye markers gets confused 
