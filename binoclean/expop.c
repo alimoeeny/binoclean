@@ -1470,6 +1470,9 @@ void PrintCodes(int mode)
             case STIMULUS_FLAG:
             case SHOWFLAGS_CODE:
             case VERSION_CODE:
+            case USERID:
+            case COVARIATE:
+            case BACKSTIM_TYPE:
             ctype = 'C';
                 break;
             default:
