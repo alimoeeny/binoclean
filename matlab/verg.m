@@ -275,7 +275,7 @@ for j = 1:length(strs{1})
         for j= 1:length(id)-1
             code = strmatch(s(id(j)+1:id(j+1)-1),DATA.badnames);
             if length(code) == 1
-                code = DATA.badcodes(code);
+                code = strmatch(DATA.badreplacenames{code},f);
             else
             code = strmatch(s(id(j)+1:id(j+1)-1),f);
             end
@@ -288,6 +288,17 @@ for j = 1:length(strs{1})
             DATA.optionflags.(f{code}) = 0;
             end
         end
+    elseif strncmp(s,'ch10',4)
+        DATA.showxy(1) = strfind('-+',s(5))-1;
+        id = strfind(s,'fs');
+        if length(id) == 1
+            DATA.binoc{1}.xyfsd = sscanf(s(id(1)+2:end),'%f');
+        end
+    elseif strncmp(s,'ch11',4)
+        DATA.showxy(2) = strfind('-+',s(5))-1;
+    elseif strncmp(s,'ch12',4)
+        DATA.showxy(3) = strfind('-+',s(5))-1;
+    elseif regexp(s,'^ch[0-9]')
     elseif strncmp(s, 'stepperxy', 8)
     elseif strncmp(s, 'penwinxy', 8)
     elseif strncmp(s, 'optionwinxy', 8)
@@ -499,7 +510,7 @@ function SaveExpt(DATA, name)
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
 
     for j = 1:length(f)
-        fprintf(fid,'%s=%.6f\n',f{j},DATA.binoc{2}.(f{j}));
+        fprintf(fid,'%s\n',CodeText(DATA, f{j},'back'));
     end
     
     
@@ -507,7 +518,7 @@ function SaveExpt(DATA, name)
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
     for j = 1:length(f)
-        fprintf(fid,'%s=%.6f\n',f{j},DATA.binoc{1}.(f{j}));
+        fprintf(fid,'%s\n',CodeText(DATA, f{j}));
     end
     fclose(fid);
     fprintf('Saved %s\n',name);
@@ -646,7 +657,7 @@ DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp' 'O2' 'lf' 
 DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
 
 DATA.badnames = {'2a' '4a' '72'};
-DATA.badcodes = [20 20 20];
+DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
@@ -670,6 +681,8 @@ DATA.comcodes(1).type = 'num';
 DATA.strcodes(1).label = 'Monitor file';
 DATA.strcodes(1).code = 'monitor';
 DATA.strcodes(1).icode = 0; 
+DATA.binoc{1}.xo = 0;
+DATA.binoc{2}.xo = 0;
 
 DATA.binocstr.monitor = '/local/monitors/Default';
 DATA.expts{1} = [];
@@ -799,7 +812,7 @@ function DATA = InitInterface(DATA)
 'units','norm', 'Position',[0.01 0.01 0.98 1./nr]);
     DATA.txtui = lst;
     
-    bp = [0.01 1.01./nr 2./nc 7/nr];
+    bp = [0.01 1.01./nr 3.5./nc 7/nr];
     lst = uicontrol(gcf, 'Style','list','String', 'Command History',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
@@ -807,22 +820,27 @@ function DATA = InitInterface(DATA)
 'units','norm', 'Position',bp);
    DATA.txtrec = lst;
    
-   
+    xp = bp(1)+bp(3);
     bp(1) = bp(1)+bp(3);
     bp(2) = 2./nr;
-    bp(3) = cw/2;
+    bp(3) = cw/3;
     bp(4) = 1./nr;
     [a,j] = min(abs(DATA.binoc{1}.xyfsd - DATA.xyfsdvals));
     uicontrol(gcf,'style','text','string','FSD',  'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
+    bp(3)=0.99-bp(1);
     uicontrol(gcf,'style','pop','string',num2str(DATA.xyfsdvals'), ...
         'units', 'norm', 'position',bp,'value',j,'Tag','FSD','callback',{@SetExpt, 'fsd'});
 
-    bp(1) = bp(1)+bp(3);
+     bp(3) = cw/2;
+    bp(2) = 3./nr;
+    bp(1) = xp;
     uicontrol(gcf,'style','checkbox','string','XYL',  'value', DATA.showxy(1), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYL'});
     
     bp(1) = bp(1)+bp(3);
     uicontrol(gcf,'style','checkbox','string','XYR', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYR'});
+    bp(1) = bp(1)+bp(3);
+    uicontrol(gcf,'style','checkbox','string','XYB', 'value', DATA.showxy(3), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYB'});
 
     
     bp(1) = 0.01;
@@ -997,8 +1015,8 @@ function DATA = InitInterface(DATA)
     end
     end
     hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
-    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
-    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
+%    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
+%    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
     uimenu(hm,'Label','Options','Callback',{@OptionPopup});
     uimenu(hm,'Label','Test','Callback',{@TestIO});
     uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
@@ -1459,6 +1477,7 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.Stimvals.e3 = DATA.exptype{3};
             DATA.Expts{DATA.nexpts}.Start = now;
             DATA.optionflags.do = 1;
+            DATA = GetState(DATA);
             else
                fprintf(DATA.outid,'\\ecancel\n');
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
@@ -1471,7 +1490,8 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.End = now;
             DATA.optionflags.do = 0;
         end
-    DATA = GetState(DATA);
+%if expt is over, EXPTOVER should be received. - query state then
+%    DATA = GetState(DATA);
 %    DATA = ReadFromBinoc(DATA);
     set(DATA.toplevel,'UserData',DATA);
     
@@ -1817,13 +1837,22 @@ function SendCode(DATA, code)
             return;
         end
     end
-    s = CodeText(DATA, code)
+    s = CodeText(DATA, code);
     if length(s)
     fprintf(DATA.outid,'%s\n',s);
     end
     
-function s = CodeText(DATA,code)
+function s = CodeText(DATA,code, varargin)
 s = [];
+cstim = DATA.currentstim;
+j = 1;
+while j <= length(varargin)
+    if strncmpi(varargin{j},'back',4)
+        cstim = 2;
+    end
+    j = j+1;
+end
+
 if strcmp(code,'optionflag')
         s = 'op=';
         f = fields(DATA.optionflags);
@@ -1835,19 +1864,26 @@ if strcmp(code,'optionflag')
             end
         end
         s = sprintf('op=0\n%s\n',s);
-        s= [s sprintf('%s\n',StimToggleString(DATA))];
+        s= [s sprintf('%s',StimToggleString(DATA))];
         fprintf('%s\n',s);
     elseif strcmp(code,'nr')
-        s = sprintf('%s=%d\n',code,DATA.binoc{1}.nr);
+        s = sprintf('%s=%d',code,DATA.binoc{1}.nr);
     elseif strmatch(code,{'nt' 'n2' 'n3'})
         id = strmatch(code,{'nt' 'n2' 'n3'});
-        s = sprintf('%s=%d\n',code,DATA.nstim(id));
+        s = sprintf('%s=%d',code,DATA.nstim(id));
     elseif strcmp(code,'expts')
         s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
         s = [s sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2))];
         s = [s sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3))];
-    elseif isfield(DATA.binoc{DATA.currentstim},code)
-        s = sprintf('%s=%s\n',code,num2str(DATA.binoc{DATA.currentstim}.(code)'));
+    elseif strcmp(code,'st')
+        s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
+    elseif isfield(DATA.binoc{cstim},code)
+        id = strmatch(code,{DATA.comcodes.code},'exact')
+        if length(id) ==1 && DATA.comcodes(id).type == 'C'
+            s = sprintf('%s=%s',code,DATA.binoc{cstim}.(code));
+        else
+            s = sprintf('%s=%s',code,num2str(DATA.binoc{cstim}.(code)'));
+        end
     end
         
 function StimToggle(a,b, flag)       
@@ -1880,6 +1916,8 @@ function OtherToggles(a,b,flag)
     if strcmp(flag,'XYL')
         fprintf(DATA.outid,'ch11%c\n',c);
     elseif strcmp(flag,'XYR')
+        fprintf(DATA.outid,'ch10%c\n',c);
+    elseif strcmp(flag,'XYB')
         fprintf(DATA.outid,'ch12%c\n',c);
     end        
     
@@ -1931,8 +1969,12 @@ if txt(end) == '='
        txt = ['?' CodeText(DATA, code)];       
        str = 'Nstim';
     elseif isfield(DATA.binoc{DATA.currentstim},code)
-       txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
        id = strmatch(code,{DATA.comcodes.code},'exact');
+       if length(id) == 1 && DATA.comcodes(id).type == 'C'
+           txt = ['?' txt '?' DATA.binoc{DATA.currentstim}.(code)];
+       else
+           txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
+       end
        if length(id)
         str = DATA.comcodes(id(1)).label;
        end

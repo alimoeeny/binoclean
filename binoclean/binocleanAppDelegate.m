@@ -262,7 +262,6 @@ void notify(char * s)
         close(outPipe);
         //outPipe = 0;
     }
-    [outputPipeBuffer dealloc];    
     NSLog(@"Gone!");
     return NSTerminateNow;
 }

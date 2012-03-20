@@ -1463,8 +1463,13 @@ void PrintCodes(int mode)
         if(serial_strings[i] == NULL)
             return;
         switch(i){
+/*
+* type 'C' means that a string value is sent
+* type 'N' means numeric
+ */
             case STIMULUS_FLAG:
             case SHOWFLAGS_CODE:
+            case VERSION_CODE:
             ctype = 'C';
                 break;
             default:
@@ -4223,7 +4228,7 @@ int SaveImage(Stimulus *st, int type)
 int ReadCommand(char *s)
 {
     int retval = 0, line, start, stop,i,ival;
-    char *r,buf[BUFSIZ],command_result[BUFSIZ];
+    char *r,buf[BUFSIZ],command_result[BUFSIZ],c;
     char imname[BUFSIZ];
     float val;
     
@@ -4309,7 +4314,12 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"xyfsd",5)){
         sscanf(s,"xyfsd=%f",&val);
-        sprintf(buf,"ch10+,fs%.3f\n",val);
+        expt.bwptr->fsd[10] = val;
+        if(expt.bwptr->cflag & (1<<10))
+            c = '+';
+        else
+            c = '-';
+        sprintf(buf,"ch10%c,fs%.3f\n",c,val);
         SerialString(buf,NULL);
     }
     else if(!strncasecmp(s,"debug",4)){
@@ -7686,7 +7696,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
     }
     if(expt.mode == END_OFFSET || expt.mode == SIDE_OFFSET && !(rdspair(expt.st)))
         SetProperty(&expt,expt.st,ORIENTATION,expt.rf->angle);
-    ListExpStims(NULL);
+//    ListExpStims(NULL);
     expt.plot->trialctr = 0;
     expt.laststim = -1;
     expt.st->mode |= EXPTPENDING;

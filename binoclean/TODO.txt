@@ -10,7 +10,7 @@ Things that need fixing:
 * jv keeps reseting to zero
 - save and save as in verg 
 * stepper (openserial, +-5, 10, 20, 50, 100, 200) in binoc lean
-- penetration log in binoc lean
+* penetration log in binoc lean
 * information line (at the bottom of the main classic binoc window) should be moved both the verg and binoc lean
 * cancel button does not update at the end of an experiment
 * add ablksize control to verg. code is "bs"
@@ -22,7 +22,7 @@ Things that need fixing:
 - in addition to "PSYCH"mon it would be nice to have all the other types of plots orientation tuning, dx tuning ... 
 * display these (verge or binoc): total Number of trials, trials done so far, time lapsed, time since the end of the last experiment
 * keep list of quickexpts in binoc to feed to verg.
-- expt cancel often doesn't work
+* expt cancel often doesn't work
 - Verg needs to send back \mimic
 - Electrode Position does not update on the display
 - uDrive commands larger than 300 should be confimed not rejected
@@ -39,6 +39,6 @@ Things that need fixing:
 * vhpos expt type not implemented
 * why doenst keyboard tab work when binoclean is running
 * turn off screensaver in binoc
-- in verg, remove stepper from the pop menu
-- Quitting with command-Q now leaves DIO in bad state
-- in verg turning the right eye / left eye markers gets confused 
+* in verg, remove stepper from the pop menu
+* Quitting with command-Q now leaves DIO in bad state
+* in verg turning the right eye / left eye markers gets confused 
