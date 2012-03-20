@@ -1137,6 +1137,7 @@ char **argv;
                 argv++;
                 i--;
             }
+
             else if(strncmp(argv[i],"-framepause",6) ==  0){
                 argc--; 
                 argv++;
@@ -1260,6 +1261,9 @@ char **argv;
             }
             else if(strncmp(argv[1],"-blendonly",7) ==  0){
                 expt.polygonsmooth = 0;
+            }
+            else if(strncmp(argv[1],"-NSDocumentRevision",12) ==  0){
+                argc--; argv++;
             }
             else if(strncmp(argv[1],"-testrc",6) ==  0){
                 testflags[TEST_RC] = 1;
