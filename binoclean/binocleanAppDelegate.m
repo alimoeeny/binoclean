@@ -260,11 +260,25 @@ void notify(char * s)
     DIOClose();
     if (outPipe!=0) {
         close(outPipe);
-        //outPipe = 0;
     }
     NSLog(@"Gone!");
     return NSTerminateNow;
 }
 
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
+{
+    NSLog(@"Opening file: %@", filename);
+    if ([[self monkeyWindow] isKeyWindow]) {
+        ReadExptFile([filename UTF8String], 1, 1, 1);
+    }
+    else {
+        double delayInSeconds = 2.5;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            ReadExptFile([filename UTF8String], 1, 1, 1);
+        });
+    }
+    return YES;
+}
 
 @end
