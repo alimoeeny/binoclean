@@ -114,6 +114,8 @@ for j = 1:length(strs{1})
         DATA.comcodes(code).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(code).const = code;
         DATA.comcodes(code).type = s(end);
+    elseif strncmp(s,'status',5)
+%        fprintf(s);
     elseif strncmp(s,'exps',4)
         ex = 1;
         DATA.expts{ex} = [];
@@ -784,8 +786,12 @@ function ShowStatus(DATA)
         str = datestr(DATA.Expts{DATA.nexpts}.Start);
         str = ['Started ' str(13:17)];
     elseif DATA.nexpts > 0
-        str = datestr(DATA.Expts{DATA.nexpts}.End);
-        str = ['Ended ' str(13:17)];
+        if isfield(DATA.Expts{DATA.nexpts},'End')
+            str = datestr(DATA.Expts{DATA.nexpts}.End);
+            str = ['Ended ' str(13:17)];
+        else
+            str = 'Expt not over But In Expt!';
+        end
     else
         str = [];
     end
@@ -999,6 +1005,10 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Close Verg and Binoc','Callback',{@MenuHit, 'bothclose'});
     uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
     uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
+    sm = uimenu(hm,'Label','Today Slots');
+    for j = 1:8
+    uimenu(sm,'Label',['Expt' num2str(j)],'Callback',{@SaveSlot, j});
+    end
     sm = uimenu(hm,'Label','Recover','Callback',{@RecoverFile, 'toplist'});
     uimenu(sm,'Label','List','Callback',{@RecoverFile, 'list'});
     uimenu(sm,'Label','eo.stm','Callback',{@RecoverFile, 'eo.stm'});
@@ -1020,6 +1030,7 @@ function DATA = InitInterface(DATA)
         end
     end
     end
+    uimenu(hm,'Label','Today','Tag','TodayQuickList');
     hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
@@ -1083,8 +1094,8 @@ function MenuHit(a,b, arg)
         id = strmatch(type,{'st' 'bs'});
         if val > 0
         DATA.stimtype(id) = val;
-        fprintf(DATA.outid,'mo=%s',DATA.stimtypenames{id});
-        fprintf(DATA.outid,'%s=%s\n',type,DATA.stimulusnames{val});
+        fprintf(DATA.outid,'mo=%s\n',DATA.stimtypenames{id});
+        fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{val});
         DATA.currentstim = id;
         SetGui(DATA);
         else
@@ -1123,6 +1134,43 @@ function RecoverFile(a, b, type)
         fprintf('Recover called with %s\n',type);
     end
     
+    
+function ReadSlot(a,b,id)
+    DATA = GetDataFromFig(a);
+    quickname = sprintf('/local/%s/q%dexp.stm', DATA.binocstr.monkey,id);
+    DATA = ReadStimFile(DATA, quickname);
+    set(DATA.toplevel,'UserData',DATA);
+    
+
+    
+function SaveSlot(a,b,id)
+    DATA = GetDataFromFig(a);
+    lb = sprintf('Expt%d: %s %s',id,DATA.stimulusnames{DATA.stimtype(1)},DATA.exptype{1});
+    if ~strcmp(DATA.exptype{2},'e0')
+        lb = [lb 'X' DATA.exptype{2}];
+    end
+    if ~strcmp(DATA.exptype{3},'e0')
+        lb = [lb 'X' DATA.exptype{3}];
+    end
+    if DATA.optionflags.fS
+        lb = [lb 'RC'];
+    end
+    set(a,'Label',lb);
+    fprintf(DATA.outid,'quicksave%d\n',id);
+    AddTodayMenu(DATA, id, lb);
+
+function AddTodayMenu(DATA, id,label)
+    
+    tag = sprintf('TodaySlot%d',id);
+    it = findobj(DATA.toplevel,'Tag',tag);
+    if isempty(it)
+        it = findobj(DATA.toplevel,'Tag','TodayQuickList');
+        if length(it) == 1
+            uimenu(it,'Label',label,'callback',{@ReadSlot, id},'Tag',tag);
+        end
+    else
+        set(it,'Label',label);
+    end
     
 function SaveFile(a,b,type)
 

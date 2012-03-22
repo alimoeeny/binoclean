@@ -1518,7 +1518,13 @@ void SendAllToGui()
     }
     i =0;
 
-    
+    if(expt.st->imprefix != NULL){
+        sprintf(buf,"impref=%s\n",expt.st->imprefix);
+        notify(buf);
+        if(expt.st->immode == IMAGEMODE_ORBW)
+            notify("immode=orbw\n");
+    }
+
     ListExpStims(NULL);
     ListQuickExpts();
 }
@@ -1609,7 +1615,9 @@ void statusline(char *s)
     else
         s = statusstring;
     glstatusline(s,1);
-    
+    notify("status=");
+    notify(s);
+    notify("\n");
     if(mode & HOLD_STATUS)
         return;
     
@@ -6739,7 +6747,7 @@ int next_frame(Stimulus *st)
                  * took us into the correction loop.
                  */
                 if(!(option2flag & PSYCHOPHYSICS_BIT))
-                    ResetExpStim(1);
+                    ResetExpStim(0);
                 SetFixColor(expt);
                 /*
                  * This is where stimno is incremented for the last stim of the trial
@@ -8957,6 +8965,8 @@ int ShowTrialCount(float down, float sum)
                 sum += 1.0;
 	}
 	val = StimDuration();
+    if (val < 0)
+        val = timediff(&now, &firstframetime);
 	if(debug)
         sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
                 totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
@@ -9098,6 +9108,7 @@ int GotChar(char c)
                 write(ttys[0],&c,1);
                 GotChar(BAD_FIXATION);
                 sprintf(buf,"%.2s:%.2f %.2f\n",serial_strings[SACCADE_DETECTED],sacsiz,sacdir);
+                statusline(buf);
                 SerialString(buf,0);
                 for( i = 0; i < strlen(charbuf); i++)
                     charbuf[i] = 0;
@@ -10110,8 +10121,9 @@ void expt_over(int flag)
     //Ali ListExpStims(NULL);
     if(demomode == 0)
         stimstate = STIMSTOPPED;
-    else
-        stimno = 0;
+    
+    // was only else here. But surely need this set to zero even if not running demo? 
+    stimno = 0;
     if(option2flag & PSYCHOPHYSICS_BIT  && flag != CANCEL_EXPT){
         PrintPsychData(expt.logfile);
     }
@@ -10124,7 +10136,7 @@ void expt_over(int flag)
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
     SaveExptFile("./leaneo.stm",SAVE_STATE);
-    notify("EXPTOVER\n");
+    notify("\nEXPTOVER\n");
 }
 
 void Stim2PsychFile()

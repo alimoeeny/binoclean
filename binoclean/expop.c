@@ -3255,8 +3255,6 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case NTRIALS_CODE:
             if(expt.plot == NULL){
                 expt.plot = &expplots[0];
-                if(seroutfile)
-                    fprintf(seroutfile,"#Plot set to 0: %p\n",expt.plot);
             }
             
             if((flag == NTRIALS_CODE && (int)val != exp->nstim[0]) ||
@@ -4493,17 +4491,7 @@ void setexp(int w, int id, int val)
     expt.vals[EXPT1_MAXSIG] = 0;
     expt.flag &= (~LOGINCR);
     setextras();
-    for(i = 0; i <= NPLOTDATA; i++)
-    {
-        if(val == firstmenu[i].val)
-        {
-            expt.plot = &expplots[i];
-            if(seroutfile)
-                fprintf(seroutfile,"#Plot set to %p\n",expt.plot);
-            
-            break;
-        }
-    }
+
     PlotAlloc(&expt);
     plot = expt.plot;
     //    for(i = 0; i < plot->nstim[0]; i++)
@@ -10287,8 +10275,9 @@ void ResetExpStim(int offset)
     /*
      * don't reset if not in an expt
      * NB stimno can be 0 here in an expt, if the first trial is a badfix
+     *used to be && exptpending but seems to me (Mar 2012) should be ||
      */
-    if(stim < 0 && !(expt.st->mode | (EXPTPENDING)))
+    if(stim < 0 || !(expt.st->mode | (EXPTPENDING)))
         return;
     if(stimorder[stim] & STIMULUS_EXTRA_ZEROCOH){
         SetStimulus(expt.st, expt.stimvals[JDEATH], JDEATH, NULL);
@@ -13606,6 +13595,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
+    }
+    else if(!strncmp(line,"quicksave",7)){
+        sscanf(&line[9],"%d",&i);
+        sprintf(buf,"./q%dexp.stm",i);
+        SaveExptFile(buf,QUICK_SAVE);
     }
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
