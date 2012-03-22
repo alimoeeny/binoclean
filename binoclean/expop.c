@@ -1625,6 +1625,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     stimseq = (Thisstim *)malloc((TRIALBUFFERLEN+1) * sizeof(Thisstim));
     pgimage.ptr = NULL;
     pgimage.name = NULL;
+    ex->verbose = 0;  //controls NSlog
     ex->biasedreward = 0;
     ex->backim.name = NULL;
     ex->backim.ptr = NULL;
@@ -2788,7 +2789,6 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             }
             
             BackupStimFile();
-            SaveExptFile("./front.laststim",1);
             if(flag != TO_FILE && (mode & UFF_FILE_OPEN))
                 CheckPenetration();
             SerialSend(RF_DIMENSIONS);
@@ -2908,6 +2908,9 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     {
         case REWARD_BIAS:
             expt.biasedreward = val;
+            break;
+        case VERBOSE_CODE:
+            expt.verbose = (int)(val);
             break;
         case BACK_PPOS:
             if(expt.st->next)
@@ -3666,6 +3669,9 @@ float ExptProperty(Expt *exp, int flag)
         case REWARD_BIAS:
             val = expt.biasedreward;
             break;
+        case VERBOSE_CODE:
+            val = expt.verbose;
+            break;
         case BACK_OPOS:
             if(expt.st->next)
                 val = StimulusProperty(expt.st->next,ORTHOG_POS);
@@ -4237,8 +4243,7 @@ int ReadCommand(char *s)
     
     sprintf(command_result,"");
     if(!strncasecmp(s,"quit",4))
-        //handle_pushbuttons(NULL, (XtPointer)QUIT_BUTTON, NULL);
-        printf("NOTHING!"); //Ali
+        quit_binoc();
     else if(!strncasecmp(s,"getrow",4)){
         sscanf(s,"%*s %d %d %d",&line,&start,&stop);
     }
@@ -7707,7 +7712,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
     expt.st->fixcolor = expt.st->fix.offcolor;
     stimno = NEW_EXPT;
     statusline("Expt Starting..");
-    SaveExptFile("./front.ebstim",1);
+    SaveExptFile("./leaneb.stm",1);
     afc_s.lasttrial = -(BAD_TRIAL);
     firststimno = stimno;
     if(!option2flag & PSYCHOPHYSICS_BIT){

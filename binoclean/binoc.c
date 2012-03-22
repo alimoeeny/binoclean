@@ -8471,9 +8471,22 @@ int BackupStimFile()
     int i = ctr;
     char cbuf[256];
     
-    sprintf(cbuf,"./front.%dstim",ctr);
+    if (ctr & 3)
+        i = 0;
+    else if (ctr & 4)
+        i = 1;
+    else if (ctr & 8)
+        i = 2;
+    else if (ctr & 16)
+        i = 3;
+    else if (ctr & 32)
+        i = 4;
+    else if (ctr & 64)
+        i = 5;
+    
+    sprintf(cbuf,"./lean%d.stm",i);
     SaveExptFile(cbuf,SAVE_STATE);
-    ctr = (ctr+1)%4;
+    ctr = (ctr+1)%16;
     return(i);
 }
 
@@ -10110,7 +10123,7 @@ void expt_over(int flag)
     //Ali SetAllPanel(&expt);
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
-    SaveExptFile("./front.eostim",SAVE_STATE);
+    SaveExptFile("./leaneo.stm",SAVE_STATE);
     notify("EXPTOVER\n");
 }
 

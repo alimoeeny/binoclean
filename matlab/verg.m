@@ -42,8 +42,11 @@ if length(varargin)
         end
         f = fields(DATA.tag);
         for j = 1:length(f)
+            if ~strcmp(f{j},'top')
             CloseTag(DATA.tag.(f{j}));
+            end
         end
+        CloseTag(DATA.tag.top);
         return;
     elseif strncmpi(varargin{1},'quick',5)
         DATA = ReadStimFile(DATA, varargin{2});
@@ -663,6 +666,7 @@ DATA.comcodes = [];
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [600 scrsz(4)-100 400 100];
+DATA.winpos{4} = [600 scrsz(4)-600 400 500];
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.incr = [0 0 0];
@@ -674,6 +678,7 @@ DATA.tag.stepper = 'Stepper';
 DATA.tag.softoff = 'Softoff';
 DATA.tag.options = 'Options';
 DATA.tag.penlog = 'Penetration Log';
+DATA.tag.codes = 'Codelist';
 DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
 DATA.comcodes(1).const = 1;
@@ -991,14 +996,15 @@ function DATA = InitInterface(DATA)
     
     hm = uimenu(cntrl_box,'Label','File','Tag','BinocFileMenu');
     uimenu(hm,'Label','Close','Callback',{@verg, 'close'});
+    uimenu(hm,'Label','Close Verg and Binoc','Callback',{@MenuHit, 'bothclose'});
     uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
     uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
     sm = uimenu(hm,'Label','Recover','Callback',{@RecoverFile, 'toplist'});
     uimenu(sm,'Label','List','Callback',{@RecoverFile, 'list'});
-    uimenu(sm,'Label','front.eostim','Callback',{@RecoverFile, 'eostim'});
-    uimenu(sm,'Label','front.ebstim','Callback',{@RecoverFile, 'ebstim'});
-    uimenu(sm,'Label','front.1stim','Callback',{@RecoverFile, '1stim'});
-    uimenu(sm,'Label','front.2stim','Callback',{@RecoverFile, '2stim'});
+    uimenu(sm,'Label','eo.stm','Callback',{@RecoverFile, 'eo.stm'});
+    uimenu(sm,'Label','eb.stm','Callback',{@RecoverFile, 'eb.stm'});
+    uimenu(sm,'Label','0.stm','Callback',{@RecoverFile, '0stim'});
+    uimenu(sm,'Label','1.stm','Callback',{@RecoverFile, '2stim'});
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     if isfield(DATA.quickexpts,'submenu')
     subs = unique({DATA.quickexpts.submenu});
@@ -1025,11 +1031,15 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Stop Timer','Callback',{@ReadIO, 4});
     uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5});
     uimenu(hm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
-    uimenu(hm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
+    sm = uimenu(hm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
+    if DATA.verbose == 0
+        set(sm,'Label','verbose pipes');
+    end
     uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8});
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
+    uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, '\centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
@@ -1038,6 +1048,21 @@ function DATA = InitInterface(DATA)
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
 
+    
+function MenuHit(a,b, arg)
+     DATA = GetDataFromFig(a);
+    if strcmp(arg,'bothclose')
+        fprintf(DATA.outid,'\\quit\n');
+                if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
+            stop(DATA.timerobj);
+        end
+        f = fields(DATA.tag);
+        for j = 1:length(f)
+            CloseTag(DATA.tag.(f{j}));
+        end
+    end 
+    
+    
  function SetExpt(a,b, type)
      DATA = GetDataFromFig(a);
      val = get(a,'value');
@@ -1073,7 +1098,7 @@ function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);
         fprintf('Recover called with %s\n',type);
     if strmatch(type,{'list'});
-        rfile = ['/local/' DATA.binocstr.monkey '/front.*'];
+        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
         d = dir(rfile);
 
         if strcmp(type,'list')
@@ -1087,11 +1112,11 @@ function RecoverFile(a, b, type)
         [a,id] = sort([d.datenum]);
         d = d(id);
         for j = 1:length(d)
-            uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(7:end)});
+            uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(5:end)});
         end
-    elseif strmatch(type,{'eostim' 'ebstim' '1stim' '2stim' '3stim' '0stim'})
-        rfile = ['/local/' DATA.binocstr.monkey '/front.' type];
-        dfile = ['/local/' DATA.binocstr.monkey '/front.today'];
+    elseif strmatch(type,{'eo.stm' 'eb.stm' '0.stm' '1.stm' '2.stm' '3.stm' '4.stm' '5.stm'})
+        rfile = ['/local/' DATA.binocstr.monkey '/lean' type];
+        dfile = ['/local/' DATA.binocstr.monkey '/lean.today'];
         copyfile(rfile,dfile);
         ReadStimFile(DATA, dfile);
     else
@@ -1288,6 +1313,7 @@ function MenuGui(a,b)
              DATA.verbose = 2;
              set(a,'Label','Quiet pipes');
          end
+         fprintf(DATA.outid,'verbose=%d\n',DATA.verbose);
          set(DATA.toplevel,'UserData',DATA);
      else
         DATA = ReadFromBinoc(DATA);   
@@ -1605,6 +1631,33 @@ for j = 1:length(f)
 
 end
 
+function CodesPopup(a,b, type)  
+
+  DATA = GetDataFromFig(a);
+  if ~strcmp(type,'popup')
+      return;
+  end
+  cntrl_box = findobj('Tag',DATA.tag.codes,'type','figure');
+  if ~isempty(cntrl_box)
+      figure(cntrl_box);
+      return;
+  end
+  cntrl_box = figure('Position', DATA.winpos{4},...
+        'NumberTitle', 'off', 'Tag',DATA.tag.codes,'Name','Code list','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+    
+    lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
+        'HorizontalAlignment','left',...
+        'Max',10,'Min',0,...
+        'Callback', {@TextEntered}, 'Tag','NextButton',...
+'units','norm', 'Position',[0.01 0.01 0.99 0.99]);
+a = get(lst,'string');
+for j = 1:length(DATA.comcodes)
+    s = sprintf('%s %s',DATA.comcodes(j).code,DATA.comcodes(j).label);
+    a(j,1:length(s)) = s;
+end
+set(lst,'string',a);
+   
     
 function SoftoffPopup(a,b, type)
   DATA = GetDataFromFig(a);
@@ -1704,7 +1757,7 @@ function CloseWindow(a,b,wid)
   x = get(a, 'position');
   DATA.winpos{wid} = x;
   set(DATA.toplevel,'UserData',DATA);
-  close(a);
+  delete(a);
         
     
 function StepperPopup(a,b)
@@ -1808,7 +1861,9 @@ function GoToggle(a,b)
     else
       fprintf(DATA.outid,'\\stop\n');
     end
-        
+    DATA.optionflags.do  = go;
+    set(DATA.toplevel,'UserData',DATA);
+    
 function HitToggle(a,b, flag)       
     DATA = GetDataFromFig(a);
 %    flag = get(a,'Tag');

@@ -43,5 +43,5 @@ Things that need fixing:
 * Quitting with command-Q now leaves DIO in bad state
 * in verg turning the right eye / left eye markers gets confused 
 * possible to allow drag and drop of stim files?
-- handle quit commands comming from verg
-- change all the recovery file extension to .stm 
+* handle quit commands comming from verg
+* change all the recovery file extension to .stm 

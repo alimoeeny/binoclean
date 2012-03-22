@@ -462,8 +462,9 @@
 #define FRAME_DISPLACEMENT MAXSAVECODES+12
 #define ABS_ORTHOG_POS MAXSAVECODES+13
 #define ABS_PARA_POS MAXSAVECODES+14
+#define VERBOSE_CODE MAXSAVECODES+15
 
-#define MAXTOTALCODES (MAXSAVECODES+15)  //372
+#define MAXTOTALCODES (MAXSAVECODES+16)  //372
 
 
 /*
@@ -1051,6 +1052,7 @@ char *serial_strings[NCODES+1] = {
 "posinc", /* specify frame displacement, not velocity */
 "aOp", // Opos in absolute units (not relative to RF( 
 "aPp", // Opos in absolute units (not relative to RF( 
+"verbose",
 NULL
 };
 
@@ -1469,6 +1471,7 @@ char *serial_names[] = {
     "Position Displacement per frame",
     "absolute OrthoPos",
     "absolute ParaPos",
+    "Verbosity",
     NULL};
 
 char *jumpnames[] = {
