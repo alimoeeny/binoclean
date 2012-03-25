@@ -2286,14 +2286,8 @@ void exit_program()
     }
     closeserial(0);
     closeserial(1);
-    if(alarmstart.tv_sec > 0) // waiting for an alarm event
-        RunWaterAlarm();
-    CloseLog();
-	if(testfd != NULL)
-	{
-		fprintf(testfd,"%d frames\n",framecount);
-		fclose(testfd);
-	}
+
+
 #ifdef NIDAQ
     DIOClose();
     _Exit(0);
@@ -2632,8 +2626,7 @@ void event_loop()
             calc_stimulus(TheStim);
             glFinishRenderAPPLE();
         }
-        if(forcestart >1 && ++testlaps >= forcestart)
-            exit_program();
+
     }
     else
         next_frame(TheStim);
@@ -9061,7 +9054,7 @@ int GotChar(char c)
 	int topline;
 	int monkey_dir,x,y,aid;
 	float oldrw,sacth;
-	int sign,code;
+	int sign,code,trueafc = 0;
     
 	totalchrs++;
     
@@ -9558,6 +9551,8 @@ int GotChar(char c)
                     fixed = iptr;
                     wurtzbufferlen += 512;
                 }
+  
+
                 if(SACCREQD(afc_s)){
                     afc_s.jlaststairval = afc_s.jstairval; /* this is before nextval changes */ 
                     if(afc_s.type == MAGONE_SIGNTWO){
@@ -9570,7 +9565,8 @@ int GotChar(char c)
                     }
                     else
                         stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
-                    
+                    if (expt.vals[TARGET_RATIO] > 1)
+                        trueafc = 1;
                     monkey_dir = monkey_direction(jonresult, afc_s);
                     if(seroutfile)
                         fprintf(seroutfile,"MD %d %d %.1f %.3f",monkey_dir,jonresult,afc_s.sacval[1],timediff(&now,&endstimtime));
@@ -9600,9 +9596,10 @@ int GotChar(char c)
                     }    	
                     /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
                 }
-                else
+                else{
                     monkey_dir = 0;
-                sprintf(buf,"TRES %c%d\n",result,monkey_dir);
+                }
+                sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,trueafc);
                 notify(buf);
 
                 res = (int)c;
@@ -9706,24 +9703,6 @@ void SerialSignal(char flag)
 	outcodes[++outctr%CODEHIST] = c;
 }
 
-
-void CloseLog(void)
-{
-    FILE *fd;
-    char name[BUFSIZ],*t,buf[256];
-    time_t tval;
-    int i;
-    
-    if(expt.logfile == NULL || totaltrials < 2)
-        return;
-    tval = time(NULL);
-    t = ctime(&tval);
-    t[7]=0;
-    t[10] = 0;
-    if(t[8] == ' ')
-        t[8]  = '0';
-    return;
-}
 
 
 void paint_target(float color, int flag)

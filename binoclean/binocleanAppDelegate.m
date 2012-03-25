@@ -264,6 +264,12 @@ void notify(char * s)
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     NSLog(@"Going down, down ...");
+
+    freeToGo = 0;
+    if(expt.st->mode & EXPTPENDING){
+        expt_over(1);
+    }
+    //closeserial(0)  prob not necessary any more
     DIOClose();
     if (outPipe!=0) {
         close(outPipe);

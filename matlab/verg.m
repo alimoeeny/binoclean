@@ -115,6 +115,10 @@ for j = 1:length(strs{1})
         DATA.comcodes(code).const = code;
         DATA.comcodes(code).type = s(end);
     elseif strncmp(s,'status',5)
+        DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
+        if ishandle(DATA.statusitem)
+            set(DATA.statusitem,'string',DATA.Statuslines);
+        end
 %        fprintf(s);
     elseif strncmp(s,'exps',4)
         ex = 1;
@@ -127,7 +131,7 @@ for j = 1:length(strs{1})
                 x = s(pid(j)+1:pid(j+1)-1);
             end
             if length(x) > 1
-            eid = strmatch(x,{DATA.comcodes.code});
+            eid = strmatch(x,{DATA.comcodes.code},'exact');
             DATA.expts{ex} = [DATA.expts{ex} eid];
             end
         end
@@ -156,12 +160,14 @@ for j = 1:length(strs{1})
         DATA.extypes{3} = DATA.extypes{3}+1;
         DATA = SetExptMenus(DATA);
     elseif strncmp(s,'TRES',4)
-        if s(6) == 'G'
-            DATA.Trial.RespDir = sscanf(s(7:end),'%d');
-        elseif s(6) == 'W'
-            DATA.Trial.RespDir = sscanf(s(7:end),'%d');
+        if s(6) == 'G' || s(6) == 'W'
+            a = sscanf(s(7:end),'%d');
         else
-            DATA.Trial.RespDir = 0;
+            a = 0;
+        end
+        DATA.Trial.RespDir = a(1);
+        if length(a) > 1
+            DATA.Trial.tr = a(2);
         end
         DATA = SetTrial(DATA, DATA.Trial);
         DATA.nt = DATA.nt+1;
@@ -619,8 +625,8 @@ DATA.psych.blockid = [];
 DATA.overcmds = {};
 DATA.exptstimlist = { {} {} {} };
 DATA.stimtypenames = {'fore' 'back' 'ChoiceU' 'ChoiceD'};
-
-
+DATA.Statuslines = {};
+DATA.statusitem = -1;
 DATA.nt = 1;
 DATA.exptype = [];
 DATA.nexpts = 0;
@@ -640,7 +646,7 @@ DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
 DATA.electrodestring = 'default';
-DATA.binocstr.monkey = 'lem';
+DATA.binocstr.monkey = 'none';
 DATA.penid = 0;
 DATA.stimulusnames{1} = 'none';
 DATA.stimulusnames{4} = 'grating';
@@ -669,6 +675,7 @@ DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [600 scrsz(4)-100 400 100];
 DATA.winpos{4} = [600 scrsz(4)-600 400 500];
+DATA.winpos{5} = [600 scrsz(4)-100 400 100];
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.incr = [0 0 0];
@@ -681,6 +688,7 @@ DATA.tag.softoff = 'Softoff';
 DATA.tag.options = 'Options';
 DATA.tag.penlog = 'Penetration Log';
 DATA.tag.codes = 'Codelist';
+DATA.tag.status = 'StatusWindow';
 DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
 DATA.comcodes(1).const = 1;
@@ -1016,22 +1024,8 @@ function DATA = InitInterface(DATA)
     uimenu(sm,'Label','0.stm','Callback',{@RecoverFile, '0stim'});
     uimenu(sm,'Label','1.stm','Callback',{@RecoverFile, '2stim'});
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
-    if isfield(DATA.quickexpts,'submenu')
-    subs = unique({DATA.quickexpts.submenu});
-    for j = 1:length(subs)-1
-        sm(j) = uimenu(hm,'Label',subs{j+1});
-    end
-    for j = 1:length(DATA.quickexpts)
-        k = strmatch(DATA.quickexpts(j).submenu,subs);
-        if k > 1
-            uimenu(sm(k-1),'Label',DATA.quickexpts(j).name,'Callback',{@verg, 'quick', DATA.quickexpts(j).filename});
-        else
-            uimenu(hm,'Label',DATA.quickexpts(j).name,'Callback',{@verg, 'quick', DATA.quickexpts(j).filename});
-        end
-    end
-    end
-    uimenu(hm,'Label','Today','Tag','TodayQuickList');
-    hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
+    BuildQuickMenu(DATA, hm);
+        hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
     uimenu(hm,'Label','Options','Callback',{@OptionPopup});
@@ -1051,6 +1045,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
     uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
+    uimenu(hm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, '\centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
@@ -1059,6 +1054,36 @@ function DATA = InitInterface(DATA)
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
 
+    function BuildQuickMenu(DATA, hm)
+        
+    if isfield(DATA.quickexpts,'submenu')
+    subs = unique({DATA.quickexpts.submenu});
+    for j = 1:length(subs)-1
+        sm(j) = uimenu(hm,'Label',subs{j+1});
+    end
+    for j = 1:length(DATA.quickexpts)
+        k = strmatch(DATA.quickexpts(j).submenu,subs);
+        if k > 1
+            uimenu(sm(k-1),'Label',DATA.quickexpts(j).name,'Callback',{@verg, 'quick', DATA.quickexpts(j).filename});
+        else
+            uimenu(hm,'Label',DATA.quickexpts(j).name,'Callback',{@verg, 'quick', DATA.quickexpts(j).filename});
+        end
+    end
+    end
+    uimenu(hm,'Label','Today','Tag','TodayQuickList');
+    uimenu(hm,'Label','Add...','Tag','AddToQuickList','callback',{@AddQuickMenu});
+
+function AddQuickMenu(a,b)
+    DATA = GetDataFromFig(a);
+    [name, path] = uigetfile(['/local/' DATA.binocstr.monkey '/stims/*.*']);
+    j = length(DATA.quickexpts)+1;
+    DATA.quickexpts(j).name = name;
+    DATA.quickexpts(j).filename = [path '/' name];
+    if name
+        hm = get(a,'parent');
+        uimenu(hm,'Label',DATA.quickexpts(j).name,'Callback',{@verg, 'quick', DATA.quickexpts(j).filename});
+    end
+    
     
 function MenuHit(a,b, arg)
      DATA = GetDataFromFig(a);
@@ -1350,7 +1375,7 @@ function MenuGui(a,b)
          DATA = OpenPipes(DATA, 0);
          SendState(DATA,'all');
          fprintf(DATA.outid,'QueryState\n');
-        DATA = ReadFromBinoc(DATA,'verbose');   
+        DATA = ReadFromBinoc(DATA,'verbose2');   
         start(DATA.timerobj);
         
      elseif flag == 7
@@ -1363,6 +1388,8 @@ function MenuGui(a,b)
          end
          fprintf(DATA.outid,'verbose=%d\n',DATA.verbose);
          set(DATA.toplevel,'UserData',DATA);
+     elseif flag == 8
+        DATA = ReadFromBinoc(DATA,'reset','verbose');   
      else
         DATA = ReadFromBinoc(DATA);   
         SetGui(DATA);
@@ -1468,6 +1495,9 @@ function CheckInput(a,b, fig, varargin)
      while j <= length(varargin)
          if strncmpi(varargin{j},'verbose',5)
              verbose = 1;
+             if strncmpi(varargin{j},'verbose2',8)
+                 verbose = 2;
+             end
          elseif strncmpi(varargin{j},'auto',4)
              autocall = 1;
          elseif strncmpi(varargin{j},'reset',5)
@@ -1706,6 +1736,29 @@ for j = 1:length(DATA.comcodes)
 end
 set(lst,'string',a);
    
+function StatusPopup(a,b, type)  
+
+  DATA = GetDataFromFig(a);
+  if ~strcmp(type,'popup')
+      return;
+  end
+  cntrl_box = findobj('Tag',DATA.tag.status,'type','figure');
+  if ~isempty(cntrl_box)
+      figure(cntrl_box);
+      return;
+  end
+  cntrl_box = figure('Position', DATA.winpos{5},...
+        'NumberTitle', 'off', 'Tag',DATA.tag.status,'Name','Code list','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+    
+    lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
+        'HorizontalAlignment','left',...
+        'Max',10,'Min',0,...
+         'Tag','NextButton',...
+'units','norm', 'Position',[0.01 0.01 0.99 0.99]);
+set(lst,'string',DATA.Statuslines);
+DATA.statusitem = lst;
+set(DATA.toplevel,'UserData',DATA);
     
 function SoftoffPopup(a,b, type)
   DATA = GetDataFromFig(a);
@@ -1884,7 +1937,7 @@ function OpenPenLog(a,b)
     if DATA.penid > 0
         fclose(DATA.penid);
     end
-    name = sprintf('/local/%s/pen%d.log',DATA.monkey,DATA.binoc{1}.pe);
+    name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.pe);
     DATA.penid = fopen(name,'a');
     fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc{1}.pe,DATA.binoc{1}.px,DATA.binoc{1}.py,datestr(now));
     fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);

@@ -658,6 +658,8 @@ StringCode commstrings[] = {
     {"lo", "Log File", LOGFILE_CODE, NULL},
     {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
     {"monkey", "Monkey name", MONKEYNAME, NULL},
+    {"impref", "prefix for image files", 0, NULL},
+    {"immode", "image mode", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
 

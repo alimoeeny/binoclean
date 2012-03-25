@@ -1661,6 +1661,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->rf->size[0] = 100;
     ex->rf->size[1] = 50;
     ex->rf->type = RF_BOX;
+    ex->rf->angle = 0;
     ex->nlines = 0;
     ex->linw = 1.0;
     ex->targetcolor = 1.0;
@@ -1812,6 +1813,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         j++;
     }
     afc_s.proportion = 0.5;
+    SetExptString(ex, ex->st, MONKEYNAME, "none");
 }
 
 void SetPlotSizes(struct plotdata *plot)
@@ -2314,6 +2316,7 @@ void PlotAlloc(Expt *exp)
     if(exp->plot == NULL)
         exp->plot = plot = &expplots[0];
     
+    printf("Plot alloc\n");
     plot->nstim[1] = exp->nstim[1];
     plot->nstim[0] = exp->nstim[0];
     plot->flag = expt.flag;
