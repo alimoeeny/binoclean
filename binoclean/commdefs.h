@@ -640,6 +640,15 @@ typedef struct stringcode {
     char *value;
     
 } StringCode;
+
+typedef struct valuecode {
+    char *code;
+    char *label;
+    int icode;
+    char *value;
+    
+} ValueCode;
+
 #define MONITOR_FILE 0
 
 
@@ -670,10 +679,22 @@ char *bwtoggle_codes[] = {
     "fo", /* file is open */
     NULL,
 };
+
+ValueCode valstrings[] = {
+    {"xo","X offset",  XOFFSET},
+    {"lo", "Log File", LOGFILE_CODE, NULL},
+    {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
+    {"monkey", "Monkey name", MONKEYNAME, NULL},
+    {"impref", "prefix for image files", 0, NULL},
+    {"immode", "image mode", 0, NULL},
+    {NULL, NULL, 0, NULL}
+};
+
+
 char *serial_strings[NCODES+1] = {
-	"xo", /* X offset, 0 */
-	"yo", /* Y Offset 1 */
-	"st", /*Stimulus Type ,2*/
+	  "xo",
+        "yo",
+        "st",
 	"sx", /* Gabor, Sigma X 3*/
 	"sy", /* Sigma Y 4*/
 	"dp", /* Diparate phase 5*/

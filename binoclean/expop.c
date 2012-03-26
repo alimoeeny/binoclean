@@ -1480,10 +1480,10 @@ void PrintCodes(int mode)
                 break;
         }
         if(serial_names[i] == NULL){
-            sprintf(tmp,"CODE %s %d none%c\n",serial_strings[i],i,ctype);
+            sprintf(tmp,"CODE %s %d none%c %d\n",serial_strings[i],i,ctype,0);
         }
         else{
-            sprintf(tmp,"CODE %s %d %s%c\n",serial_strings[i],i,serial_names[i],ctype);
+            sprintf(tmp,"CODE %s %d %s%c %d\n",serial_strings[i],i,serial_names[i],ctype,0);
         }
         notify(tmp);
     }

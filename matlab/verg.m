@@ -1712,6 +1712,30 @@ end
 function CodesPopup(a,b, type)  
 
   DATA = GetDataFromFig(a);
+  
+  if strmatch(type,{'bycode' 'bylabel' 'bygroup' 'numeric'},'exact')
+      lst = findobj(get(get(a,'parent'),'parent'),'Tag','CodeListString');
+      if strcmp(type,'bycode')
+          set(lst,'string','Alphabetical by code');
+          [c,b] = sort({DATA.comcodes.code});
+      elseif strcmp(type,'bylabel')
+          set(lst,'string','Alphabetical by Label');
+          [c,b] = sort({DATA.comcodes.label});
+      elseif strcmp(type,'bygroup')
+          set(lst,'string','Grouped');
+          [c,b] = sort({DATA.comcodes.code});
+      else
+          set(lst,'string','Numerical');
+          b = 1:length(DATA.comcodes);
+      end
+      nl=1;
+      a = get(lst,'string');
+      for j = 1:length(DATA.comcodes)
+          s = sprintf('%s %s',DATA.comcodes(b(j)).code,DATA.comcodes(b(j)).label);
+          a(j+nl,1:length(s)) = s;
+      end
+      set(lst,'string',a);
+  end
   if ~strcmp(type,'popup')
       return;
   end
@@ -1723,11 +1747,16 @@ function CodesPopup(a,b, type)
   cntrl_box = figure('Position', DATA.winpos{4},...
         'NumberTitle', 'off', 'Tag',DATA.tag.codes,'Name','Code list','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
+    hm = uimenu(cntrl_box,'Label','List by');
+    sm = uimenu(hm,'Label','By Code','callback',{@CodesPopup, 'bycode'});
+    sm = uimenu(hm,'Label','By Label','callback',{@CodesPopup, 'bylabel'});
+    sm = uimenu(hm,'Label','By Group','callback',{@CodesPopup, 'bygroup'});
+    sm = uimenu(hm,'Label','Numerical','callback',{@CodesPopup, 'numeric'});
     
     lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
-        'Callback', {@TextEntered}, 'Tag','NextButton',...
+        'Tag','CodeListString',...
 'units','norm', 'Position',[0.01 0.01 0.99 0.99]);
 a = get(lst,'string');
 for j = 1:length(DATA.comcodes)

@@ -9565,7 +9565,7 @@ int GotChar(char c)
                     }
                     else
                         stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
-                    if (expt.vals[TARGET_RATIO] > 1)
+                    if (expt.vals[TARGET_RATIO] > 0.99)
                         trueafc = 1;
                     monkey_dir = monkey_direction(jonresult, afc_s);
                     if(seroutfile)
