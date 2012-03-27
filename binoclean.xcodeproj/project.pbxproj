@@ -21,6 +21,8 @@
 		417AEA8713DE21BB006F7A77 /* playsweet.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8313DE21BB006F7A77 /* playsweet.png */; };
 		417AEA8813DE21BB006F7A77 /* playsweeti.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8413DE21BB006F7A77 /* playsweeti.png */; };
 		417AEA8C13DE225F006F7A77 /* pauseButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */; };
+		41934E1915223E19001D9E5C /* u6.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1715223E19001D9E5C /* u6.c */; };
+		41934E1C15223E61001D9E5C /* labjack_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1B15223E61001D9E5C /* labjack_dio.c */; };
 		419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0813A133B3004E8464 /* Cocoa.framework */; };
 		419DCE1313A133B3004E8464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1113A133B3004E8464 /* InfoPlist.strings */; };
 		419DCE1513A133B3004E8464 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE1413A133B3004E8464 /* main.m */; };
@@ -34,7 +36,6 @@
 		419DCE3413A133B3004E8464 /* binocleanTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE3313A133B3004E8464 /* binocleanTests.m */; };
 		419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0D13A133B3004E8464 /* Foundation.framework */; };
 		41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A8ED2513AA832F00C9EAAC /* nidaqmxbase */; };
-		41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41AA181D13AA71D7009AC8E2 /* ni_dio.c */; };
 		41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */; };
 		41B1211813DF6E21008869E3 /* counterButtonDown114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211613DF6E21008869E3 /* counterButtonDown114.png */; };
 		41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211713DF6E21008869E3 /* counterButtonUP114.png */; };
@@ -200,6 +201,9 @@
 		417AEA8313DE21BB006F7A77 /* playsweet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweet.png; sourceTree = "<group>"; };
 		417AEA8413DE21BB006F7A77 /* playsweeti.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweeti.png; sourceTree = "<group>"; };
 		417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pauseButtonSilver.png; sourceTree = "<group>"; };
+		41934E1715223E19001D9E5C /* u6.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = u6.c; sourceTree = "<group>"; };
+		41934E1815223E19001D9E5C /* u6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = u6.h; sourceTree = "<group>"; };
+		41934E1B15223E61001D9E5C /* labjack_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = labjack_dio.c; sourceTree = "<group>"; };
 		419DCE0413A133B3004E8464 /* binoclean.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = binoclean.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		419DCE0813A133B3004E8464 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		419DCE0B13A133B3004E8464 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -421,6 +425,7 @@
 		410044521507A47400022ACE /* headers */ = {
 			isa = PBXGroup;
 			children = (
+				41934E1815223E19001D9E5C /* u6.h */,
 				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
 				41BF8E0313A174FE00C8B6BA /* sprotos.h */,
 				41BF8E0613A174FE00C8B6BA /* miscw.h */,
@@ -453,6 +458,7 @@
 				41BF8DEF13A174FE00C8B6BA /* stimulus.c */,
 				41BF8DF013A174FE00C8B6BA /* stepper.c */,
 				41AA181D13AA71D7009AC8E2 /* ni_dio.c */,
+				41934E1B15223E61001D9E5C /* labjack_dio.c */,
 				41BF8DED13A174FE00C8B6BA /* xrand.c */,
 				41BF8DEE13A174FE00C8B6BA /* wurtz.c */,
 				41BF8DF113A174FE00C8B6BA /* stairpop.c */,
@@ -466,6 +472,7 @@
 				41BF8E1913A174FE00C8B6BA /* stair.c */,
 				41BF8E1B13A174FE00C8B6BA /* misc.c */,
 				41BF8E1D13A174FE00C8B6BA /* myfree.c */,
+				41934E1715223E19001D9E5C /* u6.c */,
 			);
 			name = Binoc;
 			sourceTree = "<group>";
@@ -987,10 +994,11 @@
 				41520B6713A25B72006CE4A7 /* GLString.m in Sources */,
 				41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */,
 				41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */,
-				41AA181E13AA71D7009AC8E2 /* ni_dio.c in Sources */,
 				41B1212713DF795C008869E3 /* mainGUI.m in Sources */,
 				4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */,
 				3F6433F914FD361E0088CE53 /* penLog.m in Sources */,
+				41934E1915223E19001D9E5C /* u6.c in Sources */,
+				41934E1C15223E61001D9E5C /* labjack_dio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1068,6 +1076,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-llabjackusb",
+					"-lusb-1.0",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -1087,6 +1099,10 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-llabjackusb",
+					"-lusb-1.0",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;
