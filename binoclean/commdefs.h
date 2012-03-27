@@ -669,6 +669,7 @@ StringCode commstrings[] = {
     {"monkey", "Monkey name", MONKEYNAME, NULL},
     {"impref", "prefix for image files", 0, NULL},
     {"immode", "image mode", 0, NULL},
+    {"psychfile", "Psych results file", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
 

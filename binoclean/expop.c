@@ -13546,7 +13546,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 {
     int i,n,len,ival,total,j,vals[MAXBINS],k,code,oldmode,x,y;
     int bins,prebins,postbins,chan;
-    char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ];
+    char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ],outbuf[BUFSIZ];
     float val,fval, addval = 0,in[10],aval,bval;
     Stimulus *TheStim = expt.st;
     static int lineflag = 0,lastticks = 0;
@@ -13698,6 +13698,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(0);
     }
     else if(!strncmp(line,"psychfile",6)  && (s = strchr(line,'=')) != 0){
+        if (strlen(s) < 2){
+            sprintf(outbuf,"psychfile=%s\n",psychfilename);
+            notify(outbuf);
+            return;
+        }
         psychfilename = myscopy(psychfilename,++s);
         nonewline(psychfilename);
         if((t = strstr(s,"DATE")) != NULL){
@@ -13710,7 +13715,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             if(t[8]==' ')
                 t[8] = '0';
             sprintf(buf,"%s%s%s%s",s,&t[8],&t[4],&t[20]);
-            printf("Psych Log: %s\n",buf);
+            psychfilename = myscopy(psychfilename,buf);
+            sprintf(outbuf,"Psych Log: %s\n",buf);
+            statusline(outbuf);
             strcpy(nbuf,buf);
             if(seroutfile){
                 fprintf(seroutfile,"Psych Log: %s\n",buf);
@@ -13719,7 +13726,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sprintf(buf,"%s.log",s);
             psychfilelog = fopen(buf,"a");
         }
-        else{
+       else{
             psychfile = fopen(nonewline(s),"w");
             sprintf(nbuf,"%s",nonewline(s));
         }

@@ -117,7 +117,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'status',5)
         DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
         if ishandle(DATA.statusitem)
-            set(DATA.statusitem,'string',DATA.Statuslines);
+            set(DATA.statusitem,'string',DATA.Statuslines,'listboxtop',length(DATA.Statuslines));
         end
 %        fprintf(s);
     elseif strncmp(s,'exps',4)
@@ -146,6 +146,7 @@ for j = 1:length(strs{1})
         DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
         end
         DATA = GetState(DATA);
+        PsychMenu(DATA);
         SetGui(DATA,'set');
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
@@ -177,7 +178,7 @@ for j = 1:length(strs{1})
             DATA.Trial.id = sscanf(s(id(2)+1:end),'%d');
         end
         if isfield(DATA.Trial,'RespDir')
-            PlotPsych(DATA);
+            DATA = PlotPsych(DATA);
         end
     elseif strncmp(s,'winpos=',7)
         DATA.winpos{1} = sscanf(s(8:end),'%d');
@@ -313,7 +314,6 @@ for j = 1:length(strs{1})
     elseif strncmp(s, 'stepperxy', 8)
     elseif strncmp(s, 'penwinxy', 8)
     elseif strncmp(s, 'optionwinxy', 8)
-    elseif strncmp(s, 'psychfile', 8)
     elseif strncmp(s, 'slider', 6)
         id = strmatch(s(4:end),DATA.stimulusnames,'exact');
 
@@ -616,6 +616,8 @@ function val = ReadVal(s, DATA)
 function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
+DATA.plotexpts = [];
+
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
 DATA.Trial.sv = [];
@@ -690,6 +692,7 @@ DATA.tag.options = 'Options';
 DATA.tag.penlog = 'Penetration Log';
 DATA.tag.monkeylog = 'Monkey Log';
 DATA.tag.codes = 'Codelist';
+DATA.tag.psych = 'VergPsych'
 DATA.tag.status = 'StatusWindow';
 DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
@@ -1036,13 +1039,13 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
     uimenu(hm,'Label','NewStart','Callback',{@ReadIO, 3});
     uimenu(hm,'Label','Stop Timer','Callback',{@ReadIO, 4});
-    uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5});
+    sm = uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5},'foregroundcolor',[0 0 0.5]);
     uimenu(hm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
     sm = uimenu(hm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
     if DATA.verbose == 0
         set(sm,'Label','verbose pipes');
     end
-    uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8});
+    sm = uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
@@ -1528,6 +1531,7 @@ function CheckInput(a,b, fig, varargin)
      if verbose >1
          fprintf('OK\n');
      end
+     rbusy = 0;
      if strncmp(char(a'),'SENDINGstart1',12)
         a = fread(DATA.inid,14);
         nbytes = sscanf(char(a'),'SENDING%d');
@@ -1582,6 +1586,10 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.Stimvals.et = DATA.exptype{1};
             DATA.Expts{DATA.nexpts}.Stimvals.e2 = DATA.exptype{2};
             DATA.Expts{DATA.nexpts}.Stimvals.e3 = DATA.exptype{3};
+            DATA.Expts{DATA.nexpts}.Stimvals.ei = DATA.incr(1);
+            DATA.Expts{DATA.nexpts}.Stimvals.i2 = DATA.incr(2);
+            DATA.Expts{DATA.nexpts}.Stimvals.i3 = DATA.incr(3);
+            DATA.Expts{DATA.nexpts}.Stimvals.st = DATA.stimulusnames{DATA.stimtype(1)};
             DATA.Expts{DATA.nexpts}.Start = now;
             DATA.optionflags.do = 1;
             DATA = GetState(DATA);
@@ -1603,6 +1611,7 @@ function RunButton(a,b, type)
     set(DATA.toplevel,'UserData',DATA);
     
     SetGui(DATA);
+    CheckTimer(DATA);
      
     function TestIO(a,b)
         
@@ -2119,6 +2128,7 @@ function HitToggle(a,b, flag)
     fprintf('op=0\n%s\n',s);
     fprintf(DATA.outid,'op=0\n%s\n',s);
     ReadFromBinoc(DATA);
+    CheckTimer(DATA);
     SetGui(DATA,'set');
  
    
@@ -2299,14 +2309,51 @@ set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
         
 
+function ClearTaggedChecks(it, tags)
+
     
+    c = get(it,'children');
+    menutags = get(c,'tag');
+    if isempty(tags)
+        for j = 1:length(menutags)
+            if ~isempty(menutags{j})
+                set(c(j),'Checked','off');
+            end
+        end
+    else
+        for j = 1:length(tags)
+            k = strmatch(tags{j},menutags,'exact');
+            set(c(k),'Checked','off');
+        end
+    end
     
 function ChoosePsych(a,b, mode)
     DATA = GetDataFromFig(a);
     onoff = {'off' 'on'};
     
-    if strmatch(mode,{'Current','All' 'None'})
+    if strncmp(mode,'Expt',4)
+        e = sscanf(mode,'Expt%d');
+        if length(DATA.plotexpts) < e
+            DATA.plotexpts(e) = 1;
+        else
+            DATA.plotexpts(e) = ~DATA.plotexpts(e);
+        end
+        set(a,'checked',onoff{DATA.plotexpts(e)+1});
+        PlotPsych(DATA);
+        ClearTaggedChecks(get(a,'parent'),{});
+    elseif strmatch(mode,'Current')
+        if strcmp(DATA.psych.blockmode,'Current')
+            DATA.psych.blockmode = 'Select';
+            set(a,'checked','off');
+        else
+            DATA.psych.blockmode = mode;
+            set(a,'checked','on');
+        end
+        ClearTaggedChecks(get(a,'parent'),{});
+        PlotPsych(DATA);
+    elseif strmatch(mode,{'OnlyCurrent','All' 'None'})
         DATA.psych.blockmode = mode;
+        DATA.plotexpts = zeros(size(DATA.plotexpts));
         PlotPsych(DATA);
         c = get(get(a,'parent'),'children');
         set(c,'checked','off');
@@ -2319,19 +2366,39 @@ function ChoosePsych(a,b, mode)
 
 
 
-function SetFigure(tag, DATA)
+function DATA = SetFigure(tag, DATA)
 
     [a,isnew] = GetFigure(tag);
     if isnew
         DATA.figs.(tag) = a;
         if strcmp(tag,'VergPsych')
-            hm = uimenu(a, 'Label','Expts');
-            uimenu(hm,'Label', 'Current','Callback',{@ChoosePsych, 'Current'});
-            uimenu(hm,'Label', 'All','Callback',{@ChoosePsych, 'All'});
-            uimenu(hm,'Label', 'None','Callback',{@ChoosePsych, 'None'});
+            hm = uimenu(a, 'Label','Expts','Tag','ExptMenu');
+            PsychMenu(DATA);
             set(a,'UserData',DATA.toplevel);
         end
+        set(DATA.toplevel,'UserData',DATA);
     end
+
+function PsychMenu(DATA)    
+    if ~isfield(DATA,'figs')
+        return;
+    end
+    hm = findobj(DATA.figs.VergPsych,'tag','ExptMenu');
+    c = get(hm,'children');
+    delete(c);
+    for j = 1:length(DATA.Expts)
+        sm = uimenu(hm,'Label', sprintf('Expt%d %s',j,Expt2Name(DATA.Expts{j})),'CallBack', {@ChoosePsych, sprintf('Expt%d',j)});
+        if j < length(DATA.plotexpts) && DATA.plotexpts(j)
+            set(sm,'Checked','on');
+        end
+    end
+    sm = uimenu(hm,'Label', 'Current','Callback',{@ChoosePsych, 'Current'});
+    if strcmp(DATA.psych.blockmode,'Current')
+        set(sm,'Checked','On');
+    end
+    uimenu(hm,'Label', 'Only Current','Callback',{@ChoosePsych, 'OnlyCurrent'},'tag','OnlyCurrent');
+    uimenu(hm,'Label', 'All','Callback',{@ChoosePsych, 'All'},'tag','All');
+    uimenu(hm,'Label', 'None','Callback',{@ChoosePsych, 'None'},'tag','None');
     
 function DATA = CheckExpts(DATA)
 
@@ -2341,7 +2408,7 @@ function DATA = CheckExpts(DATA)
         end
     end
     
-function PlotPsych(DATA)
+function DATA = PlotPsych(DATA)
     
     
     
@@ -2354,24 +2421,57 @@ function PlotPsych(DATA)
     DATA = CheckExpts(DATA);
 
     e = length(DATA.Expts);
-    id = DATA.Expts{e}.first:length(DATA.Trials);
-    if strmatch(DATA.psych.blockmode,'All')
-        allid = [];
-        for j = 1:e-1
+    allid = [];
+    if strcmp(DATA.psych.blockmode,'All') || sum(DATA.plotexpts)
+        if strmatch(DATA.psych.blockmode,'All')
+            expts = 1:e-1;
+        else
+            expts = find(DATA.plotexpts);
+        end
+        for j = expts
             if DATA.Expts{j}.Stimvals.et == DATA.Expts{e}.Stimvals.et & ...
                DATA.Expts{j}.Stimvals.e2 == DATA.Expts{e}.Stimvals.e2
                 allid= [allid DATA.Expts{j}.first:DATA.Expts{j}.last];
             end
         end
-        id = [allid id];
+    end
+    id = DATA.Expts{e}.first:length(DATA.Trials);
+    if strmatch(DATA.psych.blockmode,{'Current' 'OnlyCurrent'})
+        allid = [allid id];
+    end
+    id = unique(allid);
+    if length(id) < 2
+        return;
     end
     DATA.Expts{e}.Trials = DATA.Trials(id);
     DATA.Expts{e}.Header.rc = 0;
     DATA.Expts{e}.Header.expname  = 'Online';
+    if isfield(DATA.Expts{e}.Trials,'RespDir')
+        DATA.Expts{e}.Header.psych  = 1;
+    else
+        DATA.Expts{e}.Header.psych  = 0;
+    end
     if DATA.psych.show
-    SetFigure('VergPsych', DATA);
+    DATA = SetFigure('VergPsych', DATA);
     hold off; 
     ExptPsych(DATA.Expts{e},'nmin',1,'mintrials',2,'shown');
     end
     
     
+function DATA = CheckTimer(DATA)
+    
+    global rbusy;
+    
+    DATA.piperror = 0;
+    c = get(DATA.toplevel,'color');
+    if rbusy > 0
+        set(DATA.toplevel,'color','r');
+        DATA.pipeerror = 1;
+    end
+    if strcmp(get(DATA.timerobj,'running'),'off')
+        set(DATA.toplevel,'color',[0 0 0.5]);
+        DATA.pipeerror = 2;
+    end
+    if DATA.piperror == 0 && sum(c == DATA.windowcolor) < 3
+        set(DATA.toplevel,'color',DATA.windowcolor);        
+    end
