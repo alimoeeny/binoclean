@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3F1ACAE315016DBF007987D1 /* BinocLean-Icon01.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */; };
 		3F6433F914FD361E0088CE53 /* penLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F6433F814FD361E0088CE53 /* penLog.m */; };
 		3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FB14FD3A770088CE53 /* penLogWindow.xib */; };
 		3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FD14FD3E310088CE53 /* stepperWindow.xib */; };
-		3FB524D0151252E9002392D2 /* BinocLean-Icon01.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FB524CF151252E9002392D2 /* BinocLean-Icon01.png */; };
 		4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 4114944914FB150A005EDCDE /* stepperGUI.m */; };
 		41520B6113A25981006CE4A7 /* MonkeyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41520B6013A25981006CE4A7 /* MonkeyWindow.xib */; };
 		41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6313A259C8006CE4A7 /* MonkeyGLView.m */; };
@@ -178,12 +176,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "BinocLean-Icon01.png"; path = "../BinocLean-Icon01.png"; sourceTree = "<group>"; };
 		3F6433F714FD361E0088CE53 /* penLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = penLog.h; sourceTree = "<group>"; };
 		3F6433F814FD361E0088CE53 /* penLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = penLog.m; sourceTree = "<group>"; };
 		3F6433FB14FD3A770088CE53 /* penLogWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = penLogWindow.xib; sourceTree = "<group>"; };
 		3F6433FD14FD3E310088CE53 /* stepperWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = stepperWindow.xib; sourceTree = "<group>"; };
-		3FB524CF151252E9002392D2 /* BinocLean-Icon01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BinocLean-Icon01.png"; sourceTree = "<group>"; };
 		4114944814FB150A005EDCDE /* stepperGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stepperGUI.h; sourceTree = "<group>"; };
 		4114944914FB150A005EDCDE /* stepperGUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = stepperGUI.m; sourceTree = "<group>"; };
 		41520B6013A25981006CE4A7 /* MonkeyWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MonkeyWindow.xib; sourceTree = "<group>"; };
@@ -280,7 +276,7 @@
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		41DD53021521ED51004D28A0 /* binoclean.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = binoclean.icns; path = binoclean/binoclean.icns; sourceTree = "<group>"; };
+		41DD53021521ED51004D28A0 /* binoclean.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = binoclean.icns; sourceTree = "<group>"; };
 		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
@@ -502,8 +498,7 @@
 		417AEA8A13DE21C1006F7A77 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
-				3FB524CF151252E9002392D2 /* BinocLean-Icon01.png */,
-				3F1ACAE215016DBF007987D1 /* BinocLean-Icon01.png */,
+				41DD53021521ED51004D28A0 /* binoclean.icns */,
 				41B1211613DF6E21008869E3 /* counterButtonDown114.png */,
 				41B1211713DF6E21008869E3 /* counterButtonUP114.png */,
 				417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */,
@@ -518,7 +513,6 @@
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
-				41DD53021521ED51004D28A0 /* binoclean.icns */,
 				C969F830150D233A00D7A5A7 /* stims */,
 				C94CF80313C8B69E00985271 /* filetypes.c */,
 				C9308B7D14F82EF50054C963 /* TODO.txt */,
@@ -817,7 +811,6 @@
 				C9308B7E14F82EF50054C963 /* TODO.txt in Resources */,
 				3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */,
 				3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */,
-				3F1ACAE315016DBF007987D1 /* BinocLean-Icon01.png in Resources */,
 				C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */,
 				C969F8CA150D233B00D7A5A7 /* bwlatest in Resources */,
 				C969F8CB150D233B00D7A5A7 /* savetest in Resources */,
@@ -908,7 +901,6 @@
 				C969F920150D233B00D7A5A7 /* rdsopos in Resources */,
 				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
 				C90350CC150D279800DFD9D3 /* ali in Resources */,
-				3FB524D0151252E9002392D2 /* BinocLean-Icon01.png in Resources */,
 				41DD53031521ED51004D28A0 /* binoclean.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
