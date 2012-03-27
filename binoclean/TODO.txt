@@ -45,3 +45,4 @@ Things that need fixing:
 * possible to allow drag and drop of stim files?
 - handle quit commands comming from verg
 - change all the recovery file extension to .stm 
+- Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays

@@ -144,6 +144,8 @@ void notify(char * s)
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     NSLog([[[NSFileManager alloc] init] currentDirectoryPath]);
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"ApplePersistenceIgnoreState"];
+    
     if(useDIO)
         printf("Starting DIO\n");
 	/* Try twice - it sometimes fails */
