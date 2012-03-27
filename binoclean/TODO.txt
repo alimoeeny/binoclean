@@ -46,3 +46,6 @@ Things that need fixing:
 - handle quit commands comming from verg
 - change all the recovery file extension to .stm 
 - Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
+* handle quit commands comming from verg
+* change all the recovery file extension to .stm 
+- in the PsychMon window add a list (history) of experiments to the Expt menu

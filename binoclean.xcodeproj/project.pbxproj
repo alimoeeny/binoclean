@@ -73,6 +73,7 @@
 		41BF8E3D13A174FE00C8B6BA /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1B13A174FE00C8B6BA /* misc.c */; };
 		41BF8E3E13A174FE00C8B6BA /* myfree.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1D13A174FE00C8B6BA /* myfree.c */; };
 		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
+		41DD53031521ED51004D28A0 /* binoclean.icns in Resources */ = {isa = PBXBuildFile; fileRef = 41DD53021521ED51004D28A0 /* binoclean.icns */; };
 		C90350CC150D279800DFD9D3 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C90350CB150D279800DFD9D3 /* ali */; };
 		C9308B7E14F82EF50054C963 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = C9308B7D14F82EF50054C963 /* TODO.txt */; };
 		C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */ = {isa = PBXBuildFile; fileRef = C969F832150D233A00D7A5A7 /* lempsy110 */; };
@@ -279,6 +280,7 @@
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		41DD53021521ED51004D28A0 /* binoclean.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = binoclean.icns; path = binoclean/binoclean.icns; sourceTree = "<group>"; };
 		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
@@ -516,6 +518,7 @@
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
+				41DD53021521ED51004D28A0 /* binoclean.icns */,
 				C969F830150D233A00D7A5A7 /* stims */,
 				C94CF80313C8B69E00985271 /* filetypes.c */,
 				C9308B7D14F82EF50054C963 /* TODO.txt */,
@@ -906,6 +909,7 @@
 				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
 				C90350CC150D279800DFD9D3 /* ali in Resources */,
 				3FB524D0151252E9002392D2 /* BinocLean-Icon01.png in Resources */,
+				41DD53031521ED51004D28A0 /* binoclean.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
