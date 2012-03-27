@@ -462,8 +462,9 @@
 #define FRAME_DISPLACEMENT MAXSAVECODES+12
 #define ABS_ORTHOG_POS MAXSAVECODES+13
 #define ABS_PARA_POS MAXSAVECODES+14
+#define VERBOSE_CODE MAXSAVECODES+15
 
-#define MAXTOTALCODES (MAXSAVECODES+15)  //372
+#define MAXTOTALCODES (MAXSAVECODES+16)  //372
 
 
 /*
@@ -639,6 +640,15 @@ typedef struct stringcode {
     char *value;
     
 } StringCode;
+
+typedef struct valuecode {
+    char *code;
+    char *label;
+    int icode;
+    char *value;
+    
+} ValueCode;
+
 #define MONITOR_FILE 0
 
 
@@ -657,6 +667,8 @@ StringCode commstrings[] = {
     {"lo", "Log File", LOGFILE_CODE, NULL},
     {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
     {"monkey", "Monkey name", MONKEYNAME, NULL},
+    {"impref", "prefix for image files", 0, NULL},
+    {"immode", "image mode", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -667,10 +679,22 @@ char *bwtoggle_codes[] = {
     "fo", /* file is open */
     NULL,
 };
+
+ValueCode valstrings[] = {
+    {"xo","X offset",  XPOS},
+    {"lo", "Log File", LOGFILE_CODE, NULL},
+    {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
+    {"monkey", "Monkey name", MONKEYNAME, NULL},
+    {"impref", "prefix for image files", 0, NULL},
+    {"immode", "image mode", 0, NULL},
+    {NULL, NULL, 0, NULL}
+};
+
+
 char *serial_strings[NCODES+1] = {
-	"xo", /* X offset, 0 */
-	"yo", /* Y Offset 1 */
-	"st", /*Stimulus Type ,2*/
+	  "xo",
+        "yo",
+        "st",
 	"sx", /* Gabor, Sigma X 3*/
 	"sy", /* Sigma Y 4*/
 	"dp", /* Diparate phase 5*/
@@ -1051,6 +1075,7 @@ char *serial_strings[NCODES+1] = {
 "posinc", /* specify frame displacement, not velocity */
 "aOp", // Opos in absolute units (not relative to RF( 
 "aPp", // Opos in absolute units (not relative to RF( 
+"verbose",
 NULL
 };
 
@@ -1469,6 +1494,7 @@ char *serial_names[] = {
     "Position Displacement per frame",
     "absolute OrthoPos",
     "absolute ParaPos",
+    "Verbosity",
     NULL};
 
 char *jumpnames[] = {

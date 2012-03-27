@@ -23,6 +23,10 @@ static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
 
+void quit_binoc()
+{
+    [[NSApplication sharedApplication] terminate:nil];
+}
 void acknowledge(char * a ,int b)
 {
     NSLog(@"Acknowledge! %s", a);
@@ -66,6 +70,7 @@ void sendNotification()
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
     //    WriteToOutputPipe(s);
     if ([outputPipeBuffer length]>0) {
+        if (expt.verbose)
         NSLog(@"%d : %@", strlen([outputPipeBuffer UTF8String]), outputPipeBuffer);
         WriteToOutputPipe([NSString stringWithFormat:@"%@%@", s, outputPipeBuffer]);
         outputPipeBuffer = [[[NSString alloc] init] retain];
@@ -116,6 +121,7 @@ void WriteToOutputPipe(NSString * ns)
     dispatch_async(q, ^{
         write(outPipe, [ns UTF8String], strlen([ns UTF8String]));
         ioctl(outPipe,TCOFLUSH);
+        if (expt.verbose)
         NSLog(@"Output Pipe:%d: %s", strlen([ns UTF8String]), [ns UTF8String]);
     });
     //close(outPipe);
@@ -227,6 +233,7 @@ void notify(char * s)
 - (void) dataReadyToRead:(NSNotification *) notification
 {
     NSString * s = [[NSString alloc] initWithData:[[notification userInfo] objectForKey:NSFileHandleNotificationDataItem] encoding:NSASCIIStringEncoding];
+    if (expt.verbose)
     NSLog(@"Input Pipe: %@", s);
     if (!inputPipeBuffer) {
         inputPipeBuffer = [[NSMutableArray alloc] init];
@@ -259,6 +266,12 @@ void notify(char * s)
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     NSLog(@"Going down, down ...");
+
+    freeToGo = 0;
+    if(expt.st->mode & EXPTPENDING){
+        expt_over(1);
+    }
+    //closeserial(0)  prob not necessary any more
     DIOClose();
     if (outPipe!=0) {
         close(outPipe);

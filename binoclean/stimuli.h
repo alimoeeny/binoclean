@@ -426,6 +426,7 @@ struct EXPERIMENT{
     int hightype;
     char *showflags;
     char *monkey;
+    int verbose;
 };
 
 typedef struct EXPERIMENT Expt;

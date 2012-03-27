@@ -1480,10 +1480,10 @@ void PrintCodes(int mode)
                 break;
         }
         if(serial_names[i] == NULL){
-            sprintf(tmp,"CODE %s %d none%c\n",serial_strings[i],i,ctype);
+            sprintf(tmp,"CODE %s %d none%c %d\n",serial_strings[i],i,ctype,0);
         }
         else{
-            sprintf(tmp,"CODE %s %d %s%c\n",serial_strings[i],i,serial_names[i],ctype);
+            sprintf(tmp,"CODE %s %d %s%c %d\n",serial_strings[i],i,serial_names[i],ctype,0);
         }
         notify(tmp);
     }
@@ -1625,6 +1625,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     stimseq = (Thisstim *)malloc((TRIALBUFFERLEN+1) * sizeof(Thisstim));
     pgimage.ptr = NULL;
     pgimage.name = NULL;
+    ex->verbose = 0;  //controls NSlog
     ex->biasedreward = 0;
     ex->backim.name = NULL;
     ex->backim.ptr = NULL;
@@ -1660,6 +1661,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->rf->size[0] = 100;
     ex->rf->size[1] = 50;
     ex->rf->type = RF_BOX;
+    ex->rf->angle = 0;
     ex->nlines = 0;
     ex->linw = 1.0;
     ex->targetcolor = 1.0;
@@ -1811,6 +1813,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         j++;
     }
     afc_s.proportion = 0.5;
+    SetExptString(ex, ex->st, MONKEYNAME, "none");
 }
 
 void SetPlotSizes(struct plotdata *plot)
@@ -2313,6 +2316,8 @@ void PlotAlloc(Expt *exp)
     if(exp->plot == NULL)
         exp->plot = plot = &expplots[0];
     
+    if(plot->trialcnts == NULL) // first call
+        printf("Plot alloc\n");
     plot->nstim[1] = exp->nstim[1];
     plot->nstim[0] = exp->nstim[0];
     plot->flag = expt.flag;
@@ -2788,7 +2793,6 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             }
             
             BackupStimFile();
-            SaveExptFile("./front.laststim",1);
             if(flag != TO_FILE && (mode & UFF_FILE_OPEN))
                 CheckPenetration();
             SerialSend(RF_DIMENSIONS);
@@ -2908,6 +2912,9 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     {
         case REWARD_BIAS:
             expt.biasedreward = val;
+            break;
+        case VERBOSE_CODE:
+            expt.verbose = (int)(val);
             break;
         case BACK_PPOS:
             if(expt.st->next)
@@ -3252,8 +3259,6 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case NTRIALS_CODE:
             if(expt.plot == NULL){
                 expt.plot = &expplots[0];
-                if(seroutfile)
-                    fprintf(seroutfile,"#Plot set to 0: %p\n",expt.plot);
             }
             
             if((flag == NTRIALS_CODE && (int)val != exp->nstim[0]) ||
@@ -3665,6 +3670,9 @@ float ExptProperty(Expt *exp, int flag)
     {
         case REWARD_BIAS:
             val = expt.biasedreward;
+            break;
+        case VERBOSE_CODE:
+            val = expt.verbose;
             break;
         case BACK_OPOS:
             if(expt.st->next)
@@ -4237,8 +4245,7 @@ int ReadCommand(char *s)
     
     sprintf(command_result,"");
     if(!strncasecmp(s,"quit",4))
-        //handle_pushbuttons(NULL, (XtPointer)QUIT_BUTTON, NULL);
-        printf("NOTHING!"); //Ali
+        quit_binoc();
     else if(!strncasecmp(s,"getrow",4)){
         sscanf(s,"%*s %d %d %d",&line,&start,&stop);
     }
@@ -4488,17 +4495,7 @@ void setexp(int w, int id, int val)
     expt.vals[EXPT1_MAXSIG] = 0;
     expt.flag &= (~LOGINCR);
     setextras();
-    for(i = 0; i <= NPLOTDATA; i++)
-    {
-        if(val == firstmenu[i].val)
-        {
-            expt.plot = &expplots[i];
-            if(seroutfile)
-                fprintf(seroutfile,"#Plot set to %p\n",expt.plot);
-            
-            break;
-        }
-    }
+
     PlotAlloc(&expt);
     plot = expt.plot;
     //    for(i = 0; i < plot->nstim[0]; i++)
@@ -7707,7 +7704,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
     expt.st->fixcolor = expt.st->fix.offcolor;
     stimno = NEW_EXPT;
     statusline("Expt Starting..");
-    SaveExptFile("./front.ebstim",1);
+    SaveExptFile("./leaneb.stm",1);
     afc_s.lasttrial = -(BAD_TRIAL);
     firststimno = stimno;
     if(!option2flag & PSYCHOPHYSICS_BIT){
@@ -10282,8 +10279,9 @@ void ResetExpStim(int offset)
     /*
      * don't reset if not in an expt
      * NB stimno can be 0 here in an expt, if the first trial is a badfix
+     *used to be && exptpending but seems to me (Mar 2012) should be ||
      */
-    if(stim < 0 && !(expt.st->mode | (EXPTPENDING)))
+    if(stim < 0 || !(expt.st->mode | (EXPTPENDING)))
         return;
     if(stimorder[stim] & STIMULUS_EXTRA_ZEROCOH){
         SetStimulus(expt.st, expt.stimvals[JDEATH], JDEATH, NULL);
@@ -13601,6 +13599,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
+    }
+    else if(!strncmp(line,"quicksave",7)){
+        sscanf(&line[9],"%d",&i);
+        sprintf(buf,"./q%dexp.stm",i);
+        SaveExptFile(buf,QUICK_SAVE);
     }
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);

@@ -1518,7 +1518,13 @@ void SendAllToGui()
     }
     i =0;
 
-    
+    if(expt.st->imprefix != NULL){
+        sprintf(buf,"impref=%s\n",expt.st->imprefix);
+        notify(buf);
+        if(expt.st->immode == IMAGEMODE_ORBW)
+            notify("immode=orbw\n");
+    }
+
     ListExpStims(NULL);
     ListQuickExpts();
 }
@@ -1609,7 +1615,9 @@ void statusline(char *s)
     else
         s = statusstring;
     glstatusline(s,1);
-    
+    notify("status=");
+    notify(s);
+    notify("\n");
     if(mode & HOLD_STATUS)
         return;
     
@@ -2278,14 +2286,8 @@ void exit_program()
     }
     closeserial(0);
     closeserial(1);
-    if(alarmstart.tv_sec > 0) // waiting for an alarm event
-        RunWaterAlarm();
-    CloseLog();
-	if(testfd != NULL)
-	{
-		fprintf(testfd,"%d frames\n",framecount);
-		fclose(testfd);
-	}
+
+
 #ifdef NIDAQ
     DIOClose();
     _Exit(0);
@@ -2624,8 +2626,7 @@ void event_loop()
             calc_stimulus(TheStim);
             glFinishRenderAPPLE();
         }
-        if(forcestart >1 && ++testlaps >= forcestart)
-            exit_program();
+
     }
     else
         next_frame(TheStim);
@@ -6739,7 +6740,7 @@ int next_frame(Stimulus *st)
                  * took us into the correction loop.
                  */
                 if(!(option2flag & PSYCHOPHYSICS_BIT))
-                    ResetExpStim(1);
+                    ResetExpStim(0);
                 SetFixColor(expt);
                 /*
                  * This is where stimno is incremented for the last stim of the trial
@@ -8471,9 +8472,22 @@ int BackupStimFile()
     int i = ctr;
     char cbuf[256];
     
-    sprintf(cbuf,"./front.%dstim",ctr);
+    if (ctr & 3)
+        i = 0;
+    else if (ctr & 4)
+        i = 1;
+    else if (ctr & 8)
+        i = 2;
+    else if (ctr & 16)
+        i = 3;
+    else if (ctr & 32)
+        i = 4;
+    else if (ctr & 64)
+        i = 5;
+    
+    sprintf(cbuf,"./lean%d.stm",i);
     SaveExptFile(cbuf,SAVE_STATE);
-    ctr = (ctr+1)%4;
+    ctr = (ctr+1)%16;
     return(i);
 }
 
@@ -8944,6 +8958,8 @@ int ShowTrialCount(float down, float sum)
                 sum += 1.0;
 	}
 	val = StimDuration();
+    if (val < 0)
+        val = timediff(&now, &firstframetime);
 	if(debug)
         sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
                 totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
@@ -9038,7 +9054,7 @@ int GotChar(char c)
 	int topline;
 	int monkey_dir,x,y,aid;
 	float oldrw,sacth;
-	int sign,code;
+	int sign,code,trueafc = 0;
     
 	totalchrs++;
     
@@ -9085,6 +9101,7 @@ int GotChar(char c)
                 write(ttys[0],&c,1);
                 GotChar(BAD_FIXATION);
                 sprintf(buf,"%.2s:%.2f %.2f\n",serial_strings[SACCADE_DETECTED],sacsiz,sacdir);
+                statusline(buf);
                 SerialString(buf,0);
                 for( i = 0; i < strlen(charbuf); i++)
                     charbuf[i] = 0;
@@ -9534,6 +9551,8 @@ int GotChar(char c)
                     fixed = iptr;
                     wurtzbufferlen += 512;
                 }
+  
+
                 if(SACCREQD(afc_s)){
                     afc_s.jlaststairval = afc_s.jstairval; /* this is before nextval changes */ 
                     if(afc_s.type == MAGONE_SIGNTWO){
@@ -9546,7 +9565,8 @@ int GotChar(char c)
                     }
                     else
                         stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
-                    
+                    if (expt.vals[TARGET_RATIO] > 0.99)
+                        trueafc = 1;
                     monkey_dir = monkey_direction(jonresult, afc_s);
                     if(seroutfile)
                         fprintf(seroutfile,"MD %d %d %.1f %.3f",monkey_dir,jonresult,afc_s.sacval[1],timediff(&now,&endstimtime));
@@ -9576,9 +9596,10 @@ int GotChar(char c)
                     }    	
                     /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
                 }
-                else
+                else{
                     monkey_dir = 0;
-                sprintf(buf,"TRES %c%d\n",result,monkey_dir);
+                }
+                sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,trueafc);
                 notify(buf);
 
                 res = (int)c;
@@ -9682,24 +9703,6 @@ void SerialSignal(char flag)
 	outcodes[++outctr%CODEHIST] = c;
 }
 
-
-void CloseLog(void)
-{
-    FILE *fd;
-    char name[BUFSIZ],*t,buf[256];
-    time_t tval;
-    int i;
-    
-    if(expt.logfile == NULL || totaltrials < 2)
-        return;
-    tval = time(NULL);
-    t = ctime(&tval);
-    t[7]=0;
-    t[10] = 0;
-    if(t[8] == ' ')
-        t[8]  = '0';
-    return;
-}
 
 
 void paint_target(float color, int flag)
@@ -10097,8 +10100,9 @@ void expt_over(int flag)
     //Ali ListExpStims(NULL);
     if(demomode == 0)
         stimstate = STIMSTOPPED;
-    else
-        stimno = 0;
+    
+    // was only else here. But surely need this set to zero even if not running demo? 
+    stimno = 0;
     if(option2flag & PSYCHOPHYSICS_BIT  && flag != CANCEL_EXPT){
         PrintPsychData(expt.logfile);
     }
@@ -10110,8 +10114,8 @@ void expt_over(int flag)
     //Ali SetAllPanel(&expt);
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
-    SaveExptFile("./front.eostim",SAVE_STATE);
-    notify("EXPTOVER\n");
+    SaveExptFile("./leaneo.stm",SAVE_STATE);
+    notify("\nEXPTOVER\n");
 }
 
 void Stim2PsychFile()

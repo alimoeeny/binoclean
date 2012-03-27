@@ -293,7 +293,6 @@ void ResetProjectionMatrix();
 int TrialOver();
 void StopGo(int go);
 void SetStopButton(int onoff);
-void exit_program();
 void Box(int a, int b, int c, int d, float color);
 void VisLine(int a, int b, int c, int d, float color);
 float getangle(vcoord *wp, vcoord *sp);
