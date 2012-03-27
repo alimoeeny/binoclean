@@ -53,6 +53,7 @@
 //Ali
 #define NOEVENT 0
 char * VERSION_NUMBER;
+char * SHORT_VERSION_NUMBER;
 
 /*GLUquadricObj *gluq;*/
 static GLuint base,bigbase,mediumbase;
@@ -87,6 +88,7 @@ int codectr = 0, outctr = 0;
 int DIOval = 0;
 int Frames2DIO = 1;
 int rewardall = 0;
+char resbuf[BUFSIZ] = {0};
 
 Monitor mon;
 Expt expt;
@@ -8973,6 +8975,7 @@ int ShowTrialCount(float down, float sum)
 	    sprintf(buf,"Ex: %d/%d",stimno,expt.nreps*expt.nstim[5]);
 	    strcat(mssg,buf);
     }
+    strcat(mssg,resbuf);
 	if(endbadctr)
     {
 	    sprintf(buf,"Bad: %d",endbadctr);
@@ -9595,9 +9598,16 @@ int GotChar(char c)
                             printstair(afc_s.stairhist.staircounter,  afc_s.stairhist.startbin,  afc_s.stairhist.lowbin, afc_s.stairhist.highbin, afc_s.stairhist.histstructure);
                     }    	
                     /*j NB if not in staircase mode gets value in  from the experiment settings (val) */
+                    if (trueafc)
+                        sprintf(resbuf," %c%d",result,monkey_dir);
+                    else
+                        sprintf(resbuf," %c%d tr<1",result,monkey_dir);
+                        
+
                 }
                 else{
                     monkey_dir = 0;
+                    sprintf(resbuf," %c%d",result,monkey_dir);
                 }
                 sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,trueafc);
                 notify(buf);
@@ -10120,10 +10130,14 @@ void expt_over(int flag)
 
 void Stim2PsychFile()
 {
-    float t,val;
+    float t,val,version;
+
+    sscanf(VERSION_NUMBER,"binoclean.%f",&version);
     
     
+
     if(psychfile){
+
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
                 serial_strings[STIM_SIZE],GetProperty(&expt,expt.st,STIM_SIZE), 
                 serial_strings[SETCONTRAST],GetProperty(&expt,expt.st,SETCONTRAST),
@@ -10143,8 +10157,8 @@ void Stim2PsychFile()
                 GetProperty(&expt,expt.st,YPOS));
         fprintf(psychfile," %s=%.4f %s=%.4f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
         
-        fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
-                serial_strings[VERSION_CODE],VERSION_NUMBER, 
+        fprintf(psychfile,"R5 %s=%.4f %s=%.2f By=%.2f",
+                serial_strings[VERSION_CODE],version, 
                 serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
                 GetProperty(&expt,expt.st->next,YPOS));
         fprintf(psychfile," 0 %.2f %.2f",
@@ -10153,8 +10167,8 @@ void Stim2PsychFile()
         fprintf(psychfile," %s=%.0f %s=%.2f\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
         
         
-        fprintf(psychfile,"R5 %s=%s %s=%.2f By=%.2f",
-                serial_strings[VERSION_CODE],VERSION_NUMBER, 
+        fprintf(psychfile,"R5 %s=%.4f %s=%.2f By=%.2f",
+                serial_strings[VERSION_CODE],version, 
                 serial_strings[REWARD_BIAS],GetProperty(&expt,expt.st,REWARD_BIAS),
                 GetProperty(&expt,expt.st->next,YPOS));
         fprintf(psychfile," 0 %.2f %.2f",
