@@ -2316,7 +2316,8 @@ void PlotAlloc(Expt *exp)
     if(exp->plot == NULL)
         exp->plot = plot = &expplots[0];
     
-    printf("Plot alloc\n");
+    if(plot->trialcnts == NULL) // first call
+        printf("Plot alloc\n");
     plot->nstim[1] = exp->nstim[1];
     plot->nstim[0] = exp->nstim[0];
     plot->flag = expt.flag;

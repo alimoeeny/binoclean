@@ -681,7 +681,7 @@ char *bwtoggle_codes[] = {
 };
 
 ValueCode valstrings[] = {
-    {"xo","X offset",  XOFFSET},
+    {"xo","X offset",  XPOS},
     {"lo", "Log File", LOGFILE_CODE, NULL},
     {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
     {"monkey", "Monkey name", MONKEYNAME, NULL},

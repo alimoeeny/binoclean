@@ -110,7 +110,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
-        DATA.comcodes(code).label = s(id(3)+1:end-1);
+        DATA.comcodes(code).label = s(id(3)+1:id(end)-2);
         DATA.comcodes(code).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(code).const = code;
         DATA.comcodes(code).type = s(end);
@@ -676,6 +676,7 @@ DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [600 scrsz(4)-100 400 100];
 DATA.winpos{4} = [600 scrsz(4)-600 400 500];
 DATA.winpos{5} = [600 scrsz(4)-100 400 100];
+DATA.winpos{6} = [600 scrsz(4)-100 400 100];
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.incr = [0 0 0];
@@ -687,6 +688,7 @@ DATA.tag.stepper = 'Stepper';
 DATA.tag.softoff = 'Softoff';
 DATA.tag.options = 'Options';
 DATA.tag.penlog = 'Penetration Log';
+DATA.tag.monkeylog = 'Monkey Log';
 DATA.tag.codes = 'Codelist';
 DATA.tag.status = 'StatusWindow';
 DATA.comcodes(1).label = 'Xoffset';
@@ -1044,6 +1046,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
+    uimenu(hm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
     uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
     uimenu(hm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
@@ -1777,7 +1780,7 @@ function StatusPopup(a,b, type)
       return;
   end
   cntrl_box = figure('Position', DATA.winpos{5},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.status,'Name','Code list','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.tag.status,'Name','Status Lines from binoc','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
     
     lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
@@ -1789,6 +1792,106 @@ set(lst,'string',DATA.Statuslines);
 DATA.statusitem = lst;
 set(DATA.toplevel,'UserData',DATA);
     
+function MonkeyLogPopup(a,b, type)
+  DATA = GetDataFromFig(a);
+  
+  
+  id = strmatch(type,{'RH' 'LH' 'RV' 'LV' 'save' 'clear' 'popup'});
+  if isempty(id)
+      return;
+  elseif id < 5
+      DATA.binoc{1}.so(id) = str2num(get(a,'string'));
+      SendCode(DATA, 'so');
+      set(DATA.toplevel,'UserData',DATA);
+  elseif id == 5 %save
+      fid = fopen(DATA.binocstr.lo,'a');
+      if fid > 0
+      fprintf(fid,'%s\n',datestr(now));
+      fprintf(fid,'so%s\n',sprintf(' %.2f',DATA.binoc{1}.so));
+      if strmatch(type,'savelog')
+          fprintf(fid,'we%.2f\n',DATA.binoc{1}.we);
+      end
+      fclose(fid);
+      fprintf('Saved to %s\n',DATA.binocstr.lo);
+      end
+  elseif id == 6
+     fprintf(DATA.outid,'so=0 0 0 0\n');
+     SetTextItem(gcf,'RH',0);
+     SetTextItem(gcf,'LH',0);
+     SetTextItem(gcf,'RV',0);
+     SetTextItem(gcf,'LV',0);
+  end
+  
+  if ~strcmp(type,'popup')
+      return;
+  end
+  cntrl_box = findobj('Tag',DATA.tag.monkeylog,'type','figure');
+  if ~isempty(cntrl_box)
+      figure(cntrl_box);
+      return;
+  end
+if length(DATA.winpos{6}) ~= 4
+    DATA.winpos{6} = get(DATA.toplevel,'position');
+end
+cntrl_box = figure('Position', DATA.winpos{6},...
+        'NumberTitle', 'off', 'Tag',DATA.tag.monkeylog,'Name','monkeylog','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+    
+nr = 4;
+bp = [0.01 0.99-1/nr 0.115 1./nr];
+    uicontrol(gcf,'style','text','string','RH', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(1)), ...
+        'Callback', {@SoftoffPopup, 'RH'},'Tag','RH',...
+        'units', 'norm', 'position',bp);
+   
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','LH', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(2)), ...
+        'Callback', {@SoftoffPopup, 'LH'},'Tag','LH',...
+        'units', 'norm', 'position',bp);
+    
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','RV', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(3)), ...
+        'Callback', {@SoftoffPopup, 'RV'},'Tag','RV',...
+        'units', 'norm', 'position',bp);
+    
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','LV', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(4)), ...
+        'Callback', {@SoftoffPopup, 'LV'},'Tag','LV',...
+        'units', 'norm', 'position',bp);    
+
+bp(1) = 0.01;
+bp(2) = bp(2)- 1./nr;
+uicontrol(gcf,'style','text','string','Weight', ...
+    'units', 'norm', 'position',bp,'value',1);
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.we(1)), ...
+        'Callback', {@MonkeyLogPopup, 'Weight'},'Tag','Weight',...
+        'units', 'norm', 'position',bp);
+
+bp(1) = 0.01;
+bp(2) = bp(2)- 1./nr;
+
+    uicontrol(gcf,'style','pushbutton','string','Save', ...
+        'Callback', {@MonkeyLogPopup, 'savelog'} ,...
+        'units', 'norm', 'position',bp,'value',1);
+    
+set(gcf,'CloseRequestFcn',{@CloseWindow, 6});
+
 function SoftoffPopup(a,b, type)
   DATA = GetDataFromFig(a);
   
@@ -1878,10 +1981,16 @@ bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','pushbutton','string','Clear', ...
         'Callback', {@SoftoffPopup, 'clear'} ,...
         'units', 'norm', 'position',bp,'value',1);
+
+bp(3) = 2./nc;
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','pushbutton','string','Save to log', ...
+        'Callback', {@MonkeyLogPopup, 'save'} ,...
+        'units', 'norm', 'position',bp,'value',1);
     
 set(gcf,'CloseRequestFcn',{@CloseWindow, 3});
 
-    
+
 function CloseWindow(a,b,wid)
   DATA = GetDataFromFig(a);
   x = get(a, 'position');
