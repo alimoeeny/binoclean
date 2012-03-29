@@ -49,3 +49,4 @@ Things that need fixing:
 * change all the recovery file extension to .stm 
 - in the PsychMon window add a list (history) of experiments to the Expt menu
 - Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
+- increase the font size in verg window
