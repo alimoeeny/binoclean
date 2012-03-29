@@ -64,6 +64,7 @@ for j = 1:length(strs{1})
     eid = strfind(s,'=');
     if ~isempty(eid)
         code = s(1:eid(1)-1);
+        value = s(eid(1)+1:end);
     else
         code = s;
     end
@@ -81,6 +82,10 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'exvals',6)
         sv = sscanf(s(8:end),'%f');
         DATA.Trial.sv(1:length(sv)) = sv;
+    elseif strncmp(s,'fontsiz',6)
+        DATA.gui.fontsize = str2num(value);
+    elseif strncmp(s,'fontname',6)
+        DATA.gui.fontname = str2num(value);
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
         DATA.electrodestrings = {DATA.electrodestrings{:} estr};
@@ -556,10 +561,10 @@ else
     DATA.inid = 1;
 end
 fprintf(DATA.outid,'NewMatlab\n');
-DATA = ReadFromBinoc(DATA,'reset');
+DATA = ReadFromBinoc(DATA,'reset','expect');
 if readflag
 fprintf(DATA.outid,'QueryState\n');
-DATA = ReadFromBinoc(DATA);
+DATA = ReadFromBinoc(DATA,'expect');
 end
 SetGui(DATA,'set');
  
@@ -623,6 +628,8 @@ DATA.gui.fontsize = 14;
 DATA.Coil.gain= [1 1 1 1];
 DATA.Coil.phase= [4 4 4 4];
 DATA.Coil.offset= [0 0 0 0];
+DATA.Coil.so = [0 0 0 0];
+DATA.Coil.CriticalWeight = 0;
 
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
@@ -644,6 +651,7 @@ DATA.showxy = [1 1 1]; %XY L, R, Conjugate crosses
 DATA.currentstim = 1;  %foregr/backgre/Choice Targest
 DATA.xyfsdvals = [1 2 5 10 20 40];
 DATA.optionflags.ts = 0;
+DATA.optionstrings.ts = 'Wurtz Task';
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
@@ -1014,8 +1022,10 @@ function DATA = InitInterface(DATA)
             bp(1) = 0.01;
             bp(2) = bp(2) - 1./nr;
         end
-        uicontrol(gcf,'style','checkbox','string',str, ...
-            'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
+        if isfield(DATA.optionflags,f{j})
+            uicontrol(gcf,'style','checkbox','string',str, ...
+                'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
+        end
 
     end
     bp(3) = 1/nc;
@@ -1062,6 +1072,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, '\centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
+    uimenu(hm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
@@ -1099,17 +1110,21 @@ function AddQuickMenu(a,b)
     
     
 function MenuHit(a,b, arg)
-     DATA = GetDataFromFig(a);
+    DATA = GetDataFromFig(a);
     if strcmp(arg,'bothclose')
         fprintf(DATA.outid,'\\quit\n');
-                if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
+        if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
         end
         f = fields(DATA.tag);
         for j = 1:length(f)
             CloseTag(DATA.tag.(f{j}));
         end
-    end 
+    elseif strcmp(arg,'showpsych')
+        DATA.tag.blockmode = 'Current';
+        PsychPlot(DATA);
+        set(DATA.toplevel,'UserData',DATA);
+    end
     
     
  function SetExpt(a,b, type)
@@ -1388,7 +1403,7 @@ function MenuGui(a,b)
          DATA = OpenPipes(DATA, 0);
          SendState(DATA,'all');
          fprintf(DATA.outid,'QueryState\n');
-        DATA = ReadFromBinoc(DATA,'verbose2');   
+        DATA = ReadFromBinoc(DATA,'verbose2','expect');   
         start(DATA.timerobj);
         
      elseif flag == 7
@@ -1402,11 +1417,12 @@ function MenuGui(a,b)
          fprintf(DATA.outid,'verbose=%d\n',DATA.verbose);
          set(DATA.toplevel,'UserData',DATA);
      elseif flag == 8
-        DATA = ReadFromBinoc(DATA,'reset','verbose');   
+        DATA = ReadFromBinoc(DATA,'reset','verbose');
      else
         DATA = ReadFromBinoc(DATA);   
         SetGui(DATA);
      end
+        CheckTimer(DATA);
 
  function SetGui(DATA,varargin)
      if ~isfield(DATA,'toplevel')
@@ -1504,6 +1520,7 @@ function CheckInput(a,b, fig, varargin)
      
      verbose = DATA.verbose;
      autocall = 0;
+     expecting = 0;
      j = 1;
      while j <= length(varargin)
          if strncmpi(varargin{j},'verbose',5)
@@ -1513,6 +1530,8 @@ function CheckInput(a,b, fig, varargin)
              end
          elseif strncmpi(varargin{j},'auto',4)
              autocall = 1;
+         elseif strncmpi(varargin{j},'expecting',5)
+            expecting = 1;
          elseif strncmpi(varargin{j},'reset',5)
              rbusy = 0;
          elseif ischar(varargin{j})
@@ -1537,6 +1556,10 @@ function CheckInput(a,b, fig, varargin)
      a = fread(DATA.inid,14);
      if verbose >1
          fprintf('OK\n');
+     end
+     if expecting && strcmp(char(a'),'SENDING000000')
+         fprintf('0 Bytes, but expect input. Trying again.\n');
+         a = fread(DATA.inid,14);
      end
      rbusy = 0;
      if strncmp(char(a'),'SENDINGstart1',12)
@@ -1814,37 +1837,82 @@ set(lst,'string',DATA.Statuslines);
 DATA.statusitem = lst;
 set(DATA.toplevel,'UserData',DATA);
     
-function MonkeyLogPopup(a,b, type)
+
+function DATA = ReadLogFile(DATA, name)
+
+    fid = fopen(name,'r');
+    s = textscan(fid,'%s','delimiter','\n');
+    s = s{1};
+    for j = length(s):-1:1
+        if strncmp(s{j},'Saved',5)
+            j = 0;
+            break;
+        elseif strncmp(s{j},'Gain',4)
+            DATA.Coil.gain = sscanf(s{j}(6:end),'%f');
+        elseif strncmp(s{j},'Offset',6)
+            DATA.Coil.offset = sscanf(s{j}(8:end),'%f');
+        elseif strncmp(s{j},'Phase',5)
+            DATA.Coil.phase = sscanf(s{j}(7:end),'%f');
+        elseif strncmp(s{j},'CriticalWeight',14)
+            DATA.Coil.CriticalWeight = sscanf(s{j}(15:end),'%f');
+        elseif strncmp(s{j},'so',2)
+            DATA.Coil.so = sscanf(s{j}(4:end),'%f');
+        elseif strncmp(s{j},'we',2)
+            we = sscanf(s{j}(3:end),'%f');
+            DATA.binoc{1}.we = we(1);
+            if length(we) > 1
+                DATA.Coil.CriticalWeight = w(2);
+            end
+        end
+    end
+    
+function MonkeyLogPopup(a,b, type, channel)
   DATA = GetDataFromFig(a);
   
+
+  if DATA.Coil.gain(1) == 0 %not read yet
+      DATA = ReadLogFile(DATA, DATA.binocstr.lo);
+  end
   
+  if ~strcmp(type,'popup')
+  value = str2num(get(a,'string'));
+
   id = strmatch(type,{'RH' 'LH' 'RV' 'LV' 'save' 'clear' 'popup'});
-  if isempty(id)
-      return;
-  elseif id < 5
-      DATA.binoc{1}.so(id) = str2num(get(a,'string'));
-      SendCode(DATA, 'so');
-      set(DATA.toplevel,'UserData',DATA);
-  elseif id == 5 %save
+  if strncmp(type,'Offset',6)
+      DATA.Coil.offset(channel) = value;
+  elseif strncmp(type,'getsoft',5)
+      DATA.Coil.so = DATA.binoc{1}.so;
+     SetTextItem(gcf,'RH',DATA.binoc{1}.so(1));
+     SetTextItem(gcf,'LH',DATA.binoc{1}.so(2));
+     SetTextItem(gcf,'RV',DATA.binoc{1}.so(3));
+     SetTextItem(gcf,'LV',DATA.binoc{1}.so(4));
+  elseif strncmp(type,'applysoft',8)
+      DATA.binoc{1}.so = DATA.Coil.so;
+      SendCode(DATA,'so');
+  elseif strncmp(type,'CriticalWeight',8)
+      DATA.Coil.CriticalWeight = value;
+  elseif strncmp(type,'Phase',5)
+      DATA.Coil.phase(channel) = value;
+  elseif strncmp(type,'Gain',4)
+      DATA.Coil.gain(channel) = value;
+  elseif strncmp(type,'soft',4)
+      DATA.Coil.so(channel) = value;
+  elseif strmatch(type,'savelog')
       fid = fopen(DATA.binocstr.lo,'a');
       if fid > 0
-      fprintf(fid,'%s\n',datestr(now));
-      fprintf(fid,'so%s\n',sprintf(' %.2f',DATA.binoc{1}.so));
+      fprintf(fid,'Saved: %s\n',datestr(now));
+      fprintf(fid,'so%s\n',sprintf(' %.2f',DATA.Coil.so));
+      fprintf(fid,'Gain%s\n',sprintf(' %.2f',DATA.Coil.gain));
+      fprintf(fid,'Offset%s\n',sprintf(' %.2f',DATA.Coil.offset));
+      fprintf(fid,'Phase%s\n',sprintf(' %.2f',DATA.Coil.phase));
       if strmatch(type,'savelog')
-          fprintf(fid,'we%.2f\n',DATA.binoc{1}.we);
+          fprintf(fid,'we%.2f %.2f\n',DATA.binoc{1}.we,DATA.Coil.CriticalWeight);
       end
       fclose(fid);
       fprintf('Saved to %s\n',DATA.binocstr.lo);
       end
-  elseif id == 6
-     fprintf(DATA.outid,'so=0 0 0 0\n');
-     SetTextItem(gcf,'RH',0);
-     SetTextItem(gcf,'LH',0);
-     SetTextItem(gcf,'RV',0);
-     SetTextItem(gcf,'LV',0);
   end
-  
-  if ~strcmp(type,'popup')
+  set(DATA.toplevel,'UserData',DATA);
       return;
   end
   cntrl_box = findobj('Tag',DATA.tag.monkeylog,'type','figure');
@@ -1860,15 +1928,13 @@ cntrl_box = figure('Position', DATA.winpos{6},...
     set(cntrl_box,'UserData',DATA.toplevel);
         set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
 
-nr = 6;
+nr = 7;
 nc=6;
 
-bp = [0.01 0.99-1/nr 1.99/nc 1./nr];
-uicontrol(gcf,'style','pushbutton','string','Save', ...
-    'Callback', {@MonkeyLogPopup, 'savelog'} ,...
-    'units', 'norm', 'position',bp,'value',1);
+bp = [0.01 0.99-1/nr .99/nc 1./nr];
 
-bp = [2/nc 0.99-1/nr 0.99./nc 1./nr];
+
+    bp = [2/nc 0.99-1/nr 0.99./nc 1./nr];
 uicontrol(gcf,'style','text','string','RH', ...
         'units', 'norm', 'position',bp,'value',1);
              bp(1) = bp(1)+bp(3)+0.01;
@@ -1890,23 +1956,24 @@ uicontrol(gcf,'style','text','string','RH', ...
         'units', 'norm', 'position',bp,'value',1);   
 
 bp = [2/nc 0.99-2/nr 0.99./nc 1./nr];
-    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(1)), ...
-        'Callback', {@SoftoffPopup, 'RH'},'Tag','RH',...
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.so(1)), ...
+        'Callback', {@MonkeyLogPopup, 'soft', 1},'Tag','RH',...
         'units', 'norm', 'position',bp);
 
 
 bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(3)), ...
-        'Callback', {@SoftoffPopup, 'RV'},'Tag','RV',...
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.so(2)), ...
+        'Callback', {@MonkeyLogPopup, 'soft' 2},'Tag','LH',...
         'units', 'norm', 'position',bp);
-    
-         bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','text','string','LV', ...
-        'units', 'norm', 'position',bp,'value',1);
 
 bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(4)), ...
-        'Callback', {@SoftoffPopup, 'LV'},'Tag','LV',...
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.so(3)), ...
+        'Callback', {@MonkeyLogPopup, 'soft', 3},'Tag','RV',...
+        'units', 'norm', 'position',bp);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.so(4)), ...
+        'Callback', {@MonkeyLogPopup, 'soft' 4},'Tag','LV',...
         'units', 'norm', 'position',bp);    
 
         bp = [0.01 0.99-3/nr 1.99/nc 1./nr];
@@ -1915,22 +1982,22 @@ bp(1) = bp(1)+bp(3)+0.01;
 
 bp = [2/nc 0.99-3/nr 0.99/nc 1./nr];
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(1)), ...
-        'Callback', {@SoftoffPopup, 'GainRH'},'Tag','GainRH',...
+        'Callback', {@MonkeyLogPopup, 'GainRH', 1},'Tag','GainRH',...
         'units', 'norm', 'position',bp);
    
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(2)), ...
-        'Callback', {@SoftoffPopup, 'GainLH'},'Tag','GainLH',...
+        'Callback', {@MonkeyLogPopup, 'GainLH', 2},'Tag','GainLH',...
         'units', 'norm', 'position',bp);
 
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(3)), ...
-        'Callback', {@SoftoffPopup, 'GainRV'},'Tag','GainRV',...
+        'Callback', {@MonkeyLogPopup, 'GainRV', 3},'Tag','GainRV',...
         'units', 'norm', 'position',bp);
     
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(4)), ...
-        'Callback', {@SoftoffPopup, 'GainLV'},'Tag','GainLV',...
+        'Callback', {@MonkeyLogPopup, 'GainLV' 4},'Tag','GainLV',...
         'units', 'norm', 'position',bp);    
 
     bp = [0.01 0.99-4/nr 1.99/nc 1./nr];
@@ -1938,25 +2005,23 @@ bp(1) = bp(1)+bp(3)+0.01;
         'units', 'norm', 'position',bp,'value',1);   
 bp = [2/nc 0.99-4/nr 0.99/nc 1./nr];
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(1)), ...
-        'Callback', {@SoftoffPopup, 'phaseRH'},'Tag','phaseRH',...
+        'Callback', {@MonkeyLogPopup, 'phaseRH', 1},'Tag','phaseRH',...
         'units', 'norm', 'position',bp);
    
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(2)), ...
-        'Callback', {@SoftoffPopup, 'phaseLH'},'Tag','phaseLH',...
+        'Callback', {@MonkeyLogPopup, 'phaseLH', 2},'Tag','phaseLH',...
         'units', 'norm', 'position',bp);
 
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(3)), ...
-        'Callback', {@SoftoffPopup, 'phaseRV'},'Tag','phaseRV',...
+        'Callback', {@MonkeyLogPopup, 'phaseRV', 3},'Tag','phaseRV',...
         'units', 'norm', 'position',bp);
     
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(4)), ...
-        'Callback', {@SoftoffPopup, 'phaseLV'},'Tag','phaseLV',...
+        'Callback', {@MonkeyLogPopup, 'phaseLV', 4},'Tag','phaseLV',...
         'units', 'norm', 'position',bp);    
-
-
     
     
     bp = [0.01 0.99-5/nr 1.99/nc 1./nr];
@@ -1964,38 +2029,55 @@ bp(1) = bp(1)+bp(3)+0.01;
         'units', 'norm', 'position',bp,'value',1);   
     bp = [2/nc 0.99-5/nr 0.99/nc 1./nr];
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(1)), ...
-        'Callback', {@SoftoffPopup, 'offsetRH'},'Tag','offsetRH',...
+        'Callback', {@MonkeyLogPopup, 'offsetRH', 1},'Tag','offsetRH',...
         'units', 'norm', 'position',bp);
    
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(2)), ...
-        'Callback', {@SoftoffPopup, 'offsetLH'},'Tag','offsetLH',...
+        'Callback', {@MonkeyLogPopup, 'offsetLH', 2},'Tag','offsetLH',...
         'units', 'norm', 'position',bp);
 
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(3)), ...
-        'Callback', {@SoftoffPopup, 'offsetRV'},'Tag','offsetRV',...
+        'Callback', {@MonkeyLogPopup, 'offsetRV', 3},'Tag','offsetRV',...
         'units', 'norm', 'position',bp);
     
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(4)), ...
-        'Callback', {@SoftoffPopup, 'offsetLV'},'Tag','offsetLV',...
+        'Callback', {@MonkeyLogPopup, 'offsetLV', 4},'Tag','offsetLV',...
         'units', 'norm', 'position',bp);    
 
-bp(1) = 0.01;
 bp(2) = bp(2)- 1./nr;
-uicontrol(gcf,'style','text','string','Weight', ...
+bp(1) = 0.01;
+    it = uicontrol(gcf,'style','text','string','Weight', ...
     'units', 'norm', 'position',bp,'value',1);
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.we(1)), ...
         'Callback', {@MonkeyLogPopup, 'Weight'},'Tag','Weight',...
         'units', 'norm', 'position',bp);
 
-bp(1) = 0.01;
-bp(2) = bp(2)- 1./nr;
+bp(1) = bp(1)+bp(3)+0.01;
+    it = uicontrol(gcf,'style','text','string','Critical Weight', ...
+    'units', 'norm', 'position',bp,'value',1);bp(1) = bp(1)+bp(3)+0.01;
 
-    uicontrol(gcf,'style','pushbutton','string','Save', ...
-        'Callback', {@MonkeyLogPopup, 'savelog'} ,...
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.CriticalWeight), ...
+        'Callback', {@MonkeyLogPopup, 'CriticalWeight'},'Tag','CriticalWeight',...
+        'units', 'norm', 'position',bp);
+
+    bp(1) = 0.01;
+bp(2) = bp(2)- 1./nr;
+uicontrol(gcf,'style','pushbutton','string','Save', ...
+    'Callback', {@MonkeyLogPopup, 'savelog'} ,...
+    'units', 'norm', 'position',bp,'value',1);
+bp(1) = bp(1)+bp(3)+0.01;
+bp(3) = 2./nc;
+    uicontrol(gcf,'style','pushbutton','string','Apply Softoff', ...
+        'Callback', {@MonkeyLogPopup, 'applysoft'} ,...
+        'units', 'norm', 'position',bp,'value',1);
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','pushbutton','string','Use Current Softoff', ...
+        'Callback', {@MonkeyLogPopup, 'getsoft'} ,...
         'units', 'norm', 'position',bp,'value',1);
     
 set(gcf,'CloseRequestFcn',{@CloseWindow, 6});
@@ -2437,9 +2519,18 @@ function ChoosePsych(a,b, mode)
         else
             DATA.plotexpts(e) = ~DATA.plotexpts(e);
         end
-        set(a,'checked',onoff{DATA.plotexpts(e)+1});
         PlotPsych(DATA);
-        ClearTaggedChecks(get(a,'parent'),{});
+        if strmatch(DATA.psych.blockmode,'OneOnly')
+            c = get(get(a,'parent'),'children');
+            set(c,'checked','off');
+        else
+            ClearTaggedChecks(get(a,'parent'),{});
+        end
+        set(a,'checked',onoff{DATA.plotexpts(e)+1});
+        if strmatch(DATA.psych.blockmode,{'Current' 'OneOnly'})
+            it = findobj(get(a,'parent'),'Tag',DATA.psych.blockmode);
+            set(it,'Checked','on');
+        end
     elseif strmatch(mode,'Current')
         if strcmp(DATA.psych.blockmode,'Current')
             DATA.psych.blockmode = 'Select';
@@ -2450,7 +2541,7 @@ function ChoosePsych(a,b, mode)
         end
         ClearTaggedChecks(get(a,'parent'),{});
         PlotPsych(DATA);
-    elseif strmatch(mode,{'OnlyCurrent','All' 'None'})
+    elseif strmatch(mode,{'OnlyCurrent','All' 'None' 'OneOnly'})
         DATA.psych.blockmode = mode;
         DATA.plotexpts = zeros(size(DATA.plotexpts));
         PlotPsych(DATA);
@@ -2488,7 +2579,8 @@ function PsychMenu(DATA)
     c = get(hm,'children');
     delete(c);
     for j = 1:length(DATA.Expts)
-        sm = uimenu(hm,'Label', sprintf('Expt%d %s',j,Expt2Name(DATA.Expts{j})),'CallBack', {@ChoosePsych, sprintf('Expt%d',j)});
+        nt = length(DATA.Expts{j}.Trials);
+        sm = uimenu(hm,'Label', sprintf('Expt%d %s %d',j,Expt2Name(DATA.Expts{j}),nt),'CallBack', {@ChoosePsych, sprintf('Expt%d',j)});
         if j < length(DATA.plotexpts) && DATA.plotexpts(j)
             set(sm,'Checked','on');
         end
@@ -2499,6 +2591,7 @@ function PsychMenu(DATA)
     end
     uimenu(hm,'Label', 'Only Current','Callback',{@ChoosePsych, 'OnlyCurrent'},'tag','OnlyCurrent');
     uimenu(hm,'Label', 'All','Callback',{@ChoosePsych, 'All'},'tag','All');
+    uimenu(hm,'Label', 'One','Callback',{@ChoosePsych, 'OneOnly'},'tag','OneOnly');
     uimenu(hm,'Label', 'None','Callback',{@ChoosePsych, 'None'},'tag','None');
     
 function DATA = CheckExpts(DATA)
@@ -2537,7 +2630,7 @@ function DATA = PlotPsych(DATA)
         end
     end
     id = DATA.Expts{e}.first:length(DATA.Trials);
-    if strmatch(DATA.psych.blockmode,{'Current' 'OnlyCurrent'})
+    if strmatch(DATA.psych.blockmode,{'All' 'Current' 'OnlyCurrent'})
         allid = [allid id];
     end
     id = unique(allid);
@@ -2563,7 +2656,7 @@ function DATA = CheckTimer(DATA)
     
     global rbusy;
     
-    DATA.piperror = 0;
+    DATA.pipeerror = 0;
     c = get(DATA.toplevel,'color');
     if rbusy > 0
         set(DATA.toplevel,'color','r');
@@ -2573,6 +2666,6 @@ function DATA = CheckTimer(DATA)
         set(DATA.toplevel,'color',[0 0 0.5]);
         DATA.pipeerror = 2;
     end
-    if DATA.piperror == 0 && sum(c == DATA.windowcolor) < 3
+    if DATA.pipeerror == 0 && sum(c == DATA.windowcolor) < 3
         set(DATA.toplevel,'color',DATA.windowcolor);        
     end
