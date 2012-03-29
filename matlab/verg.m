@@ -618,11 +618,17 @@ function DATA = SetDefaults(DATA)
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
 
+DATA.gui.fontsize = 14;
+
+DATA.Coil.gain= [1 1 1 1];
+DATA.Coil.phase= [4 4 4 4];
+DATA.Coil.offset= [0 0 0 0];
+
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
 DATA.Trial.sv = [];
 DATA.psych.show = 1;
-DATA.psych.blockmode = 'all';
+DATA.psych.blockmode = 'All';
 DATA.psych.blockid = [];
 DATA.overcmds = {};
 DATA.exptstimlist = { {} {} {} };
@@ -821,7 +827,8 @@ function DATA = InitInterface(DATA)
     scrsz = get(0,'Screensize');
     cntrl_box = figure('Position', DATA.winpos{1},...
         'NumberTitle', 'off', 'Tag',DATA.tag.top,'Name',DATA.name,'menubar','none');
-    
+                set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+
     if isfield(DATA.showflags,'do')
     DATA.showflags = rmfield(DATA.showflags,'do');
     end
@@ -1646,6 +1653,7 @@ end
 cntrl_box = figure('Position', DATA.winpos{3},...
         'NumberTitle', 'off', 'Tag',DATA.tag.penlog,'Name','Penetration Log','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
+    set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
 
     nr = 10;
     nc = 6;
@@ -1702,6 +1710,8 @@ scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
         'NumberTitle', 'off', 'Tag',DATA.tag.options,'Name','Options','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+
 bp = [0.01 0.99-1/nr 1./nc 1./nr];
 for j = 1:length(f)
     bp(1) = floor(j/nr) .* 1./nc;
@@ -1759,6 +1769,8 @@ function CodesPopup(a,b, type)
   cntrl_box = figure('Position', DATA.winpos{4},...
         'NumberTitle', 'off', 'Tag',DATA.tag.codes,'Name','Code list','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+
     hm = uimenu(cntrl_box,'Label','List by');
     sm = uimenu(hm,'Label','By Code','callback',{@CodesPopup, 'bycode'});
     sm = uimenu(hm,'Label','By Label','callback',{@CodesPopup, 'bylabel'});
@@ -1791,7 +1803,8 @@ function StatusPopup(a,b, type)
   cntrl_box = figure('Position', DATA.winpos{5},...
         'NumberTitle', 'off', 'Tag',DATA.tag.status,'Name','Status Lines from binoc','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-    
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+
     lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
@@ -1845,29 +1858,42 @@ end
 cntrl_box = figure('Position', DATA.winpos{6},...
         'NumberTitle', 'off', 'Tag',DATA.tag.monkeylog,'Name','monkeylog','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-    
-nr = 4;
-bp = [0.01 0.99-1/nr 0.115 1./nr];
-    uicontrol(gcf,'style','text','string','RH', ...
-        'units', 'norm', 'position',bp,'value',1);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
 
-bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(1)), ...
-        'Callback', {@SoftoffPopup, 'RH'},'Tag','RH',...
-        'units', 'norm', 'position',bp);
-   
-         bp(1) = bp(1)+bp(3)+0.01;
+nr = 6;
+nc=6;
+
+bp = [0.01 0.99-1/nr 1.99/nc 1./nr];
+uicontrol(gcf,'style','pushbutton','string','Save', ...
+    'Callback', {@MonkeyLogPopup, 'savelog'} ,...
+    'units', 'norm', 'position',bp,'value',1);
+
+bp = [2/nc 0.99-1/nr 0.99./nc 1./nr];
+uicontrol(gcf,'style','text','string','RH', ...
+        'units', 'norm', 'position',bp,'value',1);
+             bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','text','string','LH', ...
         'units', 'norm', 'position',bp,'value',1);
 
-bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(2)), ...
-        'Callback', {@SoftoffPopup, 'LH'},'Tag','LH',...
-        'units', 'norm', 'position',bp);
-    
-         bp(1) = bp(1)+bp(3)+0.01;
+
+             bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','text','string','RV', ...
         'units', 'norm', 'position',bp,'value',1);
+
+         bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','text','string','LV', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+    bp(1) = bp(1)+bp(3)+0.01;
+        bp = [0.01 0.99-2/nr 1.99/nc 1./nr];
+     uicontrol(gcf,'style','text','string','SoftOff', ...
+        'units', 'norm', 'position',bp,'value',1);   
+
+bp = [2/nc 0.99-2/nr 0.99./nc 1./nr];
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(1)), ...
+        'Callback', {@SoftoffPopup, 'RH'},'Tag','RH',...
+        'units', 'norm', 'position',bp);
+
 
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(3)), ...
@@ -1881,6 +1907,79 @@ bp(1) = bp(1)+bp(3)+0.01;
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.so(4)), ...
         'Callback', {@SoftoffPopup, 'LV'},'Tag','LV',...
+        'units', 'norm', 'position',bp);    
+
+        bp = [0.01 0.99-3/nr 1.99/nc 1./nr];
+     uicontrol(gcf,'style','text','string','Gain', ...
+        'units', 'norm', 'position',bp,'value',1);   
+
+bp = [2/nc 0.99-3/nr 0.99/nc 1./nr];
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(1)), ...
+        'Callback', {@SoftoffPopup, 'GainRH'},'Tag','GainRH',...
+        'units', 'norm', 'position',bp);
+   
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(2)), ...
+        'Callback', {@SoftoffPopup, 'GainLH'},'Tag','GainLH',...
+        'units', 'norm', 'position',bp);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(3)), ...
+        'Callback', {@SoftoffPopup, 'GainRV'},'Tag','GainRV',...
+        'units', 'norm', 'position',bp);
+    
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.gain(4)), ...
+        'Callback', {@SoftoffPopup, 'GainLV'},'Tag','GainLV',...
+        'units', 'norm', 'position',bp);    
+
+    bp = [0.01 0.99-4/nr 1.99/nc 1./nr];
+     uicontrol(gcf,'style','text','string','Phase', ...
+        'units', 'norm', 'position',bp,'value',1);   
+bp = [2/nc 0.99-4/nr 0.99/nc 1./nr];
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(1)), ...
+        'Callback', {@SoftoffPopup, 'phaseRH'},'Tag','phaseRH',...
+        'units', 'norm', 'position',bp);
+   
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(2)), ...
+        'Callback', {@SoftoffPopup, 'phaseLH'},'Tag','phaseLH',...
+        'units', 'norm', 'position',bp);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(3)), ...
+        'Callback', {@SoftoffPopup, 'phaseRV'},'Tag','phaseRV',...
+        'units', 'norm', 'position',bp);
+    
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.phase(4)), ...
+        'Callback', {@SoftoffPopup, 'phaseLV'},'Tag','phaseLV',...
+        'units', 'norm', 'position',bp);    
+
+
+    
+    
+    bp = [0.01 0.99-5/nr 1.99/nc 1./nr];
+     uicontrol(gcf,'style','text','string','Offset', ...
+        'units', 'norm', 'position',bp,'value',1);   
+    bp = [2/nc 0.99-5/nr 0.99/nc 1./nr];
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(1)), ...
+        'Callback', {@SoftoffPopup, 'offsetRH'},'Tag','offsetRH',...
+        'units', 'norm', 'position',bp);
+   
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(2)), ...
+        'Callback', {@SoftoffPopup, 'offsetLH'},'Tag','offsetLH',...
+        'units', 'norm', 'position',bp);
+
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(3)), ...
+        'Callback', {@SoftoffPopup, 'offsetRV'},'Tag','offsetRV',...
+        'units', 'norm', 'position',bp);
+    
+bp(1) = bp(1)+bp(3)+0.01;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(4)), ...
+        'Callback', {@SoftoffPopup, 'offsetLV'},'Tag','offsetLV',...
         'units', 'norm', 'position',bp);    
 
 bp(1) = 0.01;
@@ -1941,7 +2040,7 @@ end
 cntrl_box = figure('Position', DATA.winpos{3},...
         'NumberTitle', 'off', 'Tag',DATA.tag.softoff,'Name','Softoff','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-    
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
 nr = 2;
 bp = [0.01 0.99-1/nr 0.115 1./nr];
     uicontrol(gcf,'style','text','string','RH', ...
@@ -2375,6 +2474,8 @@ function DATA = SetFigure(tag, DATA)
             hm = uimenu(a, 'Label','Expts','Tag','ExptMenu');
             PsychMenu(DATA);
             set(a,'UserData',DATA.toplevel);
+            set(a,'DefaultUIControlFontSize',DATA.gui.fontsize);
+
         end
         set(DATA.toplevel,'UserData',DATA);
     end
