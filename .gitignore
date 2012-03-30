@@ -15,7 +15,11 @@ profile
 *.moved-aside
 *.DS_Store
 *.m~
+
+#dropbox
 .dropbox
 Icon$'\r'
+
+#lsr file server?
 ._*
 
