@@ -47,5 +47,6 @@ Things that need fixing:
 * change all the recovery file extension to .stm 
 * handle quit commands comming from verg
 * change all the recovery file extension to .stm 
-- in the PsychMon window add a list (history) of experiments to the Expt menu
-- Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
+* in the PsychMon window add a list (history) of experiments to the Expt menu
+* Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
+- need to make cursor invisible in Red and Blue

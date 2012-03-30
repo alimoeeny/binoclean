@@ -22,7 +22,7 @@ if isempty(it)
     if length(varargin) && exist(varargin{1},'file')
         DATA = OpenPipes(DATA, 0);
         DATA.stimfilename = varargin{1};
-        DATA = ReadStimFile(DATA,varargin{1});
+        DATA = ReadStimFile(DATA,varargin{1}, 'init');
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
     else
@@ -40,13 +40,10 @@ if length(varargin)
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
         end
-        f = fields(DATA.tag);
-        for j = 1:length(f)
-            if ~strcmp(f{j},'top')
-            CloseTag(DATA.tag.(f{j}));
-            end
+        for j = 2:length(DATA.windownames)
+            CloseTag(DATA.windownames{j});
         end
-        CloseTag(DATA.tag.top);
+        CloseTag(DATA.windownames{1});
         return;
     elseif strncmpi(varargin{1},'quick',5)
         DATA = ReadStimFile(DATA, varargin{2});
@@ -83,12 +80,14 @@ for j = 1:length(strs{1})
         sv = sscanf(s(8:end),'%f');
         DATA.Trial.sv(1:length(sv)) = sv;
     elseif strncmp(s,'fontsiz',6)
-        DATA.gui.fontsize = str2num(value);
+        DATA.font.FontSize = str2num(value);
     elseif strncmp(s,'fontname',6)
-        DATA.gui.fontname = str2num(value);
+        DATA.font.FontName = value;
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
         DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+    elseif strncmp(s,'layout',6)
+        DATA.layoutfile = value;
     elseif strncmp(s,'TOGGLE',6)
         id = strfind(s,' ');
         cc = s(id(1)+1:id(2)-1);
@@ -185,6 +184,9 @@ for j = 1:length(strs{1})
         if isfield(DATA.Trial,'RespDir')
             DATA = PlotPsych(DATA);
         end
+    elseif length(code) > 4 & strmatch(code,DATA.windownames)
+        iw = strmatch(code,DATA.windownames);
+        DATA.winpos{iw} = sscanf(value,'%d');
     elseif strncmp(s,'winpos=',7)
         DATA.winpos{1} = sscanf(s(8:end),'%d');
     elseif strncmp(s,'optionwinpos=',10)
@@ -412,7 +414,16 @@ for j = 1:length(strs{1})
 end
 
 
-function DATA = ReadStimFile(DATA, name)
+function DATA = ReadStimFile(DATA, name, varargin)
+   
+    setall = 0;
+    j = 1;
+    while j <= length(varargin)
+        if strncmpi(varargin{j},'init',4)
+            setall = 1;
+        end
+        j = j+1;
+    end
         
 fid = fopen(name,'r');
 if fid > 0
@@ -451,6 +462,36 @@ if fid > 0
 else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
 end
+if setall
+    DATA = ReadVergFile(DATA, DATA.layoutfile);
+end
+
+function DATA = ReadVergFile(DATA, name, varargin)
+%Read file htat only affects verg, not binoc (e.g. layout)
+   
+    setall = 0;
+    j = 1;
+    while j <= length(varargin)
+        if strncmpi(varargin{j},'init',4)
+            setall = 1;
+        end
+        j = j+1;
+    end
+        
+fid = fopen(name,'r');
+if fid > 0
+    tline = fgets(fid);
+    while ischar(tline)
+        DATA = InterpretLine(DATA,tline);
+        tline = fgets(fid);
+    end
+    fclose(fid);
+else
+    msgbox(sprintf('Can''t read %s',name),'Read Error','error');
+end
+
+
+
 
 function SendState(DATA, varargin)
 
@@ -623,19 +664,21 @@ function DATA = SetDefaults(DATA)
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
 
-DATA.gui.fontsize = 14;
-
+DATA.font.FontSize = 14;
+DATA.font.FontName = 'Arial';
 DATA.Coil.gain= [1 1 1 1];
 DATA.Coil.phase= [4 4 4 4];
 DATA.Coil.offset= [0 0 0 0];
 DATA.Coil.so = [0 0 0 0];
 DATA.Coil.CriticalWeight = 0;
+DATA.layoutfile = '/local/verg.layout';
 
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
 DATA.Trial.sv = [];
 DATA.psych.show = 1;
 DATA.psych.blockmode = 'All';
+DATA.psych.crosshairs = 1;
 DATA.psych.blockid = [];
 DATA.overcmds = {};
 DATA.exptstimlist = { {} {} {} };
@@ -687,6 +730,7 @@ DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
+DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [600 scrsz(4)-100 400 100];
@@ -834,8 +878,10 @@ function DATA = InitInterface(DATA)
 
     scrsz = get(0,'Screensize');
     cntrl_box = figure('Position', DATA.winpos{1},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.top,'Name',DATA.name,'menubar','none');
-                set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+        'NumberTitle', 'off', 'Tag',DATA.windownames{1},'Name',DATA.name,'menubar','none');
+                set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+                set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
+
 
     if isfield(DATA.showflags,'do')
     DATA.showflags = rmfield(DATA.showflags,'do');
@@ -1035,6 +1081,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Close Verg and Binoc','Callback',{@MenuHit, 'bothclose'});
     uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
     uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
+    uimenu(hm,'Label','Save Layout','Callback',{@SaveFile, 'layout'});
     sm = uimenu(hm,'Label','Today Slots');
     for j = 1:8
     uimenu(sm,'Label',['Expt' num2str(j)],'Callback',{@SaveSlot, j});
@@ -1073,6 +1120,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, '\centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
     uimenu(hm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
+    uimenu(hm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
     DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
@@ -1116,12 +1164,15 @@ function MenuHit(a,b, arg)
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
         end
-        f = fields(DATA.tag);
-        for j = 1:length(f)
-            CloseTag(DATA.tag.(f{j}));
+        for j = 1:length(DATA.windownames)
+            CloseTag(DATA.windownames{j});
         end
+    elseif strcmp(arg,'choosefont')
+        fn = uisetfont;
+        DATA.font = fn;
+        set(DATA.toplevel,'UserData',DATA);
     elseif strcmp(arg,'showpsych')
-        DATA.tag.blockmode = 'Current';
+        DATA.psych.blockmode = 'Current';
         PsychPlot(DATA);
         set(DATA.toplevel,'UserData',DATA);
     end
@@ -1234,6 +1285,8 @@ function SaveFile(a,b,type)
     if strcmp(type,'current')
         filename = DATA.stimfilename;
         SaveExpt(DATA, filename)
+    elseif strcmp(type,'layout')
+        SaveLayout(DATA, DATA.layoutfile);
     elseif strcmp(type,'saveas')
         [a,b,c] = fileparts(DATA.stimfilename);
         if isempty(c)
@@ -1244,6 +1297,18 @@ function SaveFile(a,b,type)
         SaveExpt(DATA, [path '/' outname]);
         end
     end
+    
+function SaveLayout(DATA, name)  
+
+    fid = fopen(name,'w');
+    for j = 1:length(DATA.winpos)
+        it = findobj('tag',DATA.windownames{j},'type','figure');
+        if length(it) == 1
+            DATA.winpos{j} = get(it,'position');
+        end
+        fprintf(fid,'%s=%s\n',DATA.windownames{j},sprintf('%d ',DATA.winpos{j}));
+    end
+    fclose(fid);
     
  function EditList(a,b)
      id = get(a,'value');
@@ -1470,7 +1535,7 @@ function MenuGui(a,b)
         set(it,'string','Run');
     end
     
-    ot = findobj('tag',DATA.tag.options,'type','figure');
+    ot = findobj('tag',DATA.windownames{2},'type','figure');
        f = fields(DATA.optionflags);
        for j = 1:length(f)
            if length(ot) == 1
@@ -1665,7 +1730,7 @@ function RunButton(a,b, type)
  
 function PenLogPopup(a,b)
   DATA = GetDataFromFig(a);
-  cntrl_box = findobj('Tag',DATA.tag.penlog,'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{3},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
@@ -1674,9 +1739,10 @@ if length(DATA.winpos{3}) ~= 4
     DATA.winpos{3} = get(DATA.toplevel,'position');
 end
 cntrl_box = figure('Position', DATA.winpos{3},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.penlog,'Name','Penetration Log','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Penetration Log','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-    set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+            set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
+    set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
 
     nr = 10;
     nc = 6;
@@ -1718,7 +1784,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
 
 function OptionPopup(a,b)
   DATA = GetDataFromFig(a);
-  cntrl_box = findobj('Tag',DATA.tag.options,'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{2},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
@@ -1731,9 +1797,10 @@ nc = 4;
 nr = ceil((length(f)+2)/nc);
 scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.options,'Name','Options','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Options','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+            set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
 
 bp = [0.01 0.99-1/nr 1./nc 1./nr];
 for j = 1:length(f)
@@ -1784,15 +1851,16 @@ function CodesPopup(a,b, type)
   if ~strcmp(type,'popup')
       return;
   end
-  cntrl_box = findobj('Tag',DATA.tag.codes,'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{4},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
   end
   cntrl_box = figure('Position', DATA.winpos{4},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.codes,'Name','Code list','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{4},'Name','Code list','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+        set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
 
     hm = uimenu(cntrl_box,'Label','List by');
     sm = uimenu(hm,'Label','By Code','callback',{@CodesPopup, 'bycode'});
@@ -1818,15 +1886,15 @@ function StatusPopup(a,b, type)
   if ~strcmp(type,'popup')
       return;
   end
-  cntrl_box = findobj('Tag',DATA.tag.status,'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{5},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
   end
   cntrl_box = figure('Position', DATA.winpos{5},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.status,'Name','Status Lines from binoc','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{5},'Name','Status Lines from binoc','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
 
     lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
         'HorizontalAlignment','left',...
@@ -1915,7 +1983,7 @@ function MonkeyLogPopup(a,b, type, channel)
   set(DATA.toplevel,'UserData',DATA);
       return;
   end
-  cntrl_box = findobj('Tag',DATA.tag.monkeylog,'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{6},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
@@ -1924,10 +1992,10 @@ if length(DATA.winpos{6}) ~= 4
     DATA.winpos{6} = get(DATA.toplevel,'position');
 end
 cntrl_box = figure('Position', DATA.winpos{6},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.monkeylog,'Name','monkeylog','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{6},'Name','monkeylog','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
-
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+            set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
 nr = 7;
 nc=6;
 
@@ -2111,7 +2179,7 @@ function SoftoffPopup(a,b, type)
   if ~strcmp(type,'popup')
       return;
   end
-  cntrl_box = findobj('Tag',DATA.tag.softoff,'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{3},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
@@ -2120,9 +2188,11 @@ if length(DATA.winpos{3}) ~= 4
     DATA.winpos{3} = get(DATA.toplevel,'position');
 end
 cntrl_box = figure('Position', DATA.winpos{3},...
-        'NumberTitle', 'off', 'Tag',DATA.tag.softoff,'Name','Softoff','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Softoff','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
-        set(cntrl_box,'DefaultUIControlFontSize',DATA.gui.fontsize);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+        set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
+
 nr = 2;
 bp = [0.01 0.99-1/nr 0.115 1./nr];
     uicontrol(gcf,'style','text','string','RH', ...
@@ -2551,6 +2621,11 @@ function ChoosePsych(a,b, mode)
     elseif strmatch(mode,'Pause')
         DATA.psych.show = ~DATA.psych.show;
         set(a,'Checked',onoff{DATA.psych.show+1});
+        PlotPsych(DATA);
+    elseif strcmp(mode,'crosshairs')
+        DATA.psych.crosshairs = ~DATA.psych.crosshairs;
+        set(a,'Checked',onoff{DATA.psych.crosshairs+1});
+        PlotPsych(DATA);
     end
     set(DATA.toplevel,'UserData',DATA);
 
@@ -2559,13 +2634,18 @@ function ChoosePsych(a,b, mode)
 function DATA = SetFigure(tag, DATA)
 
     [a,isnew] = GetFigure(tag);
+    onoff = {'off' 'on'};
     if isnew
         DATA.figs.(tag) = a;
         if strcmp(tag,'VergPsych')
             hm = uimenu(a, 'Label','Expts','Tag','ExptMenu');
             PsychMenu(DATA);
+            hm = uimenu(a, 'Label','Options','Tag','PsychOptions');
+            sm = uimenu(hm,'Label','Crosshairs','callback', {@ChoosePsych, 'crosshairs'},...
+                'checked',onoff{DATA.psych.crosshairs+1});
             set(a,'UserData',DATA.toplevel);
-            set(a,'DefaultUIControlFontSize',DATA.gui.fontsize);
+            set(a,'DefaultUIControlFontSize',DATA.font.FontSize);
+            set(a,'DefaultUIControlFontName',DATA.font.FontName);
 
         end
         set(DATA.toplevel,'UserData',DATA);
@@ -2648,7 +2728,11 @@ function DATA = PlotPsych(DATA)
     if DATA.psych.show
     DATA = SetFigure('VergPsych', DATA);
     hold off; 
-    ExptPsych(DATA.Expts{e},'nmin',1,'mintrials',2,'shown');
+    [a,b] = ExptPsych(DATA.Expts{e},'nmin',1,'mintrials',2,'shown');
+    if DATA.psych.crosshairs
+        plot([0 0], get(gca,'ylim'),'k:')
+        plot(get(gca,'xlim'),[0.5 0.5],'k:')
+    end
     end
     
     
