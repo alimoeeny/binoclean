@@ -11,12 +11,12 @@
 		3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FB14FD3A770088CE53 /* penLogWindow.xib */; };
 		3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FD14FD3E310088CE53 /* stepperWindow.xib */; };
 		4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 4114944914FB150A005EDCDE /* stepperGUI.m */; };
+		4114DC501524EB9700BA457C /* labjack_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1B15223E61001D9E5C /* labjack_dio.c */; };
 		41520B6113A25981006CE4A7 /* MonkeyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41520B6013A25981006CE4A7 /* MonkeyWindow.xib */; };
 		41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6313A259C8006CE4A7 /* MonkeyGLView.m */; };
 		41520B6713A25B72006CE4A7 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6513A25B72006CE4A7 /* GLString.m */; };
 		41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6A13A25BB3006CE4A7 /* GLCheck.c */; };
 		41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6F13A25BF6006CE4A7 /* drawInfo.m */; };
-		415F5C8D15234852009126A7 /* labjack_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1B15223E61001D9E5C /* labjack_dio.c */; };
 		417AEA8513DE21BB006F7A77 /* playButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8113DE21BB006F7A77 /* playButton.png */; };
 		417AEA8613DE21BB006F7A77 /* playButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8213DE21BB006F7A77 /* playButtonSilver.png */; };
 		417AEA8713DE21BB006F7A77 /* playsweet.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8313DE21BB006F7A77 /* playsweet.png */; };
@@ -71,6 +71,8 @@
 		41BF8E3C13A174FE00C8B6BA /* stair.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1913A174FE00C8B6BA /* stair.c */; };
 		41BF8E3D13A174FE00C8B6BA /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1B13A174FE00C8B6BA /* misc.c */; };
 		41BF8E3E13A174FE00C8B6BA /* myfree.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8E1D13A174FE00C8B6BA /* myfree.c */; };
+		41D5A3B015264900004431C1 /* crosscursor20.png in Resources */ = {isa = PBXBuildFile; fileRef = 41D5A3AF15264900004431C1 /* crosscursor20.png */; };
+		41D5A3B315265341004431C1 /* crosscursorPG20.png in Resources */ = {isa = PBXBuildFile; fileRef = 41D5A3B215265341004431C1 /* crosscursorPG20.png */; };
 		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
 		41DD53031521ED51004D28A0 /* binoclean.icns in Resources */ = {isa = PBXBuildFile; fileRef = 41DD53021521ED51004D28A0 /* binoclean.icns */; };
 		C90350CC150D279800DFD9D3 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C90350CB150D279800DFD9D3 /* ali */; };
@@ -279,6 +281,8 @@
 		41BF8E1B13A174FE00C8B6BA /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = misc.c; sourceTree = "<group>"; };
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
+		41D5A3AF15264900004431C1 /* crosscursor20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crosscursor20.png; sourceTree = "<group>"; };
+		41D5A3B215265341004431C1 /* crosscursorPG20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crosscursorPG20.png; sourceTree = "<group>"; };
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		41DD53021521ED51004D28A0 /* binoclean.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = binoclean.icns; sourceTree = "<group>"; };
 		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
@@ -505,6 +509,8 @@
 		417AEA8A13DE21C1006F7A77 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				41D5A3B215265341004431C1 /* crosscursorPG20.png */,
+				41D5A3AF15264900004431C1 /* crosscursor20.png */,
 				41DD53021521ED51004D28A0 /* binoclean.icns */,
 				41B1211613DF6E21008869E3 /* counterButtonDown114.png */,
 				41B1211713DF6E21008869E3 /* counterButtonUP114.png */,
@@ -909,6 +915,8 @@
 				C969F921150D233B00D7A5A7 /* rdssine in Resources */,
 				C90350CC150D279800DFD9D3 /* ali in Resources */,
 				41DD53031521ED51004D28A0 /* binoclean.icns in Resources */,
+				41D5A3B015264900004431C1 /* crosscursor20.png in Resources */,
+				41D5A3B315265341004431C1 /* crosscursorPG20.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -998,7 +1006,7 @@
 				4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */,
 				3F6433F914FD361E0088CE53 /* penLog.m in Sources */,
 				41934E1915223E19001D9E5C /* u6.c in Sources */,
-				415F5C8D15234852009126A7 /* labjack_dio.c in Sources */,
+				4114DC501524EB9700BA457C /* labjack_dio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -557,6 +557,10 @@ GLenum glReportError (void)
 	NSOpenGLPixelFormat * pf = [MonkeyGLView basicPixelFormat];
     
 	self = [super initWithFrame: frameRect pixelFormat: pf];
+    
+    NSPoint hotspot; hotspot.x = 10; hotspot.y = 10;
+    NSImage *crossImg = [NSImage imageNamed:@"crosscursorPG20.png"];
+    crossCursor = [[NSCursor alloc] initWithImage:crossImg hotSpot:hotspot];
     return self;
 }
 
@@ -602,6 +606,11 @@ GLenum glReportError (void)
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode]; // ensure timer fires during resize
 }
 
+
+- (void)resetCursorRects
+{
+    [self addCursorRect:[self frame] cursor:[self crossCursor]];
+}
 
 @end
 
