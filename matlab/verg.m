@@ -1173,7 +1173,7 @@ function MenuHit(a,b, arg)
         set(DATA.toplevel,'UserData',DATA);
     elseif strcmp(arg,'showpsych')
         DATA.psych.blockmode = 'Current';
-        PsychPlot(DATA);
+        PlotPsych(DATA);
         set(DATA.toplevel,'UserData',DATA);
     end
     
