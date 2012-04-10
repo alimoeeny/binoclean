@@ -2905,7 +2905,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     int evtype = NULL;
     
     if(exp->cmdtype == 2) // from verg
-        evtype = MANUALEVENT;
+        evtype = 0; //= up
     
     
     switch(flag)
