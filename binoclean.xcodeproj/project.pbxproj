@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F2B7490152DFB1100458902 /* labjack_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1B15223E61001D9E5C /* labjack_dio.c */; };
 		3F6433F914FD361E0088CE53 /* penLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F6433F814FD361E0088CE53 /* penLog.m */; };
 		3F6433FC14FD3A770088CE53 /* penLogWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FB14FD3A770088CE53 /* penLogWindow.xib */; };
 		3F6433FE14FD3E310088CE53 /* stepperWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F6433FD14FD3E310088CE53 /* stepperWindow.xib */; };
 		4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 4114944914FB150A005EDCDE /* stepperGUI.m */; };
-		4114DC501524EB9700BA457C /* labjack_dio.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1B15223E61001D9E5C /* labjack_dio.c */; };
 		41520B6113A25981006CE4A7 /* MonkeyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41520B6013A25981006CE4A7 /* MonkeyWindow.xib */; };
 		41520B6413A259C8006CE4A7 /* MonkeyGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6313A259C8006CE4A7 /* MonkeyGLView.m */; };
 		41520B6713A25B72006CE4A7 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6513A25B72006CE4A7 /* GLString.m */; };
@@ -35,8 +35,7 @@
 		419DCE3213A133B3004E8464 /* binocleanTests.h in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE3113A133B3004E8464 /* binocleanTests.h */; };
 		419DCE3413A133B3004E8464 /* binocleanTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE3313A133B3004E8464 /* binocleanTests.m */; };
 		419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0D13A133B3004E8464 /* Foundation.framework */; };
-		41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A8ED2513AA832F00C9EAAC /* nidaqmxbase */; };
-		41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */ = {isa = PBXBuildFile; fileRef = 41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */; };
+		41A1D5AA152A06C30050852F /* MonkeyWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A1D5A9152A06C30050852F /* MonkeyWindow.m */; };
 		41B1211813DF6E21008869E3 /* counterButtonDown114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211613DF6E21008869E3 /* counterButtonDown114.png */; };
 		41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211713DF6E21008869E3 /* counterButtonUP114.png */; };
 		41B1212713DF795C008869E3 /* mainGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B1212613DF795C008869E3 /* mainGUI.m */; };
@@ -225,6 +224,8 @@
 		419DCE2F13A133B3004E8464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		419DCE3113A133B3004E8464 /* binocleanTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binocleanTests.h; sourceTree = "<group>"; };
 		419DCE3313A133B3004E8464 /* binocleanTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = binocleanTests.m; sourceTree = "<group>"; };
+		41A1D5A8152A06C30050852F /* MonkeyWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MonkeyWindow.h; sourceTree = "<group>"; };
+		41A1D5A9152A06C30050852F /* MonkeyWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonkeyWindow.m; sourceTree = "<group>"; };
 		41A8ED2513AA832F00C9EAAC /* nidaqmxbase */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = nidaqmxbase; path = /Library/Frameworks/nidaqmxbase.framework/Versions/3/nidaqmxbase; sourceTree = "<absolute>"; };
 		41AA181D13AA71D7009AC8E2 /* ni_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ni_dio.c; sourceTree = "<group>"; };
 		41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NIDAQmxBase.h; sourceTree = "<group>"; };
@@ -386,8 +387,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */,
-				41A8ED2613AA832F00C9EAAC /* nidaqmxbase in Frameworks */,
-				41AA182B13AA7C5E009AC8E2 /* nidaqmxbaselv in Frameworks */,
 				419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */,
 				419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */,
 			);
@@ -589,6 +588,8 @@
 				41520B6213A259C7006CE4A7 /* MonkeyGLView.h */,
 				41520B6313A259C8006CE4A7 /* MonkeyGLView.m */,
 				41520B6013A25981006CE4A7 /* MonkeyWindow.xib */,
+				41A1D5A8152A06C30050852F /* MonkeyWindow.h */,
+				41A1D5A9152A06C30050852F /* MonkeyWindow.m */,
 				419DCE0F13A133B3004E8464 /* Supporting Files */,
 			);
 			path = binoclean;
@@ -1006,7 +1007,8 @@
 				4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */,
 				3F6433F914FD361E0088CE53 /* penLog.m in Sources */,
 				41934E1915223E19001D9E5C /* u6.c in Sources */,
-				4114DC501524EB9700BA457C /* labjack_dio.c in Sources */,
+				41A1D5AA152A06C30050852F /* MonkeyWindow.m in Sources */,
+				3F2B7490152DFB1100458902 /* labjack_dio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

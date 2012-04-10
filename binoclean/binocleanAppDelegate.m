@@ -196,20 +196,22 @@ void notify(char * s)
     if (fullscreenmode==0)
     {
         r = CGRectMake(winpos[0], winpos[1], winsiz[0]*2, winsiz[1]*2);
-        monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
+        monkeyWindow = [[MonkeyWindow alloc] initWithContentRect:NSRectFromCGRect(r)
                                                    styleMask:NSBorderlessWindowMask
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES
                                                       screen:[self.window screen]];
         [monkeyWindow setLevel:NSFloatingWindowLevel];
-        [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
+        MonkeyGLView * mview = [[MonkeyGLView alloc] init];
+        [monkeyWindow setContentView:mview];
         //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
+        [monkeyWindow invalidateCursorRectsForView:mview];
     }
     else
     {   
         r = CGRectMake(0, 0, 0, 0);
-        monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
+        monkeyWindow = [[MonkeyWindow alloc] initWithContentRect:NSRectFromCGRect(r)
                                                    styleMask:NSBorderlessWindowMask
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES
@@ -222,8 +224,7 @@ void notify(char * s)
         [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, [NSNumber numberWithBool:NO], NSFullScreenModeApplicationPresentationOptions, nil]]; 
         NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
     }
-    
-    
+        
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     StartRunning();

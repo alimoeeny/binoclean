@@ -86,6 +86,8 @@ typedef struct {
 
 - (void)keyDown:(NSEvent *)theEvent;
 
+- (void) mouseMoved:(NSEvent *)theEvent;
+
 - (void) mouseDown:(NSEvent *)theEvent;
 - (void) rightMouseDown:(NSEvent *)theEvent;
 - (void) otherMouseDown:(NSEvent *)theEvent;

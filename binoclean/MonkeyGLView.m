@@ -294,6 +294,11 @@ GLenum glReportError (void)
 
 // ---------------------------------
 
+- (void) mouseMoved:(NSEvent *)theEvent
+{
+    [self resetCursorRects];
+}
+
 - (void)mouseDown:(NSEvent *)theEvent // trackball
 {
 	NSPoint location = [theEvent locationInWindow];
@@ -561,6 +566,7 @@ GLenum glReportError (void)
     NSPoint hotspot; hotspot.x = 10; hotspot.y = 10;
     NSImage *crossImg = [NSImage imageNamed:@"crosscursorPG20.png"];
     crossCursor = [[NSCursor alloc] initWithImage:crossImg hotSpot:hotspot];
+    [[self window] setAcceptsMouseMovedEvents:YES];
     return self;
 }
 
@@ -606,9 +612,10 @@ GLenum glReportError (void)
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode]; // ensure timer fires during resize
 }
 
-
 - (void)resetCursorRects
 {
+    [super resetCursorRects ];
+    [self discardCursorRects];
     [self addCursorRect:[self frame] cursor:[self crossCursor]];
 }
 
