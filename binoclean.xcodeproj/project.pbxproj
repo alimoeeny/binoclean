@@ -17,12 +17,12 @@
 		41520B6713A25B72006CE4A7 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6513A25B72006CE4A7 /* GLString.m */; };
 		41520B6B13A25BB3006CE4A7 /* GLCheck.c in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6A13A25BB3006CE4A7 /* GLCheck.c */; };
 		41520B7113A25BF6006CE4A7 /* drawInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 41520B6F13A25BF6006CE4A7 /* drawInfo.m */; };
+		41536F8815349D41002D0F9D /* u3.c in Sources */ = {isa = PBXBuildFile; fileRef = 41536F8615349D41002D0F9D /* u3.c */; };
 		417AEA8513DE21BB006F7A77 /* playButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8113DE21BB006F7A77 /* playButton.png */; };
 		417AEA8613DE21BB006F7A77 /* playButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8213DE21BB006F7A77 /* playButtonSilver.png */; };
 		417AEA8713DE21BB006F7A77 /* playsweet.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8313DE21BB006F7A77 /* playsweet.png */; };
 		417AEA8813DE21BB006F7A77 /* playsweeti.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8413DE21BB006F7A77 /* playsweeti.png */; };
 		417AEA8C13DE225F006F7A77 /* pauseButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */; };
-		41934E1915223E19001D9E5C /* u6.c in Sources */ = {isa = PBXBuildFile; fileRef = 41934E1715223E19001D9E5C /* u6.c */; };
 		419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0813A133B3004E8464 /* Cocoa.framework */; };
 		419DCE1313A133B3004E8464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1113A133B3004E8464 /* InfoPlist.strings */; };
 		419DCE1513A133B3004E8464 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE1413A133B3004E8464 /* main.m */; };
@@ -193,6 +193,8 @@
 		41520B6A13A25BB3006CE4A7 /* GLCheck.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLCheck.c; sourceTree = "<group>"; };
 		41520B6F13A25BF6006CE4A7 /* drawInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = drawInfo.m; sourceTree = "<group>"; };
 		41520B7013A25BF6006CE4A7 /* drawInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawInfo.h; sourceTree = "<group>"; };
+		41536F8615349D41002D0F9D /* u3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = u3.c; sourceTree = "<group>"; };
+		41536F8715349D41002D0F9D /* u3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = u3.h; sourceTree = "<group>"; };
 		4156A61113C5FDD2002DC9AA /* GetDataFromFig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetDataFromFig.m; sourceTree = "<group>"; };
 		4156A61213C5FDD2002DC9AA /* isfigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = isfigure.m; sourceTree = "<group>"; };
 		4178897913C75EEA00EE70C6 /* mytoc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mytoc.m; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 		410044521507A47400022ACE /* headers */ = {
 			isa = PBXGroup;
 			children = (
+				41536F8715349D41002D0F9D /* u3.h */,
 				41934E1815223E19001D9E5C /* u6.h */,
 				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
 				41BF8E0313A174FE00C8B6BA /* sprotos.h */,
@@ -475,6 +478,7 @@
 				41BF8E1913A174FE00C8B6BA /* stair.c */,
 				41BF8E1B13A174FE00C8B6BA /* misc.c */,
 				41BF8E1D13A174FE00C8B6BA /* myfree.c */,
+				41536F8615349D41002D0F9D /* u3.c */,
 				41934E1715223E19001D9E5C /* u6.c */,
 			);
 			name = Binoc;
@@ -1006,9 +1010,9 @@
 				41B1212713DF795C008869E3 /* mainGUI.m in Sources */,
 				4114944A14FB150A005EDCDE /* stepperGUI.m in Sources */,
 				3F6433F914FD361E0088CE53 /* penLog.m in Sources */,
-				41934E1915223E19001D9E5C /* u6.c in Sources */,
 				41A1D5AA152A06C30050852F /* MonkeyWindow.m in Sources */,
 				3F2B7490152DFB1100458902 /* labjack_dio.c in Sources */,
+				41536F8815349D41002D0F9D /* u3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
