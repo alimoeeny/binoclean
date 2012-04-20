@@ -108,6 +108,7 @@ extern double olddisp,oldvelocity;
 extern int imageseed[],stimflag;
 extern int DIOval;
 extern int rewardall,check_for_monkey;
+extern int freeToGo;
 
 
 double fakestim =0;
@@ -2110,7 +2111,7 @@ void ListExpStims(int w)
     struct plotdata *plot = expt.plot;
     
     
-    if(!(mode & RUNNING))
+    if(!(mode & RUNNING) || freeToGo == 0)
         return;
     PlotSet(&expt,plot);
     //    if(w == NULL)

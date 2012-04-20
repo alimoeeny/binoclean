@@ -228,10 +228,7 @@
 		419DCE3313A133B3004E8464 /* binocleanTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = binocleanTests.m; sourceTree = "<group>"; };
 		41A1D5A8152A06C30050852F /* MonkeyWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MonkeyWindow.h; sourceTree = "<group>"; };
 		41A1D5A9152A06C30050852F /* MonkeyWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonkeyWindow.m; sourceTree = "<group>"; };
-		41A8ED2513AA832F00C9EAAC /* nidaqmxbase */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = nidaqmxbase; path = /Library/Frameworks/nidaqmxbase.framework/Versions/3/nidaqmxbase; sourceTree = "<absolute>"; };
 		41AA181D13AA71D7009AC8E2 /* ni_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ni_dio.c; sourceTree = "<group>"; };
-		41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NIDAQmxBase.h; sourceTree = "<group>"; };
-		41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = nidaqmxbaselv; path = /Library/Frameworks/nidaqmxbaselv.framework/Versions/A/nidaqmxbaselv; sourceTree = "<absolute>"; };
 		41B1211613DF6E21008869E3 /* counterButtonDown114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = counterButtonDown114.png; sourceTree = "<group>"; };
 		41B1211713DF6E21008869E3 /* counterButtonUP114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = counterButtonUP114.png; sourceTree = "<group>"; };
 		41B1212513DF795C008869E3 /* mainGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mainGUI.h; sourceTree = "<group>"; };
@@ -432,7 +429,6 @@
 			children = (
 				41536F8715349D41002D0F9D /* u3.h */,
 				41934E1815223E19001D9E5C /* u6.h */,
-				41AA181F13AA7221009AC8E2 /* NIDAQmxBase.h */,
 				41BF8E0313A174FE00C8B6BA /* sprotos.h */,
 				41BF8E0613A174FE00C8B6BA /* miscw.h */,
 				41BF8E0713A174FE00C8B6BA /* myview.h */,
@@ -552,8 +548,6 @@
 			isa = PBXGroup;
 			children = (
 				41DB130A14F7F06100418C95 /* OpenGL.framework */,
-				41A8ED2513AA832F00C9EAAC /* nidaqmxbase */,
-				41AA182A13AA7C5E009AC8E2 /* nidaqmxbaselv */,
 				419DCE0813A133B3004E8464 /* Cocoa.framework */,
 				419DCE2613A133B3004E8464 /* SenTestingKit.framework */,
 				419DCE0A13A133B3004E8464 /* Other Frameworks */,

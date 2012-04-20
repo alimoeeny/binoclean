@@ -26,6 +26,7 @@ if isempty(it)
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
     else
+        DATA = ReadVergFile(DATA, DATA.layoutfile);
         DATA = OpenPipes(DATA, 1);
     end
     
@@ -1459,7 +1460,7 @@ function MenuGui(a,b)
         stop(DATA.timerobj)
      elseif flag == 5
         DATA = ReadFromBinoc(DATA,'reset');   
-        fprintf(DATA.outid,'\neventcontinue\n');
+        fprintf(DATA.outid,'\neventcontinue\nEDONE\n');
         if ~strcmp(get(DATA.timerobj,'Running'),'on')
         start(DATA.timerobj);
         end
