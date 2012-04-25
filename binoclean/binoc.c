@@ -207,7 +207,6 @@ static char *loadfiles[100] = {NULL};
 /*Colormap */ int cmap;
 
 int next_frame(Stimulus *st);
-void makeRasterFont(void);
 void afc_statusline(char *s, int line);
 void framefront();
 void run_radial_test_loop();
@@ -9773,17 +9772,16 @@ void chessboard(float w, float h)
     
 }
 
-void makeRasterFont(void)
-{
-}
-
 void printString(char *s, int size)
 {
     // Ali: we decided that at least for now we display this info on the mainGUI not the monkey screen
     printf("%s\n",s);
     updateInfoText(s);
     return;
-    
+}
+
+void printStringOnMonkeyView(char *s, int size)
+{
     displayOnMonkeyView(s, -500, -450);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)

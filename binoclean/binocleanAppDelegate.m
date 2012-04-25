@@ -27,9 +27,12 @@ void quit_binoc()
 {
     [[NSApplication sharedApplication] terminate:nil];
 }
+
 void acknowledge(char * a ,int b)
 {
     NSLog(@"Acknowledge! %s", a);
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updatecommandhistory" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
 //    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
 //    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
 //    [acknowledgeAlert addButtonWithTitle:@"I know!"];
@@ -44,7 +47,7 @@ void displayOnMonkeyView(char *s, int x, int y)
         [bold12Attribs setObject: [NSFont fontWithName: @"Helvetica" size: 20.0f] forKey: NSFontAttributeName];
         [bold12Attribs setObject: [NSColor whiteColor] forKey: NSForegroundColorAttributeName];
     }
-    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithFormat:@"%s", s] withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
+    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithUTF8String:s] withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
     if (x && y)
         [messageTexture drawAtPoint:NSMakePoint(x, y)];        
     else

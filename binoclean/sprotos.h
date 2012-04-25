@@ -385,7 +385,6 @@ void ShowPerformanceString(int force);
 void afc_statusline(char *s, int line);
 void PaintGammaCheck(int iw, int ih);
 void chessboard(float w, float h);
-void makeRasterFont(void);
 void printString(char *s, int size);
 void WriteFrameData();
 void expt_over(int flag);
