@@ -378,103 +378,6 @@ char *flagstrings[] = {
 
 
 
-// Ali
-char fallback_resources[] = {"a", "b", "c", NULL};
-//String fallback_resources[] = {
-//  "*dragInitiatorProtocolStyle: XmDRAG_NONE",
-//  "*dragReceiverProtocolStyle: XmDRAG_NONE", 
-//  "*data_text.height: 300",
-//  "*help_text.height: 500",
-//  "*help_text.width: 600",
-//  "*sliderholder.orientation: vertical",
-//  "*sliderform*orientation: horizontal",
-//  "*sliderform*menuholder*orientation: vertical",
-//  "*sliderform*menuholder.width: 100",
-//  "*sliderform.fpscale.scaleWidth: 200",
-//  "*onesliderholder.orientation: vertical",
-//  "*onesliderform*orientation: horizontal",
-//  "*onesliderform*menuholder*orientation: vertical",
-//  "*onesliderform*menuholder.width: 100",
-//  "*onesliderform.fpscale.scaleWidth: 200",
-//  "*sliderform*menuholder*borderWidth: 2",
-//  "*onesliderform*menuholder*borderWidth: 0",
-//  "geometry:		+0+0",
-//  "*filesb.autoUnmanage:	TRUE",
-//  "*Control.autoUnmanage:	FALSE",
-//  "*Control.defaultPosition:	FALSE",
-//  "*Control.x:	100",
-//  "*Control.y:	1",
-//  "*BrainWave.autoUnmanage:	FALSE",
-//  "*BrainWave.defaultPosition:	FALSE",
-//  "*Replay.autoUnmanage:	FALSE",
-//  "*UnitLog.autoUnmanage:	FALSE",
-//  "*Control.defaultPosition:	FALSE",
-//  "*BrainWave.defaultPosition:	FALSE",
-//  "*BrainWave.x: 850",
-//  "*BrainWave.y: 700",
-//  "*Replay.defaultPosition:	FALSE",
-//  "*Replay.x: 0",
-//  "*Replay.y: 800",
-//  "*Options.defaultPosition:	FALSE",
-//  "*Options.x: 300",
-//  "*Options.y: 0",
-//  "*Options*togglebox.packing: PACK_COLUMN",
-//  "*Options*togglebox.numColumns: 5",
-//  "*form*togglebox.packing: PACK_COLUMN",
-//  "*form*togglebox.numColumns: 5",
-//  "*form*autoUnmanage: FALSE",
-//  "*wurtz*togglebox.packing: PACK_COLUMN",
-//  "*wurtz*togglebox.numColumns: 4",
-//  "*wurtz.defaultPosition:	FALSE",
-//  "*wurtz.x: 700",
-//  "*wurtz.y: 0",
-//  "*wurtz.autoUnmanage: FALSE",
-//  "*expt.x: 0",
-//  "*expt.y: 150",
-//  "*XmScale*orientation: HORIZONTAL",
-//  "*foreground: white",
-//  "*background:  blue",
-//	    "*paned*showGrip :	    FALSE",
-//	    "*paned.width:  	  896,"
-//	    "*paned.height:	    236",
-//	    "*marginHeight:        0",
-//	    "*Form.resizable:       False",
-//	    "*Form.background:       5",
-//	"*fontList: -*-times-*-r-*--12-*=charset1",
-//	"*HelpWin*fontList: -*-times-*-r-*--14-*=charset1",
-//	    "*ClientDecoration:  none",
-//	    "*BrainWave.ClientDecoration:  none",
-//	    "*expt.autoUnmanage:	FALSE",
-//	      "*bwtoggle.packing: PACK_COLUMN",
-//	      "*bwtoggle*numColumns: 2",
-//	      "*bwtoggle*numColumns: 2",
-//	      "*bwtoggle*bwsubtoggle.packing: PACK_COLUMN",
-//	      "*bwtoggle*bwsubtoggle.numColumns: 2",
-//	      "*bwtoggle*Channel1.labelString: Right  H",
-//	      "*bwtoggle*Channel2.labelString: Left   H",
-//	      "*bwtoggle*Channel3.labelString: Right  V",
-//	      "*bwtoggle*Channel4.labelString: Left   V",
-//	      "*bwtoggle*Channel5.labelString: Vgc Stim",
-//	      "*bwtoggle*Channel6.labelString: Conj Stim",
-//	      "*bwtoggle*Channel7.labelString: Vergence",
-//	      "*bwtoggle*Channel8.labelString: Conjug H",
-//	      "*bwtoggle*Channel9.labelString: Vergence V",
-//	      "*bwtoggle*Channel10.labelString: Conjug V",
-//	      "*bwtoggle*Channel11.labelString: XY Right",
-//	      "*sliderform*orientation: horizontal",
-//	      "*sliderform*menuholder*orientation: vertical",
-//	      "*sliderform*menuholder.width: 100",
-//	      "*sliderform.fpscale.scaleWidth: 200",
-//   "*afc*togglebox.packing: PACK_COLUMN",
-//   "*afc*togglebox.numColumns: 5",
-//   "*afc.defaultPosition:	FALSE",
-//   "*afc.x: 700",
-//   "*afc.y: 60",
-//   "*afc.autoUnmanage: FALSE",
-//   "*afc.x: 0",
-//   "*afc.y: 150",	    NULL,
-//};
-
 
 extern double fakestim;
 extern int usenewdirs;
@@ -603,7 +506,7 @@ void ShowTime()
             sprintf(buf,"Shake %.1f",val);
         }
         
-        BigString(buf);
+//        statusline(buf);
     }
 }
 
@@ -1436,10 +1339,7 @@ char **argv;
          }
          */
 	}
-	//Ali SetPanelColor(TheStim->gammaback);
-	//Ali SetStimPanel(TheStim);
-	//Ali if(!demomode)
-	//Ali  framefront();
+
 	setgamma(gammaval);
 	SetPriority(priority);
 	MakeConnection(0);
@@ -1597,12 +1497,12 @@ void glstatusline(char *s, int line)
 	if(states[EXPT_PAUSED]){
         x[1] = -winsiz[1] + 150;
         mycmv(x);
-        BigString("Paused");
+        statusline("Paused");
 	}
 	if(freezeexpt){
         x[1] = -winsiz[1] + 150;
         mycmv(x);
-        BigString("Expt Frozen");
+        statusline("Expt Frozen");
 	}
     glDrawBuffer(GL_BACK);
 }
@@ -2922,7 +2822,7 @@ void clear_display(int flag)
     setmask(BOTHMODE);
     if(expt.vals[FIXATION_OVERLAP] > 10)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-    ShowPerformanceString(0);
+//    ShowPerformanceString(0);
     glDrawBuffer(GL_BACK);
     glFlushRenderAPPLE();
     glFinishRenderAPPLE();
@@ -3515,11 +3415,15 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             else
                 pos->angle = val;
+            if(st->type == STIM_IMAGE && st->left->orbw < 0)
+                pos->angle -= M_PI/2;
             st->left->pos.angle = st->pos.angle + st->ori_disp;
             st->right->pos.angle = st->pos.angle - st->ori_disp;
-            if(st->type == STIM_CYLINDER && event == NULL)
+            if(st->type == STIM_CYLINDER && event == NULL && covaryprop != ORIENTATION)
                 SetTargets();
             break;
+            if((rdspair(st) || rlspair(st)) && !(optionflag & BACKGROUND_FIXED_BIT))
+                st->next->pos.angle = pos->angle;
         case SPINRATE:
             st->angleinc = val;
             break;
@@ -5928,19 +5832,12 @@ void ShowInfo()
     char buf[BUFSIZ];
     
     if(optionflag & SEARCH_MODE_BIT && optionflags[FEEDBACK]){
-        glDrawBuffer(GL_FRONT_AND_BACK);
-        setmask(ALLPLANES);
-        SetGrey(0.0);
-        x[0] = 0;
-        x[1] = TheStim->fix.size;
-        mycmv(x);
         stp = getexpval(expt.stimno);
         if(stp->vals[EXP_PSYCHVAL] < 0)
             sprintf(buf,"Left (%.3f)",stp->vals[EXP_PSYCHVAL]);
         else
             sprintf(buf,"Right (%.3f)",stp->vals[EXP_PSYCHVAL]);
-        BigString(buf);
-        glDrawBuffer(GL_BACK);
+        statusline(buf);
     }
 }
 
@@ -9883,6 +9780,7 @@ void makeRasterFont(void)
 void printString(char *s, int size)
 {
     // Ali: we decided that at least for now we display this info on the mainGUI not the monkey screen
+    printf("%s\n",s);
     updateInfoText(s);
     return;
     
@@ -9898,50 +9796,6 @@ void printString(char *s, int size)
     glPopAttrib();
 }
 
-void BigString(char *s)
-{
-    //    glPushAttrib(GL_LIST_BIT);
-    //    glListBase(bigbase);
-    //    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
-    //    glPopAttrib();
-    //    
-    //    //Ali Draw text
-    //    GLuint texName;
-    //    glPushAttrib(GL_TEXTURE_BIT);
-    //    if (0 == texName) glGenTextures (1, &texName);
-    //    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-    //    glTexSubImage2D GL_TEXTURE_RECTANGLE_EXT,0,0,0,100,20, 1 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,bitmapData);
-    //    glPopAttrib();
-    //
-    //    
-    //    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT); // GL_COLOR_BUFFER_BIT for glBlendFunc, GL_ENABLE_BIT for glEnable / glDisable
-    //    
-    //    glDisable (GL_DEPTH_TEST); // ensure text is not remove by depth buffer test.
-    //    glEnable (GL_BLEND); // for text fading
-    //    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
-    //    glEnable (GL_TEXTURE_RECTANGLE_EXT);	
-    //    
-    //    //glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-    //    glBegin (GL_QUADS);
-    //    glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
-    //    glVertex2f (0, 0);
-    //	
-    //    glTexCoord2f (0.0f, 20.0f); // draw lower left in world coordinates
-    //    glVertex2f (0, 0 + 10);
-    //	
-    //    glTexCoord2f (100, 20); // draw upper right in world coordinates
-    //    glVertex2f (0 + 100, 0 + 20);
-    //	
-    //    glTexCoord2f (100.f, 0.0f); // draw lower right in world coordinates
-    //    glVertex2f (0 + 100, 0);
-    //    glEnd ();
-    //    
-    //    glPopAttrib();
-    //	
-    //    glFinishRenderAPPLE();
-    //    glSwapAPPLE();
-    
-}
 
 void WriteFrameData()
 {

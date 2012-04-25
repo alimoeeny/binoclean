@@ -387,7 +387,6 @@ void PaintGammaCheck(int iw, int ih);
 void chessboard(float w, float h);
 void makeRasterFont(void);
 void printString(char *s, int size);
-void BigString(char *s);
 void WriteFrameData();
 void expt_over(int flag);
 void Stim2PsychFile();
