@@ -2149,6 +2149,7 @@ void ListExpStims(int w)
         sprintf(buf,"EC%d=%.2f\n",i,expt.exp3vals[i]);
         notify(buf);
     }
+    notify("EDONE\n");
 }
 
 
@@ -2862,8 +2863,10 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
 void ShowTrialsNeeded(){
     char cbuf[BUFSIZ];
     
+    if (freeToGo){
     sprintf(cbuf,"%d stim  x %d rpts = %d, %d trials",expt.nstim[5],expt.nreps,expt.nstim[5]*expt.nreps,(expt.nstim[5]*expt.nreps)/expt.stimpertrial);
     statusline(cbuf);
+    }
 }
 
 int RecalcRepeats(Expt *exp)
@@ -8877,7 +8880,7 @@ char *ShowStimVals(Thisstim *stp)
         strcat(cbuf,ebuf);
     if(afc_s.loopstate == CORRECTION_LOOP)
         strcat(cbuf,"**");
-    glstatusline(cbuf,2);
+    statusline(cbuf);
     return(cbuf);
 }
 
@@ -13983,8 +13986,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         notify(buf);
         return(code);
     }
-    if (strcmp(line,"EDONE") == NULL)
+    if (strcmp(line,"EDONE") == NULL){
         ListExpStims(NULL);
+        ShowTrialsNeeded();
+    }
     
     if(line[0] == 'E' && isdigit(line[1]))
     {

@@ -476,6 +476,8 @@ float pix2degy(float val);
 
 #define testout fprintf
 
+#define NOEVENT 1
+#define MANUALEVENT 2
 
 #define GO 1
 #define STOP 2

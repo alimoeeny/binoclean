@@ -370,7 +370,9 @@ for j = 1:length(strs{1})
                 if isfield(DATA,'toplevel')
                     it = findobj(DATA.toplevel,'Tag','Expt2StimList');
                     if length(it) == 1
-                        set(it,'string',DATA.exptstimlist{2});
+                        ival = get(it,'value');
+                        ival = min([size(DATA.exptstimlist{2},2) ival]);
+                        set(it,'string',DATA.exptstimlist{2},'value',ival);
                     end
                 end
             end
@@ -451,7 +453,7 @@ if fid > 0
     end
     fclose(fid);
     if DATA.outid > 0
-        fprintf(DATA.outid,'\neventcontinue\n');
+        fprintf(DATA.outid,'\neventcontinue\nEDONE\n');
     end
     for ex = 1:3
         if length(DATA.expts{ex})
@@ -921,12 +923,12 @@ function DATA = InitInterface(DATA)
      bp(3) = cw/2;
     bp(2) = 3./nr;
     bp(1) = xp;
-    uicontrol(gcf,'style','checkbox','string','XYL',  'value', DATA.showxy(1), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYL'});
+    uicontrol(gcf,'style','checkbox','string','XYR',  'Tag', 'XYR', 'value', DATA.showxy(1), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYL'});
     
     bp(1) = bp(1)+bp(3);
-    uicontrol(gcf,'style','checkbox','string','XYR', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYR'});
+    uicontrol(gcf,'style','checkbox','string','XYL',  'Tag', 'XYL', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYR'});
     bp(1) = bp(1)+bp(3);
-    uicontrol(gcf,'style','checkbox','string','XYB', 'value', DATA.showxy(3), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYB'});
+    uicontrol(gcf,'style','checkbox','string','XYB',  'Tag', 'XYB', 'value', DATA.showxy(3), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYB'});
 
     
     bp(1) = 0.01;
@@ -1520,6 +1522,9 @@ function MenuGui(a,b)
     SetMenuItem(DATA.toplevel, 'Expt3List', id);
     SetMenuItem(DATA.toplevel, 'ForegroundType', DATA.stimtype(1));
     SetMenuItem(DATA.toplevel, 'BackgroundType', DATA.stimtype(2));
+    SetToggleItem(DATA.toplevel, 'XYR', DATA.showxy(1));
+    SetToggleItem(DATA.toplevel, 'XYL', DATA.showxy(2));
+    SetToggleItem(DATA.toplevel, 'XYB', DATA.showxy(3));
     it= findobj(DATA.toplevel,'Tag','CurrentStimLabel');
     set(it,'string',DATA.stimlabels{DATA.currentstim});
     if DATA.currentstim > 1
@@ -1560,7 +1565,13 @@ function MenuGui(a,b)
      end
  end
 
- function SetMenuItem(top, tag, value, varargin)
+ function SetToggleItem(top, tag, value, varargin)
+ it = findobj(top,'Tag',tag);
+ if ~isempty(it)
+     set(it,'value',value);
+ end
+ 
+function SetMenuItem(top, tag, value, varargin)
 if length(value) == 1
      it = findobj(top,'Tag',tag);
      if ~isempty(it)
@@ -2660,10 +2671,12 @@ function PsychMenu(DATA)
     c = get(hm,'children');
     delete(c);
     for j = 1:length(DATA.Expts)
+        if isfield(DATA.Expts{j},'Trials')
         nt = length(DATA.Expts{j}.Trials);
         sm = uimenu(hm,'Label', sprintf('Expt%d %s %d',j,Expt2Name(DATA.Expts{j}),nt),'CallBack', {@ChoosePsych, sprintf('Expt%d',j)});
         if j < length(DATA.plotexpts) && DATA.plotexpts(j)
             set(sm,'Checked','on');
+        end
         end
     end
     sm = uimenu(hm,'Label', 'Current','Callback',{@ChoosePsych, 'Current'});

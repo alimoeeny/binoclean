@@ -53,3 +53,6 @@ Things that need fixing:
 * in the PsychMon window add a list (history) of experiments to the Expt menu
 *cd paint_targ Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
 - need to make cursor invisible in Red and Blue
+-subroutine that allows text display in opengl window for bgc to call
+-acknokege to print to command history pane in red
+-stop filtering messages for status line
