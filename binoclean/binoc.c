@@ -653,17 +653,11 @@ int CheckStrings()
 {
 	int i,j,err = 0;
     
-	for(i = 0; i < MAXTOTALCODES; i++)
+	for(i = 0; i < expt.totalcodes; i++)
 	{
-		for(j = i+1; j < MAXTOTALCODES; j++)
+		for(j = i+1; j < expt.totalcodes; j++)
         {
-		    if(serial_strings[j] == NULL)
-            {
-                fprintf(stderr,"Serial strings %d undefsined!!\n",j);
-                err++;
-            }
-		    else if(strcmp(serial_strings[i],serial_strings[j]) == 0 && 
-                    strncmp(serial_strings[i],"xx",2) != 0)
+		    if(strcmp(valstrings[i].code,valstrings[j].code) == 0)
             {
                 fprintf(stderr,"Duplicate code (%s) at %d and %d\n",serial_strings[i],i,j);
                 err++;
@@ -1483,30 +1477,30 @@ void SendAllToGui()
     
     if(ChoiceStima->type != STIM_NONE){
         notify("mo=ChoiceU\n");
-        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        for(i = 0; i <= expt.laststimcode; i++)
         {
             buf[0] = '=';
             buf[1] = 0;
-            if((j = MakeString(i, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
+            if((j = MakeString(valstrings[i].icode, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
                 notify(buf);
         }
     }
     if(ChoiceStimb->type != STIM_NONE){
         notify("mo=ChoiceD\n");
-        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        for(i = 0; i <= expt.laststimcode; i++)
         {
             buf[0] = '=';
             buf[1] = 0;
-            if((j = MakeString(i, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
+            if((j = MakeString(valstrings[i].icode, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
                 notify(buf);
         }
     }
 
     if(expt.st->next != NULL){
         notify("mo=back\n");
-        for (i = 0; i < LAST_STIMULUS_CODE;  i++)
+        for (i = 0; i < expt.laststimcode;  i++)
         {
-            MakeString(i, buf, &expt, expt.st->next,TO_GUI);
+            MakeString(valstrings[i].icode, buf, &expt, expt.st->next,TO_GUI);
             notify(buf);
         }
         MakeString(STIMULUS_FLAG, buf, &expt, expt.st->next,TO_GUI);
@@ -1514,8 +1508,8 @@ void SendAllToGui()
         
     }
     notify("mo=fore\n");
-    for(i = 0; i < MAXTOTALCODES; i++){
-        if((j=MakeString(i, buf, &expt, expt.st,TO_GUI))>=0)
+    for(i = 0; i < expt.totalcodes; i++){
+        if((j=MakeString(valstrings[i].icode, buf, &expt, expt.st,TO_GUI))>=0)
             notify(buf);
     }
     i =0;
@@ -1533,12 +1527,14 @@ void SendAllToGui()
 
 void SendAll()
 {
-    int i;
+    int i,code;
     time_t tval;
     
-    for(i = 0; i < MAXSERIALCODES; i++)
-        if(codesend[i] != SEND_USER_ONLY)
-            SerialSend(i);
+    for(i = 0; i < expt.lastserialcode; i++){
+        code = valstrings[i].icode;
+        if(codesend[code] != SEND_USER_ONLY)
+            SerialSend(code);
+    }
     SendPenInfo();
     tval = time(NULL);
     if(seroutfile)

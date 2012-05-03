@@ -111,13 +111,20 @@ for j = 1:length(strs{1})
         DATA.strcodes(sid).label = label;
         DATA.strcodes(sid).icode = icode;
         DATA.strcodes(sid).code = code;
+    elseif strncmp(s,'CODE OVER',8)
+        for j = 1:length(DATA.comcodes)
+            if isempty(DATA.comcodes(j).code)
+                DATA.comcodes(j).code = 'xx';
+            end
+        end
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
         DATA.comcodes(code).label = s(id(3)+1:id(end)-2);
         DATA.comcodes(code).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(code).const = code;
-        DATA.comcodes(code).type = s(end);
+        DATA.comcodes(code).type = s(id(end)-1);
+        DATA.comcodes(code).group = str2num(s(id(end)+1:end));
     elseif strncmp(s,'status',5)
         DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
         if ishandle(DATA.statusitem)
