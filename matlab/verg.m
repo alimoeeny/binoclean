@@ -416,6 +416,21 @@ for j = 1:length(strs{1})
     end
 end
 
+function [code, codeid] = FindCode(DATA, s)
+    code = '';
+    codeid = 0;
+    id = strfind(s,'=');
+    if id
+        code = s(1:id(1)-1);
+        codeid = strmatch(code,{DATA.comcodes.code});
+    else
+        id = strmatch(s(1:2),{DATA.comcodes.code});
+        codeid = id;
+        if length(id) == 1
+            code = DATA.comcodes(id).code;
+        end
+    end
+        
 
 function DATA = ReadStimFile(DATA, name, varargin)
    
@@ -923,10 +938,10 @@ function DATA = InitInterface(DATA)
      bp(3) = cw/2;
     bp(2) = 3./nr;
     bp(1) = xp;
-    uicontrol(gcf,'style','checkbox','string','XYR',  'Tag', 'XYR', 'value', DATA.showxy(1), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYL'});
+    uicontrol(gcf,'style','checkbox','string','XYR',  'Tag', 'XYR', 'value', DATA.showxy(1), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYR'});
     
     bp(1) = bp(1)+bp(3);
-    uicontrol(gcf,'style','checkbox','string','XYL',  'Tag', 'XYL', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYR'});
+    uicontrol(gcf,'style','checkbox','string','XYL',  'Tag', 'XYL', 'value', DATA.showxy(2), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYL'});
     bp(1) = bp(1)+bp(3);
     uicontrol(gcf,'style','checkbox','string','XYB',  'Tag', 'XYB', 'value', DATA.showxy(3), 'units', 'norm', 'position',bp, 'callback', {@OtherToggles, 'XYB'});
 
@@ -2519,7 +2534,13 @@ if id
         str = DATA.strcodes(id(1)).label;
     end
     end
+else
+    [code,id] = FindCode(DATA,txt);
+    if id
+    str = DATA.comcodes(id).label;
+    end
 end
+
 set(a,'string','');
 if txt(end) ~= '='
     DATA = InterpretLine(DATA,txt);

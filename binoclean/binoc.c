@@ -505,7 +505,7 @@ void ShowTime()
             sprintf(buf,"Shake %.1f",val);
         }
         
-//        statusline(buf);
+//        printStringOnMonkeyView(buf, 0);
     }
 }
 
@@ -1357,8 +1357,16 @@ char **argv;
 int SendTrialCount()
 {
     char buf[BUFSIZ];
+    int stim;
     
-    sprintf(buf,"STIMC %d %d %d %d %d %d %d\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stimno+1,expt.nreps*expt.nstim[5]);
+    if (stimstate == POSTTRIAL)
+        stim = stimno;
+    else if (stimstate == WAIT_FOR_RESPONSE)
+        stim = stimno+1;
+    else
+        stim = stimno;
+    
+    sprintf(buf,"STIMC %d %d %d %d %d %d %d\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stim,expt.nreps*expt.nstim[5]);
     notify(buf);
 }
 
@@ -3457,7 +3465,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             break;
         case TF2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL)
+            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL || st->type == STIM_GRATING)
             {
                 psine = (OneStim *)(st->left->ptr);
                 psine->incr = (val *M_PI *2)/(mon.framerate);
@@ -3482,6 +3490,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 st->left->ptr->sf2 = val;
                 st->right->ptr->sf2 = val;
                 SetGratingFrequencies(st);
+            }
+            if(st->type == STIM_GRATING){
+                st->left->ptr->sf2 = val;
+                st->right->ptr->sf2 = val;
             }
             break;
         case SF:
@@ -3672,7 +3684,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
              * For GRATINGN stimulus types, disp phase 2 is what is added to the middle frequency component. 
              */
         case DISP_P2:
-            if(val > INTERLEAVE_EXPT && (st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type == STIM_GABOR))
+            if(val > INTERLEAVE_EXPT && (st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type == STIM_GABOR || st->type == STIM_GRATING))
                 st->phasedisp[1] = deg_rad(val)/2;
             break;
         case DISP_BACK:
@@ -5496,7 +5508,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
             pos->phase = M_PI/2;
-		else if (st->type == STIM_GRATING2)
+		else if (st->type == STIM_GRATING2 || st->type == STIM_GRATING)
         {
 		    pos->phase2 += psine->incr;
 		}
@@ -6651,6 +6663,7 @@ int next_frame(Stimulus *st)
                     fprintf(seroutfile,"#stimno %d\n",stimno);
                 fixstate = INTERTRIAL;
                 stimstate = POSTTRIAL;
+                SendTrialCount();
                 fsleep(0.05);
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);
@@ -6675,6 +6688,7 @@ int next_frame(Stimulus *st)
 #endif
             break;
         case POSTTRIAL:
+            ShowTrialCount(0, -1);
             if(rdspair(expt.st))
                 i = 0;
             if(seroutfile){
@@ -7821,7 +7835,7 @@ float StimulusProperty(Stimulus *st, int code)
             value = st->f;
             break;
         case SF2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_GRATINGN)
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type ==STIM_GRATING)
             {
                 value = st->left->ptr->sf2;
             }
@@ -9295,7 +9309,7 @@ int GotChar(char c)
                         sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade); 
                     else
                         sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
-                    
+                    sprintf(str,"%s %s",str,EyePosString());
                     if(expt.type3 != EXPTYPE_NONE)
                         fprintf(psychfile," %s=%.2f %s\n",serial_strings[expt.type3],expt.currentval[2],str);
                     else if(expt.mode == TWOCYL_DISP)
@@ -9384,7 +9398,7 @@ int GotChar(char c)
                 }
                 else
                     avctr = wurtzctr;
-                ShowTrialCount(down, wsum);
+  //              ShowTrialCount(down, wsum);
                 if(downtimes == NULL)
                     downtimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
                 if(stimtimes == NULL)
@@ -9998,7 +10012,7 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.2f %s=%.2f\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
         
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
                 serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION), 
@@ -10007,7 +10021,7 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.4f %s=%.4f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
+        fprintf(psychfile," %s=%.4f %s=%.4f x=0 x=0 x=0 x=0\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
         
         fprintf(psychfile,"R5 %s=%.4f %s=%.2f By=%.2f",
                 serial_strings[VERSION_CODE],version, 
@@ -10016,7 +10030,7 @@ void Stim2PsychFile()
         fprintf(psychfile," 0 %.2f %.2f",
                 GetProperty(&expt,expt.st,BACK_ORI),
                 GetProperty(&expt,expt.st,BACK_SIZE));
-        fprintf(psychfile," %s=%.0f %s=%.2f\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+        fprintf(psychfile," %s=%.0f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
         
         
         fprintf(psychfile,"R5 %s=%.4f %s=%.2f By=%.2f",
@@ -10026,7 +10040,7 @@ void Stim2PsychFile()
         fprintf(psychfile," 0 %.2f %.2f",
                 GetProperty(&expt,expt.st,BACK_ORI),
                 GetProperty(&expt,expt.st,BACK_SIZE));
-        fprintf(psychfile," %s=%.0f usenewdir=%d\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
+        fprintf(psychfile," %s=%.0f usenewdir=%d x=0 x=0 x=0 x=0\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
         
         
         if(expt.st->next && expt.st->next->type != STIM_NONE){
@@ -10038,14 +10052,14 @@ void Stim2PsychFile()
             fprintf(psychfile," 0 %.2f %.2f",
                     GetProperty(&expt,expt.st,BACK_ORI),
                     GetProperty(&expt,expt.st,BACK_SIZE));
-            fprintf(psychfile," %s=%.4f %s=%.2f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+            fprintf(psychfile," %s=%.4f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
         }
         if(expt.st->type == STIM_IMAGE){
-            fprintf(psychfile,"R6 se0=%d se1=%d se2=%d %d %d %d se6=%d imver=%.2f\n",
+            fprintf(psychfile,"R6 se0=%d se1=%d se2=%d %d %d %d se6=%d imver=%.2f x=0 x=0 x=0 x=0\n",
                     seedoffsets[0],seedoffsets[1],seedoffsets[2],
                     seedoffsets[3],seedoffsets[4],seedoffsets[5],
                     seedoffsets[6],expt.st->stimversion);
-            fprintf(psychfile,"R6 se7=%d se8=%d se9=%d %d %d %d se13=%d imver=%.2f\n",
+            fprintf(psychfile,"R6 se7=%d se8=%d se9=%d %d %d %d se13=%d imver=%.2f x=0 x=0 x=0 x=0\n",
                     seedoffsets[7],seedoffsets[8],seedoffsets[9],
                     seedoffsets[10],seedoffsets[11],seedoffsets[12],
                     seedoffsets[13],expt.st->stimversion);

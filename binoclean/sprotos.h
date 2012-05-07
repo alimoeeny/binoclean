@@ -410,6 +410,7 @@ char *getRenderer(void);
 void mySwapBuffers();
 void ctest_button();
 static void settimeout();
+char *EyePosString();
 int OpenStepSerial(char *port);
 int steptty_setup(int tty);
 void stepsetup(void);
@@ -451,5 +452,6 @@ void setsecondexp(int w, int id, int val);
 int HandleMouse(WindowEvent e);
 int MyLine(int a, int b, int c, int d, float color);
 void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip);
+void printStringOnMonkeyView(char *s, int size);
 
 #endif

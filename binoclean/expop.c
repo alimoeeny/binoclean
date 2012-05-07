@@ -889,6 +889,18 @@ double *AdjustEyePos(int len)
     return(adj);
 }
 
+char *EyePosString()
+{
+    static char ebuf[BUFSIZ];
+    int i = wurtzctr-1;
+    
+    if (i < 0)
+        i = 0;
+    sprintf(ebuf," rh=%.3f rv=%.3f lh=%.3f lv=%.3f",trialeyepos[0][i],trialeyepos[2][i],trialeyepos[1][i],trialeyepos[3][i]);
+    return(ebuf);
+    
+}
+
 int CheckEyeDrift()
 {
     double *err;
@@ -8075,7 +8087,7 @@ void InitExpt()
         ts[3] = '.';
         ts[6] = 0;
         fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[5] * expt.nreps);
-        fprintf(psychfile," %s=%.2f %s=%.2f\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
     }
     if(psychfilelog){
         tstart = time(NULL);
@@ -10285,6 +10297,7 @@ void ResetExpStim(int offset)
      * NB stimno can be 0 here in an expt, if the first trial is a badfix
      *used to be && exptpending but seems to me (Mar 2012) should be ||
      */
+    stimulus_is_prepared = 0;
     if(stim < 0 || !(expt.st->mode | (EXPTPENDING)))
         return;
     if(stimorder[stim] & STIMULUS_EXTRA_ZEROCOH){
@@ -11818,6 +11831,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 SerialString(buf,0);
             
             sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
+            j=0;
             for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
                 while(framecounts[i] > j * rpt){ //skipped frames
                     sprintf(tmp,"%d ",framecounts[i]);	

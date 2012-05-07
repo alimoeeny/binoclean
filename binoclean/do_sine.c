@@ -171,7 +171,7 @@ void calc_grating(Stimulus *st, Substim *sst, float disp)
     int i,j,h,partdisp;
     float cval,y,f,sy,cm,deg,iscale[2],pixdisp[2];
     float lumscale,ytest,lumbscale;
-    float *p,*q,*cend,c1,c2;
+    float *p,*q,*cend,c1,c2,f2;
     
     int xval,yval,val,*yv,*xv,*end;
     vcoord x[2],z[2];
@@ -201,7 +201,10 @@ void calc_grating(Stimulus *st, Substim *sst, float disp)
     }
     
     /* s.f. is in cpd, so need to convert to cpradian */
-    f = rad_deg(pos->sf);
+    f2 = f = rad_deg(pos->sf);
+    if (gb->sf2 > 0)
+        f2 = rad_deg(gb->sf2);
+    
     if(disp == 0)
         pixdisp[0] = pixdisp[1] = 0;
     else
@@ -217,7 +220,7 @@ void calc_grating(Stimulus *st, Substim *sst, float disp)
     {
         ytest = exp(-sqr(y/sy));
         if(sst->ptr->plaid_angle > 0.1)
-            SetLum(q++, f, y, pos->phase, lumbscale, st->background);
+            SetLum(q++, f2, y, pos->phase2, lumbscale, st->background);
         SetLum(p, f, y, pos->phase, lumscale, st->background);
         p++;
         for(i = 0; i < pos->size[1]; i++,p++,q++)
@@ -232,13 +235,13 @@ void calc_grating(Stimulus *st, Substim *sst, float disp)
         ytest = exp(-sqr(y/sy));
         SetLum(p, f, y, pos->phase, lumscale*ytest, st->background);
         if(sst->ptr->plaid_angle > 0.1)
-            SetLum(q, f, y, pos->phase, lumbscale, st->background);
+            SetLum(q, f2, y, pos->phase2, lumbscale, st->background);
     }
     else
     {
         SetLum(p, f, y, pos->phase, lumscale, st->background);
         if(sst->ptr->plaid_angle > 0.1)
-            SetLum(q++, f, y, pos->phase, lumbscale, st->background);
+            SetLum(q++, f2, y, pos->phase2, lumbscale, st->background);
         p++;
         for(i = 0; i < pos->size[1]; i++,p++,q++)
         {
@@ -246,13 +249,13 @@ void calc_grating(Stimulus *st, Substim *sst, float disp)
             y = (double)((pixdisp[1] + i - pos->size[1]/2)* iscale[1]);
             SetLum(p, f, y, pos->phase, lumscale, st->background);
             if(sst->ptr->plaid_angle > 0.1)
-                SetLum(q, f, y, pos->phase, lumbscale, st->background);
+                SetLum(q, f2, y, pos->phase2, lumbscale, st->background);
         }
         y = (double)(pixdisp[1] * iscale[1]) + deg_rad(pix2deg(pos->radius[1]));
         /* y is angular distance from centre, in radians */
         SetLum(p, f, y, pos->phase, lumscale, st->background);
         if(sst->ptr->plaid_angle > 0.1)
-            SetLum(q, f, y, pos->phase, lumbscale, st->background);
+            SetLum(q, f2, y, pos->phase2, lumbscale, st->background);
     }
     p = (sst->im+i);
 }

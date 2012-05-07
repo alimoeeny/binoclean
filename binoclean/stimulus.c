@@ -1307,11 +1307,16 @@ void calc_stimulus(Stimulus *st)
                 rnd = (myrand()  % 360) * M_PI/180; 
                 st->left->pos.phase = st->pos.phase + rnd;
                 st->right->pos.phase = st->pos.phase - rnd;
+                rnd = (myrand()  % 360) * M_PI/180; 
+                st->left->pos.phase2 = st->pos.phase2 + rnd;
+                st->right->pos.phase2 = st->pos.phase2 - rnd;
             }
             else
             {
                 st->left->pos.phase = st->pos.phase + st->phasedisp[0];
                 st->right->pos.phase = st->pos.phase - st->phasedisp[0];
+                st->left->pos.phase2 = st->pos.phase2 + (st->phasedisp[1]);
+                st->right->pos.phase2 = st->pos.phase2 - (st->phasedisp[1]);
             }
             calc_grating(st,st->left,disp);
             calc_grating(st,st->right,-disp);
