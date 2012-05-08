@@ -66,7 +66,6 @@
 #define SET_SEEDLOOP 15
 #define SET_SEED 16
 #define SETCONTRAST 17
-
 #define DISP_Y 18
 #define SF2 19
 #define TF2 20
@@ -100,12 +99,6 @@
 #define SETZOOM (LAST_STIMULUS_CODE+2)
 #define SETBACKCOLOR (LAST_STIMULUS_CODE+3)
 #define DELAY (LAST_STIMULUS_CODE+4) 
-
-
-/*
- * remaining codes refer to the experiment settings,
- * not individual stimulus components
- */
 #define PREPERIOD_CODE (LAST_STIMULUS_CODE+5)
 #define EXPTYPE_CODE (LAST_STIMULUS_CODE+6)
 #define FRAMERATE_CODE (LAST_STIMULUS_CODE+7)
@@ -115,12 +108,6 @@
 #define MODE_CODE (LAST_STIMULUS_CODE+11)
 #define RAMP_VERGENCE_CODE (LAST_STIMULUS_CODE+12)
 #define NTRIALS_CODE (LAST_STIMULUS_CODE+13)
-/*
- * July 15 2002. NTRIALS and EXPTYPE codes swapped in order, so that
- * setting NTRIALS in the code when EXPTYPE is set does not override
- * NTRIALS
- */
-
 #define UFF_PREFIX (LAST_STIMULUS_CODE+14)
 #define HIGHX (LAST_STIMULUS_CODE+15)
 #define STIMULUS_MODE (LAST_STIMULUS_CODE+16)
@@ -269,7 +256,6 @@
 
 #define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 199 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
-
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
 #define BLANKCOLOR_CODE MAXSERIALCODES+3
@@ -312,10 +298,10 @@
 #define GAMMAVAL_CODE MAXSERIALCODES +40
 #define CORRECTION_LEAVE_CRIT MAXSERIALCODES +41
 #define CORRECTION_ENTRY_CRIT MAXSERIALCODES +42
-#define BLANK_P MAXSERIALCODES +43
+#define BLANK_P MAXSERIALCODES +4
 #define COVARY_XPOS MAXSERIALCODES +44
 #define BONUS_CRITERION MAXSERIALCODES +45
-#define BONUS2_CRITERION MAXSERIALCODES +46
+#define BONUS2_CRITERION MAXSERIALCODES+46
 #define EXPT_BLKSIZ MAXSERIALCODES+47
 #define CONTRAST_LEFT MAXSERIALCODES+48
 #define CONTRAST_RIGHT MAXSERIALCODES+49
@@ -352,8 +338,6 @@
 #define CHANGE_SEED MAXSERIALCODES+80
 #define DISP_A MAXSERIALCODES+81
 #define DISP_B MAXSERIALCODES+82
-
-
 #define FP_MOVE_FRAME MAXSERIALCODES+83
 #define XOFFLOG MAXSERIALCODES+84
 #define LRBINTERLEAVE MAXSERIALCODES+85
@@ -394,14 +378,6 @@
 #define TIMEOUT_CONTRAST MAXSERIALCODES+120
 #define RCFILE_CTR MAXSERIALCODES+121
 #define ALTERNATE_STIM_MODE MAXSERIALCODES+122
-/*
- *  ALTERNATE_STIM_MODE a flag for doing a variety 
- *
- * 1-7 Stroboscopic variations
- * 
- */
-
-
 #define MICROSTIM_EXPT MAXSERIALCODES+123
 #define TEST_VALUE1 MAXSERIALCODES+124
 #define TEST_VALUE2 MAXSERIALCODES+125
@@ -412,7 +388,7 @@
 #define PENYPOS MAXSERIALCODES+130
 #define VWHERE MAXSERIALCODES+131
 #define IFCSCALE MAXSERIALCODES+132
-//+133 unused
+
 #define HEIGHT_L MAXSERIALCODES+134
 #define HEIGHT_R MAXSERIALCODES+135
 #define WIDTH_L MAXSERIALCODES+136
@@ -440,9 +416,6 @@
 #define FAKESTIM_EXPT MAXSERIALCODES+158
 #define FAKESTIM_SIGNAL MAXSERIALCODES+159
 #define BLACKDOT_FRACTION MAXSERIALCODES+160
-// Codes after this are convenience only - no need to store
-// their value. But they need a serial-string so that they can be set
-// Since they are not send to PC, they can be > 2 chars long
 #define HIGHXTYPE MAXSERIALCODES+161
 #define MONKEYNAME MAXSERIALCODES+162
 #define MAXSAVECODES MAXSERIALCODES+163 //362
@@ -483,25 +456,6 @@
 
 #define OLDFIXEDLORI 173
 #define OLDFIXEDRORI 174
-
-#define FREE_TEXT MAXTOTALCODES
-#define RIGHTH_GAIN MAXTOTALCODES+3
-#define RIGHTH_OFFSET MAXTOTALCODES+4
-#define RIGHTH_PHASE MAXTOTALCODES+5
-#define RIGHTH_SOFTOFF MAXTOTALCODES+6
-#define RIGHTV_GAIN MAXTOTALCODES+7
-#define RIGHTV_OFFSET MAXTOTALCODES+8
-#define RIGHTV_PHASE MAXTOTALCODES+9
-#define RIGHTV_SOFTOFF MAXTOTALCODES+10
-#define LEFTH_GAIN MAXTOTALCODES+11
-#define LEFTH_OFFSET MAXTOTALCODES+12
-#define LEFTH_PHASE MAXTOTALCODES+13
-#define LEFTH_SOFTOFF MAXTOTALCODES+14
-#define LEFTV_GAIN MAXTOTALCODES+15
-#define LEFTV_OFFSET MAXTOTALCODES+16
-#define LEFTV_PHASE MAXTOTALCODES+17
-#define LEFTV_SOFTOFF MAXTOTALCODES+18
-#define FLUID_TEXT MAXTOTALCODES+19
 #define STIM_PERIOD MAXTOTALCODES+20
 #define RF_DIMENSIONS MAXTOTALCODES +21
 #define STIMULUS_LABEL_WIDGET MAXTOTALCODES+22
@@ -645,7 +599,8 @@ typedef struct valuecode {
     char *code;
     char *label;
     int icode;
-    char *value;
+    int group;
+  char ctype; //'C' if this is a string
     
 } ValueCode;
 
@@ -654,11 +609,7 @@ typedef struct valuecode {
 
 #ifdef CHARCODES_DEFINE
 
-#ifdef DOSVERSION
-#define NCODES MAXSERIALCODES
-#else
 #define NCODES MAXTOTALCODES
-#endif
 
 
 
@@ -669,30 +620,409 @@ StringCode commstrings[] = {
     {"monkey", "Monkey name", MONKEYNAME, NULL},
     {"impref", "prefix for image files", 0, NULL},
     {"immode", "image mode", 0, NULL},
-    {"psychfile", "Psych results file", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
 
 /* codes for BW to tell Front things 
- * N.B. THESE CIDES MUST BE DIFFERNT FORM toggle_codes in front.c
+ * N.B. THESE CODES MUST BE DIFFERNT FORM toggle_codes in front.c
  */
 char *bwtoggle_codes[] = {
     "fo", /* file is open */
     NULL,
 };
 
+/*
+ * bit codes for groups
+ * groups  1 stim prop
+ *         2 binocular stim prop (disparity etc)
+ *         4 Dot stimuli 
+ *         8 fixation point 
+ *         16 Expt setup
+ *         32 General Display
+ *         64 Background stim
+ *         128 commands
+ *         256 RF properties
+ *         512 Indirect properties
+ */
 ValueCode valstrings[] = {
-    {"xo","X offset",  XPOS},
-    {"lo", "Log File", LOGFILE_CODE, NULL},
-    {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
-    {"monkey", "Monkey name", MONKEYNAME, NULL},
-    {"impref", "prefix for image files", 0, NULL},
-    {"immode", "image mode", 0, NULL},
-    {NULL, NULL, 0, NULL}
+  {"xo","X offset",  XPOS, 1, 'N'},
+    {"yo","Y offset",  YPOS, 1, 'N'},
+  {"lo", "Log File", LOGFILE_CODE, 2, 'N'},
+  {"st", "Stimulus", STIMULUS_TYPE_CODE, 1,'C'},
+  {"sx",     "Sigma X",  SD_X, 1, 'N'},
+  {"sy",     "Sigma Y",  SD_Y, 1, 'N'},
+  {"dp",     "Diparate phase", DISP_P, 3, 'N'},
+  {"dx",     "Disparity ", DISP_X, 3, 'N'},
+  {"wi",     "Width ", STIM_WIDTH, 1, 'N'},
+  {"hi",     "Height ", STIM_HEIGHT, 1, 'N'},
+  {"sf",     "Spatial Frequency", SF,  1, 'N'},
+  {"xn",     "X sampling", XSAMPLES, 1, 'N'},
+  {"yn",     "Y Sampling", YSAMPLES, 1, 'N'},
+  {"tf",     "Temporal Frequency", TF, 1, 'N'},
+  {"ph",     "Spatial Phase",  SETPHASE, 1, 'N'},
+  {"or",     "Orientation",  ORIENTATION, 1, 'N'},
+  {"sl",     "Seed Loop", SET_SEEDLOOP, 5, 'N'},
+  {"se",     "Seed", SET_SEED, 5, 'N'},
+  {"co",     "Contrast ", SETCONTRAST, 1, 'N'},
+  {"dy",     "VDisp", DISP_Y, 3, 'N'},
+  {"f2",     "SF2", SF2, 1, 'N'},
+  {"t2",     "TF2", TF2, 1, 'N'},
+  {"p2",     "Phase2", PHASE2, 1, 'N'},
+  {"a2",     "Plaid angle", PLAID_ANGLE, 1, 'N'},
+  {"jv",     "J velocity", JVELOCITY, 5, 'N'},
+  {"fi",     "front intensity",JF_INTENSITY, 5, 'N'},
+  {"bi",     "back intensity", JB_INTENSITY, 5, 'N'},
+  {"jn",     "cyl num dots", JNUMDOTS, 5, 'N'},
+  {"jl",     "dotlife (cyl)",JLIFEFRAMES, 5, 'N'}, 
+  {"jx",     "death chance",  JDEATH, 5, 'N'},
+  {"c2",     "contrast 2", CONTRAST2, 1, 'N'},
+  {"ic",     "delta contrast", CONTRAST_DIFF, 3, 'N'},
+  {"od",     "delta ori", ORIENTATION_DIFF, 3, 'N'},
+  {"ds",     "delta SF", SF_DIFF, 3, 'N'},
+  {"dg",     "disp grad", DEPTH_MOD, 3, 'N'},
+  {"dm",     "depth modulation", DISP_GRAD, 3, 'N'},
+  {"ta",     "twobar angle", TWOBAR_ANGSEP, 1, 'N'},
+  {"dr",     "Disp Ramp", DISP_RAMP, 3, 'N'},
+  {"dq",     "pDisp 2", PHASE2DISP, 3, 'N'},
+  {"rp",     "Rel Phase",  PHASEREL, 3, 'N'},
+  {"Pd",     "Phase Disp as Disp", PHASE_AS_DISP, 3, 'N'},
+  {"ce",     "Correlation", CORRELATION, 3, 'N'},
+  {"dw",     "Dot Width", DOT_SIZE, 5, 'N'},
+  {"fc",     "Fixation Color", SETFIXCOLOR, 8, 'N'},
+  {"zx",     "Zoom",  SETZOOM, 32, 'N'},
+  {"bc",     "BackGround Color ", SETBACKCOLOR, 32, 'N'},
+  {"dt",     "Delay", DELAY, 32 , 'N'},
+  {"pr",     "PREPERIOD", PREPERIOD_CODE, 16, 'N'}, 
+  {"et",     "Expt1 Type",  EXPTYPE_CODE, 16 , 'N'},
+  {"fz",     "FRAMERATE",  FRAMERATE_CODE, 32 , 'N'},
+  {"du",     "STIMULUS DURATION", STIMULUS_DURATION_CODE, 16 , 'N'},
+  {"vc",     "CLAMP_DISPARITY", CLAMP_DISPARITY_CODE, 0 , 'N'},
+  {"po",     "POSTPERIOD", POSTPERIOD_CODE, 16 , 'N'},
+  {"mo",     "Mode",MODE_CODE, 0 , 'N'},
+  {"vr",     "RAMP_VERGENCE",RAMP_VERGENCE_CODE, 0 , 'N'},
+  {"nt",     "N Stim (Expt 1)",NTRIALS_CODE, 32 , 'N'},
+  {"uf",     "Uff Prefix",UFF_PREFIX, 32 , 'N'},
+  {"hx",     "High X Value for Interleaves",HIGHX, 16 , 'N'},
+  {"sM",     "Stimulus mode",STIMULUS_MODE, 1 , 'N'},
+  {"wr",     "WURTZ task response period", WURTZ_RT_CODE, 8 , 'N'},
+  {"mD",     "Max disp Initial manip", INITIAL_APPLY_MAX, 17 , 'N'},
+  {"op",     "optionflag setup", OPTION_CODE, 16 , 'N'},
+  {"nr",     "N Repetitions", NREPS_CODE, 16 , 'N'},
+  {"tl",     "trigger level", TRIGGER_LEVEL, 0 , 'N'},
+  {"fw",     "fixation window", FIXATION_WINDOW, 8 , 'N'},
+  {"df",     "display flag",DISPLAYFLAG_CODE, 0 , 'N'},
+  {"ch",     "channel Set code",CHANNEL_CODE, 32 , 'N'},
+  {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N'},
+  {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N'},
+  {"bt",     "Replay End",UFF_TIME, 0 , 'N'},
+  {"Bc",     "Background Contrast",BACK_CONTRAST, 64 , 'N'},
+  {"ei",     "Expt incr", EXPT_INCR, 16 , 'N'},
+  {"em",     "Expt Mean", EXPT_MEAN, 16 , 'N'},
+  {"is",     "ISI", ISI_CODE, 16 , 'N'},
+  {"bw",     "bin width", UNIT_BINWIDTH, 0 , 'N'},
+  {"ub",     "binned unit data",BINNED_SPIKE_DATA, 0 , 'N'},
+  {"ut",     "unit times",SPIKE_TIMES, 0 , 'N'},
+  {"nf",     "N Frames",NFRAMES_CODE, 16 , 'N'},
+  {"bd",     "backgound disparity", DISP_BACK, 64 , 'N'},
+  {"rk",     "ramp coefficient", RAMP_COEFFICIENT, 0 , 'N'},
+  {"fx",     "fixation x pos ",FIXPOS_X, 8 , 'N'},
+  {"fy",     "fixation y pos ",FIXPOS_Y, 8 , 'N'},
+  {"fs",     "fixation size ",SETFIXSIZE, 8 , 'N'},
+  {"cj",     "mean conjugate",STATIC_CONJUGATE, 8 , 'N'},
+  {"rw",     "Reward Size", REWARD_SIZE, 8 , 'N'},
+  {"vh",     "Vergence RAMP and Hold", RAMP_HOLD_CODE, 0 , 'N'},
+  {"ti",     "TIMEOUT",  TIMEOUT_CODE, 8 , 'N'},
+  {"so",     "Software Offsets 62 ",SOFTOFF_CODE, 32 , 'N'},
+  {"qs",     "Query State", QUERY_STATE, 128 , 'N'},
+  {"sb",     "Stop Button", STOP_BUTTON, 128 , 'N'},
+  {"ra",     "Ramp Amplitude", RAMP_AMPLITUDE_CODE, 0 , 'N'},
+  {"lb",     "Initial Blank Period", TRIAL_START_BLANK, 16 , 'N'},
+  {"ul",     "UpLoad Directory*", UPLOAD_CODE, 0 , 'N'},
+  {"vw",     "Vergence Window",VERGENCE_WINDOW, 8 , 'N'},
+  {"sp",     "Short Prem Trial Length",SHORT_PREM_CODE, 8 , 'N'},
+  {"ed",     "electrode depth", ELECTRODE_DEPTH, 32 , 'N'},
+  {"cm",     "Comment", UFF_COMMENT, 128 , 'N'},
+  {"ss",     "Seed Shift/UC gap", SEED_SHIFT, 7 , 'N'},
+  {"cp",     "Conjugate Position",CONJUGATE_POSITION, 8 , 'N'},
+  {"pd",     "Deg2pix", DEG2PIX, 32 , 'N'},
+  {"yx",     "DRAGGED_POS",DRAGGED_POS, 0 , 'N'},
+  {"o2",     "optionflag2",STIMULUS_OPTIONS, 32 , 'N'},
+  {"sq",     "H Saccade Size",SACCADE_VALUE, 8 , 'N'},
+  {"to",     "WRONG_TIMEOUT",WRONG_TIMEOUT_CODE, 8 , 'N'},
+  {"s0",     "STARTVAL",STARTVAL, 8 , 'N'},
+  {"sh",     "MAXSTAIRVAL",MAXSTAIRVAL, 8 , 'N'},
+  {"sm",     "MINSTAIRVAL",MINSTAIRVAL, 8 , 'N'},
+  {"js",     "STANDING_DISP",STANDING_DISP, 1 , 'N'},
+  {"jc",     "Saccade Box size",SAC_FIX_CRIT, 8 , 'N'},
+  {"jt",     "SACTARGSIZE",SACTARGSIZE, 8 , 'N'},
+  {"vs",     "V Saccade Size",VSACCADE_VALUE, 8 , 'N'},
+  {"dd",     "DOT_DENSITY", DOT_DENSITY, 3, 'N'},
+  {"Vs",     "VSR",VSR, 1 , 'N'},
+  {"cl",     "SEND_CLEAR",SEND_CLEAR, 128 , 'N'},
+  {"e2",     "Expt 2 Type",EXPTYPE_CODE2, 16 , 'N'},
+  {"m2",     "Expt 2 Mean",EXPT2_MEAN, 16 , 'N'},
+  {"e0",     "EXPTYPE_NONE",EXPTYPE_NONE, 16 , 'N'},
+  {"n2",     "Expt 2 Nstims",EXPT2_NSTIM, 16 , 'N'},
+  {"i2",     "Expt 2 increment",EXPT2_INCR, 16 , 'N'},
+  {"ac",     "ANTICORRELATED_DISPARITY",ANTICORRELATED_DISPARITY, 3 , 'N'},
+  {"cd",     "CORRELATED_DISPARITY",CORRELATED_DISPARITY, 3 , 'N'},
+  {"Dm",     "Distribution Mean",DISTRIBUTION_MEAN, 3 , 'N'},
+  {"np",     "NPLANES",NPLANES , 3 , 'N'},
+  {"me",     "MONOCULARITY_EXPT",MONOCULARITY_EXPT, 128 , 'N'},
+  {"cv",     "VERGENCE_CORRECTION",VERGENCE_CORRECTION, 8 , 'N'},
+  {"fh",     "FIXATION_SURROUND",FIXATION_SURROUND, 8 , 'N'},
+  {"bh",     "Back Size",BACK_SIZE, 64 , 'N'},
+  {"fd",     "Fixation Overlap duration",FIXATION_OVERLAP, 8 , 'N'},
+  {"fr",     "P(reward)",PREWARD, 8 , 'N'},
+  {"aq",     "Acquision ON/OFF",ACQUISITION_CODE, 128 , 'N'},
+  {"rd",     "Relative Disparity",RELDISP, 1 , 'N'},
+  {"oL",     "ORI_LEFT",ORI_LEFT, 5 , 'N'},
+  {"oR",     "ORI_RIGHT",ORI_RIGHT, 5 , 'N'},
+  {"ve",     "Version",VERSION_CODE, 32 , 'C'},
+  {"sz",     "Size (H and W)",STIM_SIZE, 1 , 'N'},
+  {"cb",     "Backround Correlation",BACK_CORRELATION, 64 , 'N'},
+  {"sd",     "Seed Delay",SEED_DELAY, 5 , 'N'},
+  {"xx",     "Trigger 1",TRIGGER_LEVEL1, 0 , 'N'},
+  {"xx",     "Trigger 2",TRIGGER_LEVEL2, 0 , 'N'},
+  {"xx",     "Trigger 3",TRIGGER_LEVEL3, 0 , 'N'},
+  {"xx",     "Trigger 4",TRIGGER_LEVEL4, 0 , 'N'},
+  {"cs",     "RC seed",RC_SEED, 32 , 'N'},
+  {"fn",     "frame repeat",FRAMEREPEAT, 16 , 'N'},
+  {"cx",     "Change type",STIMCHANGE_CODE, 128 , 'N'},
+  {"fp",     "NewFixPos",FIXPOS_XY , 8 , 'N'},
+  {"Ro",     "RF Ori",RF_ANGLE, 128 , 'N'},
+  {"Bs",     "BackStim",BACKSTIM_TYPE, 64 , 'C'},
+  {"Fs",     "FP Move Size",FP_MOVE_SIZE, 8 , 'N'},
+  {"Fa",     "FP Move Dir",FP_MOVE_DIR , 8 , 'N'},
+  {"ip",     "Starting Phase",START_PHASE , 1 , 'N'},
+  {"bo",     "BackGround Ori",BACK_ORI , 64 , 'N'},
+  {"Bt",     "BackGround TF",BACK_TF , 64 , 'N'},
+  {"Er",     "Early Reward Time",  EARLY_RWTIME , 8 , 'N'},
+  {"nx",     "N Extras",NEXTRAS_CODE , 16 , 'N'},
+  {"mt",     "Manual TDR Entry",MANUAL_TDR , 128 , 'N'},
+  {"e3",     "Expt 3",EXPTYPE_CODE3, 8 , 'N'},
+  {"mf",     "Modulation Frequency",MODULATION_F, 1 , 'N'},
+  {"zf",     "Disparity of Fixpt",FIXPT_DISPARITY, 8 , 'N'},
+  {"rv",     "Relatve Vdisp",RELVDISP, 3 , 'N'},
+  {"vm",     "Vdisp mod",VDISP_MOD, 3 , 'N'},
+  {"hd",     "Length Disparity",LENGTH_DISP, 3 , 'N'},
+  {"wd",     "Width Disparity",WIDTH_DISP, 3 , 'N'},
+  {"nc",     "N Components",NCOMPONENTS, 1 , 'N'},
+  {"id",     "Stim ID",STIMID, 1 , 'N'},
+  {"O2",     "Ori 2",ORI2, 1 , 'N'},
+  {"n3",     "Nstim 3",EXPT3_NSTIM, 16 , 'N'},
+  {"Sr",     "Spin Rate",SPINRATE, 1 , 'N'},
+  {"Bw",     "Back Width",BACK_WIDTH, 64 , 'N'},
+  {"Bh",     "Back Height",BACK_HEIGHT, 64 , 'N'},
+  {"xd",     "Dot X Pos",DOT_POSX, 1 , 'N'},
+  {"ob",     "Orientation Bandwidth",ORI_BANDWIDTH, 1 , 'N'},
+  {"Ri",     "Incr for FastSeq",RC1INC, 16 , 'N'},
+  {"Dw",     "Distribution Width",DISTRIBUTION_WIDTH, 1 , 'N'},
+  {"fH",     "Fixwin Height",FIXWIN_HEIGHT, 8 , 'N'},
+  {"i3",     "Incr 3",EXPT3_INCR, 16 , 'N'},
+  {"Dc",     "Distribution Conc",DISTRIBUTION_CONC, 1 , 'N'},
+  {"St",     "Saccade Threshold",SACCADE_THRESHOLD, 8 , 'N'},
+  {"Sa",     "Saccade Detected",SACCADE_DETECTED, 8 , 'N'},
+  {"Id",     "Initial Disparity",INITIAL_DISPARITY, 17 , 'N'},
+  {"vv",     "Vertical Vergence",VERTICAL_VERGENCE, 8 , 'N'},
+  {"px",     "XPixel Size (cm)",XPIXEL_CODE, 32 , 'N'},
+  {"py",     "YPIXEL_CODE",YPIXEL_CODE, 32 , 'N'},
+  {"vd",     "VIEWD_CODE",VIEWD_CODE, 32 , 'N'},
+  {"sP",     "Stim pulses",STIM_PULSES, 1 , 'N'},
+  {"pw",     "pulse width",PULSE_WIDTH, 1 , 'N'},
+  {"pi",     "Pursuit Increment",PURSUIT_INCREMENT, 8 , 'N'},
+  {"IB",     "Backgr Image",BACKGROUND_IMAGE, 16 , 'N'},
+  {"Br",     "Fast Rpt B", FASTB_RPT, 16 , 'N'},
+  {"bz",     "Backgr Zoom",BACKGROUND_ZOOM, 32 , 'N'},
+  {"rr",     "Rc repeats",RC_REPEATS, 16 , 'N'},
+  {"ap",     "AFC Proportion",AFC_PROPORTION, 8 , 'N'},
+  {"Im",     "Initial Movement",INITIAL_MOVEMENT, 17 , 'N'},
+  {"bO",     "Backgr Ortho pos",BACK_OPOS, 64 , 'N'},
+  {"bP",     "Backgr Para pos",BACK_PPOS, 64 , 'N'},
+  {"rb",     "Reward Bias",REWARD_BIAS, 8 , 'N'},
+  {"Tx",     "Target X off",TARGET_XOFFSET , 16 , 'N'},
+  {"Ty",     "Target Y off",TARGET_YOFFSET , 16 , 'N'},
+  {"T2",     "Target 2 pos",TARGET2_POS , 16 , 'N'},
+  {"mixac",     "AC Mixture",MIXAC, 1 , 'N'},
+  {"Tt",     "Tone time",TONETIME, 16 , 'N'},
+  {"iD",  "Opposite Delay",OPPOSITE_DELAY , 1 , 'N'},
+  {"Fr", "FAST_SEQUENCE rpt +1 ",FAST_SEQUENCE_RPT, 16 , 'N'},
+  {"db", "Wurtz Brightness Shift, +2 ",BRIGHTSHIFT_CODE, 8 , 'N'},
+  {"tc", "Timeout color, +3",BLANKCOLOR_CODE, 8 , 'N'},
+  {"Dr",  "dot repeat ",DOTREPEAT, 1 , 'N'},
+  {"sa", "saccade amplitude ",SACCADE_AMPLITUDE, 8 , 'N'},
+  {"fo", "Color when fixation off",FIX_OFF_CODE, 8 , 'N'},
+  {"lo", "Logfile +7 ",LOGFILE_CODE, 128 , 'N'},
+  {"sc", "stop criterion +8 ", STOP_CRITERION, 128 , 'N'},
+  {"rl", "running average length +9 ", RUNAVERAGE_LENGTH, 0 , 'N'},
+  {"os", "SIDE_OFFSET +10 ",SIDE_OFFSET, 256 , 'N'},
+  {"eo", "END_OFFSET, +11 ",END_OFFSET, 256 , 'N'},
+  {"xr", "XMINSAMPLE_RATIO, +12 ",XMINSAMPLE_RATIO, 1 , 'N'},
+  {"he", "helpfile ",HELPFILE_PATH, 128 , 'N'},
+  {"xm", "XMAXSAMPLE_RATIO, +14 ",	XMAXSAMPLE_RATIO, 1 , 'N'},
+  {"Sv", "Stim Version + 15",STIMULUS_VERSION, 128 , 'N'},
+  {"pe", "PENETRATION, +16 ",PENETRATION_TEXT, 128 , 'N'},
+  {"RP", "RF PARALELL ",RF_PARA, 256 , 'N'},
+  {"pl", "Size of Proximal Luminance Covariace ",PLC_MAG, 1 , 'N'},
+  {"To", "Target offset ",TARGET_OFFSET, 8 , 'N'},
+  {"di", "DIRECTIONALIGY, +20 ",DIRECTION_TEXT, 128 , 'N'},
+  {"ct", "CELL_TYPE, +21 ",CELLTYPE_TEXT , 128 , 'N'},
+  {"fl", "Stimulus Flag +22",STIMULUS_FLAG , 1 , 'N'},
+  {"si", "swap interval +23 ",SWAPINTERVAL , 32 , 'N'},
+  {"Tz", "rapezoidal scaling for projectors ",TRAPEZOIDAL_SCALING , 32 , 'N'},
+  {"Rw", "RF Width +25 ",RF_WIDTH, 256 , 'N'},
+  {"Rh", "RF Height +26 ",RF_HEIGHT, 256 , 'N'},
+  {"Rx", "RF x +27 ",RF_X, 256 , 'N'},
+  {"Ry", "RF y +28 ",RF_Y, 256 , 'N'},
+  {"RO", "RF ORTHO +29",RF_ORTHO, 256 , 'N'},
+  {"sg", "Spike Gain +30 ",SPIKE_GAIN, 0 , 'N'},
+  {"Pw", "Plot Width +31 ",PLOTW, 0 , 'N'},
+  {"Ph", "Plot Height +32 ",PLOTH, 0 , 'N'},
+  {"Px", "Plot X +33 ",PLOTX, 0 , 'N'},
+  {"Py", "Plot Y +34 ",PLOTY, 0 , 'N'},
+  {"nT", "Trial Count",TRIAL_COUNT, 8 , 'N'},
+  {"Tg", "good trials +36 ", GOODTRIALS, 8 , 'N'},
+  {"Tb", "bad trials +36 ", BADTRIALS, 8 , 'N'},
+  {"dc", "disp X as cycle of sinewave ", DISP_AS_CYCLES, 1 , 'N'},
+  {"qe", "quickexp code ", QUICKEXPT_CODE, 128 , 'N'},
+  {"ga", "gamma correction val ", GAMMAVAL_CODE, 32 , 'N'},
+  {"lc", "CorLoop Exit crti ", CORRECTION_LEAVE_CRIT, 8 , 'N'},
+  {"pb", "p(Blank)", BLANK_P, 16, 'N'}, 
+  {"cc", "Covary Coefficient", COVARY_XPOS, 24, 'N'}, 
+  {"bl",     "BONUS_CRITERION", BONUS_CRITERION, 8, 'N'},
+  {"b2",     "BONUS2_CRITERION", BONUS2_CRITERION, 8, 'N'},
+  {"bs",     "EXPT_BLKSIZ", EXPT_BLKSIZ, 8, 'N'}, 
+  {"c0",     "CONTRAST_LEFT", CONTRAST_LEFT, 3, 'N'}, 
+  {"c1",    "CONTRAST_RIGHT",CONTRAST_RIGHT, 3 , 'N'},
+  {"tb",     "Twobar sep",TWOBAR_SEP, 1 , 'N'},
+  {"Fl",     "Fixation Linw",FIX_LINW, 8 , 'N'},
+  {"cg",     "SETCLEARCOLOR",SETCLEARCOLOR, 32 , 'N'},
+  {"bj",     "BACKJUMP",BACKJUMP, 8 , 'N'},
+  {"lf",     "SF left",SF_LEFT, 3 , 'N'},
+  {"rf",     "SF Right",SF_RIGHT, 3 , 'N'},
+  {"rx",     "X randomization",RANDOM_X, 8 , 'N'},
+  {"ox",     "Ori randomization",RANDOM_ORI, 8 , 'N'},
+  {"bb",     "dOri F+B",DORI_BOTH , 3 , 'N'},
+  {"dk",     "dOri Back",DORI_BACK , 66 , 'N'},
+  {"xc",     "Stim eccentricity",STIM_ECCENTRICITY , 513 , 'N'},
+  {"pa",     "Polar Angle",STIM_POLARANGLE , 513 , 'N'},
+  {"o0",    "Old Lori",OLDLEFT_ORI, 0 , 'N'},
+  {"o1",    "Old Rori",OLDRIGHT_ORI, 0 , 'N'},
+  {"xx",     "Cyberamp channels",CYBER_CHANNELS, 128 , 'N'},
+  {"rs",     "RF Sign",RF_SIGN, 256 , 'N'},
+  {"el",     "End Length",END_LENGTH, 256 , 'N'},
+  {"lw",     "Line Width for online plott",EXPT_LINW, 32 , 'N'},
+  {"ps",     "Plot Smoothing for online RC",PLOTSMOOTH, 0 , 'N'},
+  {"pf",     "Flags Shown on panel",SHOWFLAGS_CODE, 128 , 'C'},
+  {"pt",     "Stimuli per fixation Trial",EXPT_STIMPERTRIAL, 8 , 'N'},
+  {"ri",     "RC Correlation delay",RC_DELAY, 8 , 'N'},
+  {"cr",     "Contrast Ratio",CONTRAST_RATIO, 3 , 'N'},
+  {"tx",     "Expt 2 x or + ",ADDEXPTS_CODE , 16 , 'N'},
+  {"ci",     "Command in",COMMAND_IN, 128 , 'N'},
+  {"gr",     "Grid Size",GRIDSIZE, 32 , 'N'},
+  {"dO",     "Orthog Disp",ORTHOG_DISP, 515 , 'N'},
+  {"dP",     "Paralell Disp",PARALELL_DISP, 515 , 'N'},
+  {"sr",     "RDS/Sine",RDSXSINE, 512 , 'N'},
+  {"ns",     "Change Seed",CHANGE_SEED, 16 , 'N'},
+  {"d1",     "Disparity 1",DISP_A, 513 , 'N'},
+  {"d2",     "Disparity 2",DISP_B, 513 , 'N'},
+  {"Ff",     "FP Move Frame",FP_MOVE_FRAME, 8 , 'N'},
+  {"lX",     "Xpos (log)",XOFFLOG, 528 , 'N'},
+  {"mx",     "L-R-Binoc",LRBINTERLEAVE, 528 , 'N'},
+  {"LR",     "L-R-Monoc",LRINTERLEAVE, 528 , 'N'},
+  {"LB",     "L-Binoc",LBINTERLEAVE, 528 , 'N'},
+  {"RB",     "R-Binoc",RBINTERLEAVE, 528 , 'N'},
+  {"lS",     "SF-Lin",SFLIN, 528 , 'N'},
+  {"lT",     "TF-Lin",TFLIN, 528 , 'N'},
+  {"oS",     "Log Size",LOG_SIZE, 528 , 'N'},
+  {"m3",     "Expt 3 Mean",EXPT3_MEAN, 16 , 'N'},
+  {"pU",     "p(Uncorr)",UNCORR_P , 16 , 'N'},
+  {"pT",     "p(One Target)",ONETARGET_P, 16 , 'N'},
+  {"sO",     "StimOrthog Pos",STIMORTHOG_POS, 513 , 'N'},
+  {"pR",     "Plaid Contrast Ratio",PLAID_RATIO, 1 , 'N'},
+  {"Al",     "Avg Len for eyepos auto-ze{ro",AUTO_ZERO, 8 , 'N'},
+  {"^d",     "Old Orthog disp",OLD_ORTHOG_DISP, 0 , 'N'},
+  {"|d",     "Old Paralell disp",OLD_PARA_DISP, 0 , 'N'},
+  {"Op",     "Orthog Offset",ORTHOG_POS, 513 , 'N'},
+  {"Pp",     "Paralell Offset",PARA_POS, 513 , 'N'},
+  {"lv",    "Linear Velocity expt",LINEAR_SPEED, 528 , 'N'},
+  {"we",     "Weight",WEIGHT_TEXT, 128 , 'N'},
+  {"hr",     "Head Restrained",RESTRAIN_TEXT, 128 , 'N'},
+  {"r0",     "Rds x None back",RDSBNONE, 528 , 'N'},
+  {"Jt",     "jump Type",JUMPTYPE, 1 , 'N'},
+  {"tr",     "Target Ratio",TARGET_RATIO, 8 , 'N'},
+  {"hs",     "High SF val",HIGHSF, 16 , 'N'},
+  {"ht",     "High TF val",HIGHTF, 16 , 'N'},
+  {"cz",     "Contrast Pairs",CONTRAST_PAIRS, 528 , 'N'},
+  {"sL",     "Stepper Plot Length",STEPPER_PLOTLEN, 32 , 'N'},
+  {"Nf",     "True Nframes",NFRAMES_DONE, 32 , 'N'},
+  {"pC",     "Plot Cluster/Exp No.",PLOT_CLUSTER, 32 , 'N'},
+  {"r1",     "Reward 1",REWARD_SIZE1, 8 , 'N'},
+  {"r2",     "Reward 2",REWARD_SIZE2, 8 , 'N'},
+  {"r3",     "Reward 3",REWARD_SIZE3, 8 , 'N'},
+  {"Tc",     "Timeout Contrast",TIMEOUT_CONTRAST, 8 , 'N'},
+  {"nR",     "RC File Counter",RCFILE_CTR, 0 , 'N'},
+  {"As",     "Alternative Stimulus",ALTERNATE_STIM_MODE, 16 , 'N'},
+  {"Us",     "Microstim Expt",MICROSTIM_EXPT, 16 , 'N'},
+  {"T1",     "Test value 1",TEST_VALUE1, 0 , 'N'},
+  {"TB",    "Test value 2",TEST_VALUE2, 0 , 'N'},
+  {"Ba",    "Size to add for background",BACK_ADD_SIZE, 64 , 'N'},
+  {"b+",    "RC stimulus change",RC_STIMCHANGE, 0 , 'N'},
+  {"Pn",     "penetration number",PENNUMCOUNTER, 128 , 'N'},
+  {  "Xp",     "Pen X",PENXPOS, 128 , 'N'},
+  {  "Yp",    "Pen y",PENYPOS, 128 , 'N'},
+  {"Vn",     "Visual Area",VWHERE, 128 , 'N'},
+  {"Is",     "Scale factor for IFC expts",IFCSCALE, 16 , 'N'},
+  {"hL",     "Height L",HEIGHT_L, 515 , 'N'},
+  {"hR",     "Height R",HEIGHT_R, 515 , 'N'},
+  {"wL",     "Width L",WIDTH_L, 515 , 'N'},
+  {"wR",     "Width R",WIDTH_R, 515 , 'N'},
+  {"SL",     "Size L",SIZE_L, 515 , 'N'},
+  {"SR",     "Size R",SIZE_R, 515 , 'N'},
+  {"Sd",     "Size Disparity",SIZE_DISP, 3, 'N'},
+  {"fm",     "FixPt Ocularity",FIXPT_EYE, 8 , 'N'},
+  {"Sb",     "Sigma X and Y",SD_BOTH, 513 , 'N'},
+  {"uk",     "Uka Stair Coeffs",UKA_VALS, 8 , 'N'},
+  {"Pr",     "Phase Disp as RelDisp",PHASE_AS_RELDISP, 513 , 'N'},
+  {"PX",     "Panel X position",PANEL_XPOS, 0 , 'N'},
+  {"rc",     "Relative contrast",FB_RELATIVE_CONTRAST, 513 , 'N'},
+  {"by",     "Background Vertical Disp",BACK_VDISP, 64 , 'N'},
+  {"PY",     "Panel Y position",PANEL_YPOS, 0 , 'N'},
+  {"sC",     "Counterphase",SET_COUNTERPHASE, 1 , 'N'},
+  {"ui",     "User id",USERID, 128 , 'C'},
+  {"Tw",     "Time Ori BW",TEMPORAL_ORI_BANDWIDTH, 1 , 'N'},
+  {"ts",     "Shake Timeout",SHAKE_TIMEOUT_DURATION, 8 , 'N'},
+  {"Ol",     "Orthog Pos L",ORTHOG_POSL, 515 , 'N'},
+  {"Or",     "Orthog Pos R", ORTHOG_POSR, 515 , 'N'},
+  {"Covariate",     "Covariate",COVARIATE, 16 , 'C'},
+  {"iF",     "Initial Frames (Duration)",INITIAL_DURATION, 16 , 'N'},
+  {"e1max",     "Expt1 Max",EXPT1_MAXSIG, 16 , 'N'},
+  {"dS",     "FakeStim Expt", FAKESTIM_EXPT, 16 , 'N'},
+  {"FakeSig",     "FakeStim Signal", FAKESTIM_SIGNAL, 16 , 'N'},
+  {"pBlack",     "p(black dot)", BLACKDOT_FRACTION, 16 , 'N'},
+  {"hxtype",     "High X type",HIGHXTYPE, 16 , 'N'},
+  {"monkey", "monkey name (Directory)",MONKEYNAME, 128 , 'N'},
+  {"ar", "Aspect Ratio", ASPECT_RATIO, 513 , 'N'},
+  {"Hi", "Hidden Codes", HIDDEN_OPTIONS, 128 , 'N'},
+  {"nl",     "N Low F Components", NLOWCOMPONENTS, 1 , 'N'},
+  {"nh",     "N High F Comonents", NHIGHCOMPONENTS, 1,  'N'},
+  {"ls",     "Final Seed",LAST_SEED, 1 , 'N'},
+  {"dfx",    "fx change", FIXPOS_XSHIFT, 8 , 'N'},
+  {"ddx",    "dx change",NEWDISP, 513 , 'N'},
+  {"backMov",    "Backgr Movie",BACKGROUND_MOVIE, 16 , 'N'},
+  {"annTyp",     "Annulus Type",SETANNULUS, 1 , 'N'},
+  {"StartDepth",     "Start Depth",PEN_START_DEPTH, 128 , 'N'},
+  {"TwoCylDisp",     "TwoCyl Disp",TWOCYL_DISP, 513 , 'N'},
+  {"rC",     "Random Contrasts",RANDOM_CONTRAST_EXPT, 528 , 'N'},
+  {"posinc",     "Position Displacement per frame",FRAME_DISPLACEMENT, 513 , 'N', 'N'},
+  {"aOp",     "absolute OrthoPos",ABS_ORTHOG_POS, 256+512 , 'N'},
+  {"aPp",     "absolute ParaPos",ABS_PARA_POS, 0 , 256+512, 'N'},
+  {"verbose", "Verbosity", VERBOSE_CODE, 128 , 'N'},
+  { NULL, NULL, -1, -1 ,0},
 };
 
-
 char *serial_strings[NCODES+1] = {
+
 	  "xo",
         "yo",
         "st",
@@ -892,10 +1222,6 @@ char *serial_strings[NCODES+1] = {
     "T2", /* Target 2 direction(file), position (spike2) */
     "mixac", /* mix corr, AC, dots */
     "Tt", /* Tonetime */
-#ifdef DOSVERSION
-	NULL
-};
-#else
 "iD", /* Opposite Delay */
 "Fr", /* FAST_SEQUENCE rpt +1 */
 "db", /* Wurtz Brightness Shift, +2 */
@@ -1115,387 +1441,384 @@ char codesend[NCODES] = {
 	SEND_EXPLICIT};
 
 char *serial_names[] = {
-    "X offset",
-    "Y offset",
-    "Stimulus Type ", 
-    "Sigma X", 
-    "Sigma Y", 
-    "Diparate phase",
-    "Disparity ",
-    "Width ",
-    "Height ",
-    "Spatial Frequency",
-    "X sampling",
-    "Y Sampling",
-    "Temporal Frequency", /*  12 */
-    "Spatial Phase", /*  13 */
-    "Orientation", /*  14 */
-    "Seed Loop",
-    "Seed",
-    "Contrast ",
-    "VDisp",
-    "SF2",
-    "TF2",/* 20*/
-    "Phase2",
-    "Plaid angle",
-    "J velocity",
-    "front intensity",
-    "back intensity",
-    "cyl num dots",
-    "dotlife (cyl)",
-    "death chance",
-    "contrast 2",
-    "delta contrast",
-    "delta ori",
-    "delta SF",
-    "disp grad",
-    "depth modulation",
-    "twobar angle",
-    "Disp Ramp",
-    "pDisp 2",
-    "Rel Phase",
-    "Phase Disp as Disp",
-    "Correlation",
-    "Dot Width",
-    "Fixation Color",
-    "Zoom",
-    "BackGround Color ",
-    "Delay",
-    "PREPERIOD", 
-    "Expt1 Type", 
-    "FRAMERATE", 
-    "STIMULUS DURATION", 
-    "CLAMP_DISPARITY", 
-    "POSTPERIOD", 
-    "Mode",
-    "RAMP_VERGENCE",
-    "N Stim (Expt 1)",
-    "Uff Prefix",
-    "High X Value for Interleaves",
-    "Stimulus mode",
-    "WURTZ task response period", 
-    "Max disp Initial manip", 
-    "optionflag setup", 
-    "N Repetitions", /*  37 */
-    "trigger level", /*  38 */
-    "fixation window", /*  39 */
-    "display flag",
-    "channel Set code",
-    "Static Vergence",
-    "mean fixation period",
-    "Replay End",
-    "Background Contrast",
-    "Expt incr", 
-    "Expt Mean", 
-    "ISI", 
-    "bin width", 
-    "binned unit data",
-    "unit times",
-    "N Frames",
-    "backgound disparity", /*  53 */
-    "ramp coefficient", /*  54 */
-    "fixation x pos ",
-    "fixation y pos ",
-    "fixation size ",
-    "mean conjugate",
-    "Reward Size", /*  59 */
-    "Vergence RAMP and Hold", /*  60 */
-    "TIMEOUT",  /* 61 */
-    "Software Offsets 62 ",
-    "Query State", /*  63 */
-    "Stop Button", /*  65 */
-    "Ramp Amplitude", /*  66 */
-    "Initial Blank Period", /*  67 */
-    "UpLoad Directory*", /*  68 */
-    "Vergence Window",
-    "Short Prem Trial Length",
-    "electrode depth", /*  71 */
-    "Comment", /*  72 */
-    "Seed Shift/UC gap", /*  73 */
-    "Conjugate Position", /* 74 */
-    "Deg2pix", /* 75 */
-    "DRAGGED_POS",
-    "optionflag2",
-    "H Saccade Size",
-    "WRONG_TIMEOUT",
-    "STARTVAL",
-    "MAXSTAIRVAL",
-    "MINSTAIRVAL",
-    "STANDING_DISP",
-    "Saccade Box size",
-    "SACTARGSIZE",
-    "V Saccade Size",
-    "DOT_DENSITY",
-    "VSR",
-    "SEND_CLEAR",
-    "Expt 2 Type",
-    "Expt 2 Mean",
-    "EXPTYPE_NONE",
-    "Expt 2 Nstims",
-    "Expt 2 increment",
-    "ANTICORRELATED_DISPARITY",
-    "CORRELATED_DISPARITY",
-    "Distribution Mean",
-    "NPLANES",
-    "MONOCULARITY_EXPT",
-    "VERGENCE_CORRECTION",
-    "FIXATION_SURROUND",
-    "Back Size",
-    "Fixation Overlap duration",
-    "P(reward)",
-    "Acquision ON/OFF",
-    "Relative Disparity",
-    "ORI_LEFT",
-    "ORI_RIGHT",
-    "Version",
-    "Size (H and W)",
-    "Backround Correlation",
-    "Seed Delay",
-    "Trigger 1",
-    "Trigger 2",
-    "Trigger 3",
-    "Trigger 4",
-    "RC seed",
-    "frame repeat",
-    "Change type",
-    "NewFixPos",
-    "RF Ori",
-    "BackStim",
-    "FP Move Size",
-    "FP Move Dir",
-    "Starting Phase",
-    "BackGround Ori",
-    "BackGround TF",
-    "Early Reward Time",  
-    "N Extras",
-    "Manual TDR Entry",
-    "Expt 3",
-    "Modulation Frequency",
-    "Disparity of Fixpt",
-    "Relatve Vdisp",
-    "Vdisp mod",
-    "Length Disparity",
-    "Width Disparity",
-    "N Components",
-    "Stim ID",
-    "Ori 2",
-    "Nstim 3",
-    "Spin Rate",
-    "Back Width",
-    "Back Height",
-    "Dot X Pos",
-    "Orientation Bandwidth",
-    "Incr for FastSeq",
-    "Distribution Width",
-    "Fixwin Height",
-    "Incr 3",
-    "Distribution Conc",
-    "Saccade Threshold",
-    "Saccade Detected",
-    "Initial Disparity",
-    "Vertical Vergence",
-    "XPixel Size (cm)",
-    "YPIXEL_CODE",
-    "VIEWD_CODE",
-    "Stim pulses",
-    "pulse width",
-    "Pursuit Increment",
-    "Backgr Image",
-    "Fast Rpt B", 
-    "Backgr Zoom",
-    "Rc repeats",
-    "AFC Proportion",
-    "Initial Movement",
-    "Backgr Ortho pos",
-    "Backgr Para pos",
-    "Reward Bias",
-    "Target X off",
-    "Target Y off",
-    "Target 2 pos",
-    "AC Mixture",
-    "Tone time",
-    //Max serialcodes
-    
-    "Opposite Delay",
-    "FastSeq Repeat",
-    "BRIGHTSHIFT_CODE",
-    "BLANKCOLOR_CODE",
-    "Dot Sample Repeat",
-    "Saccade Amplitude",
-    "FIX_OFF_CODE",
-    "LOGFILE_CODE",
-    "STOP_CRITERION",
-    "RUNAVERAGE_LENGTH",
-    "SIDE_OFFSET",
-    "END_OFFSET",
-    "XMINSAMPLE_RATIO",
-    "Help File",
-    "XMAXSAMPLE_RATIO",
-    "Stimulus Version",
-    "PENETRATION_TEXT",
-    "RF P shift",
-    "PLC magnitude",
-    "Target Offset",
-    "DIRECTION_TEXT",
-    "CELLTYPE_TEXT",
-    "STIMULUS_FLAG",
-    "SWAPINTERVAL",
-    "trapezoidal scaling",
-    "RF_WIDTH",
-    "RF_HEIGHT",
-    "RF_X",
-    "RF_Y",
-    "RF O shift",
-    "SPIKE_GAIN",
-    "PLOTW",
-    "PLOTH",
-    "PLOTX",
-    "PLOTY",
-    "Completed Trials",
-    "GOODTRIALS",
-    "BADTRIALS",
-    "DISP_AS_CYCLES",
-    "QUICKEXPT_CODE",
-    "Gamma value",
-    "CORRECTION_LEAVE_CRIT",
-    "CORRECTION_ENTRY_CRIT",
-    "P(blank)",
-    "COVARY_XPOS",
-    "BONUS_CRITERION",
-    "BONUS2_CRITERION",
-    "EXPT_BLKSIZ",
-    "CONTRAST_LEFT",
-    "CONTRAST_RIGHT",
-    "Twobar sep",
-    "Fixation Linw",
-    "SETCLEARCOLOR",
-    "BACKJUMP",
-    "SF left",
-    "SF Right",
-    "X randomization",
-    "Ori randomization",
-    "dOri F+B",
-    "dOri Back",
-    "Stim eccentricity",
-    "Polar Angle",
-    "Old Lori",
-    "Old Rori",
-    "Cyberamp channels",
-    "RF Sign",
-    "End Length",
-    "Line Width for online plott",
-    "Plot Smoothing for online RC",
-    "Flags Shown on panel",
-    "Stimuli per fixation Trial",
-    "RC delay",
-    "PSTH smoothing",
-    "Contrast Ratio",
-    "fix linw",
-    "Clear color",
-    "Grid Size",
-    "Orthog Disp",
-    "Paralell Disp",
-    "RDS/Sine",
-    "Change Seed",
-    "Disparity 1",
-    "Disparity 2",
-    "FP Move Frame",
-    "Xpos (log)",
-    "L-R-Binoc",
-    "L-R-Monoc",
-    "L-Binoc",
-    "R-Binoc",
-    "SF-Lin",
-    "TF-Lin",
-    "Log Size",
-    "Expt 3 Mean",
-    "p(Uncorr)",
-    "p(One Target)",
-    "StimOrthog Pos",
-    "Plaid Contrast Ratio",
-    "N spikes to print",
-    "Print Scale",
-    "Spike skip",
-    "Avg Len for eyepos auto-zero",
-    "Old Orthog disp",
-    "Old Paralell disp",
-    "Orthog Offset",
-    "Paralell Offset",
-    "Linear Velocity expt",
-    "Weight",
-    "Head Restrained",
-    "Rds x None back",
-    "jump Type",
-    "Target Ratio",
-    "High SF val",
-    "High TF val",
-    "Contrast Pairs",
-    "Stepper Plot Length",
-    "True Nframes",
-    "Plot Cluster/Exp No.",
-    "Reward 1",
-    "Reward 2",
-    "Reward 3",
-    "Timeout Contrast",
-    "RC File Counter",
-    "Alternative Stimulus",
-    "Microstim Expt",
-    "Test value 1",
-    "Test value 2",
-    "Size to add for background",
-    "RC stimulus change",
-    "penetration number",
-    "Pen X",
-    "Pen y",
-    "Visual Area",
-    "Scale factor for IFC expts",
-    "unused",
-    "Height L",
-    "Height R",
-    "Width L",
-    "Width R",
-    "Size L",
-    "Size R",
-    "Size Disparity",
-    "FixPt Ocularity",
-    "Sigma X and Y",
-    "Uka Stair Coeffs",
-    "Phase Disp as RelDisp",
-    "Panel X position",
-    "Relative contrast",
-    "Background Vertical Disp",
-    "Panel Y position",
-    "Counterphase",
-    "User id",
-    "Time Ori BW",
-    "Shake Timeout",
-    "Orthog Pos L",
-    "Orthog Pos R",
-    "Covariate",
-    "Initial Frames (Duration)",
-    "Expt1 Max",
-    "FakeStim Expt", 
-    "FakeStim Signal", 
-    "p(black dot)", 
-    "High X type",
-    "Monkey Name",
-    
-    "Aspect Ratio",
-    "Hidden Codes",
-    "N Low F Components",
-    "N High F Comonents",
-    "Final Seed",
-    "fx change",
-    "dx change",
-    "Backgr Movie",
-    "Annulus Type",
-    "Start Depth",
-    "TwoCyl Disp",
-    "Random Contrasts",
-    "Position Displacement per frame",
-    "absolute OrthoPos",
-    "absolute ParaPos",
+"X offset",
+"Y offset",
+"Stimulus Type ", 
+"Sigma X", 
+"Sigma Y", 
+"Diparate phase",
+"Disparity ",
+"Width ",
+"Height ",
+"Spatial Frequency",
+"X sampling",
+"Y Sampling",
+"Temporal Frequency", /*  12 */
+"Spatial Phase", /*  13 */
+"Orientation", /*  14 */
+"Seed Loop",
+"Seed",
+"Contrast ",
+"VDisp",
+"SF2",
+"TF2",/* 20*/
+"Phase2",
+"Plaid angle",
+"J velocity",
+"front intensity",
+"back intensity",
+"cyl num dots",
+"dotlife (cyl)",
+"death chance",
+"contrast 2",
+"delta contrast",
+"delta ori",
+"delta SF",
+"disp grad",
+"depth modulation",
+"twobar angle",
+"Disp Ramp",
+"pDisp 2",
+"Rel Phase",
+"Phase Disp as Disp",
+"Correlation",
+"Dot Width",
+"Fixation Color",
+"Zoom",
+"BackGround Color ",
+"Delay",
+"PREPERIOD", 
+"Expt1 Type", 
+"FRAMERATE", 
+"STIMULUS DURATION", 
+"CLAMP_DISPARITY", 
+"POSTPERIOD", 
+"Mode",
+"RAMP_VERGENCE",
+"N Stim (Expt 1)",
+"Uff Prefix",
+"High X Value for Interleaves",
+"Stimulus mode",
+"WURTZ task response period", 
+"Max disp Initial manip", 
+"optionflag setup", 
+"N Repetitions", /*  37 */
+"trigger level", /*  38 */
+"fixation window", /*  39 */
+"display flag",
+"channel Set code",
+"Static Vergence",
+"mean fixation period",
+"Replay End",
+"Background Contrast",
+"Expt incr", 
+"Expt Mean", 
+"ISI", 
+"bin width", 
+"binned unit data",
+"unit times",
+"N Frames",
+"backgound disparity", /*  53 */
+"ramp coefficient", /*  54 */
+"fixation x pos ",
+"fixation y pos ",
+"fixation size ",
+"mean conjugate",
+"Reward Size", /*  59 */
+"Vergence RAMP and Hold", /*  60 */
+"TIMEOUT",  /* 61 */
+"Software Offsets 62 ",
+"Query State", /*  63 */
+"Stop Button", /*  65 */
+"Ramp Amplitude", /*  66 */
+"Initial Blank Period", /*  67 */
+"UpLoad Directory*", /*  68 */
+"Vergence Window",
+"Short Prem Trial Length",
+"electrode depth", /*  71 */
+"Comment", /*  72 */
+"Seed Shift/UC gap", /*  73 */
+"Conjugate Position", /* 74 */
+"Deg2pix", /* 75 */
+"DRAGGED_POS",
+"optionflag2",
+"H Saccade Size",
+"WRONG_TIMEOUT",
+"STARTVAL",
+"MAXSTAIRVAL",
+"MINSTAIRVAL",
+"STANDING_DISP",
+"Saccade Box size",
+"SACTARGSIZE",
+"V Saccade Size",
+"DOT_DENSITY",
+"VSR",
+"SEND_CLEAR",
+"Expt 2 Type",
+"Expt 2 Mean",
+"EXPTYPE_NONE",
+"Expt 2 Nstims",
+"Expt 2 increment",
+"ANTICORRELATED_DISPARITY",
+"CORRELATED_DISPARITY",
+"Distribution Mean",
+"NPLANES",
+"MONOCULARITY_EXPT",
+"VERGENCE_CORRECTION",
+"FIXATION_SURROUND",
+"Back Size",
+"Fixation Overlap duration",
+"P(reward)",
+"Acquision ON/OFF",
+"Relative Disparity",
+"ORI_LEFT",
+"ORI_RIGHT",
+"Version",
+"Size (H and W)",
+"Backround Correlation",
+"Seed Delay",
+"Trigger 1",
+"Trigger 2",
+"Trigger 3",
+"Trigger 4",
+"RC seed",
+"frame repeat",
+"Change type",
+"NewFixPos",
+"RF Ori",
+"BackStim",
+  "FP Move Size",
+  "FP Move Dir",
+  "Starting Phase",
+  "BackGround Ori",
+  "BackGround TF",
+  "Early Reward Time",  
+  "N Extras",
+  "Manual TDR Entry",
+  "Expt 3",
+  "Modulation Frequency",
+  "Disparity of Fixpt",
+  "Relatve Vdisp",
+  "Vdisp mod",
+  "Length Disparity",
+  "Width Disparity",
+  "N Components",
+  "Stim ID",
+  "Ori 2",
+  "Nstim 3",
+  "Spin Rate",
+  "Back Width",
+  "Back Height",
+  "Dot X Pos",
+  "Orientation Bandwidth",
+  "Incr for FastSeq",
+  "Distribution Width",
+  "Fixwin Height",
+  "Incr 3",
+  "Distribution Conc",
+  "Saccade Threshold",
+  "Saccade Detected",
+  "Initial Disparity",
+  "Vertical Vergence",
+"XPixel Size (cm)",
+"YPIXEL_CODE",
+"VIEWD_CODE",
+  "Stim pulses",
+  "pulse width",
+"Pursuit Increment",
+"Backgr Image",
+"Fast Rpt B", 
+"Backgr Zoom",
+"Rc repeats",
+"AFC Proportion",
+  "Initial Movement",
+  "Backgr Ortho pos",
+  "Backgr Para pos",
+  "Reward Bias",
+  "Target X off",
+  "Target Y off",
+"AC Mixture",
+"Tone time",
+//Max serialcodes
+
+ "Opposite Delay",
+"FastSeq Repeat",
+"BRIGHTSHIFT_CODE",
+"BLANKCOLOR_CODE",
+"Dot Sample Repeat",
+"Saccade Amplitude",
+"FIX_OFF_CODE",
+"LOGFILE_CODE",
+"STOP_CRITERION",
+"RUNAVERAGE_LENGTH",
+"SIDE_OFFSET",
+"END_OFFSET",
+"XMINSAMPLE_RATIO",
+"Help File",
+"XMAXSAMPLE_RATIO",
+"Stimulus Version",
+"PENETRATION_TEXT",
+"RF P shift",
+"PLC magnitude",
+"Target Offset",
+"DIRECTION_TEXT",
+"CELLTYPE_TEXT",
+"STIMULUS_FLAG",
+"SWAPINTERVAL",
+"trapezoidal scaling",
+"RF_WIDTH",
+"RF_HEIGHT",
+"RF_X",
+"RF_Y",
+"RF O shift",
+"SPIKE_GAIN",
+"PLOTW",
+"PLOTH",
+"PLOTX",
+"PLOTY",
+"Completed Trials",
+"GOODTRIALS",
+"BADTRIALS",
+"DISP_AS_CYCLES",
+"QUICKEXPT_CODE",
+"Gamma value",
+"CORRECTION_LEAVE_CRIT",
+"CORRECTION_ENTRY_CRIT",
+"P(blank)",
+"COVARY_XPOS",
+"BONUS_CRITERION",
+"BONUS2_CRITERION",
+"EXPT_BLKSIZ",
+"CONTRAST_LEFT",
+"CONTRAST_RIGHT",
+"Twobar sep",
+"Fixation Linw",
+"SETCLEARCOLOR",
+"BACKJUMP",
+"SF left",
+"SF Right",
+"X randomization",
+"Ori randomization",
+"dOri F+B",
+"dOri Back",
+"Stim eccentricity",
+"Polar Angle",
+"Old Lori",
+"Old Rori",
+"Cyberamp channels",
+"RF Sign",
+"End Length",
+"Line Width for online plott",
+"Plot Smoothing for online RC",
+"Flags Shown on panel",
+"Stimuli per fixation Trial",
+"RC delay",
+"PSTH smoothing",
+"Contrast Ratio",
+"fix linw",
+"Clear color",
+  "Grid Size",
+  "Orthog Disp",
+  "Paralell Disp",
+"RDS/Sine",
+  "Change Seed",
+  "Disparity 1",
+  "Disparity 2",
+  "FP Move Frame",
+  "Xpos (log)",
+  "L-R-Binoc",
+  "L-R-Monoc",
+  "L-Binoc",
+  "R-Binoc",
+  "SF-Lin",
+  "TF-Lin",
+  "Log Size",
+  "Expt 3 Mean",
+  "p(Uncorr)",
+  "p(One Target)",
+  "StimOrthog Pos",
+  "hdisp x vdisp",
+  "N spikes to print",
+  "Print Scale",
+  "Spike skip",
+  "Avg Len for eyepos auto-zero",
+  "Old Orthog disp",
+  "Old Paralell disp",
+  "Orthog Offset",
+  "Paralell Offset",
+  "Linear Velocity expt",
+  "Weight",
+  "Head Restrained",
+  "Rds x None back",
+  "jump Type",
+  "Target Ratio",
+  "High SF val",
+  "High TF val",
+  "Contrast Pairs",
+  "Stepper Plot Length",
+  "True Nframes",
+  "Plot Cluster/Exp No.",
+  "Reward 1",
+  "Reward 2",
+  "Reward 3",
+  "Timeout Contrast",
+  "RC File Counter",
+  "Alternative Stimulus",
+  "Microstim Expt",
+  "Test value 1",
+  "Test value 2",
+  "Size to add for background",
+  "RC stimulus change",
+  "penetration number",
+  "Pen X",
+  "Pen y",
+  "Visual Area",
+  "Scale factor for IFC expts",
+  "unused",
+  "Height L",
+  "Height R",
+  "Width L",
+  "Width R",
+  "Size L",
+  "Size R",
+  "Size Disparity",
+  "FixPt Ocularity",
+  "Sigma X and Y",
+  "Uka Stair Coeffs",
+  "Phase Disp as RelDisp",
+  "Panel X position",
+  "Relative contrast",
+  "Background Vertical Disp",
+  "Panel Y position",
+  "Counterphase",
+  "User id",
+  "Time Ori BW",
+  "Shake Timeout",
+"Orthog Pos L",
+"Orthog Pos R",
+"Covariate",
+"Initial Frames (Duration)",
+"Expt1 Max",
+"FakeStim Expt", 
+"FakeStim Signal", 
+"p(black dot)", 
+
+  "Aspect Ratio",
+  "Hidden Codes",
+  "N Low F Components",
+  "N High F Comonents",
+  "Final Seed",
+"fx change",
+"dx change",
+"Backgr Movie",
+"Annulus Type",
+"Start Depth",
+"TwoCyl Disp",
+"Random Contrasts",
+"Position Displacement per frame",
     "Verbosity",
+"absolute OrthoPos",
+"absolute ParaPos",
     NULL};
 
 char *jumpnames[] = {
@@ -1514,7 +1837,6 @@ char *jumpstrings[] = {
     "sr", //stim return
     "sa", //stim altered
     NULL};
-#endif
 
 int nfplaces[MAXTOTALCODES] = {2};
 
@@ -1562,14 +1884,14 @@ extern char *channel_strings[];
 extern char *stimulus_names[];
 extern char *bwtoggle_codes[];
 extern StringCode commstrings[];
-#ifndef DOSVERSION
+extern ValueCode valstrings[];
 extern char *mode_names[];
 extern int nfplaces[MAXTOTALCODES];
 extern char codesend[];
 extern char *serial_names[];
 extern char *jumpnames[];
 #endif
-#endif
+
 
 #define EYESCALE_CODE 0
 #define EYECOLOR_CODE 1
@@ -1649,7 +1971,7 @@ extern char *jumpnames[];
 #define RDS_WRAP (1<<(LASTRDSFLAG+15))
 
 #define NUM_STIM_FLAGS (LASTRDSFLAG+16)
-#endif
+
 
 
 #define SU_TDR_TYPE_CANCEL_REP 16
@@ -1710,6 +2032,8 @@ extern char *jumpnames[];
 #define JUMP_STIM_CHANGE 4
 #define NJUMPTYPES 5
 
+
+#endif
 
 
 
