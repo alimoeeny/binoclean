@@ -1127,11 +1127,7 @@
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "NIDAQ=1";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbase.framework/Versions/3\"",
-					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbaselv.framework/Versions/A\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1149,11 +1145,7 @@
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "NIDAQ=1";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbase.framework/Versions/3\"",
-					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbaselv.framework/Versions/A\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
