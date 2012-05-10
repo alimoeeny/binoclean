@@ -1475,7 +1475,7 @@ void PrintCodes(int mode)
     sprintf(s,"");
     for(i = 0; i < expt.totalcodes; i++)
     {
-        sprintf(tmp,"CODE %s %d %s%c %d\n",valstrings[i].code,valstrings[i].icode,valstrings[i].label,valstrings[i].ctype,0);
+        sprintf(tmp,"CODE %s %d %s%c %d\n",valstrings[i].code,valstrings[i].icode,valstrings[i].label,valstrings[i].ctype,valstrings[i].group);
         notify(tmp);
     }
     sprintf(tmp,"CODE OVER\n");
@@ -8221,6 +8221,7 @@ void InitExpt()
         sprintf(cbuf,"#%s\n",EyeCoilString());
         SerialString(cbuf,0);
     }
+    SendAllToGui();
 }
 
 
@@ -13604,7 +13605,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(0);
     }
     else if(!strncmp(line,"QueryState",9)){
-        SendAllToGui(0);
+        SendAllToGui();
         return(0);
     }
     else if(!strncmp(line,"monkeyshake",10)){
@@ -13944,6 +13945,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(code);
     }
     if (strcmp(line,"EDONE") == NULL){
+//send back current state once expt loaded
+        SendAllToGui();
         ListExpStims(NULL);
         ShowTrialsNeeded();
     }

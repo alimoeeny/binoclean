@@ -1336,7 +1336,6 @@ char **argv;
 	setgamma(gammaval);
 	SetPriority(priority);
 	MakeConnection(0);
-	//Ali SetAllPanel(&expt);
     gettimeofday(&progstarttime,NULL);
 	
 	framerate = mon.framerate;
@@ -1344,7 +1343,6 @@ char **argv;
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
-    //	event_loop();
 }
 
 
@@ -1601,7 +1599,7 @@ void StopGo(int go)
         start_timeout(SEARCH);
         if(stimstate == IN_TIMEOUT)
             stimstate = STIMSTOPPED;
-        //Ali SetAllPanel(&expt);
+        SendAllToGui();
     }
 }
 
@@ -4494,6 +4492,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->vals[code] = val;
             break;
         case NLOWCOMPONENTS:
+            if(st->type == STIM_GRATINGN){
             a = expt.stimvals[SF2] - expt.stimvals[SF]; //step
             b = expt.stimvals[SF] - a * ceil((expt.stimvals[NCOMPONENTS]-1)/2);
             st->nfreqs = val;
@@ -4503,8 +4502,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             for(i = 0; i < st->nfreqs; i++){
                 st->freqs[i] = st->f + a * (i - floor(st->nfreqs/2));
             }
+            }
             break;
         case NHIGHCOMPONENTS:
+            if(st->type == STIM_GRATINGN){
             a = expt.stimvals[SF2] - expt.stimvals[SF]; //step
             b = expt.stimvals[SF] + a * ceil((expt.stimvals[NCOMPONENTS]-1)/2);
             st->nfreqs = val;
@@ -4513,6 +4514,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->right->ptr->sf2 = st->f + a;
             for(i = 0; i < st->nfreqs; i++){
                 st->freqs[i] = st->f + a * (i - floor(st->nfreqs/2));
+            }
             }
             break;
         case NCOMPONENTS:
@@ -8724,8 +8726,7 @@ void select_stimulus(int type)
             StimulusType(stimptr,stimptr->type);
             break;
     }
-    //Ali SetStimPanel(stimptr);
-    //Ali SetAllPanel(&expt);
+ 
 }
 
 
@@ -9983,11 +9984,11 @@ void expt_over(int flag)
     optionflag &= (~GO_BIT);
     if(!testflags[PLAYING_EXPT])
         mode &= (~ANIMATE_BIT);
-    //Ali SetAllPanel(&expt);
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
     SaveExptFile("./leaneo.stm",SAVE_STATE);
     notify("\nEXPTOVER\n");
+    SendAllToGui();
 }
 
 void Stim2PsychFile()

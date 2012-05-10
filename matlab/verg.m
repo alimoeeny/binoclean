@@ -126,6 +126,7 @@ for j = 1:length(strs{1})
         DATA.comcodes(code).const = code;
         DATA.comcodes(code).type = s(id(end)-1);
         DATA.comcodes(code).group = str2num(s(id(end)+1:end));
+        DATA.codeids.(DATA.comcodes(code).code) = code; %index of codes
     elseif strncmp(s,'status',5)
         DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
         if ishandle(DATA.statusitem)
@@ -563,7 +564,14 @@ function SendState(DATA, varargin)
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
     for j = 1:length(f)
-        if strmatch(f{j},DATA.redundantcodes,'exact')
+        if isfield(DATA.codeids,f{j})
+            cid = DATA.codeids.(f{j});
+        else
+            cid = 1; 
+        end
+        if DATA.comcodes(cid).group > 511
+            fprintf('Not sending %s\n',f{j});
+        elseif strmatch(f{j},DATA.redundantcodes,'exact')
             fprintf('Not sending %s\n',f{j});
         elseif ischar(DATA.binoc{1}.(f{j}))
         fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binoc{1}.(f{j}));
