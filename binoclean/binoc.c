@@ -250,7 +250,9 @@ char *toggle_strings[] = {
 	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
 	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
 	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
-	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3","AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
+	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
+    "Odd Man Out","Choice by icon",
+    "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
     "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
     "Show Stim Boxes",
     NULL,
@@ -336,6 +338,8 @@ char *toggle_codes[] = {
     "rI", // random interocular correlation
     "sR", // show reward bias
     "C3", //Collapse Psychophysics across Expt3  
+    "af3", //Odd man out task
+    "Rcd", //Choice direction random
     
     "cd", // Auto Copy Online Data Files # not shown on panel
     "cb", //Custom vals for expt2
@@ -5725,6 +5729,11 @@ void paint_frame(int type, int showfix)
     setmask(BOTHMODE);
     if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
+    clearstim(TheStim,TheStim->gammaback, 0);
+    TheStim->noclear = 1;
+    if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+        paint_target(expt.targetcolor, 0);
+    }
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
             paint_stimulus(TheStim->next);
@@ -6238,6 +6247,9 @@ int next_frame(Stimulus *st)
 #endif
             }
             CheckFix();
+            if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+                paint_target(expt.targetcolor, 0);
+            }
             //Ali CheckKeyboard(D, allframe);
             if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
                val > expt.vals[TRIAL_START_BLANK])
@@ -6490,6 +6502,10 @@ int next_frame(Stimulus *st)
             RunBetweenTrials(st, pos);
             if(expt.vals[FIXATION_OVERLAP] > 10)
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+                paint_target(expt.targetcolor, 0);
+            }
+
             change_frame();
             if(testflags[PLAYING_EXPT]){
                 if((i = ReplayExpt(NULL)) == INTERTRIAL)

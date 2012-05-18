@@ -887,6 +887,7 @@ function ShowStatus(DATA)
     s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...
     DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4),...
     DATA.trialcounts(6),DATA.trialcounts(7),str);
+
 if isfield(DATA,'toplevel')
 set(DATA.toplevel,'Name',s);
 end
@@ -1105,11 +1106,13 @@ function DATA = InitInterface(DATA)
     uimenu(sm,'Label',['Expt' num2str(j)],'Callback',{@SaveSlot, j});
     end
     sm = uimenu(hm,'Label','Recover','Callback',{@RecoverFile, 'toplist'});
-    uimenu(sm,'Label','List','Callback',{@RecoverFile, 'list'});
+    x = uimenu(sm,'Label','List','Callback',{@RecoverFile, 'list'});
     uimenu(sm,'Label','eo.stm','Callback',{@RecoverFile, 'eo.stm'});
     uimenu(sm,'Label','eb.stm','Callback',{@RecoverFile, 'eb.stm'});
     uimenu(sm,'Label','0.stm','Callback',{@RecoverFile, '0stim'});
     uimenu(sm,'Label','1.stm','Callback',{@RecoverFile, '2stim'});
+    set(DATA.toplevel,'UserData',DATA);
+            RecoverFile(x,[],'list');    
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     BuildQuickMenu(DATA, hm);
         hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
@@ -1500,7 +1503,7 @@ function MenuGui(a,b)
          fprintf(DATA.outid,'verbose=%d\n',DATA.verbose);
          set(DATA.toplevel,'UserData',DATA);
      elseif flag == 8
-        DATA = ReadFromBinoc(DATA,'reset','verbose');
+        DATA = ReadFromBinoc(DATA,'reset','verbose2');
      else
         DATA = ReadFromBinoc(DATA);   
         SetGui(DATA);
@@ -2729,6 +2732,7 @@ function DATA = PlotPsych(DATA)
     end
     DATA = CheckExpts(DATA);
 
+    Expt = [];
     e = length(DATA.Expts);
     allid = [];
     if strcmp(DATA.psych.blockmode,'All') || sum(DATA.plotexpts)
@@ -2737,33 +2741,47 @@ function DATA = PlotPsych(DATA)
         else
             expts = find(DATA.plotexpts);
         end
+        %can only combine expts if have same et,e2 types.  Check each
+        %against last in list
+        if sum(strcmp(DATA.psych.blockmode,{'Current' 'All'}))
+            Expt = DATA.Expts{e};
+        else
+            Expt = DATA.Expts{expts(end)};
+        end
+        
         for j = expts
-            if DATA.Expts{j}.Stimvals.et == DATA.Expts{e}.Stimvals.et & ...
-               DATA.Expts{j}.Stimvals.e2 == DATA.Expts{e}.Stimvals.e2
+            if DATA.Expts{j}.Stimvals.et == Expt.Stimvals.et & ...
+               DATA.Expts{j}.Stimvals.e2 == Expt.Stimvals.e2
                 allid= [allid DATA.Expts{j}.first:DATA.Expts{j}.last];
             end
         end
+    else
+        Expt = DATA.Expts{e};
     end
+    %Always update trial list for current expt
     id = DATA.Expts{e}.first:length(DATA.Trials);
-    if strmatch(DATA.psych.blockmode,{'All' 'Current' 'OnlyCurrent'})
-        allid = [allid id];
+        DATA.Expts{e}.Trials = DATA.Trials(id);
+    if Expt.first == DATA.Expts{e}.first  %using current
+        if strmatch(DATA.psych.blockmode,{'All' 'Current' 'OnlyCurrent'})
+         allid = [allid id];
+        end
     end
     id = unique(allid);
     if length(id) < 2
         return;
     end
-    DATA.Expts{e}.Trials = DATA.Trials(id);
-    DATA.Expts{e}.Header.rc = 0;
-    DATA.Expts{e}.Header.expname  = 'Online';
-    if isfield(DATA.Expts{e}.Trials,'RespDir')
-        DATA.Expts{e}.Header.psych  = 1;
+    Expt.Trials = DATA.Trials(id);
+    Expt.Header.rc = 0;
+    Expt.Header.expname  = 'Online';
+    if isfield(Expt.Trials,'RespDir')
+        Expt.Header.psych  = 1;
     else
-        DATA.Expts{e}.Header.psych  = 0;
+        Expt.Header.psych  = 0;
     end
     if DATA.psych.show
     DATA = SetFigure('VergPsych', DATA);
     hold off; 
-    [a,b] = ExptPsych(DATA.Expts{e},'nmin',1,'mintrials',2,'shown');
+    [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown');
     if DATA.psych.crosshairs
         plot([0 0], get(gca,'ylim'),'k:')
         plot(get(gca,'xlim'),[0.5 0.5],'k:')

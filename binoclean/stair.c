@@ -136,9 +136,9 @@ int monkey_direction(int response, AFCstructure afc_s)
     if(afc_s.newdirs)
         direction = -afc_s.stimsign;
     else if(fabs(sacval[0]) > fabs(sacval[1]))
-        direction = find_direction(sacval[0] * afc_s.abssac[0]);
+        direction = find_direction(sacval[0] * afc_s.abssac[0] * afc_s.sign);
     else
-        direction = find_direction(sacval[1] * afc_s.abssac[1]);
+        direction = find_direction(sacval[1] * afc_s.abssac[1] * afc_s.sign);
     
     switch(direction){
         case JONRIGHT:

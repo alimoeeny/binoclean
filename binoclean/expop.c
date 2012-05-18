@@ -696,8 +696,9 @@ int PrintInfo(FILE *fd)
 int SetTargets()
 {
     double val,aval, cosa, sina, osum = 0;
-    int j;
+    int j,sgn = 1;
     
+    sgn = afc_s.sign;
     if((expt.mode == ORIENTATION || expt.type2 == ORIENTATION) && SACCREQD(afc_s)){
         for (j = 0; j < expt.nstim[0]; j++)
             osum += expval[expt.nstim[2]+j];
@@ -752,16 +753,16 @@ int SetTargets()
             
         }
         else if(fabs(tan(val*M_PI/180.0)) > 0.46){  
-            SetStimulus(ChoiceStima, expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
-            SetStimulus(ChoiceStimb, -expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStimb, -sgn * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
             SetStimulus(ChoiceStimb, expt.fixpos[1],  YPOS, NULL);
             afc_s.abssac[1] = 0;
             afc_s.abssac[0] = expt.vals[SACCADE_AMPLITUDE];
         }
         else{
-            SetStimulus(ChoiceStima, expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
-            SetStimulus(ChoiceStimb, -expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStima, sgn*expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, -sgn*expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
             SetStimulus(ChoiceStima, expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStimb, expt.fixpos[0],  XPOS, NULL);
             afc_s.abssac[0] = 0;
@@ -1826,6 +1827,9 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         j++;
     }
     afc_s.proportion = 0.5;
+    afc_s.sign=1;
+    afc_s.target_in_trial = 0;
+    
     SetExptString(ex, ex->st, MONKEYNAME, "none");
 }
 
@@ -7901,6 +7905,16 @@ void InitExpt()
     afc_s.magid = expt.nstim[0]-1;
     afc_s.nmags = expt.nstim[0];
     afc_s.stairsign = 1;
+    afc_s.signflipp = 0;
+    if (optionflags[CHOICE_BY_ICON]){
+        afc_s.signflipp = 0.5;
+        afc_s.target_in_trial = 1;
+    }
+    else{
+        afc_s.signflipp = 0;
+        afc_s.target_in_trial = 0;
+    }
+    
     
     if(expt.mode == CORRELATION || expt.mode == DISTRIBUTION_CONC)
         afc_s.type = MAGONE_SIGNTWO;
@@ -8701,6 +8715,13 @@ void SetSacVal(float stimval, int index)
             afc_s.sacval[4] = -afc_s.sacval[0];
             afc_s.sacval[5] = -afc_s.sacval[1];
         }
+        if (afc_s.sign < 0){
+            afc_s.sacval[0] = -afc_s.sacval[0];
+            afc_s.sacval[1] = -afc_s.sacval[1];
+            afc_s.sacval[4] = -afc_s.sacval[4];
+            afc_s.sacval[5] = -afc_s.sacval[5];
+            
+        }
         SerialSend(HSACCADE_VALUE); 
         SerialSend(VSACCADE_VALUE); 
         SerialSend(TARGET2_POS); 
@@ -9499,6 +9520,16 @@ int PrepareExptStim(int show, int caller)
     /* set right saccade sign for responses */
     memcpy(&stimseq[trialctr],stp,sizeof(Thisstim));
     psychval = val;
+    
+    if (optionflags[CHOICE_BY_ICON]){
+        if((drnd = drand48()) < afc_s.signflipp)
+            afc_s.sign = -1;
+        else {
+            afc_s.sign = 1;
+        }
+        SetTargets();
+    }
+
     SetSacVal(psychval,expt.stimid);
     
     
@@ -11476,6 +11507,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             
             
             paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+
 #ifdef FRAME_OUTPUT
             if(rc == n-1)
                 DIOWrite(DIOval);
