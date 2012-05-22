@@ -734,11 +734,11 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
             *p = *rp & 0xf;
         else if(*rp & (1<<1)){
             *p = WHITEMODE;
-            dc = 1;
+            dc = sst->lum[1];
         }
         else{
             *p = BLACKMODE;
-            dc = 0;
+            dc = sst->lum[0];
         }
         if(sst->corrdots > 0 && sst->corrdots < sst->ndots && sst->mode == RIGHTMODE){
             rnd = (*rp>>3) % sst->ndots;
@@ -1052,7 +1052,7 @@ void paint_rls_polygons(Stimulus *st, int mode)
     vcoord xmv;
     int dotmode = 0;
     Substim *sst = st->left;
-    Locator *pos = &st->pos;
+    Locator *pos = &sst->pos;
     float angle,cosa,sina,val,valsum = 0;
     vcoord rect[8],crect[8];
     
@@ -1077,6 +1077,7 @@ void paint_rls_polygons(Stimulus *st, int mode)
         bcolor[0] = sst->lum[1];
         vcolor[3] = sst->lum[0];
         bcolor[3] = sst->lum[1];
+        angle = rad_deg(st->left->pos.angle);
     }
     else if(mode == RIGHTMODE)
     {
@@ -1086,6 +1087,7 @@ void paint_rls_polygons(Stimulus *st, int mode)
         glTranslatef(xmv,pos->xy[1]-st->vdisp,0);
         vcolor[3] = vcolor[1] = vcolor[2] = sst->lum[0];
         bcolor[3] = bcolor[1] = bcolor[2] = sst->lum[1];
+        angle = rad_deg(st->right->pos.angle);
     }
     if(optionflags[STIMULUS_IN_OVERLAY])
     {

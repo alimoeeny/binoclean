@@ -458,6 +458,7 @@ Exptmenu firstmenu[] = {
     {"Width L",WIDTH_L},
     {"Length L",HEIGHT_L},
     {"Contrast Ratio",CONTRAST_RATIO},
+    {"Contrast Difference (L-R)", CONTRAST_DIFF},
     {"Plaid Contrast Diff",PLAID_RATIO},
     {"SD Y",SD_Y},
     {"SD Both",SD_BOTH},
@@ -483,7 +484,7 @@ Exptmenu firstmenu[] = {
     {NULL, 0},
 };
 
-#define NEXPTS1 82
+#define NEXPTS1 83
 
 Exptmenu secondmenu[] = {
     {"None",EXPTYPE_NONE},
@@ -584,10 +585,11 @@ Exptmenu secondmenu[] = {
     {"%ACorr",MIXAC},
     {"pBlackDot",BLACKDOT_FRACTION},
     {"Seed Loop", SET_SEEDLOOP},
+    {"Orientation Disparity", ORIENTATION_DIFF},
     {NULL, -1}
 };
 
-#define NEXPTS2 63
+#define NEXPTS2 64
 /*
  *  N.B. Expts added to second menu must also have entry in setsecondexp()
  */
@@ -772,6 +774,29 @@ int SetTargets()
     else if (expt.mode == PLAID_RATIO){
         aval = expt.stimvals[ORIENTATION];
         val = aval + 90;
+        SetStimulus(ChoiceStima, aval,  ORIENTATION, NULL);
+        SetStimulus(ChoiceStimb, val,  ORIENTATION, NULL);
+        if(fabs(tan(aval*M_PI/180.0)) < 1.4){  
+            SetStimulus(ChoiceStima, expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStimb, -expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, expt.fixpos[1],  YPOS, NULL);
+            afc_s.abssac[1] = 0;
+            afc_s.abssac[0] = expt.vals[SACCADE_AMPLITUDE];
+        }
+        else{
+            SetStimulus(ChoiceStima, expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, -expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStima, expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStimb, expt.fixpos[0],  XPOS, NULL);
+            afc_s.abssac[0] = 0;
+            afc_s.abssac[1] = expt.vals[SACCADE_AMPLITUDE];
+        }
+    }
+    else if (expt.mode == CONTRAST_DIFF){
+        val = expt.stimvals[ORIENTATION_DIFF];
+        aval = expt.stimvals[ORIENTATION] - abs(expt.stimvals[ORIENTATION_DIFF]/2);
+        val = aval + abs(expt.stimvals[ORIENTATION_DIFF]);
         SetStimulus(ChoiceStima, aval,  ORIENTATION, NULL);
         SetStimulus(ChoiceStimb, val,  ORIENTATION, NULL);
         if(fabs(tan(aval*M_PI/180.0)) < 1.4){  
@@ -5074,7 +5099,7 @@ void setsecondexp(int w, int id, int val)
             expt.nstim[1] = 3;
             break;
         case CONTRAST_RATIO:
-            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.flag |= (TIMES_EXPT2);
             /*      expt.flag |= LOGINCR2;*/
             expt.nstim[1] = 2;
             break;
@@ -5093,8 +5118,10 @@ void setsecondexp(int w, int id, int val)
             expt.type2 = EXPTYPE_NONE;
             optionflags[PLOTFLIP] = 0;
             while((type = secondmenu[i++].val) >= 0){
-                if(type == val)
+                if(type == val){
                     expt.type2 = type;
+                    expt.flag |= (TIMES_EXPT2); //Default is times
+                }
             }
             if(expt.type2 == EXPTYPE_NONE){ /* Not found*/
                 expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
@@ -7967,6 +7994,7 @@ void InitExpt()
             case NCOMPONENTS:
             case ORI_BANDWIDTH:
             case PLAID_RATIO:
+            case ORIENTATION_DIFF:
                 expt.stimvals[i] = GetProperty(&expt,expt.st,i);
                 break;
             case TARGET_RATIO:
@@ -8291,6 +8319,19 @@ void InitExpt()
     }
 }
 
+void CheckPsychVal(Thisstim *stp)
+{
+    double val;
+    if (expt.mode == CONTRAST_DIFF){
+        if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
+            stp->vals[EXP_PSYCHVAL] = stp->vals[0];
+        }
+        else {
+            stp->vals[EXP_PSYCHVAL] = -stp->vals[0];
+        }
+    }
+
+}
 
 Thisstim *getexpval(int stimi)
 {
@@ -8298,7 +8339,7 @@ Thisstim *getexpval(int stimi)
     float vals[2],temp,vtemp;
     static Thisstim stimret;
     int rnd;
-    double drnd;
+    double drnd,val;
     
     stimret.a = stimret.b = 0;
     
@@ -8482,6 +8523,16 @@ Thisstim *getexpval(int stimi)
             stimret.vals[SIGNAL_STRENGTH] = 0;
         }
     }
+    if (expt.mode == CONTRAST_DIFF){
+        if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
+            stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
+        }
+        else {
+            stimret.vals[EXP_PSYCHVAL] = -stimret.vals[0];
+        }
+    }
+
+    
     if(expt.type2 == JUMPTYPE && expt.mode == FP_MOVE_SIZE && stimret.vals[1] ==1){
         stimret.vals[0] = -expt.mean;
     }
@@ -8899,6 +8950,14 @@ char *ShowStimVals(Thisstim *stp)
         sprintf(ebuf,"tr%.2f",expt.vals[TARGET_RATIO]);
     else
         sprintf(ebuf,"");
+    if (SACCREQD(afc_s)){
+        if (stp->vals[EXP_PSYCHVAL] > 0){
+            strcat(cbuf,"+");
+        }
+        else if (stp->vals[EXP_PSYCHVAL] < 0){
+            strcat(cbuf,"-");
+        }
+    }
     
     if(optionflags[MICROSTIM]){
         if (expt.type3 == FAKESTIM_EXPT){
@@ -9483,6 +9542,7 @@ int PrepareExptStim(int show, int caller)
     }
     
     /* work out stimulus values in case its a double experiment */
+    CheckPsychVal(stp);
     val = stp->vals[EXP_PSYCHVAL];
     
     
@@ -9811,7 +9871,8 @@ int PrepareExptStim(int show, int caller)
             else if (i == JVELOCITY && expt.st->type == STIM_CYLINDER)
                 SerialSend(i);
         }
-    
+    CheckPsychVal(stp);
+    SetSacVal(stp->vals[EXP_PSYCHVAL],expt.stimid);
     ShowStimVals(stp);
     if(afc_s.loopstate == CORRECTION_LOOP){
         SerialString("CLOOP\n",0);

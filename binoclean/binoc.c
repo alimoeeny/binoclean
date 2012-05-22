@@ -9292,7 +9292,7 @@ int GotChar(char c)
                 if(afc_s.newdirs)
                     sign = afc_s.stimsign;
                 else
-                    sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
+                    sign = (afc_s.sacval[aid] *  afc_s.abssac[aid])*afc_s.sign;
                 if(sign < 0)
                     sign = -1;
                 else if(sign > 0)
@@ -9665,7 +9665,7 @@ void paint_target(float color, int flag)
      */
     if(ChoiceStima->type != STIM_NONE && showa){
         contrast = ChoiceStima->pos.contrast;
-        if(afc_s.sacval[0]+afc_s.sacval[1] < 0)
+        if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign < 0)
             ChoiceStima->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStima->noclear = 1;
         calc_stimulus(ChoiceStima);
@@ -9674,7 +9674,7 @@ void paint_target(float color, int flag)
     }
     if(ChoiceStimb->type != STIM_NONE && showb){
         contrast = ChoiceStimb->pos.contrast;
-        if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
+        if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign > 0)
             ChoiceStimb->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStimb->noclear = 1;
         calc_stimulus(ChoiceStimb);
