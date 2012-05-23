@@ -3672,6 +3672,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case BACK_OPOS:
         case REWARD_BIAS:
         case TONETIME:
+        case TARGET_RATIO:
             SerialSend(flag);
             break;
         case PURSUIT_INCREMENT:
@@ -13959,6 +13960,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             expt.st->immode = IMAGEMODE_ORBW;
         else if(!strncmp(s,"plain",4)){
             expt.st->immode = 0;
+            expt.st->nimseed = 0;
+        }
+        else if(!strncmp(s,"binocular",4)){
+            expt.st->immode = BINOCULAR_PLAIN_IMAGES;
             expt.st->nimseed = 0;
         }
         else if(!strncmp(s,"preload",4)){

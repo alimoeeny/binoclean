@@ -779,6 +779,8 @@ int StimulusType(Stimulus *st, int i)
             st->left = NewImage(st,st->left);
             st->mode &= (~STIMULUS_NEEDS_CLEAR); //New stim covers old one;
             st->nimseed = 1000;
+            if (st->nimplaces <= 0)
+                st->nimplaces = 5;
             if(st->prev != NULL && st->prev->type == STIM_IMAGE){
                 st->preloaded = st->prev->preloaded;
                 st->imprefix = st->prev->imprefix;

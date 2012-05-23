@@ -605,7 +605,10 @@ float pix2degy(float val);
 
 #define EXP_PSYCHVAL 2
 #define SIGNAL_STRENGTH 4
+
+//modes for image types = sets rules for building pathname
 #define IMAGEMODE_ORBW 1
+#define BINOCULAR_PLAIN_IMAGES 2
 
 #define MAXORBW 126
 

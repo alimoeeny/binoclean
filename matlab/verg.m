@@ -57,6 +57,8 @@ end
 function DATA = InterpretLine(DATA, line)
 
 strs = textscan(line,'%s','delimiter','\n');
+setlist = 0;  %% don't update gui for every line read.
+
 for j = 1:length(strs{1})
     s = regexprep(strs{1}{j},'\s+\#.*$','');
     eid = strfind(s,'=');
@@ -150,9 +152,9 @@ for j = 1:length(strs{1})
         DATA.Expts{DATA.nexpts}.End = now;
         DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
         end
-        DATA = GetState(DATA);
-        PsychMenu(DATA);
-        SetGui(DATA,'set');
+        tic; DATA = GetState(DATA); toc
+        tic; PsychMenu(DATA); 
+        tic; SetGui(DATA,'set'); 
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
         DATA.extypes{1} = DATA.extypes{1}+1;
@@ -242,7 +244,7 @@ for j = 1:length(strs{1})
         b = [b c];
         id = [];
         if isfield(DATA.quickexpts,'filename') %check we don't alreayd have this
-        id = strmatch(s,{DATA.quickexpts.filename});
+        id = find(strcmp(s,{DATA.quickexpts.filename}));
         end
         if isempty(id)
         n = length(DATA.quickexpts)+1;
@@ -331,10 +333,10 @@ for j = 1:length(strs{1})
         DATA.stimtype(DATA.currentstim) = id;
         DATA.binocstr.st = deblank(s(4:end));
         end
-    elseif strmatch(code,{DATA.strcodes.code},'exact')
+    elseif sum(strcmp(code,{DATA.strcodes.code}))
         id = strfind(s,'=');
         if id
-            sid = strmatch(code,{DATA.strcodes.code});
+            sid = find(strcmp(code,{DATA.strcodes.code}));
             if isempty(sid)
                 DATA.binocstr.(code)=s(id(1)+1:end);
             else
@@ -355,7 +357,7 @@ for j = 1:length(strs{1})
             id = findstr(s,'=');
             if length(n)
                 DATA.exptstimlist{3}{n(1)+1} = s(id(1)+1:end);
-                if isfield(DATA,'toplevel')
+                if isfield(DATA,'toplevel')  && setlist
                     it = findobj(DATA.toplevel,'Tag','Expt3StimList');
                     if length(it) == 1
                         set(it,'string',DATA.exptstimlist{3});
@@ -367,7 +369,7 @@ for j = 1:length(strs{1})
             id = findstr(s,'=');
             if length(n)
                 DATA.exptstimlist{2}{n(1)+1} = s(id(1)+1:end);
-                if isfield(DATA,'toplevel')
+                if isfield(DATA,'toplevel') && setlist
                     it = findobj(DATA.toplevel,'Tag','Expt2StimList');
                     if length(it) == 1
                         ival = get(it,'value');
@@ -381,7 +383,7 @@ for j = 1:length(strs{1})
             id = findstr(s,'=');
             if length(n)
                 DATA.exptstimlist{1}{n(1)+1} = s(id(1)+1:end);
-                if isfield(DATA,'toplevel')
+                if isfield(DATA,'toplevel') && setlist
                     it = findobj(DATA.toplevel,'Tag','Expt1StimList');
                     if length(it) == 1
                         set(it,'string',DATA.exptstimlist{1});
@@ -392,8 +394,8 @@ for j = 1:length(strs{1})
                 DATA.exptstimlist{1} = {};
             end
         end
-    elseif strmatch(code,{DATA.comcodes.code},'exact')
-        cid = strmatch(code,{DATA.comcodes.code},'exact');
+    elseif sum(strcmp(code,{DATA.comcodes.code}))
+        cid = find(strcmp(code,{DATA.comcodes.code}));
         code = DATA.comcodes(cid(1)).code;
         id = strfind(s,'=');
         if id
@@ -630,7 +632,7 @@ SetGui(DATA,'set');
     
 function DATA = GetState(DATA)
     fprintf(DATA.outid,'QueryState\n');
-    DATA = ReadFromBinoc(DATA);
+    tic; DATA = ReadFromBinoc(DATA);toc
 
 function DATA = SetTrial(DATA, T)
     Trial = T;

@@ -331,6 +331,8 @@ void calc_image(Stimulus *st, Substim *sst)
         }
         sprintf(imname,"%s/se%d.pgm",impref,seed);
     }
+    else if(st->immode == BINOCULAR_PLAIN_IMAGES)
+        sprintf(imname,"%s%.*d.pgm",st->imprefix,st->nimplaces,sst->seed);
     else if(sst->baseseed > 0)
         sprintf(imname,"%s%.0f.%d%c.pgm",st->imprefix,sst->xshift,sst->baseseed,eye);
     else

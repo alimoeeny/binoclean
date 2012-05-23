@@ -282,7 +282,7 @@ struct STIMULUS{
     float ucgap;
     double rolldisp;
     char *imprefix, *imname;
-    int immode,preload,preloaded,nimseed;
+    int immode,preload,preloaded,nimseed,nimplaces;
     float stimid;
     int mixdots;
     int dotdist;
