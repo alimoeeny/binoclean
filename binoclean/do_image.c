@@ -403,7 +403,7 @@ int paint_image(Stimulus *st, Substim *sst)
         glPixelZoom(1.0,-1.0);
         if(st->preload){
             w= imagews[frame];
-            h= imagews[frame];
+            h= imagehs[frame];
         }
         else{
             w = sst->imw;

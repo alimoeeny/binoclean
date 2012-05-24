@@ -83,12 +83,12 @@ for j = 1:length(strs{1})
         sv = sscanf(s(8:end),'%f');
         DATA.Trial.sv(1:length(sv)) = sv;
     elseif strncmp(s,'fontsiz',6)
-        DATA.font.FontSize = str2num(value);
+        DATA.font.FontSize = str2double(value);
     elseif strncmp(s,'fontname',6)
         DATA.font.FontName = value;
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
-        DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+        DATA.electrodestrings = [DATA.electrodestrings{:} estr];
     elseif strncmp(s,'layout',6)
         DATA.layoutfile = value;
     elseif strncmp(s,'TOGGLE',6)
@@ -131,11 +131,11 @@ for j = 1:length(strs{1})
         ex = 1;
         DATA.expts{ex} = [];
         pid = strfind(s,'+');
-        for j = 1:length(pid)
-            if j == length(pid)
-                x = s(pid(j)+1:end);
+        for k = 1:length(pid)
+            if k == length(pid)
+                x = s(pid(k)+1:end);
             else
-                x = s(pid(j)+1:pid(j+1)-1);
+                x = s(pid(k)+1:pid(k+1)-1);
             end
             if length(x) > 1
             eid = strmatch(x,{DATA.comcodes.code},'exact');
@@ -220,11 +220,11 @@ for j = 1:length(strs{1})
         s = [s '+'];
         id = regexp(s,'[+-]');
         f = fields(DATA.optionflags);
-        for j= 1:length(id)-1
-            code = strmatch(s(id(j)+1:id(j+1)-1),f);
+        for k= 1:length(id)-1
+            code = strmatch(s(id(k)+1:id(k+1)-1),f);
             if isempty(code)
-                fprintf('No Code for %s\n,',s(id(j):end));
-            elseif s(id(j)) == '+'
+                fprintf('No Code for %s\n,',s(id(k):end));
+            elseif s(id(k)) == '+'
                 DATA.showflags.(f{code}) = 1;
             else
                 DATA.showflags.(f{code}) = 0;
@@ -287,24 +287,24 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'op',2)
         f = fields(DATA.optionflags);
         if strncmp(s,'op=0',4) %everything else off
-            for j = 1:length(f) DATA.optionflags.(f{j}) = 0; end
+            for k = 1:length(f) DATA.optionflags.(k{j}) = 0; end
         end
         s = strrep(s,'+2a','+afc');
         s = strrep(s,'-2a','-afc');
         s = [s '+'];
         id = regexp(s,'[+-]');
         
-        for j= 1:length(id)-1
-            code = strmatch(s(id(j)+1:id(j+1)-1),DATA.badnames);
+        for k = 1:length(id)-1
+            code = strmatch(s(id(k)+1:id(k+1)-1),DATA.badnames);
             if length(code) == 1
                 code = strmatch(DATA.badreplacenames{code},f);
             else
-            code = strmatch(s(id(j)+1:id(j+1)-1),f);
+            code = strmatch(s(id(k)+1:id(k+1)-1),f);
             end
             
             if isempty(code)
-                fprintf('No Code for %s\n,',s(id(j):end));
-            elseif s(id(j)) == '+'
+                fprintf('No Code for %s\n,',s(id(k):end));
+            elseif s(id(k)) == '+'
             DATA.optionflags.(f{code}) = 1;
             else
             DATA.optionflags.(f{code}) = 0;
@@ -345,6 +345,25 @@ for j = 1:length(strs{1})
         end
     elseif strncmp(s, 'Bs', 2)
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
+    elseif strncmp(s, 'EDONE', 5) %finished listing expt stims
+        if isfield(DATA,'toplevel')
+            it = findobj(DATA.toplevel,'Tag','Expt3StimList');
+            if length(it) == 1
+                set(it,'string',DATA.exptstimlist{3});
+            end
+        end
+        it = findobj(DATA.toplevel,'Tag','Expt2StimList');
+        if length(it) == 1
+            ival = get(it,'value');
+            ival = min([size(DATA.exptstimlist{2},2) ival]);
+            set(it,'string',DATA.exptstimlist{2},'value',ival);
+        end
+        
+        it = findobj(DATA.toplevel,'Tag','Expt1StimList');
+        if length(it) == 1
+                        set(it,'string',DATA.exptstimlist{1});    
+        end
+        
     elseif s(1) == 'E'
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
