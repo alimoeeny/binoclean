@@ -394,7 +394,8 @@ float pix2degy(float val);
 #define COLLAPSE_EXPT3 60
 #define ODD_MAN_OU_TASK 61
 #define CHOICE_BY_ICON 62
-#define LAST_CODED_OPTION 62
+#define JUMP_IMAGE 63
+#define LAST_CODED_OPTION 63
 
 
 #define AUTO_COPY_ONLINE_FILES (LAST_CODED_OPTION+1)
@@ -548,7 +549,7 @@ float pix2degy(float val);
 #define TRIALBUFFERLEN 10000
 
 
-#define MAXSTIM 600
+#define MAXSTIM 1200
 
 
 

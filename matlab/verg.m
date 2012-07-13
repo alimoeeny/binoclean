@@ -23,8 +23,15 @@ if isempty(it)
         DATA = OpenPipes(DATA, 0);
         DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
+        if exist(DATA.binocstr.lo,'file')
+            DATA = ReadLogFile(DATA, DATA.binocstr.lo);
+        end
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
+        j = 2;
+        while j <= length(varargin)
+            j = j+1;
+        end
     else
         DATA = ReadVergFile(DATA, DATA.layoutfile);
         DATA = OpenPipes(DATA, 1);
@@ -126,6 +133,9 @@ for j = 1:length(strs{1})
         if ishandle(DATA.statusitem)
             set(DATA.statusitem,'string',DATA.Statuslines,'listboxtop',length(DATA.Statuslines));
         end
+        if DATA.inexpt == 0 && isfield(DATA,'toplevel')
+            set(DATA.toplevel,'Name',s(8:end));
+        end
 %        fprintf(s);
     elseif strncmp(s,'exps',4)
         ex = 1;
@@ -155,6 +165,7 @@ for j = 1:length(strs{1})
         tic; DATA = GetState(DATA); toc
         tic; PsychMenu(DATA); 
         tic; SetGui(DATA,'set'); 
+        ShowStatus(DATA);
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
         DATA.extypes{1} = DATA.extypes{1}+1;
@@ -287,7 +298,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'op',2)
         f = fields(DATA.optionflags);
         if strncmp(s,'op=0',4) %everything else off
-            for k = 1:length(f) DATA.optionflags.(k{j}) = 0; end
+            for k = 1:length(f) DATA.optionflags.(f{k}) = 0; end
         end
         s = strrep(s,'+2a','+afc');
         s = strrep(s,'-2a','-afc');
@@ -351,17 +362,20 @@ for j = 1:length(strs{1})
             if length(it) == 1
                 set(it,'string',DATA.exptstimlist{3});
             end
-        end
-        it = findobj(DATA.toplevel,'Tag','Expt2StimList');
-        if length(it) == 1
-            ival = get(it,'value');
-            ival = min([size(DATA.exptstimlist{2},2) ival]);
-            set(it,'string',DATA.exptstimlist{2},'value',ival);
-        end
-        
-        it = findobj(DATA.toplevel,'Tag','Expt1StimList');
-        if length(it) == 1
-                        set(it,'string',DATA.exptstimlist{1});    
+            it = findobj(DATA.toplevel,'Tag','Expt2StimList');
+            if length(it) == 1
+                ival = get(it,'value');
+                ival = min([size(DATA.exptstimlist{2},2) ival]);
+                if ival <1
+                    ival = 1;
+                end
+                set(it,'string',DATA.exptstimlist{2},'value',ival);
+            end
+            
+            it = findobj(DATA.toplevel,'Tag','Expt1StimList');
+            if length(it) == 1
+                set(it,'string',DATA.exptstimlist{1});
+            end
         end
         
     elseif s(1) == 'E'
@@ -705,7 +719,7 @@ DATA.plotexpts = [];
 
 DATA.font.FontSize = 14;
 DATA.font.FontName = 'Arial';
-DATA.Coil.gain= [1 1 1 1];
+DATA.Coil.gain= [0 0 0 0];
 DATA.Coil.phase= [4 4 4 4];
 DATA.Coil.offset= [0 0 0 0];
 DATA.Coil.so = [0 0 0 0];
@@ -745,6 +759,7 @@ DATA.datafile = [];
 DATA.electrodestrings = {};
 DATA.electrodestring = 'default';
 DATA.binocstr.monkey = 'none';
+DATA.binocstr.lo = '';
 DATA.penid = 0;
 DATA.stimulusnames{1} = 'none';
 DATA.stimulusnames{4} = 'grating';
@@ -905,9 +920,13 @@ function ShowStatus(DATA)
     else
         str = [];
     end
+    if isfield(DATA,'trialcounts')
     s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...
     DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4),...
     DATA.trialcounts(6),DATA.trialcounts(7),str);
+    else
+        s = str;
+    end
 
 if isfield(DATA,'toplevel')
 set(DATA.toplevel,'Name',s);
@@ -973,11 +992,18 @@ function DATA = InitInterface(DATA)
     bp(3) = 0.1;
     bp(4) = 1./nr;
     uicontrol(gcf,'style','text','string','File',  'units', 'norm', 'position',bp);
+
+    
     
     bp(1) = bp(1)+bp(3);
-    bp(3) = 1-bp(1);
+    bp(3) = 1-bp(1)-0.1;
     uicontrol(gcf,'style','edit','string',DATA.datafile, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','DataFileName','callback',{@TextGui, 'uf'});
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 0.1;
+            uicontrol(gcf,'style','pushbutton','string','Open', ...
+        'Callback', {@OpenUffFile, 1}, 'Tag','UffButton',...
+        'units', 'norm', 'position',bp,'value',1);
     
     
     bp(2) = 11./nr;
@@ -1159,7 +1185,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
     uimenu(hm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
-    uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, '\centerstim'});
+    uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, 'centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
     uimenu(hm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     uimenu(hm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
@@ -1720,7 +1746,12 @@ function CheckInput(a,b, fig, varargin)
          end
      end
      rbusy = 0;
-         
+
+     
+function OpenUffFile(a,b, type)
+        DATA = GetDataFromFig(a);
+        fprintf(DATA.outid,'\\openuff\n');
+
 function RunButton(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
@@ -1960,6 +1991,10 @@ set(DATA.toplevel,'UserData',DATA);
 function DATA = ReadLogFile(DATA, name)
 
     fid = fopen(name,'r');
+    if fid < 0
+        fprintf('Cannot Read %s\n',name);
+        return;
+    end
     s = textscan(fid,'%s','delimiter','\n');
     s = s{1};
     for j = length(s):-1:1
@@ -1980,7 +2015,7 @@ function DATA = ReadLogFile(DATA, name)
             we = sscanf(s{j}(3:end),'%f');
             DATA.binoc{1}.we = we(1);
             if length(we) > 1
-                DATA.Coil.CriticalWeight = w(2);
+                DATA.Coil.CriticalWeight = we(2);
             end
         end
     end
@@ -2010,7 +2045,7 @@ function MonkeyLogPopup(a,b, type, channel)
       SendCode(DATA,'so');
   elseif strncmp(type,'CriticalWeight',8)
       DATA.Coil.CriticalWeight = value;
-  elseif strncmp(type,'Phase',5)
+  elseif strncmp(type,'phase',5)
       DATA.Coil.phase(channel) = value;
   elseif strncmp(type,'Gain',4)
       DATA.Coil.gain(channel) = value;
@@ -2771,8 +2806,8 @@ function DATA = PlotPsych(DATA)
         end
         
         for j = expts
-            if DATA.Expts{j}.Stimvals.et == Expt.Stimvals.et & ...
-               DATA.Expts{j}.Stimvals.e2 == Expt.Stimvals.e2
+            if strcmp(DATA.Expts{j}.Stimvals.et,Expt.Stimvals.et) && ...
+               strcmp(DATA.Expts{j}.Stimvals.e2,Expt.Stimvals.e2)
                 allid= [allid DATA.Expts{j}.first:DATA.Expts{j}.last];
             end
         end

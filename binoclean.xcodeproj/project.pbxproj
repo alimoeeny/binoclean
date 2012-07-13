@@ -1075,8 +1075,11 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = NIDAQ;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NIDAQ,
+					Darwin,
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1102,6 +1105,10 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NIDAQ,
+					Darwin,
+				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -1121,12 +1128,12 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = NIDAQ;
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "NIDAQ=1";
+				"INFOPLIST_PREPROCESSOR_DEFINITIONS[sdk=*]" = "FRAME_OUTPUT=1";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbase.framework/Versions/3\"",
@@ -1135,6 +1142,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1144,11 +1152,14 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = NIDAQ;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = "NIDAQ=1";
+				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
+					"NIDAQ=1",
+					"FRAME_OUTPUT=1",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/nidaqmxbase.framework/Versions/3\"",
@@ -1158,6 +1169,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SYMROOT = /bgc/bgc/c/binoclean/Release;
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

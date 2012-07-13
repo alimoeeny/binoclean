@@ -266,8 +266,10 @@
 #define TARGET2_POS  (LAST_STIMULUS_CODE+155)
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
+#define IMAGEJUMPS (LAST_STIMULUS_CODE+158)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 199 */
+
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+159) /* 200 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
@@ -463,8 +465,11 @@
 #define ABS_ORTHOG_POS MAXSAVECODES+13
 #define ABS_PARA_POS MAXSAVECODES+14
 #define VERBOSE_CODE MAXSAVECODES+15
+#define SEEDOFFSET MAXSAVECODES+16
+#define SEEDRANGE (MAXSAVECODES+17)
+#define NIMPLACES (MAXSAVECODES+18)
 
-#define MAXTOTALCODES (MAXSAVECODES+16)  //372
+#define MAXTOTALCODES (MAXSAVECODES+19)  //372
 
 
 /*
@@ -892,6 +897,7 @@ char *serial_strings[NCODES+1] = {
     "T2", /* Target 2 direction(file), position (spike2) */
     "mixac", /* mix corr, AC, dots */
     "Tt", /* Tonetime */
+    "ijump", /* number of image jumps */
 #ifdef DOSVERSION
 	NULL
 };
@@ -1077,6 +1083,9 @@ char *serial_strings[NCODES+1] = {
 "aOp", // Opos in absolute units (not relative to RF( 
 "aPp", // Opos in absolute units (not relative to RF( 
 "verbose",
+"seof", //Seed offset
+"serange", //Seed offset
+"nimplaces",
 NULL
 };
 
@@ -1314,6 +1323,7 @@ char *serial_names[] = {
     "Target 2 pos",
     "AC Mixture",
     "Tone time",
+    "Image Jumps",
     //Max serialcodes
     
     "Opposite Delay",
@@ -1496,6 +1506,9 @@ char *serial_names[] = {
     "absolute OrthoPos",
     "absolute ParaPos",
     "Verbosity",
+    "seed offset",
+    "Seed Range",
+    "N digits for Image names",
     NULL};
 
 char *jumpnames[] = {

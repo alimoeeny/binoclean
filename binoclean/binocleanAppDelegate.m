@@ -226,6 +226,7 @@ void notify(char * s)
         
         [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, [NSNumber numberWithBool:NO], NSFullScreenModeApplicationPresentationOptions, nil]]; 
         NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
+    //    NSLog(@"%@",screenFrame);
     }
         
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];

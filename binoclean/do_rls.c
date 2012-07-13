@@ -183,7 +183,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     long *rp,rnd,rnd_i();
     
     
-    if(st->left->ptr->sx > 0.01)
+    if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
     {
         calc_rls_polys(st,  sst);
         return;
@@ -909,7 +909,7 @@ void paint_rls(Stimulus *st, int mode)
     float angle,cosa,sina,val,valsum = 0;
     vcoord rect[8],crect[8];
     
-    if(st->left->ptr->sx > 0.01)
+    if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
     {
         paint_rls_polygons(st, mode);
         return;
@@ -996,7 +996,7 @@ void paint_rls(Stimulus *st, int mode)
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_LINE_SMOOTH);
 		if(expt.polygonsmooth)
-            glEnable(GL_POLYGON_SMOOTH);
+//            glEnable(GL_POLYGON_SMOOTH);
 		glLineWidth(1.0);
 	}
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1032,6 +1032,44 @@ void paint_rls(Stimulus *st, int mode)
         }
     }
     glEnd();
+ 
+    if(optionflag & ANTIALIAS_BIT)
+	{
+        p = sst->im;
+        x = sst->xpos;
+        y = sst->ypos;
+                glEnable(GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_LINE_SMOOTH);
+                glLineWidth(1.0);
+    glBegin(GL_LINES);
+    i = 0;
+    lasty = *y;
+    for(;p < end; p++,x++,y++)
+    {
+        lasty = *y;
+        
+        if(st->dotdist == WHITENOISE16){
+            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+            valsum += val;
+            n++;
+            glColor3f(val,val,val);
+        }
+        else if(*p & BLACKMODE)
+            mycolor(vcolor);      
+        else if(*p & WHITEMODE)
+            mycolor(bcolor);
+        if(*p & dotmode){
+            z[0] = *x; 
+            z[1] = *y; 
+            myvx(z);
+            z[0] = -*x; 
+            z[1] = *y; 
+            myvx(z);
+        }
+    }
+    glEnd();
+    }
     glPopMatrix();
     val = valsum/n;
 }

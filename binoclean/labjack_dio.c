@@ -40,30 +40,51 @@ int DIOWrite(int output)
 //            r = r + eDO(hDevice, i, 0);
 //    }
 
-    switch (output) {
-        case 0:
-            r = r + eDO(hDevice, 1, 0, 0);
-            r = r + eDO(hDevice, 1, 1, 0);
-            r = r + eDO(hDevice, 1, 2, 0);
-            r = r + eDO(hDevice, 1, 3, 0);
-            break;
-        case 2:
-            r = r + eDO(hDevice, 1, 2, 1);
-            break;
-        case 4:
-            r = r + eDO(hDevice, 1, 3, 1);
-            break;
-        case 7:
-        case 0xF:
-            r = r + eDO(hDevice, 1, 0, 1);
-            r = r + eDO(hDevice, 1, 1, 1);
-            r = r + eDO(hDevice, 1, 2, 1);
-            r = r + eDO(hDevice, 1, 3, 1);
-            break;
-
-        default:
-            break;
+    if (output & 1)
+        r = r + eDO(hDevice, 1, 0, 1);
+    else {
+        r = r + eDO(hDevice, 1, 0, 0);
     }
+    if (output & 2)
+        r = r + eDO(hDevice, 1, 1, 1);
+    else {
+        r = r + eDO(hDevice, 1, 1, 0);
+    }
+    if (output & 4)
+        r = r + eDO(hDevice, 1, 2, 1);
+    else {
+        r = r + eDO(hDevice, 1, 2, 0);
+    }
+    if (output & 8)
+        r = r + eDO(hDevice, 1, 3, 1);
+    else {
+        r = r + eDO(hDevice, 1, 3, 0);
+    }
+        
+//    switch (output) {
+//        case 0:
+//            r = r + eDO(hDevice, 1, 0, 0);
+//            r = r + eDO(hDevice, 1, 1, 0);
+//            r = r + eDO(hDevice, 1, 2, 0);
+//            r = r + eDO(hDevice, 1, 3, 0);
+//            break;
+//        case 2:
+//            r = r + eDO(hDevice, 1, 2, 1);
+//            break;
+//        case 4:
+//            r = r + eDO(hDevice, 1, 3, 1);
+//            break;
+//        case 7:
+//        case 0xF:
+//            r = r + eDO(hDevice, 1, 0, 1);
+//            r = r + eDO(hDevice, 1, 1, 1);
+//            r = r + eDO(hDevice, 1, 2, 1);
+//            r = r + eDO(hDevice, 1, 3, 1);
+//            break;
+//
+//        default:
+//            break;
+//    }
     
     if (r!=0)
     {

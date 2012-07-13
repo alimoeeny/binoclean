@@ -51,7 +51,7 @@
 #define sign(x) (x > 0 ? 1 : -1)
 
 //Ali
-#define NOEVENT 0
+
 char * VERSION_NUMBER;
 char * SHORT_VERSION_NUMBER;
 
@@ -86,7 +86,7 @@ int thebuffer = 0,lastcodes[CODEHIST] = {0}, expstate = 0;
 int outcodes[CODEHIST] = {0};
 int codectr = 0, outctr = 0;
 int DIOval = 0;
-int Frames2DIO = 1;
+int Frames2DIO = 0;
 int rewardall = 0;
 char resbuf[BUFSIZ] = {0};
 
@@ -251,7 +251,7 @@ char *toggle_strings[] = {
 	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
 	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
 	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
-    "Odd Man Out","Choice by icon",
+    "Odd Man Out","Choice by icon","Image Jumps",
     "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
     "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
     "Show Stim Boxes",
@@ -340,6 +340,7 @@ char *toggle_codes[] = {
     "C3", //Collapse Psychophysics across Expt3  
     "af3", //Odd man out task
     "Rcd", //Choice direction random
+    "ijump", //Image jumps
     
     "cd", // Auto Copy Online Data Files # not shown on panel
     "cb", //Custom vals for expt2
@@ -770,6 +771,7 @@ void initial_setup()
         case INITIAL_APPLY_MAX:
         case FP_MOVE_DIR:
         case REWARD_BIAS:
+        case IMAGEJUMPS:
             codesend[i] = SEND_EXPT;
             break;
         case PULSE_WIDTH:
@@ -839,6 +841,8 @@ void initial_setup()
             case SET_SEED:
             case SET_SEEDLOOP:
             case RC_SEED:
+            case SEEDOFFSET:
+            case EXPTYPE_NONE:
                 nfplaces[i] = 0;
                 break;
             default:
@@ -921,6 +925,10 @@ char **argv;
     
 	if((i = CheckStrings()) != 0)
 		exit(0);
+    
+#ifdef NIDAQ
+    printf("Using DIO\n");
+#endif
     
     
     /*
@@ -3022,6 +3030,9 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         st = TheStim;
 	switch(code)
 	{
+        case SEEDOFFSET:
+            stimptr->seedoffset = val;
+            break;
         case DOTREPEAT:
             stimptr->dotrpt = val;
             if(stimptr->next != NULL)
@@ -4955,6 +4966,7 @@ void WriteSignal()
 	    c = END_STIM;
         write(ttys[0],&c,1);
 #ifdef FRAME_OUTPUT
+                if (Frames2DIO)
 	    DIOWrite(DIOval);
 #endif
         gettimeofday(&endstimtime,NULL);
@@ -5050,6 +5062,7 @@ int change_frame()
 	if(mode & FRAME_BITS)
     {
 #ifdef FRAME_OUTPUT
+        if (Frames2DIO)
 	    DIOWrite(DIOval | 8);
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
@@ -5064,7 +5077,7 @@ int change_frame()
 #ifdef FRAME_OUTPUT
 	else if (Frames2DIO)
     {
-        DIOWrite(DIOval | 8);
+        DIOWrite(DIOval | 8); //without 8 written in RunExptStim
     }
 #endif
 	thebuffer = !thebuffer;
@@ -5221,7 +5234,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                             dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
                             newx = fixpos[0] + deg2pix(dx);
                             newy = fixpos[1] + deg2pix(dy);
-                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                        }while(newy < 8 && newy > -8 && newx > -8 && newx < 8);
                     }
                 }
                 else{
@@ -5234,7 +5247,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                             dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
                             newx = fixpos[0] + deg2pix(dx);
                             newy = fixpos[1] + deg2pix(dy);
-                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                        }while(newy < 8 && newy > -8 && newx > -8 && newx < 8);
                     }
                     else{
                         fval = expt.vals[FP_MOVE_DIR];
@@ -5637,19 +5650,39 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 
 void PaintBackIm(PGM im)
 {
-    float z = 1.0;
+    float z = 1.0,c;
     
     if(expt.vals[BACKGROUND_ZOOM] > 1)
         z = expt.vals[BACKGROUND_ZOOM];
     glPixelZoom(z,-z);
-    glRasterPos2i(-im.w * z/2,im.h * z/2);
+    
+    if(expt.st->pos.contrast < 0.99){
+        c = expt.st->pos.contrast;
+        glPixelTransferf(GL_RED_BIAS,0.5-c/2);
+        glPixelTransferf(GL_RED_SCALE,c);
+        glPixelTransferf(GL_BLUE_BIAS,0.5-c/2);
+        glPixelTransferf(GL_BLUE_SCALE,c);
+        glPixelTransferf(GL_GREEN_BIAS,0.5-c/2);
+        glPixelTransferf(GL_GREEN_SCALE, c);
+        //    glPixelTransferf(GL_GREEN_SCALE, 1.0);
+    }
+    else{
+        glPixelTransferf(GL_RED_BIAS,0);
+        glPixelTransferf(GL_RED_SCALE,1);
+        glPixelTransferf(GL_BLUE_BIAS,0);
+        glPixelTransferf(GL_BLUE_SCALE,1);
+        glPixelTransferf(GL_GREEN_BIAS,0);
+        glPixelTransferf(GL_GREEN_SCALE, 1);
+    }
+    glRasterPos2f(-im.w/2,im.h/2);
+  //  glRasterPos2i(-im.w * z/2,im.h * z/2);
     glDrawPixels(im.w, im.h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im.ptr);
     
 }
 void wipescreen(float color)
 {
     setmask(bothmask);
-    if(expt.backim.name){
+    if(expt.backim.name && optionflags[PAINT_BACKGROUND]){
         PaintBackIm(expt.backim);
     }
     else{
@@ -5729,7 +5762,8 @@ void paint_frame(int type, int showfix)
     setmask(BOTHMODE);
     if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
-    clearstim(TheStim,TheStim->gammaback, 0);
+    if (TheStim->noclear == 0)
+        clearstim(TheStim,TheStim->gammaback, 0);
     TheStim->noclear = 1;
     if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
         paint_target(expt.targetcolor, 0);
@@ -5747,6 +5781,7 @@ void paint_frame(int type, int showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
     if(debug)
+        
         glFlushRenderAPPLE();
     paintdur = timediff(&btime,&paintframetime);
     if(optionflags[STIMULUS_IN_OVERLAY])
@@ -5810,7 +5845,7 @@ int StartTrial()
      */
     
     if(rcfd){
-        fprintf(rcfd,"Trial %d\n",ufftime(&now));
+ //       fprintf(rcfd,"Trial %d\n",ufftime(&now));
     }
     
     
@@ -6198,16 +6233,13 @@ int next_frame(Stimulus *st)
             }
             
             wipescreen(clearcolor);
-            if(!(optionflag & STIM_IN_WURTZ_BIT)){
-                paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-                increment_stimulus(st, pos);
-            }
-            else
-                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            RunBetweenTrials(st, pos);
+            draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
             change_frame();
             break;
         case PRESTIMULUS:
             //Ali CheckKeyboard(D, allframe);
+            mode &= (~FIXATION_OFF_BIT);
             microsaccade = 0;
             if(rdspair(expt.st))
                 expt.framesdone = 0;
@@ -6723,10 +6755,11 @@ int next_frame(Stimulus *st)
                     change_frame();
                     search_background();
                 }
-            }
+            }            
             else{
                 setmask(bothmask);
                 wipescreen(clearcolor);
+                RunBetweenTrials(st, pos);
                 change_frame();
             }
             if(debug) glstatusline("PostTrial",3);
@@ -6923,6 +6956,22 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[2],y+line[3]);
 }
 
+#ifdef Darwin
+void aarotrect(vcoord *line, vcoord x, vcoord y)
+{
+    
+    /*
+     if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
+     return;
+     */
+    glBegin(GL_POLYGON);
+    glVertex2f(x+line[0],y+line[1]);
+    glVertex2f(x+line[2],y+line[3]);
+    glVertex2f(x+line[4],y+line[5]);
+    glVertex2f(x+line[6],y+line[7]);
+    glEnd();
+}
+#else
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
     
@@ -6934,6 +6983,8 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[0],y+line[1]);
     glVertex2f(x+line[6],y+line[7]);
 }
+#endif
+
 
 void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
 {
@@ -7548,6 +7599,9 @@ float StimulusProperty(Stimulus *st, int code)
 	rds = st->left;
 	switch(code)
 	{
+        case SEEDOFFSET:
+            value = st->seedoffset;
+            break;
         case BLACKDOT_FRACTION:
             value = st->dotfrac;
             break;
@@ -9515,7 +9569,7 @@ int GotChar(char c)
                     if(expt.mode == DISP_X && expt.type2 == CORRELATION && expt.vals[CORRELATION] == 0)
                         afc_s.loopstate = loopstate_counters(AMBIGUOUS, jonresult);
                     else
-                        afc_s.loopstate = loopstate_counters(stim_direction, jonresult);
+                        afc_s.loopstate = loopstate_counters(stim_direction * afc_s.sign, jonresult);
                     if(option2flag & PERF_STRING)
                         performance_string(afc_s.jlaststairval, jonresult, afc_s.loopstate, &afc_s.performance_1, &afc_s.performance_2, (afc_s.sacval[0] + afc_s.sacval[1]));
                     if(option2flag & STAIRCASE){ 
@@ -10098,6 +10152,7 @@ void ReopenSerial(void)
     int i;
     
 #ifdef NIDAQ
+    printf("Writing to DIO\n");
     DIOWrite(0x7); 
     fsleep(0.01);
     DIOWrite(0); DIOval = 0;

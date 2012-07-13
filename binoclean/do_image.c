@@ -74,11 +74,11 @@ int init_image(Stimulus *st,  Substim *sst)
 	return(0);
 }
 
-int PreloadPGM(char *name, Substim *sst, int frame){
+int PreloadPGM(char *name, Stimulus *st, Substim *sst, int frame){
     FILE *imfd;
     char buf[BUFSIZ];
     static char lastname[BUFSIZ];
-    int w,h,imax;
+    int w,h,imax,x,y;
     
     static int *astate = NULL;
     
@@ -100,6 +100,13 @@ int PreloadPGM(char *name, Substim *sst, int frame){
     sscanf(buf,"P5 %d %d %d",&w,&h,&imax);
     imagews[frame] = w;
     imagehs[frame] = h;
+    
+    if(w * h > imagelengths[MAXFRAMES-1]){
+        imagelengths[MAXFRAMES-1] = w*h;
+        if(images[MAXFRAMES-1] != NULL)
+            free(images[MAXFRAMES-1]);
+        images[MAXFRAMES-1] = (GLubyte *)malloc(w * h);        
+    }
     
     if (sst->mode & RIGHTMODE){
         if(w * h > imagelengths[frame]){
@@ -133,6 +140,11 @@ int PreloadPGM(char *name, Substim *sst, int frame){
         fread(images[frame],1,w*h,imfd);
     }
     fclose(imfd);
+    if (st->jumps > 0){
+        x = (int)(deg2pix(st->xyshift[0]));
+        y = (int)(deg2pix(st->xyshift[1]));
+        ShiftImage(frame,x,y);
+    }
     return(w*h);
 }
 
@@ -224,6 +236,8 @@ void calc_image(Stimulus *st, Substim *sst)
         return;
     }
     
+
+    
     if(sst->mode == RIGHTMODE)
         eye = 'R';
     else if(sst->mode == LEFTMODE)
@@ -271,8 +285,10 @@ void calc_image(Stimulus *st, Substim *sst)
                 st->stimid = seed;
         }
         
-        if(st->xstate == INTERLEAVE_EXPT_BLANK || ori == INTERLEAVE_EXPT_BLANK && !expt.st->preload)
+        if(st->xstate == INTERLEAVE_EXPT_BLANK || ori == INTERLEAVE_EXPT_BLANK && !expt.st->preload){
+            imageseed[st->framectr] = INTERLEAVE_EXPT_BLANK;
             return;
+        }
         
         if(sst->orbw > MAXORBW)
             sprintf(impref,"%s/orinf/sf%.2f/sz%.2f",st->imprefix,sst->pos.sf,sst->size);
@@ -331,8 +347,16 @@ void calc_image(Stimulus *st, Substim *sst)
         }
         sprintf(imname,"%s/se%d.pgm",impref,seed);
     }
-    else if(st->immode == BINOCULAR_PLAIN_IMAGES)
-        sprintf(imname,"%s%.*d.pgm",st->imprefix,st->nimplaces,sst->seed);
+    else if(st->immode == BINOCULAR_PLAIN_IMAGES){
+        seed = sst->baseseed;
+        if (st->seedoffset > 0)
+            seed += st->seedoffset;
+        sprintf(imname,"%s%.*d.pgm",st->imprefix,st->nimplaces,seed);
+        if(st->xstate == INTERLEAVE_EXPT_BLANK || ori == INTERLEAVE_EXPT_BLANK){
+            imageseed[st->framectr] = INTERLEAVE_EXPT_BLANK;
+            return;
+        }
+    }
     else if(sst->baseseed > 0)
         sprintf(imname,"%s%.0f.%d%c.pgm",st->imprefix,sst->xshift,sst->baseseed,eye);
     else
@@ -349,7 +373,7 @@ void calc_image(Stimulus *st, Substim *sst)
         imageseed[fo] = seed;
         
         if(st->xstate > INTERLEAVE_EXPT_BLANK){
-            PreloadPGM(imname,sst,fo);
+            PreloadPGM(imname,st,sst,fo);
         }
         nf = st->nframes;
     }
@@ -376,11 +400,67 @@ void calc_image(Stimulus *st, Substim *sst)
     st->mode &= (~STIMULUS_NEEDS_CLEAR);
 }
 
+int ShiftImage(int frame, int x, int y)
+{
+    int i,j,w,h,r,len,shiftpos;
+    GLubyte *ima,*imb;
+        
+    w = imagews[frame];
+    h = imagehs[frame];
+    ima = images[MAXFRAMES-1];
+    imb = images[frame];
+    len = w*h;
+    
+    if (x == 0 && y == 0)
+        return;
+    if (x < 0)
+        x +=w;
+    if (y < 0)
+        y += h;
+    for (j = 0; j < h-y; j++){
+        memcpy(&ima[x+(j*w)], &imb[(j+y)*w],w-x);
+        memcpy(&ima[j*w], &imb[(j+1+y)*w-x],x);
+    }
+    for (j = h-y; j < h; j++){
+        memcpy(&ima[x+(j*w)], &imb[(j+y-h)*w],w-x);
+        memcpy(&ima[j*w], &imb[(j+1+y-h)*w-x],x);
+    }
+    if (0){
+    
+        for (i = 0; i< w; i++){
+            shiftpos = (j+y) * w + i+x;
+            if (shiftpos < 0)
+                ima[i+r] = imb[len+shiftpos];
+            else if (shiftpos >= len)
+                ima[i+r] = imb[shiftpos-len];
+            else
+                ima[i+r] = imb[shiftpos];
+            
+        }
+    for (j = 0; j < h; j++){
+        if (x > 0){
+        memcpy(&ima[x+(j*w)], &imb[j*w],w-x);
+        memcpy(&ima[j*w], &imb[(j+1)*w-x],x);
+        }
+        else{
+            memcpy(&ima[(j*w)], &imb[j*w-x],w+x);
+            memcpy(&ima[(j+1)*w+x], &imb[j*w],-x);        
+        }
+    }
+    }
+    memcpy(imb, ima,w*h);
+
+}
+
 int paint_image(Stimulus *st, Substim *sst)
 {
-    int w,h,frame;
+    int w,h,frame,x,y;
+    GLfloat rasterpos[4];
+    
     double c;
-    if(st->xstate == INTERLEAVE_EXPT_BLANK){
+    if(st->xstate == INTERLEAVE_EXPT_BLANK || imageseed[st->framectr] < 0){
+        if (imageseed[st->framectr] == -1) // don't clear, just leave image up
+            return;
         if(testflags[TEST_RC])
             glClearColor(0, 0, 0, 1.0);
         else
@@ -428,7 +508,9 @@ int paint_image(Stimulus *st, Substim *sst)
             glPixelTransferf(GL_GREEN_BIAS,0);
             glPixelTransferf(GL_GREEN_SCALE, 1);
         }
-        glRasterPos2i(sst->pos.xy[0]-w/2,sst->pos.xy[1]+h/2);
+        
+        glRasterPos2f(sst->pos.xy[0]-w/2,sst->pos.xy[1]+h/2);
+ //       glGetFloatv(GL_CURRENT_RASTER_POSITION,rasterpos);
         if(st->preload){
             if (sst->mode == RIGHTMODE && st->flag & UNCORRELATE)
                 glDrawPixels(imagews[frame], imagehs[frame], GL_LUMINANCE, GL_UNSIGNED_BYTE, rightimages[frame]);

@@ -1404,20 +1404,27 @@ void paint_rds(Stimulus *st, int mode)
   }
 #endif
     
-  rect[0] = -w * cosa - h * sina;
+  rect[0] = -w * cosa - h * sina; //-w,-h
   rect[1] = -h * cosa + w * sina;
-  rect[2] = -w * cosa + h * sina;
+  rect[2] = -w * cosa + h * sina; 
   rect[3] = h * cosa + w * sina;
   rect[4] = w * cosa + h * sina;
   rect[5] = h * cosa - w * sina;
   rect[6] = w * cosa - h * sina;
   rect[7] = -h * cosa - w * sina;
+    rect[0] = -w * cosa - h * sina; //-w,-h
+    rect[1] = -h * cosa + w * sina;
+    rect[2] = -w * cosa + h * sina; //-w,h
+    rect[3] = h * cosa + w * sina;
+    rect[4] = w * cosa + h * sina;  //w,h
+    rect[5] = h * cosa - w * sina;
+    rect[6] = w * cosa - h * sina; //w,-h
+    rect[7] = -h * cosa - w * sina;
   crect[0] = -h * sina;
   crect[1] = -h * cosa;
   crect[2] = h * sina;
   crect[3] = h * cosa;
   h = h+0.5;
-    
   p = sst->im;
   end = (sst->im+sst->ndots);
   x = sst->xpos;
@@ -1438,30 +1445,50 @@ void paint_rds(Stimulus *st, int mode)
 	    glLineWidth(1.0);
 	  else
 	    glLineWidth(w*2);
+            glLineWidth(1.0);
+            glEnable(GL_POLYGON_SMOOTH);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            i = 0;
+            for(;p < end; p++,x++,y++)
+            {
+                if(*p & BLACKMODE)
+                    mycolor(vcolor);      
+                else if(*p & WHITEMODE)
+                    mycolor(bcolor);
+                if(*p & mode)
+                    aarotrect(rect, *x,*y);
+            }
+        }
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #else
 	  glLineWidth(1.0);
-#endif
-	  glEnable(GL_LINE_SMOOTH);
-	  glEnable(GL_BLEND);
-	  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	  glBegin(GL_LINES);
-	  i = 0;
-	  for(;p < end; p++,x++,y++)
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBegin(GL_LINES);
+            i = 0;
+            for(;p < end; p++,x++,y++)
             {
-	      if(*p & BLACKMODE)
-		mycolor(vcolor);      
-	      else if(*p & WHITEMODE)
-		mycolor(bcolor);
-	      if(*p & mode)
-		aarotrect(rect, *x,*y);
+                if(*p & BLACKMODE)
+                    mycolor(vcolor);      
+                else if(*p & WHITEMODE)
+                    mycolor(bcolor);
+                if(*p & mode)
+                    aarotrect(rect, *x,*y);
             }
-	  glEnd();
+            glEnd();
         }
+#endif
       p = sst->im;
       x = sst->xpos;
       y = sst->ypos;
       glDisable(GL_BLEND);
       glDisable(GL_LINE_SMOOTH);
+          glDisable(GL_POLYGON_SMOOTH);
       if(w < 0.5)
 	glLineWidth(1.0);
       else
@@ -1470,30 +1497,46 @@ void paint_rds(Stimulus *st, int mode)
       /*
        * on the mac, the antialised lines do it all in one step, so only need
        * to do this if antialiasing is off. On SG need both
+       * For macmins+Lion+binoclean, need both atagin
        */
 #ifdef Darwin
-      if(~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
+      if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
+          glBegin(GL_LINES);
+          
+          i = 0;
+          for(;p < end; p++,x++,y++)
+          {
+              if(*p & BLACKMODE)
+                  mycolor(vcolor);      
+              else if(*p & WHITEMODE)
+                  mycolor(bcolor);
+              if(*p & mode)
+                  aarotrect(rect,*x,*y);
+          }
+          if(optionflag & TEST_BIT)
+              rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
+          glEnd();
+      }
 #else
 	if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
-#endif
-                
-	  glBegin(GL_LINES);
-                
-	  i = 0;
-	  for(;p < end; p++,x++,y++)
+        glBegin(GL_LINES);
+        
+        i = 0;
+        for(;p < end; p++,x++,y++)
 	    {
-	      if(*p & BLACKMODE)
-		mycolor(vcolor);      
-	      else if(*p & WHITEMODE)
-		mycolor(bcolor);
-	      if(*p & mode)
-		rotrect(crect,*x,*y);
+            if(*p & BLACKMODE)
+                mycolor(vcolor);      
+            else if(*p & WHITEMODE)
+                mycolor(bcolor);
+            if(*p & mode)
+                rotrect(crect,*x,*y);
 	    }
-	  if(optionflag & TEST_BIT)
-	    rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
-	  glEnd();
-	}
-            
+        if(optionflag & TEST_BIT)
+            rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
+        glEnd();
+    }
+#endif
+                            
       }
       glPopMatrix();
     }

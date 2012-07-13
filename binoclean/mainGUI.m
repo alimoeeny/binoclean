@@ -39,18 +39,18 @@ Expt expt;
 {
     int r = 14;
     NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
-    NSArray * c = [s componentsSeparatedByString:@"\n"];
-    if([c count]>r)
-    {
-        int b = [s rangeOfString:[c objectAtIndex:r]].location;
-        @try {
-            if (b>0)
-                s = [s substringToIndex:b];            
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Bad String");
-        }
-    }
+//    NSArray * c = [s componentsSeparatedByString:@"\n"];
+//    if([c count]>r)
+//    {
+//        int b = [s rangeOfString:[c objectAtIndex:r]].location;
+//        @try {
+//            if (b>0)
+//                s = [s substringToIndex:b];            
+//        }
+//        @catch (NSException *exception) {
+//            NSLog(@"Bad String");
+//        }
+//    }
     [informationTextField setStringValue:s];
 }
 
