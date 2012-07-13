@@ -30,6 +30,9 @@ if isempty(it)
         DATA = ReadFromBinoc(DATA);
         j = 2;
         while j <= length(varargin)
+            if ischar(varargin{j})
+                fprintf(DATA.outid,'%s\n',varargin{j});
+            end
             j = j+1;
         end
     else

@@ -11696,7 +11696,11 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 rc = framesdone;
             
             change_frame();
-            framecounts[framesdone] = rc;
+            if (optionflags[FIXNUM_PAINTED_FRAMES])
+                framecounts[framesdone] = getframecount();
+            else
+                framecounts[framesdone] = rc;
+            
             if(optionflags[WATCH_TIMES]){
                 swapwaits[framesdone] = swapwait;
                 calctimes[framesdone] = calcdur;
@@ -12046,6 +12050,14 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 fprintf(seroutfile,"%s",buf);
             if(optionflags[FIXNUM_PAINTED_FRAMES])
                 SerialString(buf,0);
+            if(frametimes[framesdone]  > (n+1)/expt.mon->framerate){ 
+                printf("V long");
+            }
+            for(i = 1; i < framesdone; i++){
+                if (framecounts[i]-framecounts[i-1] > 1){
+                    printf("skip at %d\n",i);
+                }
+            }
             
             sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
             j=0;
