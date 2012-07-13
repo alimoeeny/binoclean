@@ -40,26 +40,28 @@ int DIOWrite(int output)
 //            r = r + eDO(hDevice, i, 0);
 //    }
 
-    if (output & 1)
-        r = r + eDO(hDevice, 1, 0, 1);
-    else {
-        r = r + eDO(hDevice, 1, 0, 0);
-    }
-    if (output & 2)
-        r = r + eDO(hDevice, 1, 1, 1);
-    else {
-        r = r + eDO(hDevice, 1, 1, 0);
-    }
-    if (output & 4)
-        r = r + eDO(hDevice, 1, 2, 1);
-    else {
-        r = r + eDO(hDevice, 1, 2, 0);
-    }
-    if (output & 8)
-        r = r + eDO(hDevice, 1, 3, 1);
-    else {
-        r = r + eDO(hDevice, 1, 3, 0);
-    }
+    r = LJUSB_Write(hDevice, &output, 1);
+//    
+//    if (output & 1)
+//        r = r + eDO(hDevice, 1, 0, 1);
+//    else {
+//        r = r + eDO(hDevice, 1, 0, 0);
+//    }
+//    if (output & 2)
+//        r = r + eDO(hDevice, 1, 1, 1);
+//    else {
+//        r = r + eDO(hDevice, 1, 1, 0);
+//    }
+//    if (output & 4)
+//        r = r + eDO(hDevice, 1, 2, 1);
+//    else {
+//        r = r + eDO(hDevice, 1, 2, 0);
+//    }
+//    if (output & 8)
+//        r = r + eDO(hDevice, 1, 3, 1);
+//    else {
+//        r = r + eDO(hDevice, 1, 3, 0);
+//    }
         
 //    switch (output) {
 //        case 0:
@@ -86,7 +88,7 @@ int DIOWrite(int output)
 //            break;
 //    }
     
-    if (r!=0)
+    if (r!=1)
     {
         printf("DIO ERROR while writing");
     }
