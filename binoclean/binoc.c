@@ -4923,9 +4923,14 @@ void SendMovements()
     SerialString(buf,0);
 }
 
+
+    static int stimchanged = 0;
 void WriteSignal()
 {
     char c;
+
+    struct timeval atime;
+    
 	if(mode & WURTZ_FRAME_BIT)
     {
 	    c = START_TRIAL;
@@ -4936,6 +4941,7 @@ void WriteSignal()
     }
 	if(mode & FIRST_FRAME_BIT)
     {
+        stimchanged = 0;
 	    c = FRAME_SIGNAL;
         write(ttys[0],&c,1);
         gettimeofday(&firstframetime,NULL);
@@ -4945,10 +4951,8 @@ void WriteSignal()
         framectr = 0;
 #ifdef NIDAQ
         if (optionflags[MICROSTIM])
-            DIOval = 0x6;
-        else
-            DIOval = 0x4;
-        DIOWrite(DIOval);
+            DIOWriteBit(1, 1);
+        DIOWriteBit(2, 1);
 #endif
         if(seroutfile)
             fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
@@ -4967,7 +4971,7 @@ void WriteSignal()
         write(ttys[0],&c,1);
 #ifdef FRAME_OUTPUT
                 if (Frames2DIO)
-	    DIOWrite(DIOval);
+	    DIOWriteBit(3,1);
 #endif
         gettimeofday(&endstimtime,NULL);
         if(seroutfile)
@@ -4977,16 +4981,17 @@ void WriteSignal()
         expstate = END_STIM;
 #ifdef NIDAQ
         DIOval = 0;
-        DIOWrite(0); 
+        DIOWriteBit(2,0); 
+        DIOWriteBit(0,0); 
 #endif
 	}
 	if(mode & STIMCHANGE_FRAME)
     {
 	    c = STIM_CHANGE;
 	    write(ttys[0],&c,1);
+        stimchanged = 1;
 #ifdef NIDAQ
-	    DIOval = 0x7;
-	    DIOWrite(DIOval); // Pins 
+	    DIOWriteBit(0, 1);                  
 #endif
 	    if(!optionflags[REDUCE_SERIAL_OUTPUT]){
             if(seroutfile)
@@ -5026,7 +5031,7 @@ int change_frame()
 	}
 	memcpy(&lasttime, &now, sizeof(struct timeval));
 #endif
-    
+
 	if(mode & LAST_FRAME_BIT)
 	{
 		if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
@@ -5059,11 +5064,17 @@ int change_frame()
 	glFinishRenderAPPLE();
     glSwapAPPLE();
 	framesswapped++;
+#ifdef NIDAQ
+    if (stimchanged){
+        DIOWriteBit(0, 0);                 
+        stimchanged = 0;
+    }
+#endif
 	if(mode & FRAME_BITS)
     {
 #ifdef FRAME_OUTPUT
         if (Frames2DIO)
-	    DIOWrite(DIOval | 8);
+	    DIOWriteBit(3,1);
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
             glFinishRenderAPPLE(); /* block until buffer swapped */
@@ -5077,7 +5088,7 @@ int change_frame()
 #ifdef FRAME_OUTPUT
 	else if (Frames2DIO)
     {
-        DIOWrite(DIOval | 8); //without 8 written in RunExptStim
+        DIOWriteBit(3,1); //without 8 written in RunExptStim
     }
 #endif
 	thebuffer = !thebuffer;
@@ -5994,7 +6005,11 @@ int next_frame(Stimulus *st)
     {
         case STIMSTOPPED:
 #ifdef NIDAQ
-            DIOval = 0; DIOWrite(0);
+            DIOval = 0;
+            DIOWriteBit(2,  0);
+            DIOWriteBit(1,  0);
+            DIOWriteBit(0,  0);
+
 #endif
             if(rdspair(expt.st))
                 i = 0;
@@ -6098,7 +6113,10 @@ int next_frame(Stimulus *st)
             break;
         case INTERTRIAL:
 #ifdef NIDAQ
-            DIOval = 0; DIOWrite(0);
+            DIOWriteBit(2,  0);
+            DIOWriteBit(1,  0);
+            DIOWriteBit(0,  0);
+//            DIOval = 0; DIOWrite(0);
 #endif
             newtimeout = 1;
             if(rdspair(expt.st))
@@ -9098,9 +9116,15 @@ int GotChar(char c)
         
 #ifdef NIDAQ  
         // trigger data collection for Spike2
-	    DIOWrite(0x7); 
+//	    DIOWrite(0x7);
+        DIOval = 0;
+        DIOWriteBit(0,1);
+        DIOWriteBit(2,1);
+
 	    fsleep(0.01);
-   	    DIOval = 0;  DIOWrite(0);
+        DIOWriteBit(0,0);
+        DIOWriteBit(2,0);
+//   	    DIOval = 0;  DIOWrite(0);
 #endif
 		MakeConnection();
 	}
@@ -9249,7 +9273,10 @@ int GotChar(char c)
                 gettimeofday(&endtrialtime, NULL);
                 
 #ifdef NIDAQ
-                DIOWrite(0); DIOval = 0;
+                DIOWriteBit(2,  0);
+                DIOWriteBit(1,  0);
+                DIOWriteBit(0,  0);
+//                DIOWrite(0); DIOval = 0;
 #endif
                 expstate = c;
                 gettimeofday(&now,NULL);
@@ -10153,9 +10180,15 @@ void ReopenSerial(void)
     
 #ifdef NIDAQ
     printf("Writing to DIO\n");
-    DIOWrite(0x7); 
+    DIOWriteBit(2,  1);
+    DIOWriteBit(1,  1);
+    DIOWriteBit(0,  1);
+//    DIOWrite(0x7); 
     fsleep(0.01);
-    DIOWrite(0); DIOval = 0;
+    DIOWriteBit(2,  0);
+    DIOWriteBit(1,  0);
+    DIOWriteBit(0,  0);
+    //DIOWrite(0); DIOval = 0;
 #endif
     closeserial(0);
     if((i = OpenSerial(theport)) <= 0){

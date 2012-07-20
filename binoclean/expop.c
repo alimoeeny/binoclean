@@ -11416,7 +11416,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     struct plotdata *plot;
     Expstim *es,*exs;
     int framecounts[MAXFRAMES],lastframesdone;
-    float frametimes[MAXFRAMES];
+    float frametimes[MAXFRAMES],fframecounts[MAXFRAMES],tval;
     float swapwaits[MAXFRAMES],calctimes[MAXFRAMES],painttimes[MAXFRAMES];
     float forcewaits[MAXFRAMES];
     struct timeval lastframetime,pretime,forcetime;
@@ -11676,9 +11676,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             if (Frames2DIO){
             //DIOval | 8 is written in change_frame();
             if(rc == n-1)
-                DIOWrite(DIOval);
+                DIOWriteBit(3,0);
             else
-                DIOWrite(DIOval);
+                DIOWriteBit(3,0);
             }
 #endif
             
@@ -11696,8 +11696,11 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 rc = framesdone;
             
             change_frame();
-            if (optionflags[FIXNUM_PAINTED_FRAMES])
+            if (optionflags[FIXNUM_PAINTED_FRAMES]){
                 framecounts[framesdone] = getframecount();
+                tval = timediff(&frametime, &zeroframetime);
+                fframecounts[framesdone] = (tval * mon.framerate);
+            }
             else
                 framecounts[framesdone] = rc;
             
@@ -11818,7 +11821,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             }
 #ifdef FRAME_OUTPUT
             if(finished == 2  && Frames2DIO) //about to exit loop
-                DIOWrite(DIOval  | 8);
+                DIOWriteBit(3, 0);
 #endif
             /*
              * once finished == 2 don't check the serial line. Might read spikes before finishing painting the stimulus.
@@ -12050,31 +12053,44 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 fprintf(seroutfile,"%s",buf);
             if(optionflags[FIXNUM_PAINTED_FRAMES])
                 SerialString(buf,0);
-            if(frametimes[framesdone]  > (n+1)/expt.mon->framerate){ 
-                printf("V long");
+            if(frametimes[framesdone]  > (n+1.5)/expt.mon->framerate){ 
+                printf("V long %.3f",frametimes[framesdone]);
             }
+            if(optionflags[FIXNUM_PAINTED_FRAMES] ==0){
             for(i = 1; i < framesdone; i++){
                 if (framecounts[i]-framecounts[i-1] > 1){
                     printf("skip at %d\n",i);
                 }
             }
+            }
             
             sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
-            j=0;
-            for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
-                while(framecounts[i] > j * rpt){ //skipped frames
-                    sprintf(tmp,"%d ",framecounts[i]);	
-                    if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
-                        strcat(buf,tmp);
-                    j++;
+            if(optionflags[FIXNUM_PAINTED_FRAMES]){
+                j=0;
+                for(i = 0; i < framesdone; i++){
+                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                            strcat(buf,tmp);
                 }
-            }
-            strcat(buf,"\n");
-            if(optionflags[FIXNUM_PAINTED_FRAMES])
+                strcat(buf,"\n");
                 SerialString(buf,0);
+            }
+            else{
+                j=0;
+                for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
+                    while(framecounts[i] > j * rpt){ //skipped frames
+                        sprintf(tmp,"%d ",framecounts[i]);	
+                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                            strcat(buf,tmp);
+                        j++;
+                    }
+                }
+                strcat(buf,"\n");                
+                SerialString(buf,0);
+            }
+                    
         }
-        if(seroutfile)
-            fprintf(seroutfile,"%s",buf);
+//        if(seroutfile)
+//            fprintf(seroutfile,"%s",buf);
         
         if(seroutfile){
             if(retval == BAD_TRIAL)

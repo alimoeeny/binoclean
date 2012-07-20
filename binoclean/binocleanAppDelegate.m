@@ -166,8 +166,9 @@ void notify(char * s)
 	}
     else if (useDIO)
     {
-        DIOWrite(0x0);
-        DIOWrite(0xF);
+        DIOWriteBit(0,0);
+        DIOWriteBit(0,1);
+//        DIOWrite(0xF);
     }
     
     
