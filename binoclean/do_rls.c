@@ -1332,7 +1332,7 @@ int SaveRls(Stimulus *st, FILE *fd)
     
     if(fd == NULL){
         fprintf(stderr,"Can't write rls\n");
-        return;
+        return(0);
     }
     
     if(testflags[SAVE_IMAGES] == 5)

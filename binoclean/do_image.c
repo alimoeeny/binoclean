@@ -412,7 +412,7 @@ int ShiftImage(int frame, int x, int y)
     len = w*h;
     
     if (x == 0 && y == 0)
-        return;
+        return(0);
     if (x < 0)
         x +=w;
     if (y < 0)
@@ -460,7 +460,7 @@ int paint_image(Stimulus *st, Substim *sst)
     double c;
     if(st->xstate == INTERLEAVE_EXPT_BLANK || imageseed[st->framectr] < 0){
         if (imageseed[st->framectr] == -1) // don't clear, just leave image up
-            return;
+            return(0);
         if(testflags[TEST_RC])
             glClearColor(0, 0, 0, 1.0);
         else

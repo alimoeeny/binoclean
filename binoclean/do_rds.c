@@ -1680,7 +1680,7 @@ void paint_rds(Stimulus *st, int mode)
         
     if(fd == NULL){
       fprintf(stderr,"Can't create rds\n");
-      return;
+      return(0);
     }
     nsaved++;
     if(testflags[SAVE_IMAGES] == 5)

@@ -46,7 +46,8 @@ if isempty(it)
     set(DATA.toplevel,'UserData',DATA);
 end
 end
-if length(varargin)
+j = 1;
+while j <= length(varargin)
     if strncmpi(varargin{1},'close',5)
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
@@ -56,12 +57,14 @@ if length(varargin)
         end
         CloseTag(DATA.windownames{1});
         return;
-    elseif strncmpi(varargin{1},'quick',5)
-        DATA = ReadStimFile(DATA, varargin{2});
-        AddTextToGui(DATA, ['qe=' varargin{2}]);
+    elseif strncmpi(varargin{j},'quick',5)
+        j = j+1;
+        DATA = ReadStimFile(DATA, varargin{j});
+        AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
         set(DATA.toplevel,'UserData',DATA);
     end
+    j = j+1;
 end
 
 function DATA = InterpretLine(DATA, line)
@@ -169,6 +172,12 @@ for j = 1:length(strs{1})
         tic; PsychMenu(DATA); 
         tic; SetGui(DATA,'set'); 
         ShowStatus(DATA);
+        if DATA.rptexpts > 0
+            DATA.rptexpts = DATA.rptexpts-1;
+            it = findobj(DATA.toplevel,'Tag','RptExpts');
+            set(it,'string',num2str(DATA.rptexpts));
+            RunButton(DATA,[],1);
+        end
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
         DATA.extypes{1} = DATA.extypes{1}+1;
@@ -575,6 +584,7 @@ function SendState(DATA, varargin)
             fprintf(DATA.outid,'%s=%s\n',f{j},DATA.binocstr.(f{j}));
         end
     end
+    fprintf(DATA.outid,'uf=%s\n',DATA.datafile);
     if length(DATA.binoc) > 1 && isstruct(DATA.binoc{2})
     f = fields(DATA.binoc{2});
     fprintf(DATA.outid,'mo=back\n');
@@ -719,7 +729,7 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
-
+DATA.rptexpts = 0;
 DATA.font.FontSize = 14;
 DATA.font.FontName = 'Arial';
 DATA.Coil.gain= [0 0 0 0];
@@ -959,7 +969,7 @@ function DATA = InitInterface(DATA)
 'units','norm', 'Position',[0.01 0.01 0.98 1./nr]);
     DATA.txtui = lst;
     
-    bp = [0.01 1.01./nr 3.5./nc 7/nr];
+    bp = [0.01 1.01./nr 3.5./nc 6/nr];
     lst = uicontrol(gcf, 'Style','list','String', 'Command History',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
@@ -1009,18 +1019,42 @@ function DATA = InitInterface(DATA)
         'units', 'norm', 'position',bp,'value',1);
     
     
+    bp(1) = 0.01;
+    bp(2) = 7./nr;
+    bp(3) = 0.15;
+    bp(4) = 1./nr;
+    uicontrol(gcf,'style','text','string','Comment',  'units', 'norm', 'position',bp);
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 1-bp(1);
+    uicontrol(gcf,'style','edit','string','', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Comment','callback',{@TextGui, 'cm'});
+
+    
     bp(2) = 11./nr;
     bp(1) = 0.01;
-    bp(4) = 1.3/nr;
+    bp(4) = 1./nr;
     bp(3) = cw;
         uicontrol(gcf,'style','pushbutton','string','Stop', ...
         'Callback', {@RunButton, 2}, 'Tag','StopButton',...
         'units', 'norm', 'position',bp,'value',1);
+    bp(2) = 10./nr;
+    bp(3) = cw/2;
+         uicontrol(gcf,'style','Text','string','Rpt', ...
+        'units', 'norm', 'position',bp,'value',1);
+    bp(2) = 10./nr;
+    bp(1) = cw/2;
+         uicontrol(gcf,'style','edit','string',num2str(DATA.rptexpts), ...
+             'Tag','RptExpts','Callback',@TextGui,...
+        'units', 'norm', 'position',bp,'value',1);
 
     bp(2) = 12./nr;
     bp(1) = 0.01;
-    bp(4) = 1.3/nr;
-    bp(3) = cw;
+    bp(4) = 1./nr;
+    bp(3) = cw/4;
+         uicontrol(gcf,'style','Text','string','N', ...
+        'units', 'norm', 'position',bp,'value',1);
+    bp(1) = bp(3);
+    bp(3) = 0.75*cw;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.nr), 'Tag', 'binoc.nr', 'units', 'norm',...
         'callback',{@TextGui, 'nr'},'position',bp);
     
@@ -1455,7 +1489,16 @@ function MenuGui(a,b)
  function TextGui(a,b, type)
      DATA = GetDataFromFig(a);
      str = get(a,'string');
+     if nargin == 2
+         type = get(a,'Tag');
+     end
      switch type
+         case 'RptExpts'
+             DATA.rptexpts = str2num(str);
+             set(DATA.toplevel,'UserData',DATA);
+         case 'cm'
+             fprintf(DATA.outid,'cm=%s\n',str);
+             set(a,'string','');
          case 'nt'
              DATA.nstim(1) = str2num(str);
              fprintf(DATA.outid,'nt=%d\n',DATA.nstim(1));
@@ -1582,6 +1625,7 @@ function MenuGui(a,b)
     SetTextItem(DATA.toplevel,'Expt3Mean',DATA.mean(3));
     SetTextItem(DATA.toplevel,'DataFileName',DATA.datafile);
     SetTextItem(DATA.toplevel,'binoc.nr',DATA.binoc{1}.nr);
+    SetTextItem(DATA.toplevel,'RptExpts',DATA.rptexpts);
     id = strmatch(DATA.exptype{1},DATA.expmenucodes{1},'exact');
     SetMenuItem(DATA.toplevel, 'Expt1List', id);
     id = strmatch(DATA.exptype{2},DATA.expmenucodes{2},'exact');
@@ -1774,6 +1818,7 @@ function RunButton(a,b, type)
             DATA.optionflags.do = 1;
             DATA = GetState(DATA);
             else
+                DATA.rptexpts = 0;
                fprintf(DATA.outid,'\\ecancel\n');
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
@@ -1781,6 +1826,7 @@ function RunButton(a,b, type)
             end
         elseif type == 2
             fprintf(DATA.outid,'\\estop\n');
+            DATA.rptexpts = 0;
             DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
             DATA.Expts{DATA.nexpts}.End = now;
             DATA.optionflags.do = 0;

@@ -162,7 +162,7 @@ struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
 struct timeval lastcleartime;
 struct timeval progstarttime,calctime,paintframetime;
-struct timeval endexptime;
+struct timeval endexptime, changeframetime,lastcalltime,nftime;
 int wurtzctr = 0, wurtzbufferlen = 512,lasteyecheck;
 float clearcolor = 0;
 float lasttf = -1, lastsz = -1, lastsf = -1,lastor=0;
@@ -433,13 +433,6 @@ void afc_statusline(char *s, int line);
 void paint_target(float color, int flag);
 
 
-void event_loop();
-void expback();
-void expfront(),exprun();
-
-
-void MakeConnection();
-void panel_popup();
 
 #define resetframectr() (mode |= RESET_FRAME_CTR)
 
@@ -2461,7 +2454,7 @@ void one_event_loop()
 
 #pragma mark Event_Loop
 
-void event_loop()
+int event_loop(float delay)
 {
 	int i, j, mask,ctr,nstim,estim = 0;
 	vcoord end[2],mpos[2];
@@ -2475,11 +2468,16 @@ void event_loop()
 	Locator *pos = &TheStim->pos;
 	int statectr = 0,tc;
 	static int testlaps = 0;
+    struct timeval then;
     
     //Ali 20/6/2011
     //stimstate = PRESTIMULUS;
     
     tc = 0;
+    gettimeofday(&then,NULL);
+    val = timediff(&then,&nftime); //time since next frame exited
+//    if (stimstate == POSTSTIMINTRIAL || stimstate == POSTPOSTSTIMULUS)
+//        fprintf(stdout,"loop delay %.5f\n",val);
     while((c = ReadSerial(ttys[0])) != MYEOF){
         GotChar(c);
         if(tc++ > 2048){
@@ -2487,6 +2485,9 @@ void event_loop()
                 fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
         }
     }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&then); //time since next frame exited
+
  //   ReadInputPipe();
     if(cleartime.tv_sec != 0){
         gettimeofday(&now,NULL);
@@ -2555,7 +2556,8 @@ void event_loop()
         ReadExptFile(NULL, 0, 0,0);
     }
     ctr++;
-	
+    gettimeofday(&nftime,NULL);
+    return(stimstate);
 }
 
 
@@ -4930,6 +4932,8 @@ void WriteSignal()
     char c;
 
     struct timeval atime;
+    float val;
+    
     
 	if(mode & WURTZ_FRAME_BIT)
     {
@@ -4941,19 +4945,21 @@ void WriteSignal()
     }
 	if(mode & FIRST_FRAME_BIT)
     {
-        stimchanged = 0;
-	    c = FRAME_SIGNAL;
-        write(ttys[0],&c,1);
-        gettimeofday(&firstframetime,NULL);
-        memcpy(&zeroframetime, &firstframetime, sizeof(struct timeval));
-        expstate = 0;
-        framesdone = 0;
-        framectr = 0;
 #ifdef NIDAQ
         if (optionflags[MICROSTIM])
             DIOWriteBit(1, 1);
         DIOWriteBit(2, 1);
 #endif
+        stimchanged = 0;
+	    c = FRAME_SIGNAL;
+        write(ttys[0],&c,1);
+        gettimeofday(&firstframetime,NULL);
+        val = timediff(&firstframetime,&changeframetime);
+        memcpy(&zeroframetime, &firstframetime, sizeof(struct timeval));
+        expstate = 0;
+        framesdone = 0;
+        framectr = 0;
+
         if(seroutfile)
             fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
 	}
@@ -4967,22 +4973,21 @@ void WriteSignal()
 	}
 	if(mode & LAST_FRAME_BIT)
     {
-	    c = END_STIM;
-        write(ttys[0],&c,1);
+#ifdef NIDAQ
+            DIOval = 0;
+            DIOWriteBit(2,0); 
+#endif        
+        gettimeofday(&endstimtime,NULL);
+        if(seroutfile)
+            fprintf(seroutfile,"O %d %u %u %.3f\n",(int)(c),ufftime(&endstimtime),
+                    ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime));       
+
+        expstate = END_STIM;
+ 	    c = END_STIM;
+        write(ttys[0],&c,1);        
 #ifdef FRAME_OUTPUT
                 if (Frames2DIO)
 	    DIOWriteBit(3,1);
-#endif
-        gettimeofday(&endstimtime,NULL);
-        if(seroutfile)
-            fprintf(seroutfile,"O %d %u %u\n",(int)(c),ufftime(&endstimtime),
-                    ufftime(&endstimtime)-ufftime(&zeroframetime));
-        
-        expstate = END_STIM;
-#ifdef NIDAQ
-        DIOval = 0;
-        DIOWriteBit(2,0); 
-        DIOWriteBit(0,0); 
 #endif
 	}
 	if(mode & STIMCHANGE_FRAME)
@@ -5063,6 +5068,8 @@ int change_frame()
     //AliGLX	mySwapBuffers();
 	glFinishRenderAPPLE();
     glSwapAPPLE();
+    gettimeofday(&changeframetime,NULL);
+
 	framesswapped++;
 #ifdef NIDAQ
     if (stimchanged){
@@ -5070,7 +5077,13 @@ int change_frame()
         stimchanged = 0;
     }
 #endif
-	if(mode & FRAME_BITS)
+    //This does nothing any more. But interferes with last frame timing. 
+    //This should be in nextframe/runexptstim
+    if(oldmode & LAST_FRAME_BIT && !(mode & LAST_FRAME_BIT))
+        stimstate = POSTSTIMULUS;
+
+
+    if(mode & FRAME_BITS)
     {
 #ifdef FRAME_OUTPUT
         if (Frames2DIO)
@@ -5078,6 +5091,7 @@ int change_frame()
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
             glFinishRenderAPPLE(); /* block until buffer swapped */
+        gettimeofday(&changeframetime,NULL);
 	    WriteSignal();
 	    if(c == END_STIM){
             sprintf(buf,"%s%d\n",serial_strings[NFRAMES_CODE],framesdone);
@@ -5095,7 +5109,7 @@ int change_frame()
 	if(mode & RESET_FRAME_CTR)
     {
 	    mode &= (~RESET_FRAME_CTR);
-	    gettimeofday(&zeroframetime, NULL);
+	    memcpy(&zeroframetime, &changeframetime, sizeof(struct timeval));
         /* 
          *       framecount = 1 = first frame and counting
          *       framecount = 0 = not running a set of frames
@@ -5103,8 +5117,6 @@ int change_frame()
 	    framecount = 1;
     }
 	realframecount = getframecount();
-	if(oldmode & LAST_FRAME_BIT)
-        stimstate = POSTSTIMULUS;
     
 	if(stmode & DRAG_STIMULUS)
     {
@@ -5829,7 +5841,7 @@ int CheckFix()
 int RunBetweenTrials(Stimulus *st, Locator *pos)
 {
     if(!(optionflag & STIM_IN_WURTZ_BIT)){
-        if(expt.st->type == STIM_IMAGE && expt.st->preload)
+        if(expt.st->type == STIM_IMAGE && expt.st->preload && expt.st->preloaded)
             expt.st->framectr = rnd_i() % expt.st->nframes;
         paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
         increment_stimulus(st, pos);
@@ -5972,6 +5984,8 @@ int next_frame(Stimulus *st)
     
     
     gettimeofday(&now,NULL);
+    t2 = timediff(&now,&lastcalltime);
+    memcpy(&lastcalltime,&now,sizeof(struct timeval));
     /* some things need checking whatever the weather */
     if(stimno == NEW_EXPT)
         InitExpt();
@@ -6358,15 +6372,13 @@ int next_frame(Stimulus *st)
                                 fflush(seroutfile);
 #endif
                             }
-                            if(optionflag & WAIT_FOR_BW_BIT && !gotspikes){
+                            if(optionflag & WAIT_FOR_BW_BIT){
                                 gettimeofday(&timeb,NULL);
                                 val = 0;
-                                while(!gotspikes && val < 0.1){
-                                    while((c = ReadSerial(ttys[0])) != MYEOF)
-                                        GotChar(c);
-                                    gettimeofday(&now,NULL);
-                                    val = timediff(&now,&timeb);
-                                }
+                                while((c = ReadSerial(ttys[0])) != MYEOF)
+                                    GotChar(c);
+                                gettimeofday(&now,NULL);
+                                val = timediff(&now,&timeb);
 #ifdef MONITOR_CLOSE
                                 if(seroutfile){
                                     fprintf(seroutfile,"#Done\n");
@@ -6451,6 +6463,7 @@ int next_frame(Stimulus *st)
                 change_frame();
                 glFinishRenderAPPLE();
             }
+
             break;
         case POSTSTIMINTRIAL:
             if(rdspair(expt.st))
@@ -6470,6 +6483,16 @@ int next_frame(Stimulus *st)
             }
             else if((val = timediff(&now, &endstimtime)) > expt.postperiod)
                 stimstate = PRESTIMULUS;
+            if (laststate != POSTSTIMINTRIAL){ // first call
+                val = timediff(&now, &endstimtime);
+                val = timediff(&now, &timeb);
+                val = timediff(&now, &nftime);
+                if (val > 0.02){
+                    fprintf(stderr,"ISI delay %.3f\n",val);
+                    if(seroutfile)
+                        fprintf(seroutfile,"#ISI delay %.3f\n",val);
+                }
+            }
             memcpy(&goodfixtime, &now, sizeof(struct timeval));
             break;
         case INSTIMULUS:
@@ -6908,6 +6931,7 @@ int next_frame(Stimulus *st)
     if(debug == 4){
         testcolor();
     }
+    gettimeofday(&nftime,NULL);
     return(framecount);
 }
 

@@ -272,7 +272,7 @@ extern Log thelog;
 extern struct BWSTRUCT thebwstruct;
 extern FILE *testfd;
 extern struct timeval signaltime,now,endstimtime,firstframetime,zeroframetime,frametime,alarmstart;
-extern struct timeval calctime,paintframetime;
+extern struct timeval calctime,paintframetime,changeframetime;
 extern vcoord conjpos[],fixpos[];
 static time_t lastcmdread;
 
@@ -2735,7 +2735,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
     
     s = nonewline(s);
     if (*s == NULL)
-        return;
+        return(0);
     switch(flag)
     {
         case MONKEYNAME:
@@ -8356,7 +8356,7 @@ void InitExpt()
     else if(seroutfile){
         fprintf(seroutfile,"#Velocity 0 at Start Expt, was %.2f\n",oldvelocity);
     }
-    if(expt.mode == FIXPOS_X && expt.type2 == FIXPOS_Y && seroutfile)
+    if(expt.mode == FIXPOS_X || expt.type2 == FIXPOS_Y || expt.mode == FIXPOS_Y)
     {
         sprintf(cbuf,"#%s\n",EyeCoilString());
         SerialString(cbuf,0);
@@ -9547,7 +9547,7 @@ int PrepareExptStim(int show, int caller)
     else if(expt.type3 == SET_SEED){ //sets seed tgat deternmines sequence for trial 
         SetProperty(&expt,expt.st,expt.type3,  expt.exp3vals[stim3order[stimno]]);
         sprintf(ebuf,"%2s=%.2f",serial_strings[expt.type3],GetProperty(&expt,expt.st,expt.type3));
-        rnd_init(expt.st->left->baseseed);  
+        rnd_init(expt.st->left->baseseed);
     }
     else if(expt.type3 != EXPTYPE_NONE){
         SetProperty(&expt,expt.st,expt.type3,  expt.exp3vals[stim3order[stimno]]);
@@ -10035,6 +10035,7 @@ int PrepareExptStim(int show, int caller)
             printf("Seed Seq error\n");
             maxseed = expt.st->left->baseseed;
         }
+        fprintf(seroutfile,"se%d*\n",expt.st->left->baseseed);
         rnd_init(expt.st->left->baseseed);
         srand48(expt.st->left->baseseed);
         currentstim.seqseed = expt.st->left->baseseed;
@@ -10328,7 +10329,7 @@ int PrepareExptStim(int show, int caller)
     
     
     
-    if(optionflags[CALCULATE_ONCE_ONLY] || expt.st->type == STIM_IMAGE)
+    if(optionflags[CALCULATE_ONCE_ONLY] || (expt.st->type == STIM_IMAGE && !expt.st->preload))
         calc_stimulus(expt.st);
     if(rdspair(expt.st)){
         i = 0;  //dummy, for debugger
@@ -10402,7 +10403,7 @@ int PrepareExptStim(int show, int caller)
                 st->framectr = i+j;
                 st->left->calculated = st->right->calculated = 0;
                 calc_image(expt.st,expt.st->left); 
-                imageseed[i+j] = -1;
+                imageseed[i+j] = imageseed[i];
                 rcstimxy[0][i+j] = rcstimxy[0][i];
                 rcstimxy[1][i+j] = rcstimxy[1][i];
             }
@@ -11410,7 +11411,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int finished = 0,j,i = 0, nreps, ntotal, retval =0;
     int framecount,rc,lastframecount;
     Substim *rds;
-    char c,buf[BUFSIZ*2],tmp[BUFSIZ*2];
+    char c,buf[BUFSIZ*20],tmp[BUFSIZ*20];
     float val;
     Expstim *stim;
     struct plotdata *plot;
@@ -11698,7 +11699,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             change_frame();
             if (optionflags[FIXNUM_PAINTED_FRAMES]){
                 framecounts[framesdone] = getframecount();
-                tval = timediff(&frametime, &zeroframetime);
+                tval = timediff(&changeframetime, &zeroframetime);
                 fframecounts[framesdone] = (tval * mon.framerate);
             }
             else
@@ -11859,6 +11860,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         change_frame();
         wipescreen(clearcolor); //wipe for next swap too
     }
+#ifdef NIDAQ
+    DIOWriteBit(0,0); //clear stimchange pin
+#endif
     
     SerialSend(SET_SEED); // get this recorded at stim end also
     if(cctr && 0) // Don't do this normally
@@ -12038,7 +12042,32 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      */
     if(seroutfile)
         fprintf(seroutfile,"#du%.3f(%.3f)",frametimes[framesdone],(n-0.5)/expt.mon->framerate);
-    if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){ 
+    if (optionflags[FIXNUM_PAINTED_FRAMES]){
+        if(frametimes[framesdone]  > (framesdone-0.5)/expt.mon->framerate){ 
+            fprintf(stderr,"%d frames took %.3f\n",framesdone,frametimes[framesdone]);
+            sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
+            for( i = 1; i < framesdone-1; i++){
+                val = frametimes[i]-frametimes[i-1];
+                sprintf(tmp,"%d ",(int)(round(val*1000)));	
+                strcat(buf,tmp);
+            }
+            strcat(buf,"\n");
+            if(seroutfile)
+                fprintf(seroutfile,"%s",buf);
+            SerialString(buf,0);
+            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
+                j=0;
+                for(i = 0; i < framesdone; i++){
+                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                        strcat(buf,tmp);
+                    if (i > 1 && fframecounts[i]-fframecounts[i-1] > 1.5)
+                        fprintf(stderr,"Skip at %d:%.1f\n",i,fframecounts[i]);
+                }
+                strcat(buf,"\n");
+                SerialString(buf,0);
+        }
+    }
+    else if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){ 
         if (seroutfile)
             fprintf(seroutfile," #long(%d)",n);
         if (retval != BAD_TRIAL){
@@ -12051,8 +12080,6 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             strcat(buf,"\n");
             if(seroutfile)
                 fprintf(seroutfile,"%s",buf);
-            if(optionflags[FIXNUM_PAINTED_FRAMES])
-                SerialString(buf,0);
             if(frametimes[framesdone]  > (n+1.5)/expt.mon->framerate){ 
                 printf("V long %.3f",frametimes[framesdone]);
             }
@@ -12327,7 +12354,7 @@ int CheckBW(int signal, char *msg)
          * least one good signal is received before warning again
          */
         
-        if(timeout >= 60)
+        if(timeout >= 100)
         {
             if(signal == END_STIM)
             {
@@ -13858,12 +13885,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));
         SetProperty(&expt,expt.st,SETZYOFF,GetProperty(&expt,expt.st,RF_Y));
-       return;
+       return(0);
     }
     else if(!strncmp(line,"centerxy",8) || !strncmp(line,"sonull",6)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
-        return;
+        return(0);
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
@@ -13876,7 +13903,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
-        return;
+        return(0);
     }
     else if(!strncmp(line,"showrwbias",10)){
         optionflags[SHOW_REWARD_BIAS] = 2;
@@ -13886,7 +13913,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(0);
     }
     else if(!strncmp(line,"slider",6) && frompc){ //old commands that we don't want to drop down to codes below
-        return;
+        return(0);
     }
     else if(!strncmp(line,"splitctr",10) && frompc){
         if(seroutfile)
@@ -13969,7 +13996,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         if (strlen(s) < 2){
             sprintf(outbuf,"psychfile=%s\n",psychfilename);
             notify(outbuf);
-            return;
+            return(0);
         }
         psychfilename = myscopy(psychfilename,++s);
         nonewline(psychfilename);
@@ -14875,6 +14902,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 val = val * 180/M_PI;
             SetExptProperty(ex, TheStim,code, val);
             break;
+        case UFF_COMMENT:
+            SerialString(line,NULL);
+            break;
+        
         case TF:
             if(!strncmp(s,"tf",2)){
                 SetExptProperty(ex, TheStim,code, lasttf);

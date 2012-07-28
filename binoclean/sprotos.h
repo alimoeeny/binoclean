@@ -303,7 +303,7 @@ void TurnBackStim(Stimulus *st);
 void StartRunning();
 char DummySerial();
 void one_event_loop();
-void event_loop();
+int event_loop(float delay);
 void SetDelay(Locator *pos);
 void CheckRect(Stimulus *st);
 int StartOverlay();
