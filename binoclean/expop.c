@@ -1609,7 +1609,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     
     i = 0;
     while((code = valstrings[i].icode) >= 0){
-        serial_strings[code] = valstrings[i].code;
+        valstrings[code].code = valstrings[i].code;
         serial_names[code] = valstrings[i].label;
         if(code == LAST_STIMULUS_CODE)
             expt.laststimcode = i;
@@ -7036,7 +7036,7 @@ void LoadBackgrounds()
 int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 {
     
-    char *scode = serial_strings[code];
+    char *scode = valstrings[code].code;
     char temp[BUFSIZ],cadd[BUFSIZ];
     float val;
     double *f;
@@ -7068,38 +7068,38 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             strcat(cbuf,"\n\0");
             break;
         case SOFTOFF_CODE:
-            sprintf(cbuf,"%s%s%.2f %.2f %.2f %2f",serial_strings[code],
+            sprintf(cbuf,"%s%s%.2f %.2f %.2f %2f",valstrings[code].code,
                     temp,expt.softoff[0],expt.softoff[1],
                     expt.softoff[2],expt.softoff[3]);
             break;
         case UKA_VALS:
             f = afc_s.gregvals;
-            sprintf(cbuf,"%s%s%.2f %.2f %.2f %.2f %.2f",serial_strings[code],
+            sprintf(cbuf,"%s%s%.2f %.2f %.2f %.2f %.2f",valstrings[code].code,
                     temp,f[0],f[1],f[2],f[3],f[4]);
             break;
         case TRAPEZOIDAL_SCALING:
-            sprintf(cbuf,"%s%s%.6f %.6f",serial_strings[code],
+            sprintf(cbuf,"%s%s%.6f %.6f",valstrings[code].code,
                     temp,expt.mon->trapscale[0], expt.mon->trapscale[2]);
             break;
         case VERSION_CODE:
-            sprintf(cbuf,"%s%s%s",serial_strings[code],
+            sprintf(cbuf,"%s%s%s",valstrings[code].code,
                     temp,VERSION_NUMBER);
             break;
         case EARLY_RWTIME:
-            sprintf(cbuf,"%s=%.2f %.2f",serial_strings[code],expt.vals[EARLY_RWTIME],expt.vals[EARLY_RWSIZE]);
+            sprintf(cbuf,"%s=%.2f %.2f",valstrings[code].code,expt.vals[EARLY_RWTIME],expt.vals[EARLY_RWSIZE]);
             break;
         case USERID:
-            sprintf(cbuf,"%s=%s",serial_strings[code],userstrings[userid]);
+            sprintf(cbuf,"%s=%s",valstrings[code].code,userstrings[userid]);
             break;
         case BACKGROUND_IMAGE:
             if(flag == TO_FILE){
                 if(expt.backprefix)
-                    sprintf(cbuf,"%s=%s",serial_strings[code],expt.backprefix);
+                    sprintf(cbuf,"%s=%s",valstrings[code].code,expt.backprefix);
                 else
                     sprintf(cbuf,"");
             }
             else{
-                sprintf(cbuf,"%s%.0f",serial_strings[code],expt.vals[code]);
+                sprintf(cbuf,"%s%.0f",valstrings[code].code,expt.vals[code]);
             }
             break;
         case UFF_PREFIX:
@@ -7184,7 +7184,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
         case QUERY_STATE:
         case SEND_CLEAR:
-            sprintf(cbuf,"%2s",serial_strings[code]);
+            sprintf(cbuf,"%2s",valstrings[code].code);
             break;
         case CLAMP_DISPARITY_CODE:
             sprintf(cbuf,"%s%s%.2f",scode,temp,
@@ -7690,7 +7690,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
 
 char *SerialSend(int code)
 {
-    char *scode = serial_strings[code], cbuf[BUFSIZ];
+    char *scode = valstrings[code].code, cbuf[BUFSIZ];
     int i;
     
     cbuf[0] = 0;
@@ -13929,7 +13929,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     
     if(code >= 0)
-        s = &line[strlen(serial_strings[code])];
+        s = &line[strlen(valstrings[code].code)];
     else
         s = &line[2];
     
@@ -14003,7 +14003,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             if (*s == '+'){
                 sscanf(s,"%f",&fval);
                 stepproc(fval);
-                sprintf(buf,"%2s=%.3fmore characters to flush\n",serial_strings[code],expt.vals[ELECTRODE_DEPTH]);
+                sprintf(buf,"%2s=%.3fmore characters to flush\n",valstrings[code].code,expt.vals[ELECTRODE_DEPTH]);
                 notify(buf);
             }
             break;
@@ -14381,7 +14381,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sprintf(buf,"%s\nfs%d\nss%d\nes%d tc%d %u",&line[2],fixstate,stimstate,expstate,trialcnt,ufftime(&now));
             acknowledge(buf,NULL);
             if(seroutfile)
-                fprintf(seroutfile,"%2s%s\n",serial_strings[code],buf);
+                fprintf(seroutfile,"%2s%s\n",valstrings[code].code,buf);
             return(code);
         case EXPTYPE_CODE3:
         case EXPTYPE_CODE2:

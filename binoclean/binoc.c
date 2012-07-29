@@ -561,7 +561,7 @@ int CheckStrings()
         {
 		    if(strcmp(valstrings[i].code,valstrings[j].code) == 0)
             {
-                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",serial_strings[i],i,j);
+                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",valstrings[i].code,i,j);
                 err++;
             }
         }
@@ -1572,7 +1572,7 @@ void StopGo(int go)
         mode |= ANIMATE_BIT;
         monkeypress = 0;
         end_timeout();
-        sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+        sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
         SerialString(buf,0);
         if(!(TheStim->mode & EXPTPENDING) && expt.st->left->ptr->velocity > 0){
             oldvelocity = expt.st->left->ptr->velocity;
@@ -1592,7 +1592,7 @@ void StopGo(int go)
         optionflag &= (~GO_BIT);
         mode &= (~(ANIMATE_BIT | TEST_PENDING));
         monkeypress = WURTZ_STOPPED;
-        sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
+        sprintf(buf,"%2s+\n",valstrings[STOP_BUTTON].code);
         SerialString(buf,0);
         if(stimstate == INSTIMULUS)
             TrialOver();
@@ -2324,7 +2324,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
 int RewardOn(int onoff){
     char buf[256];
     
-    sprintf(buf,"%2s%c\n",serial_strings[REWARD_SIZE],onoff?'+':'-');
+    sprintf(buf,"%2s%c\n",valstrings[REWARD_SIZE].code,onoff?'+':'-');
     SerialString(buf,0);
 }
 
@@ -3700,7 +3700,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",serial_strings[code],val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -3727,7 +3727,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",serial_strings[code],val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -4885,7 +4885,7 @@ void end_timeout()
      optionflag |= (DRAW_FIX_BIT);
      }
      */
-    sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+    sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
     SerialString(buf,0);
     newtimeout = 1;
        glDrawBuffer(GL_BACK);
