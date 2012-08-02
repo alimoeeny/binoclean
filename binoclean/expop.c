@@ -7375,7 +7375,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
         case EXPTSTRING:
             sprintf(cbuf,"%s%s%s",serial_strings[EXPTYPE_CODE3],temp,serial_strings[expt.type3]);
-            if(expt.type3 != EXPTYPE_NONE){
+            if(expt.type3 != EXPTYPE_NONE && expt.nstim[4] < 50){
                 for(i = 0; i < expt.nstim[4]; i++){
                     sprintf(cadd," %.3f",expt.exp3vals[i]);
                     strcat(cbuf,cadd);
@@ -11931,7 +11931,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         if(optionflags[TILE_XY]){
             sprintf(buf,"%srX=",serial_strings[MANUAL_TDR]);
             for(i = 0; i < framesdone; i++){
-                sprintf(tmp,"%d ",rcstimxy[1][i*framesperstim]);
+                sprintf(tmp,"%d ",rcstimxy[0][i*framesperstim]);
                 strcat(buf,tmp);
             }
             strcat(buf,"\n");
