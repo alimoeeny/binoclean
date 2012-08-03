@@ -52,6 +52,7 @@
 #define Xrnd(x) (x * LC_A + LC_C)   /* the LC polynomial                       */
 
 static unsigned long Fib[55];      /* will use X(n) = X(n-55) - X(n-24)        */
+static unsigned long ncalls = 0;
 static int Fib_ind;                /* current index in circular buffer         */
 static unsigned long Xrnd_var;     /* LCA - recurrence variable                */
 static unsigned long auxtab[256];   /* temporal permutation table              */
@@ -138,6 +139,7 @@ rnd_init (unsigned seed)                            /* modified: seed 0-31 use p
     man.d = 1.0;
     man.u[0] ^= t.u[0];
     man.u[1] ^= t.u[1];                    /* man is now 1 for each mantissa bit       */
+    ncalls = 0;
 }
 
 long rnd_i ()
@@ -163,6 +165,7 @@ long rnd_i ()
     j |= *t++ & ((i << 24) | ((i >>  8) & 0x00ffffff));
     j |= *t++ & ((i << 16) | ((i >> 16) & 0x0000ffff));
     j |= *t   & ((i <<  8) | ((i >> 24) & 0x000000ff));
+    ncalls++;
     
     return j & 0x7fffffff;
 }

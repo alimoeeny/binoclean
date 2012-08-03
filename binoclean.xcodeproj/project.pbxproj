@@ -282,6 +282,7 @@
 		41BF8E1B13A174FE00C8B6BA /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = misc.c; sourceTree = "<group>"; };
 		41BF8E1C13A174FE00C8B6BA /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		41BF8E1D13A174FE00C8B6BA /* myfree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = myfree.c; sourceTree = "<group>"; };
+		41CC73DB15B0966C00E2C404 /* labjackusb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = labjackusb.h; sourceTree = "<group>"; };
 		41D5A3AF15264900004431C1 /* crosscursor20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crosscursor20.png; sourceTree = "<group>"; };
 		41D5A3B215265341004431C1 /* crosscursorPG20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crosscursorPG20.png; sourceTree = "<group>"; };
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -430,6 +431,7 @@
 		410044521507A47400022ACE /* headers */ = {
 			isa = PBXGroup;
 			children = (
+				41CC73DB15B0966C00E2C404 /* labjackusb.h */,
 				41536F8715349D41002D0F9D /* u3.h */,
 				41934E1815223E19001D9E5C /* u6.h */,
 				41BF8E0313A174FE00C8B6BA /* sprotos.h */,
@@ -1071,7 +1073,7 @@
 		419DCE3513A133B3004E8464 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CONFIGURATION_BUILD_DIR = "/local/bin/$(EFFECTIVE_PLATFORM_NAME)";
 				COPY_PHASE_STRIP = NO;
@@ -1079,15 +1081,18 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = NIDAQ;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NIDAQ,
+					Darwin,
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -1096,37 +1101,57 @@
 		419DCE3613A133B3004E8464 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NIDAQ,
+					Darwin,
+				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = macosx;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				OTHER_LDFLAGS = (
+					"-llabjackusb",
+					"-lusb-1.0",
+				);
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
 		419DCE3813A133B3004E8464 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = NIDAQ;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "FRAME_OUTPUT=1";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				HEADER_SEARCH_PATHS = "";
+				IBC_PLUGIN_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = "NIDAQ=1";
+				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
+					"FRAME_OUTPUT=1",
+					"NIDAQ=1",
+				);
+				"INFOPLIST_PREPROCESSOR_DEFINITIONS[sdk=*]" = "";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = "";
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1134,18 +1159,29 @@
 		419DCE3913A133B3004E8464 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = NIDAQ;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "FRAME_OUTPUT=1";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				HEADER_SEARCH_PATHS = "";
+				IBC_PLUGIN_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = "NIDAQ=1";
+				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
+					"NIDAQ=1",
+					"FRAME_OUTPUT=1",
+				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = "";
 				SYMROOT = /bgc/bgc/c/binoclean/Release;
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

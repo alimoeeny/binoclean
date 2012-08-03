@@ -88,7 +88,7 @@
 #define MAXRCFRAMES 50000
 
 //Ali
-#define NOEVENT 0
+
 #define ZERO 0
 #define MANUALEVENT 1
 #define TRUE 1
@@ -98,6 +98,7 @@ char * VERSION_NUMBER;
 
 #define MAXRF 10
 extern Expstim oldrfs[];
+extern int Frames2DIO;
 extern float pursuedir;
 extern FILE *imidxfd;
 extern char *replay_expt, ImageOutDir[];
@@ -224,15 +225,15 @@ long frametotal = 0;
 int outliers[2];
 int clearcnt;
 static int stimulus_is_prepared = 0;
-float dframeseq[MAXFRAMES]; // tracks when change happens
-float frameseq[MAXFRAMES];
-float frameseqb[MAXFRAMES];
-float frameseqc[MAXFRAMES];
-float frameseed[MAXFRAMES];
-int frameiseq[MAXFRAMES];
-int frameiseqb[MAXFRAMES];
-int frameiseqp[MAXFRAMES];
-int framecseq[MAXFRAMES];
+float dframeseq[MAXFRAMES*4]; // tracks when change happens
+float frameseq[MAXFRAMES*4];
+float frameseqb[MAXFRAMES*4];
+float frameseqc[MAXFRAMES*4];
+float frameseed[MAXFRAMES*4];
+int frameiseq[MAXFRAMES*4];
+int frameiseqb[MAXFRAMES*4];
+int frameiseqp[MAXFRAMES*4];
+int framecseq[MAXFRAMES*4];
 Thisstim *stimseq = NULL;
 int trialctr = 0;
 int triallaps = 0;
@@ -273,7 +274,7 @@ extern Log thelog;
 extern struct BWSTRUCT thebwstruct;
 extern FILE *testfd;
 extern struct timeval signaltime,now,endstimtime,firstframetime,zeroframetime,frametime,alarmstart;
-extern struct timeval calctime,paintframetime;
+extern struct timeval calctime,paintframetime,changeframetime;
 extern vcoord conjpos[],fixpos[];
 static time_t lastcmdread;
 
@@ -460,6 +461,7 @@ Exptmenu firstmenu[] = {
     {"Width L",WIDTH_L},
     {"Length L",HEIGHT_L},
     {"Contrast Ratio",CONTRAST_RATIO},
+    {"Contrast Difference (L-R)", CONTRAST_DIFF},
     {"Plaid Contrast Diff",PLAID_RATIO},
     {"SD Y",SD_Y},
     {"SD Both",SD_BOTH},
@@ -482,10 +484,11 @@ Exptmenu firstmenu[] = {
     {"Two Cyl Disp",TWOCYL_DISP},
     {"Stimulus Mode",STIMULUS_MODE},
     {"StimOPos",STIMORTHOG_POS},
+    {"SeedRange",SEEDRANGE},
     {NULL, 0},
 };
 
-#define NEXPTS1 82
+#define NEXPTS1 83
 
 Exptmenu secondmenu[] = {
     {"None",EXPTYPE_NONE},
@@ -586,10 +589,14 @@ Exptmenu secondmenu[] = {
     {"%ACorr",MIXAC},
     {"pBlackDot",BLACKDOT_FRACTION},
     {"Seed Loop", SET_SEEDLOOP},
+    {"Orientation Disparity", ORIENTATION_DIFF},
+    {"Seed Offset", SEEDOFFSET},
+    {"Jump Direction", FP_MOVE_DIR},
+    {"Jump Size", FP_MOVE_SIZE},
     {NULL, -1}
 };
 
-#define NEXPTS2 63
+#define NEXPTS2 67
 /*
  *  N.B. Expts added to second menu must also have entry in setsecondexp()
  */
@@ -628,9 +635,10 @@ Exptmenu thirdmenu[] = {
     {"Stimulus Mode",STIMULUS_MODE},
     {"FakeStim",FAKESTIM_EXPT},
     {"Tone Time",TONETIME},
+    {"Seed",SET_SEED},
     {NULL, -1}
 };
-#define NEXPTS3 34
+#define NEXPTS3 35
 
 int nexptypes[3] = {NEXPTS1, NEXPTS2,NEXPTS3};
 #define NPLOTDATA (nexptypes[0]+3)
@@ -698,8 +706,9 @@ int PrintInfo(FILE *fd)
 int SetTargets()
 {
     double val,aval, cosa, sina, osum = 0;
-    int j;
+    int j,sgn = 1;
     
+    sgn = afc_s.sign;
     if((expt.mode == ORIENTATION || expt.type2 == ORIENTATION) && SACCREQD(afc_s)){
         for (j = 0; j < expt.nstim[0]; j++)
             osum += expval[expt.nstim[2]+j];
@@ -754,6 +763,28 @@ int SetTargets()
             
         }
         else if(fabs(tan(val*M_PI/180.0)) > 0.46){  
+            SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStimb, -sgn * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, expt.fixpos[1],  YPOS, NULL);
+            afc_s.abssac[1] = 0;
+            afc_s.abssac[0] = expt.vals[SACCADE_AMPLITUDE];
+        }
+        else{
+            SetStimulus(ChoiceStima, sgn*expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, -sgn*expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStima, expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStimb, expt.fixpos[0],  XPOS, NULL);
+            afc_s.abssac[0] = 0;
+            afc_s.abssac[1] = expt.vals[SACCADE_AMPLITUDE];
+        }
+    }
+    else if (expt.mode == PLAID_RATIO){
+        aval = expt.stimvals[ORIENTATION];
+        val = aval + 90;
+        SetStimulus(ChoiceStima, aval,  ORIENTATION, NULL);
+        SetStimulus(ChoiceStimb, val,  ORIENTATION, NULL);
+        if(fabs(tan(aval*M_PI/180.0)) < 1.4){  
             SetStimulus(ChoiceStima, expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStimb, -expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
@@ -770,9 +801,10 @@ int SetTargets()
             afc_s.abssac[1] = expt.vals[SACCADE_AMPLITUDE];
         }
     }
-    else if (expt.mode == PLAID_RATIO){
-        aval = expt.stimvals[ORIENTATION];
-        val = aval + 90;
+    else if (expt.mode == CONTRAST_DIFF){
+        val = expt.stimvals[ORIENTATION_DIFF];
+        aval = expt.stimvals[ORIENTATION] - abs(expt.stimvals[ORIENTATION_DIFF]/2);
+        val = aval + abs(expt.stimvals[ORIENTATION_DIFF]);
         SetStimulus(ChoiceStima, aval,  ORIENTATION, NULL);
         SetStimulus(ChoiceStimb, val,  ORIENTATION, NULL);
         if(fabs(tan(aval*M_PI/180.0)) < 1.4){  
@@ -1820,6 +1852,9 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         j++;
     }
     afc_s.proportion = 0.5;
+    afc_s.sign=1;
+    afc_s.target_in_trial = 0;
+    
     SetExptString(ex, ex->st, MONKEYNAME, "none");
 }
 
@@ -2694,7 +2729,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
     
     s = nonewline(s);
     if (*s == NULL)
-        return;
+        return(0);
     switch(flag)
     {
         case MONKEYNAME:
@@ -2920,6 +2955,9 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     
     switch(flag)
     {
+        case IMAGEJUMPS:
+            expt.st->jumps = (int)val;
+            break;
         case REWARD_BIAS:
             expt.biasedreward = val;
             break;
@@ -3107,7 +3145,11 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case FAKESTIM_EXPT:
         case FAKESTIM_SIGNAL:
         case TONETIME:
+        case SEEDRANGE:
             expt.vals[flag] = val;
+            break;
+        case NIMPLACES:
+            expt.st->nimplaces = val;
             break;
         case HIGHXTYPE:
             expt.hightype = val;
@@ -3637,6 +3679,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case BACK_OPOS:
         case REWARD_BIAS:
         case TONETIME:
+        case TARGET_RATIO:
             SerialSend(flag);
             break;
         case PURSUIT_INCREMENT:
@@ -3678,6 +3721,9 @@ float ExptProperty(Expt *exp, int flag)
     
     switch(flag)
     {
+        case IMAGEJUMPS:
+            val = expt.st->jumps;
+            break;
         case REWARD_BIAS:
             val = expt.biasedreward;
             break;
@@ -3830,7 +3876,11 @@ float ExptProperty(Expt *exp, int flag)
         case FAKESTIM_EXPT:
         case FAKESTIM_SIGNAL:
         case TONETIME:
+        case SEEDRANGE:
             val = expt.vals[flag];
+            break;	
+        case NIMPLACES:
+            val = expt.st->nimplaces;
             break;	
         case HIGHXTYPE:
             val = expt.hightype;
@@ -4274,6 +4324,9 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"go",2)){
         StopGo(GO);
+    }
+    else if(!strncasecmp(s,"openuff",7)){
+        SerialSend(UFF_PREFIX);
     }
     else if(!strncasecmp(s,"reopenserial",10)){
         ReopenSerial();
@@ -5064,7 +5117,7 @@ void setsecondexp(int w, int id, int val)
             expt.nstim[1] = 3;
             break;
         case CONTRAST_RATIO:
-            expt.flag |= (TIMES_EXPT2 | ALTERNATE_EXPTS);
+            expt.flag |= (TIMES_EXPT2);
             /*      expt.flag |= LOGINCR2;*/
             expt.nstim[1] = 2;
             break;
@@ -5083,8 +5136,10 @@ void setsecondexp(int w, int id, int val)
             expt.type2 = EXPTYPE_NONE;
             optionflags[PLOTFLIP] = 0;
             while((type = secondmenu[i++].val) >= 0){
-                if(type == val)
+                if(type == val){
                     expt.type2 = type;
+                    expt.flag |= (TIMES_EXPT2); //Default is times
+                }
             }
             if(expt.type2 == EXPTYPE_NONE){ /* Not found*/
                 expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
@@ -6137,6 +6192,7 @@ int setexp3stim()
             case FAST_SEQUENCE_RPT:
             case DISP_X:
             case STIM_SIZE: // This group the user sets ranges
+            case SET_SEED:
                 if(optionflags[CUSTOM_EXPVALC] == 0){
                     for(i = 0; i < expt.nstim[4]; i++){
                         val = (expt.incr3 * i);
@@ -6830,6 +6886,7 @@ void setstimuli(int flag)
         case FIXPOS_X: // This can be changed by the user
         case SETCONTRAST: // This can be changed by the user
         case TONETIME:
+        case SET_SEED:
             break;
         default:
             expt.nstim[4] = 1;
@@ -7023,12 +7080,12 @@ void LoadBackgrounds()
         //AliGLX    mySwapBuffers();
         start = expval[offset+expt.nstim[2] + j];
         for(i = 0; i < nf; i++){
-            sprintf(name,"%s%.4d.pgm",expt.backprefix,i+start);
+            sprintf(name,"%s%.*d.pgm",expt.backprefix,expt.st->nimplaces,i+start);
             //    sprintf(name,"%s%d.pgm",expt.backprefix,i+1);
             len = ReadPGM(name,&backims[i+start]);
         }
     }
-    backloaded = start+ns;
+    backloaded = i+start;
 }
 
 
@@ -7262,7 +7319,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
         case EXPTSTRING:
             sprintf(cbuf,"%s%s%s",serial_strings[EXPTYPE_CODE3],temp,serial_strings[expt.type3]);
-            if(expt.type3 != EXPTYPE_NONE){
+            if(expt.type3 != EXPTYPE_NONE && expt.nstim[4] < 50){
                 for(i = 0; i < expt.nstim[4]; i++){
                     sprintf(cadd," %.3f",expt.exp3vals[i]);
                     strcat(cbuf,cadd);
@@ -7284,21 +7341,39 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                     nstim = expt.nstim[3];
                 sprintf(cbuf,"mtei=");
                 for(i = 0; i < nstim+expt.fastextras; i++){
+                    if (nfplaces[expt.mode] == 0)
+                        sprintf(cadd,"%.0f ",fastvals[i]);
+                        else
                     sprintf(cadd,"%.4f ",fastvals[i]);
                     strcat(cbuf,cadd);
                 }
                 strcat(cbuf,"\nmte2=");
                 for(i = 0; i < nstim+expt.fastextras; i++){
+                    if (nfplaces[expt.type2] == 0)
+                        sprintf(cadd,"%.0f ",fastbvals[i]);
+                    else
                     sprintf(cadd,"%.4f ",fastbvals[i]);
                     strcat(cbuf,cadd);
                 }
                 strcat(cbuf,"\n");
                 strcat(cbuf,"\nmte3=");
                 for(i = 0; i < nstim+expt.fastextras; i++){
+                    if (nfplaces[expt.type3] == 0)
+                    sprintf(cadd,"%.0f ",fastcvals[i]);
+                    else
                     sprintf(cadd,"%.4f ",fastcvals[i]);
                     strcat(cbuf,cadd);
                 }
                 strcat(cbuf,"\n");
+                if (optionflags[TILE_XY]){
+                strcat(cbuf,"\nmtxo=");
+                for(i = 0; i < expt.st->jumps; i++){
+                    val = (i-expt.st->jumps/2)*expt.vals[FP_MOVE_SIZE];
+                    sprintf(cadd,"%.4f ",val);
+                    strcat(cbuf,cadd);
+                }
+                strcat(cbuf,"\n");
+                }
             }
             break;
         case OPTION_CODE:
@@ -7824,7 +7899,7 @@ char *SerialSend(int code)
 void InitExpt()
 {
     int i,j,code;
-    char cbuf[BUFSIZ*10],c,buf[BUFSIZ],rcnamebuf[BUFSIZ],*ts;
+    char cbuf[BUFSIZ*100],c,buf[BUFSIZ],rcnamebuf[BUFSIZ],*ts;
     float tval,val;
     time_t tstart;
     Thisstim *stp;
@@ -7845,6 +7920,16 @@ void InitExpt()
     afc_s.magid = expt.nstim[0]-1;
     afc_s.nmags = expt.nstim[0];
     afc_s.stairsign = 1;
+    afc_s.signflipp = 0;
+    if (optionflags[CHOICE_BY_ICON]){
+        afc_s.signflipp = 0.5;
+        afc_s.target_in_trial = 1;
+    }
+    else{
+        afc_s.signflipp = 0;
+        afc_s.target_in_trial = 0;
+    }
+    
     
     if(expt.mode == CORRELATION || expt.mode == DISTRIBUTION_CONC)
         afc_s.type = MAGONE_SIGNTWO;
@@ -7898,6 +7983,7 @@ void InitExpt()
             case NCOMPONENTS:
             case ORI_BANDWIDTH:
             case PLAID_RATIO:
+            case ORIENTATION_DIFF:
                 expt.stimvals[i] = GetProperty(&expt,expt.st,i);
                 break;
             case TARGET_RATIO:
@@ -8216,7 +8302,7 @@ void InitExpt()
     else if(seroutfile){
         fprintf(seroutfile,"#Velocity 0 at Start Expt, was %.2f\n",oldvelocity);
     }
-    if(expt.mode == FIXPOS_X && expt.type2 == FIXPOS_Y && seroutfile)
+    if(expt.mode == FIXPOS_X || expt.type2 == FIXPOS_Y || expt.mode == FIXPOS_Y)
     {
         sprintf(cbuf,"#%s\n",EyeCoilString());
         SerialString(cbuf,0);
@@ -8224,6 +8310,19 @@ void InitExpt()
     SendAllToGui();
 }
 
+void CheckPsychVal(Thisstim *stp)
+{
+    double val;
+    if (expt.mode == CONTRAST_DIFF){
+        if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
+            stp->vals[EXP_PSYCHVAL] = stp->vals[0];
+        }
+        else {
+            stp->vals[EXP_PSYCHVAL] = -stp->vals[0];
+        }
+    }
+
+}
 
 Thisstim *getexpval(int stimi)
 {
@@ -8231,7 +8330,7 @@ Thisstim *getexpval(int stimi)
     float vals[2],temp,vtemp;
     static Thisstim stimret;
     int rnd;
-    double drnd;
+    double drnd,val;
     
     stimret.a = stimret.b = 0;
     
@@ -8415,6 +8514,16 @@ Thisstim *getexpval(int stimi)
             stimret.vals[SIGNAL_STRENGTH] = 0;
         }
     }
+    if (expt.mode == CONTRAST_DIFF){
+        if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
+            stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
+        }
+        else {
+            stimret.vals[EXP_PSYCHVAL] = -stimret.vals[0];
+        }
+    }
+
+    
     if(expt.type2 == JUMPTYPE && expt.mode == FP_MOVE_SIZE && stimret.vals[1] ==1){
         stimret.vals[0] = -expt.mean;
     }
@@ -8648,6 +8757,13 @@ void SetSacVal(float stimval, int index)
             afc_s.sacval[4] = -afc_s.sacval[0];
             afc_s.sacval[5] = -afc_s.sacval[1];
         }
+        if (afc_s.sign < 0){
+            afc_s.sacval[0] = -afc_s.sacval[0];
+            afc_s.sacval[1] = -afc_s.sacval[1];
+            afc_s.sacval[4] = -afc_s.sacval[4];
+            afc_s.sacval[5] = -afc_s.sacval[5];
+            
+        }
         SerialSend(HSACCADE_VALUE); 
         SerialSend(VSACCADE_VALUE); 
         SerialSend(TARGET2_POS); 
@@ -8825,6 +8941,14 @@ char *ShowStimVals(Thisstim *stp)
         sprintf(ebuf,"tr%.2f",expt.vals[TARGET_RATIO]);
     else
         sprintf(ebuf,"");
+    if (SACCREQD(afc_s)){
+        if (stp->vals[EXP_PSYCHVAL] > 0){
+            strcat(cbuf,"+");
+        }
+        else if (stp->vals[EXP_PSYCHVAL] < 0){
+            strcat(cbuf,"-");
+        }
+    }
     
     if(optionflags[MICROSTIM]){
         if (expt.type3 == FAKESTIM_EXPT){
@@ -8913,6 +9037,15 @@ int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
         }
         frameseqb[i] = stp->vals[0];
     }
+    else if(expt.mode == SEEDRANGE){
+        if (expt.nstim[1] > 1)
+                frameseqb[i] = expval[i2expi(expt.flag,nstim,rnd+xoff,1)- nstim[2]];
+        nv = (int)(expt.vals[SEEDRANGE]-1);
+        rnd = lrnd % (nv + nextra);
+        frameiseq[i] = 1+rnd;
+        frameseq[i] = frameiseq[i];
+        expt.fasttype = SET_SEED;
+    }
     else if(rnd < nextra){
         frameseq[i] = i2expval(rnd,nextra, 0, xoff);
     }
@@ -8981,9 +9114,9 @@ int PrepareExptStim(int show, int caller)
     Stimulus *st = expt.st;
     struct timeval then;
     static int realstim[2] = {0};
-    int brpt = 0,id,startf = 1,code;
-    int isig,pw,sigframes[MAXFRAMES];
-    
+    int brpt = 0,id,startf = 1;
+    int isig,pw,sigframes[MAXFRAMES],laps=0;
+    int code;
     
     
     if(mode & BW_ERROR)
@@ -9358,10 +9491,16 @@ int PrepareExptStim(int show, int caller)
         
         sprintf(ebuf,"%2s=%.2f",serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION));
     }
+    else if(expt.type3 == SET_SEED){ //sets seed tgat deternmines sequence for trial 
+        SetProperty(&expt,expt.st,expt.type3,  expt.exp3vals[stim3order[stimno]]);
+        sprintf(ebuf,"%2s=%.2f",serial_strings[expt.type3],GetProperty(&expt,expt.st,expt.type3));
+        rnd_init(expt.st->left->baseseed);
+    }
     else if(expt.type3 != EXPTYPE_NONE){
         SetProperty(&expt,expt.st,expt.type3,  expt.exp3vals[stim3order[stimno]]);
         sprintf(ebuf,"%2s=%.2f",serial_strings[expt.type3],GetProperty(&expt,expt.st,expt.type3));
     }
+
     else
         sprintf(ebuf,"");
     
@@ -9409,6 +9548,7 @@ int PrepareExptStim(int show, int caller)
     }
     
     /* work out stimulus values in case its a double experiment */
+    CheckPsychVal(stp);
     val = stp->vals[EXP_PSYCHVAL];
     
     
@@ -9446,6 +9586,17 @@ int PrepareExptStim(int show, int caller)
     /* set right saccade sign for responses */
     memcpy(&stimseq[trialctr],stp,sizeof(Thisstim));
     psychval = val;
+    
+    //If in a corrrection loop, stimulus will be repeated, so keep afc_sign the same
+    if (optionflags[CHOICE_BY_ICON]  &&  afc_s.loopstate != CORRECTION_LOOP){
+        if((drnd = drand48()) < afc_s.signflipp)
+            afc_s.sign = -1;
+        else {
+            afc_s.sign = 1;
+        }
+        SetTargets();
+    }
+
     SetSacVal(psychval,expt.stimid);
     
     
@@ -9686,7 +9837,7 @@ int PrepareExptStim(int show, int caller)
     
     
     
-    if(optionflags[TILE_XY]){
+    if(optionflags[TILE_XY] && !optionflags[FAST_SEQUENCE]){
         rnd = rnd_i();
         xrnd = rnd &3;
         yrnd = (rnd >4) & 3;
@@ -9728,7 +9879,8 @@ int PrepareExptStim(int show, int caller)
             else if (code == JVELOCITY && expt.st->type == STIM_CYLINDER)
                 SerialSend(code);
         }
-    
+    CheckPsychVal(stp);
+    SetSacVal(stp->vals[EXP_PSYCHVAL],expt.stimid);
     ShowStimVals(stp);
     if(afc_s.loopstate == CORRECTION_LOOP){
         SerialString("CLOOP\n",0);
@@ -9831,6 +9983,7 @@ int PrepareExptStim(int show, int caller)
             printf("Seed Seq error\n");
             maxseed = expt.st->left->baseseed;
         }
+        fprintf(seroutfile,"se%d*\n",expt.st->left->baseseed);
         rnd_init(expt.st->left->baseseed);
         srand48(expt.st->left->baseseed);
         currentstim.seqseed = expt.st->left->baseseed;
@@ -9973,7 +10126,7 @@ int PrepareExptStim(int show, int caller)
             if(frpt < 1) // make sure, otherwise this blocks!
                 frpt = 1;
             id = 0;
-            for(i = 0; i < expt.st->nframes; i+= frpt){
+            for(i = 0; i < expt.st->nframes+1; i+= frpt){
                 //	    lrnd = rnd_ri((long)(nv + expt.fastextras));
                 lrnd = rnd_i();
                 SetFrameStim(i, lrnd, inc, stp, nstim);
@@ -10124,7 +10277,7 @@ int PrepareExptStim(int show, int caller)
     
     
     
-    if(optionflags[CALCULATE_ONCE_ONLY] || expt.st->type == STIM_IMAGE)
+    if(optionflags[CALCULATE_ONCE_ONLY] || (expt.st->type == STIM_IMAGE && !expt.st->preload))
         calc_stimulus(expt.st);
     if(rdspair(expt.st)){
         i = 0;  //dummy, for debugger
@@ -10150,17 +10303,58 @@ int PrepareExptStim(int show, int caller)
     if(expt.st->type == STIM_IMAGE  && expt.st->preload){
         gettimeofday(&then,NULL);
         expt.st->preloaded = 0;
-        for(i = 0; i < expt.st->nframes; i++){
+
+        frpt = expt.vals[FAST_SEQUENCE_RPT];
+        if (optionflags[RAND_FP_DIR]){
+            expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+            if(expt.st->jumps)
+                SerialSend(FP_MOVE_DIR);
+        }
+        
+        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0)
+            frpt = 1;
+        for(i = 0; i < expt.st->nframes+1; i+=frpt){
             if(optionflags[FAST_SEQUENCE]){
                 if(expt.fastbtype != EXPTYPE_NONE)
                     SetStimulus(expt.st,frameseqb[i],expt.fastbtype,NOEVENT);
                 SetStimulus(expt.st,frameseq[i],expt.fasttype,NOEVENT);
+            }
+            if (expt.st->jumps > 0){
+                nv = expt.st->jumps/2;
+                if(optionflags[TILE_XY]){
+                    rnd = rnd_i();
+                    rcstimxy[0][i] = (rnd & 0xffff) % expt.st->jumps;
+                    rcstimxy[1][i] = (rnd>>16) % expt.st->jumps;
+                    expt.st->xyshift[0] = (rnd % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
+                    expt.st->xyshift[1] = ((rnd>>16) % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
+                }
+                else{
+                    laps = floor(i / expt.st->jumps );
+                    expt.st->xyshift[0] = laps * expt.vals[FP_MOVE_SIZE] * cos(expt.vals[FP_MOVE_DIR]);
+                    expt.st->xyshift[1] = laps * expt.vals[FP_MOVE_SIZE] * sin(expt.vals[FP_MOVE_DIR]);
+                    if ((i-expt.vals[FAST_SEQUENCE_RPT] > laps * expt.st->jumps) && expt.vals[FAST_SEQUENCE_RPT] > 0){
+                        expt.st->xstate = INTERLEAVE_EXPT_BLANK; 
+                        frameseq[i] = INTERLEAVE_EXPT_BLANK;
+                    }
+                    else {
+                        expt.st->xstate = 0;
+                        frameseq[i] = 0;
+                    }
+                }
             }
             st->framectr = i;
             st->left->calculated = st->right->calculated = 0;
             calc_image(expt.st,expt.st->left);
             if(expt.st->flag & UNCORRELATE)
                 calc_image(expt.st,expt.st->right);
+            for (j = 1; j < frpt; j++){
+                st->framectr = i+j;
+                st->left->calculated = st->right->calculated = 0;
+                calc_image(expt.st,expt.st->left); 
+                imageseed[i+j] = imageseed[i];
+                rcstimxy[0][i+j] = rcstimxy[0][i];
+                rcstimxy[1][i+j] = rcstimxy[1][i];
+            }
             if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE){
                 st->next->preloaded = 0;
                 st->next->imprefix = st->imprefix;
@@ -10172,6 +10366,7 @@ int PrepareExptStim(int show, int caller)
             }
         }
         expt.st->preloaded = expt.st->nframes;
+        expt.st->xstate = 0;
         if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE)
             expt.st->next->preloaded = expt.st->nframes;
         
@@ -11164,13 +11359,13 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int finished = 0,j,i = 0, nreps, ntotal, retval =0;
     int framecount,rc,lastframecount;
     Substim *rds;
-    char c,buf[BUFSIZ*2],tmp[BUFSIZ*2];
+    char c,buf[BUFSIZ*20],tmp[BUFSIZ*20];
     float val;
     Expstim *stim;
     struct plotdata *plot;
     Expstim *es,*exs;
     int framecounts[MAXFRAMES],lastframesdone;
-    float frametimes[MAXFRAMES];
+    float frametimes[MAXFRAMES],fframecounts[MAXFRAMES],tval;
     float swapwaits[MAXFRAMES],calctimes[MAXFRAMES],painttimes[MAXFRAMES];
     float forcewaits[MAXFRAMES];
     struct timeval lastframetime,pretime,forcetime;
@@ -11178,6 +11373,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int noverflow = expt.noverflow;
     char cbuf[20560];
     int cctr = 0;
+        int framesperstim = 1;
     
     cbuf[0] = 0;
     
@@ -11424,11 +11620,15 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             
             
             paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
+
 #ifdef FRAME_OUTPUT
+            if (Frames2DIO){
+            //DIOval | 8 is written in change_frame();
             if(rc == n-1)
-                DIOWrite(DIOval);
+                DIOWriteBit(3,0);
             else
-                DIOWrite(DIOval);
+                DIOWriteBit(3,0);
+            }
 #endif
             
             if(!optionflags[FIXNUM_PAINTED_FRAMES]){
@@ -11445,7 +11645,14 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 rc = framesdone;
             
             change_frame();
-            framecounts[framesdone] = rc;
+            if (optionflags[FIXNUM_PAINTED_FRAMES]){
+                framecounts[framesdone] = getframecount();
+                tval = timediff(&changeframetime, &zeroframetime);
+                fframecounts[framesdone] = (tval * mon.framerate);
+            }
+            else
+                framecounts[framesdone] = rc;
+            
             if(optionflags[WATCH_TIMES]){
                 swapwaits[framesdone] = swapwait;
                 calctimes[framesdone] = calcdur;
@@ -11562,8 +11769,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 //	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))	      {		realframes = getframecount(); finished=RESPONDED;	      }
             }
 #ifdef FRAME_OUTPUT
-            if(finished == 2) //about to exit loop
-                DIOWrite(DIOval  | 8);
+            if(finished == 2  && Frames2DIO) //about to exit loop
+                DIOWriteBit(3, 0);
 #endif
             /*
              * once finished == 2 don't check the serial line. Might read spikes before finishing painting the stimulus.
@@ -11599,7 +11806,11 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         wipescreen(clearcolor);
         draw_fix(fixpos[0],fixpos[1], expt.st->fix.size, expt.st->fix.fixcolor);
         change_frame();
+        wipescreen(clearcolor); //wipe for next swap too
     }
+#ifdef NIDAQ
+    DIOWriteBit(0,0); //clear stimchange pin
+#endif
     
     SerialSend(SET_SEED); // get this recorded at stim end also
     if(cctr && 0) // Don't do this normally
@@ -11665,6 +11876,23 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             strcat(buf,"\n");
             SerialString(buf,0);
         }
+        if(optionflags[TILE_XY]){
+            sprintf(buf,"%srX=",serial_strings[MANUAL_TDR]);
+            for(i = 0; i < framesdone; i++){
+                sprintf(tmp,"%d ",rcstimxy[0][i*framesperstim]);
+                strcat(buf,tmp);
+            }
+            strcat(buf,"\n");
+            SerialString(buf,0);
+            sprintf(buf,"%srY=",serial_strings[MANUAL_TDR]);
+            for(i = 0; i < framesdone; i++){
+                sprintf(tmp,"%d ",rcstimxy[1][i*framesperstim]);
+                strcat(buf,tmp);
+            }
+            strcat(buf,"\n");
+            SerialString(buf,0);
+        }
+        
     }
     if(optionflags[RANDOM_CONTRAST] || expt.type3 == RANDOM_CONTRAST_EXPT){
         sprintf(buf,"%scR=",serial_strings[MANUAL_TDR]);
@@ -11762,7 +11990,32 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      */
     if(seroutfile)
         fprintf(seroutfile,"#du%.3f(%.3f)",frametimes[framesdone],(n-0.5)/expt.mon->framerate);
-    if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){ 
+    if (optionflags[FIXNUM_PAINTED_FRAMES]){
+        if(frametimes[framesdone]  > (framesdone-0.5)/expt.mon->framerate){ 
+            fprintf(stderr,"%d frames took %.3f\n",framesdone,frametimes[framesdone]);
+            sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
+            for( i = 1; i < framesdone-1; i++){
+                val = frametimes[i]-frametimes[i-1];
+                sprintf(tmp,"%d ",(int)(round(val*1000)));	
+                strcat(buf,tmp);
+            }
+            strcat(buf,"\n");
+            if(seroutfile)
+                fprintf(seroutfile,"%s",buf);
+            SerialString(buf,0);
+            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
+                j=0;
+                for(i = 0; i < framesdone; i++){
+                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                        strcat(buf,tmp);
+                    if (i > 1 && fframecounts[i]-fframecounts[i-1] > 1.5)
+                        fprintf(stderr,"Skip at %d:%.1f\n",i,fframecounts[i]);
+                }
+                strcat(buf,"\n");
+                SerialString(buf,0);
+        }
+    }
+    else if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){ 
         if (seroutfile)
             fprintf(seroutfile," #long(%d)",n);
         if (retval != BAD_TRIAL){
@@ -11775,25 +12028,44 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             strcat(buf,"\n");
             if(seroutfile)
                 fprintf(seroutfile,"%s",buf);
-            if(optionflags[FIXNUM_PAINTED_FRAMES])
-                SerialString(buf,0);
-            
-            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
-            j=0;
-            for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
-                while(framecounts[i] > j * rpt){ //skipped frames
-                    sprintf(tmp,"%d ",framecounts[i]);	
-                    if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
-                        strcat(buf,tmp);
-                    j++;
+            if(frametimes[framesdone]  > (n+1.5)/expt.mon->framerate){ 
+                printf("V long %.3f",frametimes[framesdone]);
+            }
+            if(optionflags[FIXNUM_PAINTED_FRAMES] ==0){
+            for(i = 1; i < framesdone; i++){
+                if (framecounts[i]-framecounts[i-1] > 1){
+                    printf("skip at %d\n",i);
                 }
             }
-            strcat(buf,"\n");
-            if(optionflags[FIXNUM_PAINTED_FRAMES])
+            }
+            
+            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
+            if(optionflags[FIXNUM_PAINTED_FRAMES]){
+                j=0;
+                for(i = 0; i < framesdone; i++){
+                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                            strcat(buf,tmp);
+                }
+                strcat(buf,"\n");
                 SerialString(buf,0);
+            }
+            else{
+                j=0;
+                for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
+                    while(framecounts[i] > j * rpt){ //skipped frames
+                        sprintf(tmp,"%d ",framecounts[i]);	
+                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                            strcat(buf,tmp);
+                        j++;
+                    }
+                }
+                strcat(buf,"\n");                
+                SerialString(buf,0);
+            }
+                    
         }
-        if(seroutfile)
-            fprintf(seroutfile,"%s",buf);
+//        if(seroutfile)
+//            fprintf(seroutfile,"%s",buf);
         
         if(seroutfile){
             if(retval == BAD_TRIAL)
@@ -12012,7 +12284,9 @@ int CheckBW(int signal, char *msg)
          * not be any spikes coming, so set gotspikes
          */
         if(signal == END_STIM && c == BAD_FIXATION){
+            if (seroutfile){
             fprintf(seroutfile,"End/Bad combination %d %u %d",trialcnt,ufftime(&now),stimstate);
+            }
             endbadctr++;
             glstatusline("End/Bad",3);
             gotspikes = 1;
@@ -12028,7 +12302,7 @@ int CheckBW(int signal, char *msg)
          * least one good signal is received before warning again
          */
         
-        if(timeout >= 60)
+        if(timeout >= 100)
         {
             if(signal == END_STIM)
             {
@@ -13444,6 +13718,8 @@ int ReadMonitorSetup(char *name)
            !strncmp(buf,serial_strings[YPIXEL_CODE],2) ||
            !strncmp(buf,serial_strings[VIEWD_CODE],2))
             InterpretLine(buf, &expt,0),nf++;
+        else if(!strncmp(buf,"framerate",9) && s)
+            sscanf(++s,"%f",&expt.vals[FRAMERATE_CODE]);
         else if(!strncmp(buf,serial_strings[FRAMERATE_CODE],2) && s)
             sscanf(++s,"%f",&expt.vals[FRAMERATE_CODE]);
         else if (!strncmp(buf,serial_strings[GAMMAVAL_CODE],2) && s)
@@ -13461,6 +13737,7 @@ int ReadMonitorSetup(char *name)
         }
     }
     fclose(fd);
+    expt.mon->framerate = GetFrameRate();
     if(nf > 2)
         expt.mon->loaded = 1;
     printf("%s pixel = %.4f degrees\n",name,pix2deg(1));
@@ -13556,12 +13833,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));
         SetProperty(&expt,expt.st,SETZYOFF,GetProperty(&expt,expt.st,RF_Y));
-       return;
+       return(0);
     }
     else if(!strncmp(line,"centerxy",8) || !strncmp(line,"sonull",6)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
-        return;
+        return(0);
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
@@ -13574,7 +13851,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
-        return;
+        return(0);
     }
     else if(!strncmp(line,"showrwbias",10)){
         optionflags[SHOW_REWARD_BIAS] = 2;
@@ -13584,7 +13861,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(0);
     }
     else if(!strncmp(line,"slider",6) && frompc){ //old commands that we don't want to drop down to codes below
-        return;
+        return(0);
     }
     else if(!strncmp(line,"splitctr",10) && frompc){
         if(seroutfile)
@@ -13667,7 +13944,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         if (strlen(s) < 2){
             sprintf(outbuf,"psychfile=%s\n",psychfilename);
             notify(outbuf);
-            return;
+            return(0);
         }
         psychfilename = myscopy(psychfilename,++s);
         nonewline(psychfilename);
@@ -13812,6 +14089,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             expt.st->immode = IMAGEMODE_ORBW;
         else if(!strncmp(s,"plain",4)){
             expt.st->immode = 0;
+            expt.st->nimseed = 0;
+        }
+        else if(!strncmp(s,"binocular",4)){
+            expt.st->immode = BINOCULAR_PLAIN_IMAGES;
             expt.st->nimseed = 0;
         }
         else if(!strncmp(s,"preload",4)){
@@ -14366,10 +14647,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             if(expt.st->mode & EXPTPENDING || optionflag & FRAME_ONLY_BIT)
                 ReadSpikes(&line[2],ex);
             break;
+        case UFF_PREFIX: //don't send to Spike2 when get new name. Wait for Open button
+            SetExptString(ex, TheStim, code, s);
+            break;
         case PENETRATION_TEXT:
         case LOGFILE_CODE:
         case CHANNEL_CODE:
-        case UFF_PREFIX:
         case USERID:
         case BACKGROUND_IMAGE: 
         case MONKEYNAME:
@@ -14561,6 +14844,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 val = val * 180/M_PI;
             SetExptProperty(ex, TheStim,code, val);
             break;
+        case UFF_COMMENT:
+            SerialString(line,NULL);
+            break;
+        
         case TF:
             if(!strncmp(s,"tf",2)){
                 SetExptProperty(ex, TheStim,code, lasttf);
@@ -15106,25 +15393,20 @@ int ReadPGM(char *name, PGM *pgm)
     static char lastname[BUFSIZ];
     static int astate;
     int w,h,imax,len;
+    int ackw;
     
-    //Ali  if((imfd = fopen(name,"r")) == NULL){
-    //    if(strlen(name) > 1){
-    //      if(ackw == NULL)
-    //	sprintf(buf,"Can't Read Image %s\n",name);
-    //	 if(ackw != NULL){
-    //	   XtVaGetValues(ackw,XmNuserData,&astate,NULL);
-    //	 }
-    //	 if(ackw == NULL || astate == 0)
-    //	   ackw = acknowledge(buf,NULL);
-    //      fputs(buf,stderr);
-    //      if(seroutfile)
-    //	fprintf(seroutfile,"Can't Read Image %s\n",name);
-    //      if(psychlog)
-    //	fprintf(psychlog,"Can't Read Image %s\n",name);
-    //      strcpy(lastname,name);
-    //    }
-    //      return(0);
-    //  }
+    if((imfd = fopen(name,"r")) == NULL){
+    
+        if(strlen(name) > 1){
+    	printf("Can't Read Image %s\n",name);
+            if(seroutfile)
+    	fprintf(seroutfile,"Can't Read Image %s\n",name);
+          if(psychlog)
+    	fprintf(psychlog,"Can't Read Image %s\n",name);
+          strcpy(lastname,name);
+        }
+          return(0);
+      }
     pgm->name = myscopy(pgm->name,name);
     fgets(buf, BUFSIZ, imfd);
     sscanf(buf,"P5 %d %d %d",&w,&h,&imax);

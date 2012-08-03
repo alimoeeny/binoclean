@@ -38,20 +38,20 @@ Expt expt;
 - (void) updateInfoText:(NSNotification *) aNotification
 {
     int r = 14;
-    NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
-    NSArray * c = [s componentsSeparatedByString:@"\n"];
-    if([c count]>r)
-    {
-        int b = [s rangeOfString:[c objectAtIndex:r]].location;
-        @try {
-            if (b>0)
-                s = [s substringToIndex:b];            
+
+    __block NSMutableString * newS = [[NSMutableString alloc] initWithString:@""];
+    __block int counter = 0;
+    [[informationTextField stringValue] enumerateLinesUsingBlock:^(NSString * line, BOOL *stop) {
+        counter = counter + 1;
+        if (counter<r) {
+            [newS appendFormat:@"%@\n", line];
+            NSLog(@"Line is: %@", line);
         }
-        @catch (NSException *exception) {
-            NSLog(@"Bad String");
+        else {
+            stop = YES;
         }
-    }
-    [informationTextField setStringValue:s];
+    }];
+    [informationTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], newS]];
 }
 
 - (void) updateCommandHistory:(NSNotification *) aNotification

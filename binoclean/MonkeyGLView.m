@@ -614,9 +614,9 @@ GLenum glReportError (void)
 
 - (void)resetCursorRects
 {
-    [super resetCursorRects ];
-    [self discardCursorRects];
-    [self addCursorRect:[self frame] cursor:[self crossCursor]];
+//    [super resetCursorRects ];
+//    [self discardCursorRects];
+//    [self addCursorRect:[self frame] cursor:[self crossCursor]];
 }
 
 @end

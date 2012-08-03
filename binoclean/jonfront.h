@@ -86,7 +86,7 @@ typedef struct{
     double gregvals[5];
     double vals[2];
     int stimid,type,magid,nmags,stairsign;
-    double jsignval;
+    double jsignval,signflipp,target_in_trial;
 }AFCstructure;
 
 #define SACCREQD(x) (x.abssac[0] != 0 || x.abssac[1] != 0)

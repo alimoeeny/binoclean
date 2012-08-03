@@ -51,7 +51,7 @@
 #define sign(x) (x > 0 ? 1 : -1)
 
 //Ali
-#define NOEVENT 0
+
 char * VERSION_NUMBER;
 char * SHORT_VERSION_NUMBER;
 
@@ -86,7 +86,7 @@ int thebuffer = 0,lastcodes[CODEHIST] = {0}, expstate = 0;
 int outcodes[CODEHIST] = {0};
 int codectr = 0, outctr = 0;
 int DIOval = 0;
-int Frames2DIO = 1;
+int Frames2DIO = 0;
 int rewardall = 0;
 char resbuf[BUFSIZ] = {0};
 
@@ -162,7 +162,7 @@ struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
 struct timeval lastcleartime;
 struct timeval progstarttime,calctime,paintframetime;
-struct timeval endexptime;
+struct timeval endexptime, changeframetime,lastcalltime,nftime;
 int wurtzctr = 0, wurtzbufferlen = 512,lasteyecheck;
 float clearcolor = 0;
 float lasttf = -1, lastsz = -1, lastsf = -1,lastor=0;
@@ -250,7 +250,9 @@ char *toggle_strings[] = {
 	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
 	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
 	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
-	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3","AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
+	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
+    "Odd Man Out","Choice by icon","Image Jumps",
+    "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
     "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
     "Show Stim Boxes",
     NULL,
@@ -336,6 +338,9 @@ char *toggle_codes[] = {
     "rI", // random interocular correlation
     "sR", // show reward bias
     "C3", //Collapse Psychophysics across Expt3  
+    "af3", //Odd man out task
+    "Rcd", //Choice direction random
+    "ijump", //Image jumps
     
     "cd", // Auto Copy Online Data Files # not shown on panel
     "cb", //Custom vals for expt2
@@ -428,13 +433,6 @@ void afc_statusline(char *s, int line);
 void paint_target(float color, int flag);
 
 
-void event_loop();
-void expback();
-void expfront(),exprun();
-
-
-void MakeConnection();
-void panel_popup();
 
 #define resetframectr() (mode |= RESET_FRAME_CTR)
 
@@ -760,6 +758,7 @@ void initial_setup()
         case INITIAL_APPLY_MAX:
         case FP_MOVE_DIR:
         case REWARD_BIAS:
+        case IMAGEJUMPS:
             codesend[i] = SEND_EXPT;
             break;
         case PULSE_WIDTH:
@@ -829,6 +828,8 @@ void initial_setup()
             case SET_SEED:
             case SET_SEEDLOOP:
             case RC_SEED:
+            case SEEDOFFSET:
+            case EXPTYPE_NONE:
                 nfplaces[i] = 0;
                 break;
             default:
@@ -911,6 +912,10 @@ char **argv;
     
 	if((i = CheckStrings()) != 0)
 		exit(0);
+    
+#ifdef NIDAQ
+    printf("Using DIO\n");
+#endif
     
     
     /*
@@ -2443,7 +2448,7 @@ void one_event_loop()
 
 #pragma mark Event_Loop
 
-void event_loop()
+int event_loop(float delay)
 {
 	int i, j, mask,ctr,nstim,estim = 0;
 	vcoord end[2],mpos[2];
@@ -2457,11 +2462,16 @@ void event_loop()
 	Locator *pos = &TheStim->pos;
 	int statectr = 0,tc;
 	static int testlaps = 0;
+    struct timeval then;
     
     //Ali 20/6/2011
     //stimstate = PRESTIMULUS;
     
     tc = 0;
+    gettimeofday(&then,NULL);
+    val = timediff(&then,&nftime); //time since next frame exited
+//    if (stimstate == POSTSTIMINTRIAL || stimstate == POSTPOSTSTIMULUS)
+//        fprintf(stdout,"loop delay %.5f\n",val);
     while((c = ReadSerial(ttys[0])) != MYEOF){
         GotChar(c);
         if(tc++ > 2048){
@@ -2469,6 +2479,9 @@ void event_loop()
                 fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
         }
     }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&then); //time since next frame exited
+
  //   ReadInputPipe();
     if(cleartime.tv_sec != 0){
         gettimeofday(&now,NULL);
@@ -2537,7 +2550,8 @@ void event_loop()
         ReadExptFile(NULL, 0, 0,0);
     }
     ctr++;
-	
+    gettimeofday(&nftime,NULL);
+    return(stimstate);
 }
 
 
@@ -3012,6 +3026,9 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         st = TheStim;
 	switch(code)
 	{
+        case SEEDOFFSET:
+            stimptr->seedoffset = val;
+            break;
         case DOTREPEAT:
             stimptr->dotrpt = val;
             if(stimptr->next != NULL)
@@ -4906,9 +4923,16 @@ void SendMovements()
     SerialString(buf,0);
 }
 
+
+    static int stimchanged = 0;
 void WriteSignal()
 {
     char c;
+
+    struct timeval atime;
+    float val;
+    
+    
 	if(mode & WURTZ_FRAME_BIT)
     {
 	    c = START_TRIAL;
@@ -4919,20 +4943,21 @@ void WriteSignal()
     }
 	if(mode & FIRST_FRAME_BIT)
     {
+#ifdef NIDAQ
+        if (optionflags[MICROSTIM])
+            DIOWriteBit(1, 1);
+        DIOWriteBit(2, 1);
+#endif
+        stimchanged = 0;
 	    c = FRAME_SIGNAL;
         write(ttys[0],&c,1);
         gettimeofday(&firstframetime,NULL);
+        val = timediff(&firstframetime,&changeframetime);
         memcpy(&zeroframetime, &firstframetime, sizeof(struct timeval));
         expstate = 0;
         framesdone = 0;
         framectr = 0;
-#ifdef NIDAQ
-        if (optionflags[MICROSTIM])
-            DIOval = 0x6;
-        else
-            DIOval = 0x4;
-        DIOWrite(DIOval);
-#endif
+
         if(seroutfile)
             fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
 	}
@@ -4946,29 +4971,30 @@ void WriteSignal()
 	}
 	if(mode & LAST_FRAME_BIT)
     {
-	    c = END_STIM;
-        write(ttys[0],&c,1);
-#ifdef FRAME_OUTPUT
-	    DIOWrite(DIOval);
-#endif
+#ifdef NIDAQ
+            DIOval = 0;
+            DIOWriteBit(2,0); 
+#endif        
         gettimeofday(&endstimtime,NULL);
         if(seroutfile)
-            fprintf(seroutfile,"O %d %u %u\n",(int)(c),ufftime(&endstimtime),
-                    ufftime(&endstimtime)-ufftime(&zeroframetime));
-        
+            fprintf(seroutfile,"O %d %u %u %.3f\n",(int)(c),ufftime(&endstimtime),
+                    ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime));       
+
         expstate = END_STIM;
-#ifdef NIDAQ
-        DIOval = 0;
-        DIOWrite(0); 
+ 	    c = END_STIM;
+        write(ttys[0],&c,1);        
+#ifdef FRAME_OUTPUT
+                if (Frames2DIO)
+	    DIOWriteBit(3,1);
 #endif
 	}
 	if(mode & STIMCHANGE_FRAME)
     {
 	    c = STIM_CHANGE;
 	    write(ttys[0],&c,1);
+        stimchanged = 1;
 #ifdef NIDAQ
-	    DIOval = 0x7;
-	    DIOWrite(DIOval); // Pins 
+	    DIOWriteBit(0, 1);                  
 #endif
 	    if(!optionflags[REDUCE_SERIAL_OUTPUT]){
             if(seroutfile)
@@ -5008,7 +5034,7 @@ int change_frame()
 	}
 	memcpy(&lasttime, &now, sizeof(struct timeval));
 #endif
-    
+
 	if(mode & LAST_FRAME_BIT)
 	{
 		if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
@@ -5040,14 +5066,30 @@ int change_frame()
     //AliGLX	mySwapBuffers();
 	glFinishRenderAPPLE();
     glSwapAPPLE();
+    gettimeofday(&changeframetime,NULL);
+
 	framesswapped++;
-	if(mode & FRAME_BITS)
+#ifdef NIDAQ
+    if (stimchanged){
+        DIOWriteBit(0, 0);                 
+        stimchanged = 0;
+    }
+#endif
+    //This does nothing any more. But interferes with last frame timing. 
+    //This should be in nextframe/runexptstim
+    if(oldmode & LAST_FRAME_BIT && !(mode & LAST_FRAME_BIT))
+        stimstate = POSTSTIMULUS;
+
+
+    if(mode & FRAME_BITS)
     {
 #ifdef FRAME_OUTPUT
-	    DIOWrite(DIOval | 8);
+        if (Frames2DIO)
+	    DIOWriteBit(3,1);
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
             glFinishRenderAPPLE(); /* block until buffer swapped */
+        gettimeofday(&changeframetime,NULL);
 	    WriteSignal();
 	    if(c == END_STIM){
             sprintf(buf,"%s%d\n",serial_strings[NFRAMES_CODE],framesdone);
@@ -5058,14 +5100,14 @@ int change_frame()
 #ifdef FRAME_OUTPUT
 	else if (Frames2DIO)
     {
-        DIOWrite(DIOval | 8);
+        DIOWriteBit(3,1); //without 8 written in RunExptStim
     }
 #endif
 	thebuffer = !thebuffer;
 	if(mode & RESET_FRAME_CTR)
     {
 	    mode &= (~RESET_FRAME_CTR);
-	    gettimeofday(&zeroframetime, NULL);
+	    memcpy(&zeroframetime, &changeframetime, sizeof(struct timeval));
         /* 
          *       framecount = 1 = first frame and counting
          *       framecount = 0 = not running a set of frames
@@ -5073,8 +5115,6 @@ int change_frame()
 	    framecount = 1;
     }
 	realframecount = getframecount();
-	if(oldmode & LAST_FRAME_BIT)
-        stimstate = POSTSTIMULUS;
     
 	if(stmode & DRAG_STIMULUS)
     {
@@ -5215,7 +5255,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                             dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
                             newx = fixpos[0] + deg2pix(dx);
                             newy = fixpos[1] + deg2pix(dy);
-                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                        }while(newy < 8 && newy > -8 && newx > -8 && newx < 8);
                     }
                 }
                 else{
@@ -5228,7 +5268,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                             dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
                             newx = fixpos[0] + deg2pix(dx);
                             newy = fixpos[1] + deg2pix(dy);
-                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                        }while(newy < 8 && newy > -8 && newx > -8 && newx < 8);
                     }
                     else{
                         fval = expt.vals[FP_MOVE_DIR];
@@ -5631,19 +5671,39 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 
 void PaintBackIm(PGM im)
 {
-    float z = 1.0;
+    float z = 1.0,c;
     
     if(expt.vals[BACKGROUND_ZOOM] > 1)
         z = expt.vals[BACKGROUND_ZOOM];
     glPixelZoom(z,-z);
-    glRasterPos2i(-im.w * z/2,im.h * z/2);
+    
+    if(expt.st->pos.contrast < 0.99){
+        c = expt.st->pos.contrast;
+        glPixelTransferf(GL_RED_BIAS,0.5-c/2);
+        glPixelTransferf(GL_RED_SCALE,c);
+        glPixelTransferf(GL_BLUE_BIAS,0.5-c/2);
+        glPixelTransferf(GL_BLUE_SCALE,c);
+        glPixelTransferf(GL_GREEN_BIAS,0.5-c/2);
+        glPixelTransferf(GL_GREEN_SCALE, c);
+        //    glPixelTransferf(GL_GREEN_SCALE, 1.0);
+    }
+    else{
+        glPixelTransferf(GL_RED_BIAS,0);
+        glPixelTransferf(GL_RED_SCALE,1);
+        glPixelTransferf(GL_BLUE_BIAS,0);
+        glPixelTransferf(GL_BLUE_SCALE,1);
+        glPixelTransferf(GL_GREEN_BIAS,0);
+        glPixelTransferf(GL_GREEN_SCALE, 1);
+    }
+    glRasterPos2f(-im.w/2,im.h/2);
+  //  glRasterPos2i(-im.w * z/2,im.h * z/2);
     glDrawPixels(im.w, im.h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im.ptr);
     
 }
 void wipescreen(float color)
 {
     setmask(bothmask);
-    if(expt.backim.name){
+    if(expt.backim.name && optionflags[PAINT_BACKGROUND]){
         PaintBackIm(expt.backim);
     }
     else{
@@ -5723,6 +5783,12 @@ void paint_frame(int type, int showfix)
     setmask(BOTHMODE);
     if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
+    if (TheStim->noclear == 0)
+        clearstim(TheStim,TheStim->gammaback, 0);
+    TheStim->noclear = 1;
+    if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+        paint_target(expt.targetcolor, 0);
+    }
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
             paint_stimulus(TheStim->next);
@@ -5736,6 +5802,7 @@ void paint_frame(int type, int showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
     if(debug)
+        
         glFlushRenderAPPLE();
     paintdur = timediff(&btime,&paintframetime);
     if(optionflags[STIMULUS_IN_OVERLAY])
@@ -5772,7 +5839,7 @@ int CheckFix()
 int RunBetweenTrials(Stimulus *st, Locator *pos)
 {
     if(!(optionflag & STIM_IN_WURTZ_BIT)){
-        if(expt.st->type == STIM_IMAGE && expt.st->preload)
+        if(expt.st->type == STIM_IMAGE && expt.st->preload && expt.st->preloaded)
             expt.st->framectr = rnd_i() % expt.st->nframes;
         paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
         increment_stimulus(st, pos);
@@ -5799,7 +5866,7 @@ int StartTrial()
      */
     
     if(rcfd){
-        fprintf(rcfd,"Trial %d\n",ufftime(&now));
+ //       fprintf(rcfd,"Trial %d\n",ufftime(&now));
     }
     
     
@@ -5915,6 +5982,8 @@ int next_frame(Stimulus *st)
     
     
     gettimeofday(&now,NULL);
+    t2 = timediff(&now,&lastcalltime);
+    memcpy(&lastcalltime,&now,sizeof(struct timeval));
     /* some things need checking whatever the weather */
     if(stimno == NEW_EXPT)
         InitExpt();
@@ -5948,7 +6017,11 @@ int next_frame(Stimulus *st)
     {
         case STIMSTOPPED:
 #ifdef NIDAQ
-            DIOval = 0; DIOWrite(0);
+            DIOval = 0;
+            DIOWriteBit(2,  0);
+            DIOWriteBit(1,  0);
+            DIOWriteBit(0,  0);
+
 #endif
             if(rdspair(expt.st))
                 i = 0;
@@ -6052,7 +6125,10 @@ int next_frame(Stimulus *st)
             break;
         case INTERTRIAL:
 #ifdef NIDAQ
-            DIOval = 0; DIOWrite(0);
+            DIOWriteBit(2,  0);
+            DIOWriteBit(1,  0);
+            DIOWriteBit(0,  0);
+//            DIOval = 0; DIOWrite(0);
 #endif
             newtimeout = 1;
             if(rdspair(expt.st))
@@ -6187,16 +6263,13 @@ int next_frame(Stimulus *st)
             }
             
             wipescreen(clearcolor);
-            if(!(optionflag & STIM_IN_WURTZ_BIT)){
-                paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-                increment_stimulus(st, pos);
-            }
-            else
-                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            RunBetweenTrials(st, pos);
+            draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
             change_frame();
             break;
         case PRESTIMULUS:
             //Ali CheckKeyboard(D, allframe);
+            mode &= (~FIXATION_OFF_BIT);
             microsaccade = 0;
             if(rdspair(expt.st))
                 expt.framesdone = 0;
@@ -6236,6 +6309,9 @@ int next_frame(Stimulus *st)
 #endif
             }
             CheckFix();
+            if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+                paint_target(expt.targetcolor, 0);
+            }
             //Ali CheckKeyboard(D, allframe);
             if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
                val > expt.vals[TRIAL_START_BLANK])
@@ -6294,15 +6370,13 @@ int next_frame(Stimulus *st)
                                 fflush(seroutfile);
 #endif
                             }
-                            if(optionflag & WAIT_FOR_BW_BIT && !gotspikes){
+                            if(optionflag & WAIT_FOR_BW_BIT){
                                 gettimeofday(&timeb,NULL);
                                 val = 0;
-                                while(!gotspikes && val < 0.1){
-                                    while((c = ReadSerial(ttys[0])) != MYEOF)
-                                        GotChar(c);
-                                    gettimeofday(&now,NULL);
-                                    val = timediff(&now,&timeb);
-                                }
+                                while((c = ReadSerial(ttys[0])) != MYEOF)
+                                    GotChar(c);
+                                gettimeofday(&now,NULL);
+                                val = timediff(&now,&timeb);
 #ifdef MONITOR_CLOSE
                                 if(seroutfile){
                                     fprintf(seroutfile,"#Done\n");
@@ -6387,6 +6461,7 @@ int next_frame(Stimulus *st)
                 change_frame();
                 glFinishRenderAPPLE();
             }
+
             break;
         case POSTSTIMINTRIAL:
             if(rdspair(expt.st))
@@ -6406,6 +6481,16 @@ int next_frame(Stimulus *st)
             }
             else if((val = timediff(&now, &endstimtime)) > expt.postperiod)
                 stimstate = PRESTIMULUS;
+            if (laststate != POSTSTIMINTRIAL){ // first call
+                val = timediff(&now, &endstimtime);
+                val = timediff(&now, &timeb);
+                val = timediff(&now, &nftime);
+                if (val > 0.02){
+                    fprintf(stderr,"ISI delay %.3f\n",val);
+                    if(seroutfile)
+                        fprintf(seroutfile,"#ISI delay %.3f\n",val);
+                }
+            }
             memcpy(&goodfixtime, &now, sizeof(struct timeval));
             break;
         case INSTIMULUS:
@@ -6488,6 +6573,10 @@ int next_frame(Stimulus *st)
             RunBetweenTrials(st, pos);
             if(expt.vals[FIXATION_OVERLAP] > 10)
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+                paint_target(expt.targetcolor, 0);
+            }
+
             change_frame();
             if(testflags[PLAYING_EXPT]){
                 if((i = ReplayExpt(NULL)) == INTERTRIAL)
@@ -6705,10 +6794,11 @@ int next_frame(Stimulus *st)
                     change_frame();
                     search_background();
                 }
-            }
+            }            
             else{
                 setmask(bothmask);
                 wipescreen(clearcolor);
+                RunBetweenTrials(st, pos);
                 change_frame();
             }
             if(debug) glstatusline("PostTrial",3);
@@ -6839,6 +6929,7 @@ int next_frame(Stimulus *st)
     if(debug == 4){
         testcolor();
     }
+    gettimeofday(&nftime,NULL);
     return(framecount);
 }
 
@@ -6905,6 +6996,22 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[2],y+line[3]);
 }
 
+#ifdef Darwin
+void aarotrect(vcoord *line, vcoord x, vcoord y)
+{
+    
+    /*
+     if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
+     return;
+     */
+    glBegin(GL_POLYGON);
+    glVertex2f(x+line[0],y+line[1]);
+    glVertex2f(x+line[2],y+line[3]);
+    glVertex2f(x+line[4],y+line[5]);
+    glVertex2f(x+line[6],y+line[7]);
+    glEnd();
+}
+#else
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
     
@@ -6916,6 +7023,8 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[0],y+line[1]);
     glVertex2f(x+line[6],y+line[7]);
 }
+#endif
+
 
 void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
 {
@@ -7530,6 +7639,9 @@ float StimulusProperty(Stimulus *st, int code)
 	rds = st->left;
 	switch(code)
 	{
+        case SEEDOFFSET:
+            value = st->seedoffset;
+            break;
         case BLACKDOT_FRACTION:
             value = st->dotfrac;
             break;
@@ -9025,9 +9137,15 @@ int GotChar(char c)
         
 #ifdef NIDAQ  
         // trigger data collection for Spike2
-	    DIOWrite(0x7); 
+//	    DIOWrite(0x7);
+        DIOval = 0;
+        DIOWriteBit(0,1);
+        DIOWriteBit(2,1);
+
 	    fsleep(0.01);
-   	    DIOval = 0;  DIOWrite(0);
+        DIOWriteBit(0,0);
+        DIOWriteBit(2,0);
+//   	    DIOval = 0;  DIOWrite(0);
 #endif
 		MakeConnection();
 	}
@@ -9176,7 +9294,10 @@ int GotChar(char c)
                 gettimeofday(&endtrialtime, NULL);
                 
 #ifdef NIDAQ
-                DIOWrite(0); DIOval = 0;
+                DIOWriteBit(2,  0);
+                DIOWriteBit(1,  0);
+                DIOWriteBit(0,  0);
+//                DIOWrite(0); DIOval = 0;
 #endif
                 expstate = c;
                 gettimeofday(&now,NULL);
@@ -9273,7 +9394,7 @@ int GotChar(char c)
                 if(afc_s.newdirs)
                     sign = afc_s.stimsign;
                 else
-                    sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
+                    sign = (afc_s.sacval[aid] *  afc_s.abssac[aid])*afc_s.sign;
                 if(sign < 0)
                     sign = -1;
                 else if(sign > 0)
@@ -9496,7 +9617,7 @@ int GotChar(char c)
                     if(expt.mode == DISP_X && expt.type2 == CORRELATION && expt.vals[CORRELATION] == 0)
                         afc_s.loopstate = loopstate_counters(AMBIGUOUS, jonresult);
                     else
-                        afc_s.loopstate = loopstate_counters(stim_direction, jonresult);
+                        afc_s.loopstate = loopstate_counters(stim_direction * afc_s.sign, jonresult);
                     if(option2flag & PERF_STRING)
                         performance_string(afc_s.jlaststairval, jonresult, afc_s.loopstate, &afc_s.performance_1, &afc_s.performance_2, (afc_s.sacval[0] + afc_s.sacval[1]));
                     if(option2flag & STAIRCASE){ 
@@ -9646,7 +9767,7 @@ void paint_target(float color, int flag)
      */
     if(ChoiceStima->type != STIM_NONE && showa){
         contrast = ChoiceStima->pos.contrast;
-        if(afc_s.sacval[0]+afc_s.sacval[1] < 0)
+        if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign < 0)
             ChoiceStima->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStima->noclear = 1;
         calc_stimulus(ChoiceStima);
@@ -9655,7 +9776,7 @@ void paint_target(float color, int flag)
     }
     if(ChoiceStimb->type != STIM_NONE && showb){
         contrast = ChoiceStimb->pos.contrast;
-        if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
+        if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign > 0)
             ChoiceStimb->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStimb->noclear = 1;
         calc_stimulus(ChoiceStimb);
@@ -10079,9 +10200,16 @@ void ReopenSerial(void)
     int i;
     
 #ifdef NIDAQ
-    DIOWrite(0x7); 
+    printf("Writing to DIO\n");
+    DIOWriteBit(2,  1);
+    DIOWriteBit(1,  1);
+    DIOWriteBit(0,  1);
+//    DIOWrite(0x7); 
     fsleep(0.01);
-    DIOWrite(0); DIOval = 0;
+    DIOWriteBit(2,  0);
+    DIOWriteBit(1,  0);
+    DIOWriteBit(0,  0);
+    //DIOWrite(0); DIOval = 0;
 #endif
     closeserial(0);
     if((i = OpenSerial(theport)) <= 0){

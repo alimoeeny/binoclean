@@ -136,9 +136,9 @@ int monkey_direction(int response, AFCstructure afc_s)
     if(afc_s.newdirs)
         direction = -afc_s.stimsign;
     else if(fabs(sacval[0]) > fabs(sacval[1]))
-        direction = find_direction(sacval[0] * afc_s.abssac[0]);
+        direction = find_direction(sacval[0] * afc_s.abssac[0] * afc_s.sign);
     else
-        direction = find_direction(sacval[1] * afc_s.abssac[1]);
+        direction = find_direction(sacval[1] * afc_s.abssac[1] * afc_s.sign);
     
     switch(direction){
         case JONRIGHT:
@@ -175,37 +175,85 @@ int monkey_direction(int response, AFCstructure afc_s)
 int loopstate_counters(int direction, int response)
 {
     int loopstate, count = afc_s.correction_leave+afc_s.correction_entry;
+    char buf[BUFSIZ];
     
     switch (direction){
         case JONLEFT:
+            if (afc_s.sign < 0){  // tagets reversed
             switch(response){
                 case CORRECT:
                     if(afc_s.loopstate != CORRECTION_LOOP || ++got_correction >= afc_s.correction_leave){
-                        missed_negative = 0; /* correct neg */
+                        missed_positive = 0; /* correct neg */
                         if(afc_s.loopstate == CORRECTION_LOOP)
                             missed_positive = 0;
+
                     }
                     break;
                 case WRONG:
                     if(afc_s.loopstate != CORRECTION_LOOP)
-                        missed_negative++; /* missed neg */
+                        missed_positive++; /* missed neg */
+
                     break;
                 case FOUL:
                     break;
             }
             if(afc_s.loopstate == CORRECTION_LOOP)
-                ranleftc++;
+                ranrightc++;
             else
-                ranleft++;
+                ranrightc++;
+            }
+            else {
+                switch(response){
+                    case CORRECT:
+                        if(afc_s.loopstate != CORRECTION_LOOP || ++got_correction >= afc_s.correction_leave){
+                                missed_negative = 0; /* correct neg */
+                            if(afc_s.loopstate == CORRECTION_LOOP)
+                                missed_negative = 0;
+                        }
+                        break;
+                    case WRONG:
+                        if(afc_s.loopstate != CORRECTION_LOOP)
+                            missed_negative++; /* missed neg */
+                        break;
+                    case FOUL:
+                        break;
+                }
+                if(afc_s.loopstate == CORRECTION_LOOP)
+                    ranleftc++;
+                else
+                    ranleft++;
+            }
             break;
         case JONRIGHT:
+            if (afc_s.sign < 0){  // tagets reversed
+                switch(response){
+                    case WRONG:
+                        missed_negative++; /* missed pos */
+                        break;
+                    case CORRECT:
+                        if(afc_s.loopstate != CORRECTION_LOOP || ++got_correction >= afc_s.correction_leave){
+                            missed_negative = 0; /* correct pos */
+                            if(afc_s.loopstate == CORRECTION_LOOP)
+                                missed_negative = 0;
+                        }
+                        
+                        break;
+                    case FOUL:
+                        break;
+                }	   
+                if(afc_s.loopstate == CORRECTION_LOOP)
+                    ranleftc++;
+                else
+                    ranleft++;
+            }
+            else{
             switch(response){
                 case WRONG:
                     missed_positive++; /* missed pos */
                     break;
                 case CORRECT:
                     if(afc_s.loopstate != CORRECTION_LOOP || ++got_correction >= afc_s.correction_leave){
-                        missed_positive = 0; /* correct pos */
+                            missed_positive = 0; /* correct pos */
                         if(afc_s.loopstate == CORRECTION_LOOP)
                             missed_positive = 0;
                     }
@@ -218,10 +266,21 @@ int loopstate_counters(int direction, int response)
                 ranrightc++;
             else
                 ranright++;
+            }
             break;
         case AMBIGUOUS:
             break;
     }
+    if(response == CORRECT){
+        sprintf(buf,"Correct. Dir %d x %d. Loopctr %d,%d",direction, afc_s.sign,missed_positive,missed_negative);
+        statusline(buf);
+    }
+    if(response == WRONG){
+    sprintf(buf,"Wrong. Dir %d x %d. Loopctr %d,%d",direction, afc_s.sign,missed_positive,missed_negative);
+    statusline(buf);
+    }
+
+    
     afc_s.laststate = afc_s.loopstate;
     if(afc_s.type == ONEUP)
         loopstate = set_loop_state();

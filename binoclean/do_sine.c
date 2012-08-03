@@ -897,7 +897,7 @@ int SaveNSines(Stimulus *st, FILE *fd)
     
     if(fd == NULL){
         fprintf(stderr,"Can't append nsines %s\n",name);
-        return;
+        return(0);
     }
     
     if(optionflags[RANDOM_PHASE] == 0){ // must be  a test

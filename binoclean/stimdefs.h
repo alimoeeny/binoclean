@@ -392,7 +392,10 @@ float pix2degy(float val);
 #define RANDOM_CORRELATION 58
 #define SHOW_REWARD_BIAS 59
 #define COLLAPSE_EXPT3 60
-#define LAST_CODED_OPTION 60
+#define ODD_MAN_OU_TASK 61
+#define CHOICE_BY_ICON 62
+#define JUMP_IMAGE 63
+#define LAST_CODED_OPTION 63
 
 
 #define AUTO_COPY_ONLINE_FILES (LAST_CODED_OPTION+1)
@@ -546,7 +549,7 @@ float pix2degy(float val);
 #define TRIALBUFFERLEN 10000
 
 
-#define MAXSTIM 600
+#define MAXSTIM 1200
 
 
 
@@ -603,7 +606,10 @@ float pix2degy(float val);
 
 #define EXP_PSYCHVAL 2
 #define SIGNAL_STRENGTH 4
+
+//modes for image types = sets rules for building pathname
 #define IMAGEMODE_ORBW 1
+#define BINOCULAR_PLAIN_IMAGES 2
 
 #define MAXORBW 126
 

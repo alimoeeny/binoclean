@@ -486,8 +486,7 @@ float StepProperty(int code)
     }
     return(val);
 }
-//Ali
-#define NOEVENT 0
+
 
 void SendStepProp(int prop)
 {
