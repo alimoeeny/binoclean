@@ -267,9 +267,10 @@
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
 #define IMAGEJUMPS (LAST_STIMULUS_CODE+158)
+#define SACCADE_PUNISH_DIRECTION (LAST_STIMULUS_CODE+159)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+159) /* 200 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+160) /* 200 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
@@ -898,6 +899,7 @@ char *serial_strings[NCODES+1] = {
     "mixac", /* mix corr, AC, dots */
     "Tt", /* Tonetime */
     "ijump", /* number of image jumps */
+    "baddir", /* bad direction for microsaccades */
 #ifdef DOSVERSION
 	NULL
 };
@@ -1324,6 +1326,7 @@ char *serial_names[] = {
     "AC Mixture",
     "Tone time",
     "Image Jumps",
+    "Bad microsaccade direction",
     //Max serialcodes
     
     "Opposite Delay",

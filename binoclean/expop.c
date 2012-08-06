@@ -3131,6 +3131,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case VERTICAL_VERGENCE:
         case SACCADE_DETECTED:
         case SACCADE_THRESHOLD:
+        case SACCADE_PUNISH_DIRECTION:
         case INITIAL_DISPARITY:
         case INITIAL_APPLY_MAX:
         case PLC_MAG:
@@ -3673,6 +3674,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case FIXWIN_HEIGHT:
         case SACCADE_DETECTED:
         case SACCADE_THRESHOLD:
+        case SACCADE_PUNISH_DIRECTION:
         case INITIAL_DISPARITY:
         case INITIAL_MOVEMENT:
         case INITIAL_APPLY_MAX:
@@ -3855,6 +3857,7 @@ float ExptProperty(Expt *exp, int flag)
         case AUTO_ZERO:
         case SACCADE_DETECTED:
         case SACCADE_THRESHOLD:
+        case SACCADE_PUNISH_DIRECTION:
         case FIXWIN_HEIGHT:
         case INITIAL_DISPARITY:
         case INITIAL_MOVEMENT:

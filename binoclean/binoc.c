@@ -9107,7 +9107,12 @@ int GotChar(char c)
             sacdir = atan2(sacval[1],-sacval[0]);
             sacsiz = sqrt(sqr(sacval[1])+sqr(sacval[0]));
             val = timediff(&now,&wurtzstart);
-            choiceaxis = atan2(afc_s.abssac[1],afc_s.abssac[0]);
+            if (fabs(expt.vals[SACCADE_PUNISH_DIRECTION]) > 0.1){
+                choiceaxis = deg2rad(expt.vals[SACCADE_PUNISH_DIRECTION]);
+            }
+            else{
+                choiceaxis = atan2(afc_s.abssac[1],afc_s.abssac[0]);
+            }
             /* tansac < 1 = dir of saccade within 45 degreees of choice axis */
             tansac = fabs(tan(sacdir-choiceaxis));
             if(seroutfile){
