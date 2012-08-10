@@ -4978,13 +4978,13 @@ void WriteSignal()
             DIOWriteBit(2,0); 
 #endif        
         gettimeofday(&endstimtime,NULL);
+ 	    c = END_STIM;
         if(seroutfile)
             fprintf(seroutfile,"O %d %u %u %.3f\n",(int)(c),ufftime(&endstimtime),
                     ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime));       
 
         expstate = END_STIM;
- 	    c = END_STIM;
-        write(ttys[0],&c,1);        
+        write(ttys[0],&c,1);
 #ifdef FRAME_OUTPUT
                 if (Frames2DIO)
 	    DIOWriteBit(3,1);
