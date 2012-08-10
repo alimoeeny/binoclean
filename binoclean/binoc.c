@@ -685,6 +685,9 @@ void initial_setup()
     
 	gettimeofday(&sessiontime,NULL);
     gettimeofday(&now,NULL);
+    ExptInit(&expt, TheStim, &mon);
+//ExptInit now sets up codesend and nfplaces from valstrings
+    return;
 	for(i = 0; i < MAXSERIALCODES; i++)
 	    switch(i)
     {
@@ -839,7 +842,6 @@ void initial_setup()
     }
 	codesend[UPLOAD_CODE] = SEND_USER_ONLY;
 	codesend[UFF_PREFIX] = SEND_USER_ONLY;
-	ExptInit(&expt, TheStim, &mon);
 }
 
 
@@ -10108,8 +10110,8 @@ void expt_over(int flag)
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
     SaveExptFile("./leaneo.stm",SAVE_STATE);
-    notify("\nEXPTOVER\n");
     SendAllToGui();
+    notify("\nEXPTOVER\n");
 }
 
 void Stim2PsychFile()

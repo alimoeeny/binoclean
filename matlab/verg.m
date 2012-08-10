@@ -73,6 +73,7 @@ strs = textscan(line,'%s','delimiter','\n');
 setlist = 0;  %% don't update gui for every line read.
 
 for j = 1:length(strs{1})
+ %   fprintf('%s\n', strs{1}{j});
     s = regexprep(strs{1}{j},'\s+\#.*$','');
     eid = strfind(s,'=');
     if ~isempty(eid)
@@ -136,6 +137,13 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'CODE',4)
         id = strfind(s,' ');
         code = str2num(s(id(2)+1:id(3)-1))+1;
+        if ismember(code,[DATA.comcodes.code])
+           x = 1; 
+        end
+        str = s(id(1)+1:id(2)-1);
+        if ~strcmp(str,'xx') && sum(strcmp(str,{DATA.comcodes.code}))
+            x = strcmp(str,{DATA.comcodes.code});
+        end
         DATA.comcodes(code).label = s(id(3)+1:id(end)-2);
         DATA.comcodes(code).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(code).const = code;
@@ -170,13 +178,16 @@ for j = 1:length(strs{1})
             
     elseif strncmp(s,'EXPTSTART',8)
         DATA.inexpt = 1;
+        tic; PsychMenu(DATA); 
+        tic; SetGui(DATA,'set'); 
     elseif strncmp(s,'EXPTOVER',8)
         DATA.inexpt = 0;
         if DATA.nexpts > 0  %may be 0 here if verg is fired up after a crash
         DATA.Expts{DATA.nexpts}.End = now;
         DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
         end
-        tic; DATA = GetState(DATA); toc
+%        tic; DATA = GetState(DATA); toc  %binoc sends state at end expt,
+%        before sending ExptOver
         tic; PsychMenu(DATA); 
         tic; SetGui(DATA,'set'); 
         ShowStatus(DATA);
@@ -584,7 +595,7 @@ function SendState(DATA, varargin)
     
     fprintf(DATA.outid,'mo=fore\n');
     if sendview
-        SendCode(DATA,{'px''py''vd'});
+        SendCode(DATA,{'px' 'py' 'vd'});
     end
     f = fields(DATA.binocstr);
     for j = 1:length(f)
@@ -1831,7 +1842,8 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.Stimvals.st = DATA.stimulusnames{DATA.stimtype(1)};
             DATA.Expts{DATA.nexpts}.Start = now;
             DATA.optionflags.do = 1;
-            DATA = GetState(DATA);
+                DATA = ReadFromBinoc(DATA);
+            %            DATA = GetState(DATA);
             else
                 DATA.rptexpts = 0;
                fprintf(DATA.outid,'\\ecancel\n');
@@ -2539,8 +2551,8 @@ function SendCode(DATA, code)
     if iscellstr(code)
         for j = 1:length(code)
             SendCode(DATA,code{j});
-            return;
         end
+            return;
     end
     s = CodeText(DATA, code);
     if length(s)
@@ -2901,10 +2913,13 @@ function DATA = PlotPsych(DATA)
     if DATA.psych.show
     DATA = SetFigure('VergPsych', DATA);
     hold off; 
+    np = sum(abs([Expt.Trials.RespDir]) ==1); %psych trials
+    if np > 1
     [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown');
     if DATA.psych.crosshairs
         plot([0 0], get(gca,'ylim'),'k:')
         plot(get(gca,'xlim'),[0.5 0.5],'k:')
+    end
     end
     end
     

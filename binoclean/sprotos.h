@@ -122,8 +122,6 @@ struct plotdata *ReadPlot(char *s);
 void SetExpPanel(Expt *ex);
 int GetTotal(struct plotdata *plot, int cluster, int type);
 void PrintPlot(FILE *ofd, struct plotdata *plot, int cluster, int type);
-int SavePlot(struct plotdata *plot);
-void PlotClear(struct plotdata *plot);
 void psychclear(struct plotdata *plot, int allflag);
 void PlotAlloc(Expt *exp);
 int i2expi(int flag, int *nstim, int ival, int type);
