@@ -10366,7 +10366,7 @@ int PrepareExptStim(int show, int caller)
                 SerialSend(FP_MOVE_DIR);
         }
         
-        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0)
+        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0  && expt.st->immode != IMAGEMODE_ORBW)
             frpt = 1;
         for(i = 0; i < expt.st->nframes+1; i+=frpt){
             if(optionflags[FAST_SEQUENCE]){
@@ -10397,14 +10397,18 @@ int PrepareExptStim(int show, int caller)
                     }
                 }
             }
+            expt.st->forceseed = 0; 
             st->framectr = i;
             st->left->calculated = st->right->calculated = 0;
             calc_image(expt.st,expt.st->left);
             if(expt.st->flag & UNCORRELATE)
                 calc_image(expt.st,expt.st->right);
+
             for (j = 1; j < frpt; j++){
                 st->framectr = i+j;
                 st->left->calculated = st->right->calculated = 0;
+                if (expt.st->immode == IMAGEMODE_ORBW)
+                    expt.st->forceseed = expt.st->stimid; 
                 calc_image(expt.st,expt.st->left); 
                 imageseed[i+j] = imageseed[i];
                 rcstimxy[0][i+j] = rcstimxy[0][i];
@@ -10433,6 +10437,7 @@ int PrepareExptStim(int show, int caller)
         sprintf(cbuf,"imve %.4f,%d %.4f %.4f\n",st->stimversion,st->seedoffset,st->pix2deg,timediff(&now,&then));
         SerialString(cbuf,0);
         seedoffsets[expt.stimid] = st->seedoffset;
+        expt.st->forceseed = 0;
         //Ali #endif
     }
     else  if(expt.st->type == STIM_IMAGE){
