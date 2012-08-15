@@ -6738,8 +6738,9 @@ int next_frame(Stimulus *st)
                  * but the trial should be counted as a wrong one, based on the trial that
                  * took us into the correction loop.
                  */
+                //Call ResetExptStim with offset 1 as this is before stimno is incrmemented
                 if(!(option2flag & PSYCHOPHYSICS_BIT))
-                    ResetExpStim(0);
+                    ResetExpStim(1);
                 SetFixColor(expt);
                 /*
                  * This is where stimno is incremented for the last stim of the trial
