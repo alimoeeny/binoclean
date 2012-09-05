@@ -10379,6 +10379,7 @@ int PrepareExptStim(int show, int caller)
                 if(optionflags[TILE_XY]){
                     rnd = rnd_i();
                     rcstimxy[0][i] = (rnd & 0xffff) % expt.st->jumps;
+                    rcstimxy[0][i] = (rnd) % expt.st->jumps;
                     rcstimxy[1][i] = (rnd>>16) % expt.st->jumps;
                     expt.st->xyshift[0] = (rnd % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
                     expt.st->xyshift[1] = ((rnd>>16) % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
