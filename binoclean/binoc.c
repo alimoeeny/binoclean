@@ -870,22 +870,7 @@ void SetPriority(int priority)
 #define NDPNORMMIN 20
 #endif
 
-float GetFrameRate(void)
-{
-    FILE *p;
-    char *command;
-    int n,pixels,lines;
-    float rate,gamma;
-    char buf[BUFSIZ];
-    
-    if(expt.vals[FRAMERATE_CODE] > 0)
-        rate = expt.vals[FRAMERATE_CODE];
-    else
-        rate = 60;
-    
-    return rate;
-    
-}
+
 
 
 
@@ -1442,6 +1427,27 @@ void SendAllToGui()
     ListExpStims(NULL);
     ListQuickExpts();
 }
+
+
+double GetFrameRate()
+{
+    double fz = 0;
+    //For now always get screen 1 - the one without the main menu bar
+    if (winpos[0] > 0)
+        fz = GetCurrentFrameRate(1);
+    else
+        fz = GetCurrentFrameRate(1);
+
+    if (fz <= 0){
+        if(expt.vals[FRAMERATE_CODE] > 0)
+            fz = expt.vals[FRAMERATE_CODE];
+        else
+            fz = 60;
+    }
+    
+    return(fz);
+}
+
 
 void SendAll()
 {

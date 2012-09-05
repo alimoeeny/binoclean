@@ -13801,7 +13801,7 @@ int ReadMonitorSetup(char *name)
     expt.mon->framerate = GetFrameRate();
     if(nf > 2)
         expt.mon->loaded = 1;
-    printf("%s pixel = %.4f degrees\n",name,pix2deg(1));
+    printf("%s pixel = %.4f degrees FrameRate %.2f\n",name,pix2deg(1),expt.mon->framerate);
     return(expt.mon->loaded);
 }
 
