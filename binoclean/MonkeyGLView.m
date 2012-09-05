@@ -40,6 +40,18 @@ float gErrorTime;
 GLCaps * gDisplayCaps = NULL; // array of GLCaps
 CGDisplayCount gNumDisplays = 0;
 
+double GetCurrentFrameRate(int displayIndex)
+{
+    if (gDisplayCaps)
+    {
+        return gDisplayCaps[displayIndex].deviceRefresh;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
 static void getCurrentCaps (void)
 {
  	// Check for existing opengl caps here
