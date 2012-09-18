@@ -279,6 +279,9 @@ void calc_image(Stimulus *st, Substim *sst)
         /*    gettimeofday(&then,NULL);*/
         
         if(sst->mode == LEFTMODE){
+            if (st->forceseed > 0){
+                seed = st->forceseed;
+            }
             if(optionflags[RANDOM_PHASE])
                 st->stimid = id;
             else

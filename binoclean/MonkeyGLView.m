@@ -40,6 +40,7 @@ float gErrorTime;
 GLCaps * gDisplayCaps = NULL; // array of GLCaps
 CGDisplayCount gNumDisplays = 0;
 
+
 static void getCurrentCaps (void)
 {
  	// Check for existing opengl caps here
@@ -57,6 +58,20 @@ static void getCurrentCaps (void)
 		initCapsTexture (gDisplayCaps, gNumDisplays); // (re)init the texture for printing caps
 	}
 }
+
+double GetCurrentFrameRate(int displayIndex)
+{
+    getCurrentCaps();
+    if (gDisplayCaps)
+    {
+        return gDisplayCaps[displayIndex].deviceRefresh;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
 
 #pragma mark ---- Utilities ----
 

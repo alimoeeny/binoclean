@@ -866,22 +866,7 @@ void SetPriority(int priority)
 #define NDPNORMMIN 20
 #endif
 
-float GetFrameRate(void)
-{
-    FILE *p;
-    char *command;
-    int n,pixels,lines;
-    float rate,gamma;
-    char buf[BUFSIZ];
-    
-    if(expt.vals[FRAMERATE_CODE] > 0)
-        rate = expt.vals[FRAMERATE_CODE];
-    else
-        rate = 60;
-    
-    return rate;
-    
-}
+
 
 
 
@@ -1436,6 +1421,27 @@ void SendAllToGui()
     ListExpStims(NULL);
     ListQuickExpts();
 }
+
+
+double GetFrameRate()
+{
+    double fz = 0;
+    //For now always get screen 1 - the one without the main menu bar
+    if (winpos[0] > 0)
+        fz = GetCurrentFrameRate(1);
+    else
+        fz = GetCurrentFrameRate(1);
+
+    if (fz <= 0){
+        if(expt.vals[FRAMERATE_CODE] > 0)
+            fz = expt.vals[FRAMERATE_CODE];
+        else
+            fz = 60;
+    }
+    
+    return(fz);
+}
+
 
 void SendAll()
 {
@@ -4978,13 +4984,13 @@ void WriteSignal()
             DIOWriteBit(2,0); 
 #endif        
         gettimeofday(&endstimtime,NULL);
+ 	    c = END_STIM;
         if(seroutfile)
             fprintf(seroutfile,"O %d %u %u %.3f\n",(int)(c),ufftime(&endstimtime),
                     ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime));       
 
         expstate = END_STIM;
- 	    c = END_STIM;
-        write(ttys[0],&c,1);        
+        write(ttys[0],&c,1);
 #ifdef FRAME_OUTPUT
                 if (Frames2DIO)
 	    DIOWriteBit(3,1);
@@ -6738,8 +6744,9 @@ int next_frame(Stimulus *st)
                  * but the trial should be counted as a wrong one, based on the trial that
                  * took us into the correction loop.
                  */
+                //Call ResetExptStim with offset 1 as this is before stimno is incrmemented
                 if(!(option2flag & PSYCHOPHYSICS_BIT))
-                    ResetExpStim(0);
+                    ResetExpStim(1);
                 SetFixColor(expt);
                 /*
                  * This is where stimno is incremented for the last stim of the trial
@@ -9106,7 +9113,12 @@ int GotChar(char c)
             sacdir = atan2(sacval[1],-sacval[0]);
             sacsiz = sqrt(sqr(sacval[1])+sqr(sacval[0]));
             val = timediff(&now,&wurtzstart);
-            choiceaxis = atan2(afc_s.abssac[1],afc_s.abssac[0]);
+            if (fabs(expt.vals[SACCADE_PUNISH_DIRECTION]) > 0.1){
+                choiceaxis = deg2rad(expt.vals[SACCADE_PUNISH_DIRECTION]);
+            }
+            else{
+                choiceaxis = atan2(afc_s.abssac[1],afc_s.abssac[0]);
+            }
             /* tansac < 1 = dir of saccade within 45 degreees of choice axis */
             tansac = fabs(tan(sacdir-choiceaxis));
             if(seroutfile){

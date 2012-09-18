@@ -254,9 +254,10 @@
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
 #define IMAGEJUMPS (LAST_STIMULUS_CODE+158)
+#define SACCADE_PUNISH_DIRECTION (LAST_STIMULUS_CODE+159)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+159) /* 200 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+160) /* 200 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -627,6 +628,7 @@ StringCode commstrings[] = {
     {"monkey", "Monkey name", MONKEYNAME, NULL},
     {"impref", "prefix for image files", 0, NULL},
     {"immode", "image mode", 0, NULL},
+    {"psychfile", "Psych results file", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -1232,6 +1234,7 @@ char *serial_strings[NCODES+1] = {
     "mixac", /* mix corr, AC, dots */
     "Tt", /* Tonetime */
     "ijump", /* number of image jumps */
+    "baddir", /* bad direction for microsaccades */
 "iD", /* Opposite Delay */
 "Fr", /* FAST_SEQUENCE rpt +1 */
 "db", /* Wurtz Brightness Shift, +2 */
@@ -1655,6 +1658,7 @@ char *serial_names[] = {
     "AC Mixture",
     "Tone time",
     "Image Jumps",
+    "Bad microsaccade direction",
     //Max serialcodes
     
     "Opposite Delay",

@@ -2675,6 +2675,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     acknowledge("Can't chdir to /local either");
                 }
             }
+            
             break;
             
         case HELPFILE_PATH:
@@ -3057,6 +3058,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case VERTICAL_VERGENCE:
         case SACCADE_DETECTED:
         case SACCADE_THRESHOLD:
+        case SACCADE_PUNISH_DIRECTION:
         case INITIAL_DISPARITY:
         case INITIAL_APPLY_MAX:
         case PLC_MAG:
@@ -3599,6 +3601,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case FIXWIN_HEIGHT:
         case SACCADE_DETECTED:
         case SACCADE_THRESHOLD:
+        case SACCADE_PUNISH_DIRECTION:
         case INITIAL_DISPARITY:
         case INITIAL_MOVEMENT:
         case INITIAL_APPLY_MAX:
@@ -3781,6 +3784,7 @@ float ExptProperty(Expt *exp, int flag)
         case AUTO_ZERO:
         case SACCADE_DETECTED:
         case SACCADE_THRESHOLD:
+        case SACCADE_PUNISH_DIRECTION:
         case FIXWIN_HEIGHT:
         case INITIAL_DISPARITY:
         case INITIAL_MOVEMENT:
@@ -10243,7 +10247,7 @@ int PrepareExptStim(int show, int caller)
                 SerialSend(FP_MOVE_DIR);
         }
         
-        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0)
+        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0  && expt.st->immode != IMAGEMODE_ORBW)
             frpt = 1;
         for(i = 0; i < expt.st->nframes+1; i+=frpt){
             if(optionflags[FAST_SEQUENCE]){
@@ -10256,6 +10260,7 @@ int PrepareExptStim(int show, int caller)
                 if(optionflags[TILE_XY]){
                     rnd = rnd_i();
                     rcstimxy[0][i] = (rnd & 0xffff) % expt.st->jumps;
+                    rcstimxy[0][i] = (rnd) % expt.st->jumps;
                     rcstimxy[1][i] = (rnd>>16) % expt.st->jumps;
                     expt.st->xyshift[0] = (rnd % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
                     expt.st->xyshift[1] = ((rnd>>16) % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
@@ -10274,14 +10279,18 @@ int PrepareExptStim(int show, int caller)
                     }
                 }
             }
+            expt.st->forceseed = 0; 
             st->framectr = i;
             st->left->calculated = st->right->calculated = 0;
             calc_image(expt.st,expt.st->left);
             if(expt.st->flag & UNCORRELATE)
                 calc_image(expt.st,expt.st->right);
+
             for (j = 1; j < frpt; j++){
                 st->framectr = i+j;
                 st->left->calculated = st->right->calculated = 0;
+                if (expt.st->immode == IMAGEMODE_ORBW)
+                    expt.st->forceseed = expt.st->stimid; 
                 calc_image(expt.st,expt.st->left); 
                 imageseed[i+j] = imageseed[i];
                 rcstimxy[0][i+j] = rcstimxy[0][i];
@@ -10310,6 +10319,7 @@ int PrepareExptStim(int show, int caller)
         sprintf(cbuf,"imve %.4f,%d %.4f %.4f\n",st->stimversion,st->seedoffset,st->pix2deg,timediff(&now,&then));
         SerialString(cbuf,0);
         seedoffsets[expt.stimid] = st->seedoffset;
+        expt.st->forceseed = 0;
         //Ali #endif
     }
     else  if(expt.st->type == STIM_IMAGE){
@@ -13672,7 +13682,7 @@ int ReadMonitorSetup(char *name)
     expt.mon->framerate = GetFrameRate();
     if(nf > 2)
         expt.mon->loaded = 1;
-    printf("%s pixel = %.4f degrees\n",name,pix2deg(1));
+    printf("%s pixel = %.4f degrees FrameRate %.2f\n",name,pix2deg(1),expt.mon->framerate);
     return(expt.mon->loaded);
 }
 
