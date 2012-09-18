@@ -18,8 +18,7 @@
 #define myseed rnd_init
 #define myrand rnd_i
 
-//Ali
-#define NOEVENT 1
+
 
 
 extern int verbose,newmonoc;
@@ -287,13 +286,15 @@ void draw_fix_square(vcoord fixw)
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBegin(GL_LINES);
-        x[0] = i;
+/*        glBegin(GL_LINES);
+        x[0] = 0;
         x[1] = -fixw/2;
         myvx(x);
         x[1] = fixw/2;
         myvx(x);
         glEnd();
+ */
+        glRects(l,l,+r,+r);
         glDisable(GL_LINE_SMOOTH);
         glDisable(GL_BLEND);
 	}
@@ -779,6 +780,8 @@ int StimulusType(Stimulus *st, int i)
             st->left = NewImage(st,st->left);
             st->mode &= (~STIMULUS_NEEDS_CLEAR); //New stim covers old one;
             st->nimseed = 1000;
+            if (st->nimplaces <= 0)
+                st->nimplaces = 5;
             if(st->prev != NULL && st->prev->type == STIM_IMAGE){
                 st->preloaded = st->prev->preloaded;
                 st->imprefix = st->prev->imprefix;
@@ -1005,11 +1008,11 @@ void clearstim(Stimulus *st, float color, int drawfix)
             optionflag &= (~(LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
             setmask(0);
         }
-        if(expt.backim.name){
-            PaintBackIm(expt.backim);
-        }
         glClearColor(color, st->gammaback, color, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if(expt.backim.name && optionflags[PAINT_BACKGROUND]){
+            PaintBackIm(expt.backim);
+        }
         if(newmonoc)
             optionflag |= newmonoc;
     }
@@ -1307,11 +1310,16 @@ void calc_stimulus(Stimulus *st)
                 rnd = (myrand()  % 360) * M_PI/180; 
                 st->left->pos.phase = st->pos.phase + rnd;
                 st->right->pos.phase = st->pos.phase - rnd;
+                rnd = (myrand()  % 360) * M_PI/180; 
+                st->left->pos.phase2 = st->pos.phase2 + rnd;
+                st->right->pos.phase2 = st->pos.phase2 - rnd;
             }
             else
             {
                 st->left->pos.phase = st->pos.phase + st->phasedisp[0];
                 st->right->pos.phase = st->pos.phase - st->phasedisp[0];
+                st->left->pos.phase2 = st->pos.phase2 + (st->phasedisp[1]);
+                st->right->pos.phase2 = st->pos.phase2 - (st->phasedisp[1]);
             }
             calc_grating(st,st->left,disp);
             calc_grating(st,st->right,-disp);
@@ -2157,6 +2165,12 @@ void paint_stimulus(Stimulus *st)
             setmask(BOTHMODE);
             break;
         case STIM_IMAGE:
+            if(st->immode == BINOCULAR_PLAIN_IMAGES){
+                setmask(BOTHMODE);
+                paint_image(st, st->left);
+                st->noclear = 1;
+                break;
+            }
             setmask(LEFTMODE);
             paint_image(st, st->left);
             if(debug)

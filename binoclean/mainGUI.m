@@ -30,30 +30,35 @@ Expt expt;
         for (int i = 0; i < N_STIMULUS_TYPES; i ++)
             [self.stimulusValues addObject:[NSString stringWithUTF8String:stimulus_names[i]]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateInfoText:) name:@"updateinfotext" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCommandHistory:) name:@"updatecommandhistory" object:nil];
     }
     return self;
 }
 
 - (void) updateInfoText:(NSNotification *) aNotification
 {
-    if([[informationTextField stringValue] rangeOfString:[[aNotification userInfo] valueForKey:@"text"]].location == NSNotFound)
-    {
-        int r = 14;
-        NSString * s = [NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], [informationTextField stringValue]];
-        NSArray * c = [s componentsSeparatedByString:@"\n"];
-        if([c count]>r)
-        {
-            int b = [s rangeOfString:[c objectAtIndex:r]].location;
-            @try {
-                if (b>0)
-                    s = [s substringToIndex:b];            
-            }
-            @catch (NSException *exception) {
-                NSLog(@"Bad String");
-            }
+    int r = 14;
+
+    __block NSMutableString * newS = [[NSMutableString alloc] initWithString:@""];
+    __block int counter = 0;
+    [[informationTextField stringValue] enumerateLinesUsingBlock:^(NSString * line, BOOL *stop) {
+        counter = counter + 1;
+        if (counter<r) {
+            [newS appendFormat:@"%@\n", line];
+            NSLog(@"Line is: %@", line);
         }
-        [informationTextField setStringValue:s];
-    }
+        else {
+            stop = YES;
+        }
+    }];
+    [informationTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", [[aNotification userInfo] valueForKey:@"text"], newS]];
+}
+
+- (void) updateCommandHistory:(NSNotification *) aNotification
+{
+    [commandHistoryTextField setStringValue:[NSString stringWithFormat:@"%@\n%@", 
+                                             [[aNotification userInfo] valueForKey:@"text"],
+                                             [commandHistoryTextField stringValue]]];
 }
 
 - (IBAction) elPosButton:(id)sender

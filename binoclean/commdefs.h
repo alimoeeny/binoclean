@@ -66,7 +66,6 @@
 #define SET_SEEDLOOP 15
 #define SET_SEED 16
 #define SETCONTRAST 17
-
 #define DISP_Y 18
 #define SF2 19
 #define TF2 20
@@ -100,12 +99,6 @@
 #define SETZOOM (LAST_STIMULUS_CODE+2)
 #define SETBACKCOLOR (LAST_STIMULUS_CODE+3)
 #define DELAY (LAST_STIMULUS_CODE+4) 
-
-
-/*
- * remaining codes refer to the experiment settings,
- * not individual stimulus components
- */
 #define PREPERIOD_CODE (LAST_STIMULUS_CODE+5)
 #define EXPTYPE_CODE (LAST_STIMULUS_CODE+6)
 #define FRAMERATE_CODE (LAST_STIMULUS_CODE+7)
@@ -115,12 +108,6 @@
 #define MODE_CODE (LAST_STIMULUS_CODE+11)
 #define RAMP_VERGENCE_CODE (LAST_STIMULUS_CODE+12)
 #define NTRIALS_CODE (LAST_STIMULUS_CODE+13)
-/*
- * July 15 2002. NTRIALS and EXPTYPE codes swapped in order, so that
- * setting NTRIALS in the code when EXPTYPE is set does not override
- * NTRIALS
- */
-
 #define UFF_PREFIX (LAST_STIMULUS_CODE+14)
 #define HIGHX (LAST_STIMULUS_CODE+15)
 #define STIMULUS_MODE (LAST_STIMULUS_CODE+16)
@@ -266,10 +253,11 @@
 #define TARGET2_POS  (LAST_STIMULUS_CODE+155)
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
+#define IMAGEJUMPS (LAST_STIMULUS_CODE+158)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+158) /* 199 */
+
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+159) /* 200 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
-
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
 #define BLANKCOLOR_CODE MAXSERIALCODES+3
@@ -315,7 +303,7 @@
 #define BLANK_P MAXSERIALCODES +43
 #define COVARY_XPOS MAXSERIALCODES +44
 #define BONUS_CRITERION MAXSERIALCODES +45
-#define BONUS2_CRITERION MAXSERIALCODES +46
+#define BONUS2_CRITERION MAXSERIALCODES+46
 #define EXPT_BLKSIZ MAXSERIALCODES+47
 #define CONTRAST_LEFT MAXSERIALCODES+48
 #define CONTRAST_RIGHT MAXSERIALCODES+49
@@ -352,8 +340,6 @@
 #define CHANGE_SEED MAXSERIALCODES+80
 #define DISP_A MAXSERIALCODES+81
 #define DISP_B MAXSERIALCODES+82
-
-
 #define FP_MOVE_FRAME MAXSERIALCODES+83
 #define XOFFLOG MAXSERIALCODES+84
 #define LRBINTERLEAVE MAXSERIALCODES+85
@@ -394,14 +380,6 @@
 #define TIMEOUT_CONTRAST MAXSERIALCODES+120
 #define RCFILE_CTR MAXSERIALCODES+121
 #define ALTERNATE_STIM_MODE MAXSERIALCODES+122
-/*
- *  ALTERNATE_STIM_MODE a flag for doing a variety 
- *
- * 1-7 Stroboscopic variations
- * 
- */
-
-
 #define MICROSTIM_EXPT MAXSERIALCODES+123
 #define TEST_VALUE1 MAXSERIALCODES+124
 #define TEST_VALUE2 MAXSERIALCODES+125
@@ -412,7 +390,7 @@
 #define PENYPOS MAXSERIALCODES+130
 #define VWHERE MAXSERIALCODES+131
 #define IFCSCALE MAXSERIALCODES+132
-//+133 unused
+
 #define HEIGHT_L MAXSERIALCODES+134
 #define HEIGHT_R MAXSERIALCODES+135
 #define WIDTH_L MAXSERIALCODES+136
@@ -440,9 +418,6 @@
 #define FAKESTIM_EXPT MAXSERIALCODES+158
 #define FAKESTIM_SIGNAL MAXSERIALCODES+159
 #define BLACKDOT_FRACTION MAXSERIALCODES+160
-// Codes after this are convenience only - no need to store
-// their value. But they need a serial-string so that they can be set
-// Since they are not send to PC, they can be > 2 chars long
 #define HIGHXTYPE MAXSERIALCODES+161
 #define MONKEYNAME MAXSERIALCODES+162
 #define MAXSAVECODES MAXSERIALCODES+163 //362
@@ -463,8 +438,11 @@
 #define ABS_ORTHOG_POS MAXSAVECODES+13
 #define ABS_PARA_POS MAXSAVECODES+14
 #define VERBOSE_CODE MAXSAVECODES+15
+#define SEEDOFFSET MAXSAVECODES+16
+#define SEEDRANGE (MAXSAVECODES+17)
+#define NIMPLACES (MAXSAVECODES+18)
 
-#define MAXTOTALCODES (MAXSAVECODES+16)  //372
+#define MAXTOTALCODES (MAXSAVECODES+19)  //372
 
 
 /*
@@ -483,25 +461,6 @@
 
 #define OLDFIXEDLORI 173
 #define OLDFIXEDRORI 174
-
-#define FREE_TEXT MAXTOTALCODES
-#define RIGHTH_GAIN MAXTOTALCODES+3
-#define RIGHTH_OFFSET MAXTOTALCODES+4
-#define RIGHTH_PHASE MAXTOTALCODES+5
-#define RIGHTH_SOFTOFF MAXTOTALCODES+6
-#define RIGHTV_GAIN MAXTOTALCODES+7
-#define RIGHTV_OFFSET MAXTOTALCODES+8
-#define RIGHTV_PHASE MAXTOTALCODES+9
-#define RIGHTV_SOFTOFF MAXTOTALCODES+10
-#define LEFTH_GAIN MAXTOTALCODES+11
-#define LEFTH_OFFSET MAXTOTALCODES+12
-#define LEFTH_PHASE MAXTOTALCODES+13
-#define LEFTH_SOFTOFF MAXTOTALCODES+14
-#define LEFTV_GAIN MAXTOTALCODES+15
-#define LEFTV_OFFSET MAXTOTALCODES+16
-#define LEFTV_PHASE MAXTOTALCODES+17
-#define LEFTV_SOFTOFF MAXTOTALCODES+18
-#define FLUID_TEXT MAXTOTALCODES+19
 #define STIM_PERIOD MAXTOTALCODES+20
 #define RF_DIMENSIONS MAXTOTALCODES +21
 #define STIMULUS_LABEL_WIDGET MAXTOTALCODES+22
@@ -645,7 +604,10 @@ typedef struct valuecode {
     char *code;
     char *label;
     int icode;
-    char *value;
+    int group;
+  char ctype; //'C' if this is a string
+    int nfplaces; //#places for printing
+    int codesend;
     
 } ValueCode;
 
@@ -654,11 +616,7 @@ typedef struct valuecode {
 
 #ifdef CHARCODES_DEFINE
 
-#ifdef DOSVERSION
-#define NCODES MAXSERIALCODES
-#else
 #define NCODES MAXTOTALCODES
-#endif
 
 
 
@@ -669,30 +627,411 @@ StringCode commstrings[] = {
     {"monkey", "Monkey name", MONKEYNAME, NULL},
     {"impref", "prefix for image files", 0, NULL},
     {"immode", "image mode", 0, NULL},
-    {"psychfile", "Psych results file", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
 
 /* codes for BW to tell Front things 
- * N.B. THESE CIDES MUST BE DIFFERNT FORM toggle_codes in front.c
+ * N.B. THESE CODES MUST BE DIFFERNT FORM toggle_codes in front.c
  */
 char *bwtoggle_codes[] = {
     "fo", /* file is open */
     NULL,
 };
 
+/*
+ * bit codes for groups
+ * groups  1 stim prop
+ *         2 binocular stim prop (disparity etc)
+ *         4 Dot stimuli 
+ *         8 fixation point 
+ *         16 Expt setup
+ *         32 General Display
+ *         64 Background stim
+ *         128 commands
+ *         256 RF properties
+ *         512 Indirect properties
+ */
 ValueCode valstrings[] = {
-    {"xo","X offset",  XPOS},
-    {"lo", "Log File", LOGFILE_CODE, NULL},
-    {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
-    {"monkey", "Monkey name", MONKEYNAME, NULL},
-    {"impref", "prefix for image files", 0, NULL},
-    {"immode", "image mode", 0, NULL},
-    {NULL, NULL, 0, NULL}
+  {"xo","X offset",  XPOS, 1, 'N' ,2, SEND_EXPT},
+    {"yo","Y offset",  YPOS, 1, 'N' ,2, SEND_EXPT},
+  {"lo", "Log File", LOGFILE_CODE, 2, 'N' ,2, SEND_EXPLICIT},
+  {"st", "Stimulus", STIMULUS_TYPE_CODE, 1,'C' ,2, SEND_EXPT},
+  {"sx",     "Sigma X",  SD_X, 1, 'N' ,2, SEND_EXPLICIT},
+  {"sy",     "Sigma Y",  SD_Y, 1, 'N' ,2, SEND_EXPLICIT},
+  {"dp",     "Diparate phase", DISP_P, 3, 'N' ,5, SEND_EXPT},
+  {"dx",     "Disparity ", DISP_X, 3, 'N' ,5, SEND_EXPT},
+  {"wi",     "Width ", STIM_WIDTH, 1, 'N' ,4, SEND_EXPT},
+  {"hi",     "Height ", STIM_HEIGHT, 1, 'N' ,4, SEND_EXPT},
+  {"sf",     "Spatial Frequency", SF,  1, 'N' ,4, SEND_EXPT},
+  {"xn",     "X sampling", XSAMPLES, 1, 'N' ,0, SEND_EXPLICIT},
+  {"yn",     "Y Sampling", YSAMPLES, 1, 'N' ,0, SEND_EXPLICIT},
+  {"tf",     "Temporal Frequency", TF, 1, 'N' ,2, SEND_EXPT},
+  {"ph",     "Spatial Phase",  SETPHASE, 1, 'N' ,2, SEND_EXPT},
+  {"or",     "Orientation",  ORIENTATION, 1, 'N' ,1, SEND_EXPT},
+  {"sl",     "Seed Loop", SET_SEEDLOOP, 5, 'N' ,0, SEND_EXPT},
+  {"se",     "Seed", SET_SEED, 5, 'N' ,0, SEND_STIMULUS},
+  {"co",     "Contrast ", SETCONTRAST, 1, 'N' ,4, SEND_EXPLICIT},
+  {"dy",     "VDisp", DISP_Y, 3, 'N' ,4, SEND_EXPT},
+  {"f2",     "SF2", SF2, 1, 'N' ,2, SEND_GRATING2},
+  {"t2",     "TF2", TF2, 1, 'N' ,2, SEND_GRATING2},
+  {"p2",     "Phase2", PHASE2, 1, 'N' ,2, SEND_EXPLICIT},
+  {"a2",     "Plaid angle", PLAID_ANGLE, 1, 'N' ,2, SEND_EXPLICIT},
+  {"jv",     "J velocity", JVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
+  {"fi",     "front intensity",JF_INTENSITY, 5, 'N' ,2, SEND_EXPLICIT},
+  {"bi",     "back intensity", JB_INTENSITY, 5, 'N' ,2, SEND_EXPLICIT},
+  {"jn",     "cyl num dots", JNUMDOTS, 5, 'N' ,2, SEND_EXPLICIT},
+  {"jl",     "dotlife (cyl)",JLIFEFRAMES, 5, 'N' ,2, SEND_EXPLICIT}, 
+  {"jx",     "death chance",  JDEATH, 5, 'N' ,4, SEND_EXPT},
+  {"c2",     "contrast 2", CONTRAST2, 1, 'N' ,4, SEND_EXPLICIT},
+  {"ic",     "delta contrast", CONTRAST_DIFF, 3, 'N' ,4, SEND_EXPLICIT},
+  {"od",     "delta ori", ORIENTATION_DIFF, 3, 'N' ,2, SEND_EXPLICIT},
+  {"ds",     "delta SF", SF_DIFF, 3, 'N' ,4, SEND_EXPLICIT},
+  {"dg",     "disp grad", DISP_GRAD, 3, 'N' ,4, SEND_EXPLICIT},
+  {"dm",     "depth modulation", DEPTH_MOD, 3, 'N' ,4, SEND_EXPLICIT},
+  {"ta",     "twobar angle", TWOBAR_ANGSEP, 1, 'N' ,2, SEND_EXPLICIT},
+  {"dr",     "Disp Ramp", DISP_RAMP, 3, 'N' ,2, SEND_EXPLICIT},
+  {"dq",     "pDisp 2", PHASE2DISP, 3, 'N' ,2, SEND_EXPLICIT},
+  {"rp",     "Rel Phase",  PHASEREL, 3, 'N' ,2, SEND_EXPLICIT},
+  {"Pd",     "Phase Disp as Disp", PHASE_AS_DISP, 3, 'N' ,2, SEND_EXPLICIT},
+  {"ce",     "Correlation", CORRELATION, 3, 'N' ,4, SEND_STIMULUS},
+  {"dw",     "Dot Width", DOT_SIZE, 5, 'N' ,4, SEND_EXPLICIT},
+  {"fc",     "Fixation Color", SETFIXCOLOR, 8, 'N' ,2, SEND_EXPLICIT},
+  {"zx",     "Zoom",  SETZOOM, 32, 'N' ,2, SEND_EXPLICIT},
+  {"bc",     "BackGround Color ", SETBACKCOLOR, 32, 'N' ,2, SEND_EXPLICIT},
+  {"dt",     "Delay", DELAY, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"pr",     "PREPERIOD", PREPERIOD_CODE, 16, 'N' ,2, SEND_EXPLICIT}, 
+  {"et",     "Expt1 Type",  EXPTYPE_CODE, 16 , 'N' ,2, SEND_EXPT},
+  {"fz",     "FRAMERATE",  FRAMERATE_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"du",     "STIMULUS DURATION", STIMULUS_DURATION_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"vc",     "CLAMP_DISPARITY", CLAMP_DISPARITY_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"po",     "POSTPERIOD", POSTPERIOD_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"mo",     "Mode",MODE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"vr",     "RAMP_VERGENCE",RAMP_VERGENCE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"nt",     "N Stim (Expt 1)",NTRIALS_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"uf",     "Uff Prefix",UFF_PREFIX, 32 , 'N' ,2, SEND_USER_ONLY},
+  {"hx",     "High X Value for Interleaves",HIGHX, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"sM",     "Stimulus mode",STIMULUS_MODE, 1 , 'N' ,2, SEND_EXPT},
+  {"wr",     "WURTZ task response period", WURTZ_RT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"mD",     "Max disp Initial manip", INITIAL_APPLY_MAX, 17 , 'N' ,5, SEND_EXPT},
+  {"op",     "optionflag setup", OPTION_CODE, 16 , 'N' ,2, SEND_STIMULUS},
+  {"nr",     "N Repetitions", NREPS_CODE, 16 , 'N' ,2, SEND_EXPT},
+  {"tl",     "trigger level", TRIGGER_LEVEL, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"fw",     "fixation window", FIXATION_WINDOW, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"df",     "display flag",DISPLAYFLAG_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"ch",     "channel Set code",CHANNEL_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N' ,2, SEND_NON_ZERO},
+  {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"bt",     "Replay End",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Bc",     "Background Contrast",BACK_CONTRAST, 64 , 'N' ,4, SEND_EXPT},
+  {"ei",     "Expt incr", EXPT_INCR, 16 , 'N' ,5, SEND_EXPT},
+  {"em",     "Expt Mean", EXPT_MEAN, 16 , 'N' ,5, SEND_EXPT},
+  {"is",     "ISI", ISI_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"bw",     "bin width", UNIT_BINWIDTH, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"ub",     "binned unit data",BINNED_SPIKE_DATA, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"ut",     "unit times",SPIKE_TIMES, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"nf",     "N Frames",NFRAMES_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"bd",     "backgound disparity", DISP_BACK, 64 , 'N' ,4, SEND_EXPT},
+  {"rk",     "ramp coefficient", RAMP_COEFFICIENT, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"fx",     "fixation x pos ",FIXPOS_X, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"fy",     "fixation y pos ",FIXPOS_Y, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"fs",     "fixation size ",SETFIXSIZE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"cj",     "mean conjugate",STATIC_CONJUGATE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"rw",     "Reward Size", REWARD_SIZE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"vh",     "Vergence RAMP and Hold", RAMP_HOLD_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"ti",     "TIMEOUT",  TIMEOUT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"so",     "Software Offsets 62 ",SOFTOFF_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"qs",     "Query State", QUERY_STATE, 128 , 'N' ,2, SEND_USER_ONLY},
+  {"sb",     "Stop Button", STOP_BUTTON, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"ra",     "Ramp Amplitude", RAMP_AMPLITUDE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"lb",     "Initial Blank Period", TRIAL_START_BLANK, 16 , 'N' ,2, SEND_EXPT},
+  {"ul",     "UpLoad Directory*", UPLOAD_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"vw",     "Vergence Window",VERGENCE_WINDOW, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"sp",     "Short Prem Trial Length",SHORT_PREM_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"ed",     "electrode depth", ELECTRODE_DEPTH, 32 , 'N' ,2, SEND_USER_ONLY},
+  {"cm",     "Comment", UFF_COMMENT, 128 , 'N' ,2, SEND_USER_ONLY},
+  {"ss",     "Seed Shift/UC gap", SEED_SHIFT, 7 , 'N' ,0, SEND_EXPLICIT},
+  {"cp",     "Conjugate Position",CONJUGATE_POSITION, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"pd",     "Deg2pix", DEG2PIX, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"yx",     "DRAGGED_POS",DRAGGED_POS, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"o2",     "optionflag2",STIMULUS_OPTIONS, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"sq",     "H Saccade Size",SACCADE_VALUE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"to",     "WRONG_TIMEOUT",WRONG_TIMEOUT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"s0",     "STARTVAL",STARTVAL, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"sh",     "MAXSTAIRVAL",MAXSTAIRVAL, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"sm",     "MINSTAIRVAL",MINSTAIRVAL, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"js",     "STANDING_DISP",STANDING_DISP, 1 , 'N' ,4, SEND_EXPT},
+  {"jc",     "Saccade Box size",SAC_FIX_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"jt",     "SACTARGSIZE",SACTARGSIZE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"vs",     "V Saccade Size",VSACCADE_VALUE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"dd",     "DOT_DENSITY", DOT_DENSITY, 3, 'N' ,2, SEND_EXPT},
+  {"Vs",     "VSR",VSR, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"cl",     "SEND_CLEAR",SEND_CLEAR, 128 , 'N' ,0, SEND_USER_ONLY},
+  {"e2",     "Expt 2 Type",EXPTYPE_CODE2, 16 , 'N' ,0, SEND_EXPT},
+  {"m2",     "Expt 2 Mean",EXPT2_MEAN, 16 , 'N' ,5, SEND_EXPT},
+  {"e0",     "EXPTYPE_NONE",EXPTYPE_NONE, 16 , 'N' ,0, SEND_EXPLICIT},
+  {"n2",     "Expt 2 Nstims",EXPT2_NSTIM, 16 , 'N' ,0, SEND_EXPT},
+  {"i2",     "Expt 2 increment",EXPT2_INCR, 16 , 'N' ,5, SEND_EXPT},
+  {"ac",     "ANTICORRELATED_DISPARITY",ANTICORRELATED_DISPARITY, 3 , 'N' ,4, SEND_EXPLICIT},
+  {"cd",     "CORRELATED_DISPARITY",CORRELATED_DISPARITY, 3 , 'N' ,4, SEND_EXPLICIT},
+  {"Dm",     "Distribution Mean",DISTRIBUTION_MEAN, 3 , 'N' ,2, SEND_EXPLICIT},
+  {"np",     "NPLANES",NPLANES , 3 , 'N' ,2, SEND_EXPLICIT},
+  {"me",     "MONOCULARITY_EXPT",MONOCULARITY_EXPT, 128 , 'N' ,0, SEND_STIMULUS},
+  {"cv",     "VERGENCE_CORRECTION",VERGENCE_CORRECTION, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"fh",     "FIXATION_SURROUND",FIXATION_SURROUND, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"bh",     "Back Size",BACK_SIZE, 64 , 'N' ,2, SEND_EXPT},
+  {"fd",     "Fixation Overlap duration",FIXATION_OVERLAP, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"fr",     "P(reward)",PREWARD, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"aq",     "Acquision ON/OFF",ACQUISITION_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"rd",     "Relative Disparity",RELDISP, 512+1 , 'N' ,2, SEND_EXPLICIT},
+  {"oL",     "ORI_LEFT",ORI_LEFT, 512+5 , 'N' ,2, SEND_EXPLICIT},
+  {"oR",     "ORI_RIGHT",ORI_RIGHT, 512+5 , 'N' ,2, SEND_EXPLICIT},
+  {"ve",     "Version",VERSION_CODE, 32 , 'C' ,2, SEND_EXPT},
+  {"sz",     "Size (H and W)",STIM_SIZE, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"cb",     "Backround Correlation",BACK_CORRELATION, 64 , 'N' ,2, SEND_EXPT},
+  {"sd",     "Seed Delay",SEED_DELAY, 5 , 'N' ,0, SEND_EXPLICIT},
+  {"xx",     "Trigger 1",TRIGGER_LEVEL1, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",     "Trigger 2",TRIGGER_LEVEL2, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",     "Trigger 3",TRIGGER_LEVEL3, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",     "Trigger 4",TRIGGER_LEVEL4, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"cs",     "RC seed",RC_SEED, 32 , 'N' ,0, SEND_STIMULUS},
+  {"fn",     "frame repeat",FRAMEREPEAT, 16 , 'N' ,0, SEND_EXPT},
+  {"cx",     "Change type",STIMCHANGE_CODE, 128 , 'N' ,0, SEND_EXPLICIT},
+  {"fp",     "NewFixPos",FIXPOS_XY , 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Ro",     "RF Ori",RF_ANGLE, 128 , 'N' ,2, SEND_EXPT},
+  {"Bs",     "BackStim",BACKSTIM_TYPE, 64 , 'C' ,0, SEND_EXPT},
+  {"Fs",     "FP Move Size",FP_MOVE_SIZE, 8 , 'N' ,4, SEND_NON_ZERO},
+  {"Fa",     "FP Move Dir",FP_MOVE_DIR , 8 , 'N' ,2, SEND_EXPT},
+  {"ip",     "Starting Phase",START_PHASE , 1 , 'N' ,2, SEND_EXPLICIT},
+  {"bo",     "BackGround Ori",BACK_ORI , 64 , 'N' ,2, SEND_EXPT},
+  {"Bt",     "BackGround TF",BACK_TF , 64 , 'N' ,2, SEND_NON_ZERO},
+  {"Er",     "Early Reward Time",  EARLY_RWTIME , 8 , 'N' ,2, SEND_EXPLICIT},
+  {"nx",     "N Extras",NEXTRAS_CODE , 16 , 'N' ,2, SEND_EXPT},
+  {"mt",     "Manual TDR Entry",MANUAL_TDR , 128 , 'N' ,2, SEND_EXPLICIT},
+  {"e3",     "Expt 3",EXPTYPE_CODE3, 8 , 'N' ,2, SEND_EXPT},
+  {"mf",     "Modulation Frequency",MODULATION_F, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"zf",     "Disparity of Fixpt",FIXPT_DISPARITY, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"rv",     "Relatve Vdisp",RELVDISP, 512+3 , 'N' ,2, SEND_EXPLICIT},
+  {"vm",     "Vdisp mod",VDISP_MOD, 3 , 'N' ,4, SEND_EXPLICIT},
+  {"hd",     "Length Disparity",LENGTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
+  {"wd",     "Width Disparity",WIDTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
+  {"nc",     "N Components",NCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"id",     "Stim ID",STIMID, 1 , 'N' ,2, SEND_STIMULUS},
+  {"O2",     "Ori 2",ORI2, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"n3",     "Nstim 3",EXPT3_NSTIM, 16 , 'N' ,0, SEND_EXPT},
+  {"Sr",     "Spin Rate",SPINRATE, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"Bw",     "Back Width",BACK_WIDTH, 64 , 'N' ,4, SEND_EXPLICIT},
+  {"Bh",     "Back Height",BACK_HEIGHT, 64 , 'N' ,4, SEND_EXPLICIT},
+  {"xd",     "Dot X Pos",DOT_POSX, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"ob",     "Orientation Bandwidth",ORI_BANDWIDTH, 1 , 'N' ,0, SEND_EXPLICIT},
+  {"Ri",     "Incr for FastSeq",RC1INC, 16 , 'N' ,4, SEND_EXPT},
+  {"Dw",     "Distribution Width",DISTRIBUTION_WIDTH, 1 , 'N' ,2, SEND_EXPT},
+  {"fH",     "Fixwin Height",FIXWIN_HEIGHT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"i3",     "Incr 3",EXPT3_INCR, 16 , 'N' ,5, SEND_EXPLICIT},
+  {"Dc",     "Distribution Conc",DISTRIBUTION_CONC, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"St",     "Saccade Threshold",SACCADE_THRESHOLD, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Sa",     "Saccade Detected",SACCADE_DETECTED, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Id",     "Initial Disparity",INITIAL_DISPARITY, 17 , 'N' ,4, SEND_EXPLICIT},
+  {"vv",     "Vertical Vergence",VERTICAL_VERGENCE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"px",     "XPixel Size (cm)",XPIXEL_CODE, 32 , 'N' ,5, SEND_EXPT},
+  {"py",     "YPIXEL_CODE",YPIXEL_CODE, 32 , 'N' ,5, SEND_EXPT},
+  {"vd",     "VIEWD_CODE",VIEWD_CODE, 32 , 'N' ,2, SEND_EXPT},
+  {"sP",     "Stim pulses",STIM_PULSES, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"pw",     "pulse width",PULSE_WIDTH, 1 , 'N' ,2, SEND_EXPT_NONZERO},
+  {"pi",     "Pursuit Increment",PURSUIT_INCREMENT, 8 , 'N' ,4, SEND_EXPT},
+  {"IB",     "Backgr Image",BACKGROUND_IMAGE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"Br",     "Fast Rpt B", FASTB_RPT, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"bz",     "Backgr Zoom",BACKGROUND_ZOOM, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"rr",     "Rc repeats",RC_REPEATS, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"ap",     "AFC Proportion",AFC_PROPORTION, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Im",     "Initial Movement",INITIAL_MOVEMENT, 17 , 'N' ,2, SEND_EXPLICIT},
+  {"bO",     "Backgr Ortho pos",BACK_OPOS, 64 , 'N' ,2, SEND_EXPLICIT},
+  {"bP",     "Backgr Para pos",BACK_PPOS, 64 , 'N' ,2, SEND_EXPLICIT},
+  {"rb",     "Reward Bias",REWARD_BIAS, 8 , 'N' ,2, SEND_EXPT},
+  {"Tx",     "Target X off",TARGET_XOFFSET , 16 , 'N' ,2, SEND_EXPLICIT},
+  {"Ty",     "Target Y off",TARGET_YOFFSET , 16 , 'N' ,2, SEND_EXPLICIT},
+  {"T2",     "Target 2 pos",TARGET2_POS , 16 , 'N' ,2, SEND_EXPLICIT},
+  {"mixac",     "AC Mixture",MIXAC, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"ijump",     "Image Jumps",IMAGEJUMPS, 1 , 'N' ,0, SEND_EXPT},
+  {"Tt",     "Tone time",TONETIME, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"iD",  "Opposite Delay",OPPOSITE_DELAY , 1 , 'N' ,5, SEND_EXPLICIT},
+  {"Fr", "FAST_SEQUENCE rpt +1 ",FAST_SEQUENCE_RPT, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"db", "Wurtz Brightness Shift, +2 ",BRIGHTSHIFT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"tc", "Timeout color, +3",BLANKCOLOR_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Dr",  "dot repeat ",DOTREPEAT, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"sa", "saccade amplitude ",SACCADE_AMPLITUDE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"fo", "Color when fixation off",FIX_OFF_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"lo", "Logfile +7 ",LOGFILE_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"sc", "stop criterion +8 ", STOP_CRITERION, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"rl", "running average length +9 ", RUNAVERAGE_LENGTH, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"os", "SIDE_OFFSET +10 ",SIDE_OFFSET, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"eo", "END_OFFSET, +11 ",END_OFFSET, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"xr", "XMINSAMPLE_RATIO, +12 ",XMINSAMPLE_RATIO, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"he", "helpfile ",HELPFILE_PATH, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"xm", "XMAXSAMPLE_RATIO, +14 ",	XMAXSAMPLE_RATIO, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"Sv", "Stim Version + 15",STIMULUS_VERSION, 128 , 'N' ,2, SEND_STIMULUS},
+  {"pe", "PENETRATION, +16 ",PENETRATION_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"RP", "RF PARALELL ",RF_PARA, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"pl", "Size of Proximal Luminance Covariace ",PLC_MAG, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"To", "Target offset ",TARGET_OFFSET, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"di", "DIRECTIONALIGY, +20 ",DIRECTION_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"ct", "CELL_TYPE, +21 ",CELLTYPE_TEXT , 128 , 'N' ,2, SEND_EXPLICIT},
+  {"fl", "Stimulus Flag +22",STIMULUS_FLAG , 1 , 'N' ,2, SEND_EXPLICIT},
+  {"si", "swap interval +23 ",SWAPINTERVAL , 32 , 'N' ,2, SEND_EXPLICIT},
+  {"Tz", "rapezoidal scaling for projectors ",TRAPEZOIDAL_SCALING , 32 , 'N' ,2, SEND_EXPLICIT},
+  {"Rw", "RF Width +25 ",RF_WIDTH, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"Rh", "RF Height +26 ",RF_HEIGHT, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"Rx", "RF x +27 ",RF_X, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"Ry", "RF y +28 ",RF_Y, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"RO", "RF ORTHO +29",RF_ORTHO, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"sg", "Spike Gain +30 ",SPIKE_GAIN, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Pw", "Plot Width +31 ",PLOTW, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Ph", "Plot Height +32 ",PLOTH, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Px", "Plot X +33 ",PLOTX, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Py", "Plot Y +34 ",PLOTY, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"nT", "Trial Count",TRIAL_COUNT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Tg", "good trials +36 ", GOODTRIALS, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Tb", "bad trials +36 ", BADTRIALS, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"dc", "disp X as cycle of sinewave ", DISP_AS_CYCLES, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"qe", "quickexp code ", QUICKEXPT_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"ga", "gamma correction val ", GAMMAVAL_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"lc", "CorLoop Exit crti ", CORRECTION_LEAVE_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"ec", "CorLoop Enter crti ", CORRECTION_ENTRY_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"pb", "p(Blank)", BLANK_P, 16, 'N' ,2, SEND_EXPLICIT},
+  {"cc", "Covary Coefficient", COVARY_XPOS, 24, 'N' ,2, SEND_EXPLICIT}, 
+  {"bl",     "BONUS_CRITERION", BONUS_CRITERION, 8, 'N' ,2, SEND_EXPLICIT},
+  {"b2",     "BONUS2_CRITERION", BONUS2_CRITERION, 8, 'N' ,2, SEND_EXPLICIT},
+  {"bs",     "EXPT_BLKSIZ", EXPT_BLKSIZ, 8, 'N' ,2, SEND_EXPLICIT}, 
+  {"c0",     "CONTRAST_LEFT", CONTRAST_LEFT, 512+3, 'N' ,4, SEND_EXPLICIT},
+  {"c1",    "CONTRAST_RIGHT",CONTRAST_RIGHT, 512+3 , 'N' ,4, SEND_EXPLICIT},
+  {"tb",     "Twobar sep",TWOBAR_SEP, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"Fl",     "Fixation Linw",FIX_LINW, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"cg",     "SETCLEARCOLOR",SETCLEARCOLOR, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"bj",     "BACKJUMP",BACKJUMP, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"lf",     "SF left",SF_LEFT, 512+3 , 'N' ,2, SEND_EXPLICIT},
+  {"rf",     "SF Right",SF_RIGHT, 512+3 , 'N' ,2, SEND_EXPLICIT},
+  {"rx",     "X randomization",RANDOM_X, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"ox",     "Ori randomization",RANDOM_ORI, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"bb",     "dOri F+B",DORI_BOTH , 3 , 'N' ,2, SEND_EXPLICIT},
+  {"dk",     "dOri Back",DORI_BACK , 66 , 'N' ,2, SEND_EXPLICIT},
+  {"xc",     "Stim eccentricity",STIM_ECCENTRICITY , 513 , 'N' ,2, SEND_EXPLICIT},
+  {"pa",     "Polar Angle",STIM_POLARANGLE , 513 , 'N' ,2, SEND_EXPLICIT},
+  {"o0",    "Old Lori",OLDLEFT_ORI, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"o1",    "Old Rori",OLDRIGHT_ORI, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",     "Cyberamp channels",CYBER_CHANNELS, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"rs",     "RF Sign",RF_SIGN, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"el",     "End Length",END_LENGTH, 256 , 'N' ,2, SEND_EXPLICIT},
+  {"lw",     "Line Width for online plott",EXPT_LINW, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"ps",     "Plot Smoothing for online RC",PLOTSMOOTH, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"pf",     "Flags Shown on panel",SHOWFLAGS_CODE, 128 , 'C' ,2, SEND_EXPLICIT},
+  {"pt",     "Stimuli per fixation Trial",EXPT_STIMPERTRIAL, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"ri",     "RC Correlation delay",RC_DELAY, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"cr",     "Contrast Ratio",CONTRAST_RATIO, 3 , 'N' ,2, SEND_EXPLICIT},
+  {"tx",     "Expt 2 x or + ",ADDEXPTS_CODE , 16 , 'N' ,2, SEND_EXPLICIT},
+  {"ci",     "Command in",COMMAND_IN, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"gr",     "Grid Size",GRIDSIZE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"dO",     "Orthog Disp",ORTHOG_DISP, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"dP",     "Paralell Disp",PARALELL_DISP, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"sr",     "RDS/Sine",RDSXSINE, 512 , 'N' ,2, SEND_EXPLICIT},
+  {"ns",     "Change Seed",CHANGE_SEED, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"d1",     "Disparity 1",DISP_A, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"d2",     "Disparity 2",DISP_B, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"Ff",     "FP Move Frame",FP_MOVE_FRAME, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"lX",     "Xpos (log)",XOFFLOG, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"mx",     "L-R-Binoc",LRBINTERLEAVE, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"LR",     "L-R-Monoc",LRINTERLEAVE, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"LB",     "L-Binoc",LBINTERLEAVE, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"RB",     "R-Binoc",RBINTERLEAVE, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"lS",     "SF-Lin",SFLIN, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"lT",     "TF-Lin",TFLIN, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"oS",     "Log Size",LOG_SIZE, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"m3",     "Expt 3 Mean",EXPT3_MEAN, 16 , 'N' ,2, SEND_EXPT},
+  {"pU",     "p(Uncorr)",UNCORR_P , 16 , 'N' ,2, SEND_EXPLICIT},
+  {"pT",     "p(One Target)",ONETARGET_P, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"sO",     "StimOrthog Pos",STIMORTHOG_POS, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"pR",     "Plaid Contrast Ratio",PLAID_RATIO, 1 , 'N' ,4, SEND_EXPLICIT},
+  {"Al",     "Avg Len for eyepos auto-ze{ro",AUTO_ZERO, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",     "Old Orthog disp",OLD_ORTHOG_DISP, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",     "Old Paralell disp",OLD_PARA_DISP, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Op",     "Orthog Offset",ORTHOG_POS, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"Pp",     "Paralell Offset",PARA_POS, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"lv",    "Linear Velocity expt",LINEAR_SPEED, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"we",     "Weight",WEIGHT_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"hr",     "Head Restrained",RESTRAIN_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"r0",     "Rds x None back",RDSBNONE, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"Jt",     "jump Type",JUMPTYPE, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"tr",     "Target Ratio",TARGET_RATIO, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"hs",     "High SF val",HIGHSF, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"ht",     "High TF val",HIGHTF, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"cz",     "Contrast Pairs",CONTRAST_PAIRS, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"sL",     "Stepper Plot Length",STEPPER_PLOTLEN, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"Nf",     "True Nframes",NFRAMES_DONE, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"pC",     "Plot Cluster/Exp No.",PLOT_CLUSTER, 32 , 'N' ,2, SEND_EXPLICIT},
+  {"r1",     "Reward 1",REWARD_SIZE1, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"r2",     "Reward 2",REWARD_SIZE2, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"r3",     "Reward 3",REWARD_SIZE3, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Tc",     "Timeout Contrast",TIMEOUT_CONTRAST, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"nR",     "RC File Counter",RCFILE_CTR, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"As",     "Alternative Stimulus",ALTERNATE_STIM_MODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"Us",     "Microstim Expt",MICROSTIM_EXPT, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"T1",     "Test value 1",TEST_VALUE1, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"TB",    "Test value 2",TEST_VALUE2, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Ba",    "Size to add for background",BACK_ADD_SIZE, 64 , 'N' ,2, SEND_EXPLICIT},
+  {"xx",    "RC stimulus change",RC_STIMCHANGE, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"Pn",     "penetration number",PENNUMCOUNTER, 128 , 'N' ,2, SEND_EXPLICIT},
+  {  "Xp",     "Pen X",PENXPOS, 128 , 'N' ,2, SEND_EXPLICIT},
+  {  "Yp",    "Pen y",PENYPOS, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"Vn",     "Visual Area",VWHERE, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"Is",     "Scale factor for IFC expts",IFCSCALE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"hL",     "Height L",HEIGHT_L, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"hR",     "Height R",HEIGHT_R, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"wL",     "Width L",WIDTH_L, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"wR",     "Width R",WIDTH_R, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"SL",     "Size L",SIZE_L, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"SR",     "Size R",SIZE_R, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"Sd",     "Size Disparity",SIZE_DISP, 3, 'N' ,2, SEND_EXPLICIT},
+  {"fm",     "FixPt Ocularity",FIXPT_EYE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Sb",     "Sigma X and Y",SD_BOTH, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"uk",     "Uka Stair Coeffs",UKA_VALS, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Pr",     "Phase Disp as RelDisp",PHASE_AS_RELDISP, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"PX",     "Panel X position",PANEL_XPOS, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"rc",     "Relative contrast",FB_RELATIVE_CONTRAST, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"by",     "Background Vertical Disp",BACK_VDISP, 64 , 'N' ,2, SEND_EXPLICIT},
+  {"PY",     "Panel Y position",PANEL_YPOS, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"sC",     "Counterphase",SET_COUNTERPHASE, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"ui",     "User id",USERID, 128 , 'C' ,2, SEND_EXPLICIT},
+  {"Tw",     "Time Ori BW",TEMPORAL_ORI_BANDWIDTH, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"ts",     "Shake Timeout",SHAKE_TIMEOUT_DURATION, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Ol",     "Orthog Pos L",ORTHOG_POSL, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"Or",     "Orthog Pos R", ORTHOG_POSR, 515 , 'N' ,2, SEND_EXPLICIT},
+  {"Covariate",     "Covariate",COVARIATE, 16 , 'C' ,2, SEND_EXPLICIT},
+  {"iF",     "Initial Frames (Duration)",INITIAL_DURATION, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"e1max",     "Expt1 Max",EXPT1_MAXSIG, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"dS",     "FakeStim Expt", FAKESTIM_EXPT, 16 , 'N' ,0, SEND_EXPLICIT},
+  {"FakeSig",     "FakeStim Signal", FAKESTIM_SIGNAL, 16 , 'N' ,4, SEND_EXPLICIT},
+  {"pBlack",     "p(black dot)", BLACKDOT_FRACTION, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"hxtype",     "High X type",HIGHXTYPE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"monkey", "monkey name (Directory)",MONKEYNAME, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"ar", "Aspect Ratio", ASPECT_RATIO, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"Hi", "Hidden Codes", HIDDEN_OPTIONS, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"nl",     "N Low F Components", NLOWCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"nh",     "N High F Comonents", NHIGHCOMPONENTS, 1,  'N' ,2, SEND_EXPLICIT},
+  {"ls",     "Final Seed",LAST_SEED, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"dfx",    "fx change", FIXPOS_XSHIFT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"ddx",    "dx change",NEWDISP, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"backMov",    "Backgr Movie",BACKGROUND_MOVIE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"annTyp",     "Annulus Type",SETANNULUS, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"StartDepth",     "Start Depth",PEN_START_DEPTH, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"TwoCylDisp",     "TwoCyl Disp",TWOCYL_DISP, 513 , 'N' ,2, SEND_EXPLICIT},
+  {"rC",     "Random Contrasts",RANDOM_CONTRAST_EXPT, 528 , 'N' ,2, SEND_EXPLICIT},
+  {"posinc",     "Position Displacement per frame",FRAME_DISPLACEMENT, 513 , 'N', 'N' ,2, SEND_EXPLICIT},
+  {"aOp",     "absolute OrthoPos",ABS_ORTHOG_POS, 256+512 , 'N' ,2, SEND_EXPLICIT},
+  {"aPp",     "absolute ParaPos",ABS_PARA_POS, 0 , 256+512, 'N' ,2, SEND_EXPLICIT},
+  {"verbose", "Verbosity", VERBOSE_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
+  { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 
-
 char *serial_strings[NCODES+1] = {
+
 	  "xo",
         "yo",
         "st",
@@ -892,10 +1231,7 @@ char *serial_strings[NCODES+1] = {
     "T2", /* Target 2 direction(file), position (spike2) */
     "mixac", /* mix corr, AC, dots */
     "Tt", /* Tonetime */
-#ifdef DOSVERSION
-	NULL
-};
-#else
+    "ijump", /* number of image jumps */
 "iD", /* Opposite Delay */
 "Fr", /* FAST_SEQUENCE rpt +1 */
 "db", /* Wurtz Brightness Shift, +2 */
@@ -1077,6 +1413,9 @@ char *serial_strings[NCODES+1] = {
 "aOp", // Opos in absolute units (not relative to RF( 
 "aPp", // Opos in absolute units (not relative to RF( 
 "verbose",
+"seof", //Seed offset
+"serange", //Seed offset
+"nimplaces",
 NULL
 };
 
@@ -1115,6 +1454,7 @@ char codesend[NCODES] = {
 	SEND_EXPLICIT};
 
 char *serial_names[] = {
+
     "X offset",
     "Y offset",
     "Stimulus Type ", 
@@ -1314,6 +1654,7 @@ char *serial_names[] = {
     "Target 2 pos",
     "AC Mixture",
     "Tone time",
+    "Image Jumps",
     //Max serialcodes
     
     "Opposite Delay",
@@ -1496,6 +1837,9 @@ char *serial_names[] = {
     "absolute OrthoPos",
     "absolute ParaPos",
     "Verbosity",
+    "seed offset",
+    "Seed Range",
+    "N digits for Image names",
     NULL};
 
 char *jumpnames[] = {
@@ -1514,7 +1858,6 @@ char *jumpstrings[] = {
     "sr", //stim return
     "sa", //stim altered
     NULL};
-#endif
 
 int nfplaces[MAXTOTALCODES] = {2};
 
@@ -1562,14 +1905,14 @@ extern char *channel_strings[];
 extern char *stimulus_names[];
 extern char *bwtoggle_codes[];
 extern StringCode commstrings[];
-#ifndef DOSVERSION
+extern ValueCode valstrings[];
 extern char *mode_names[];
 extern int nfplaces[MAXTOTALCODES];
 extern char codesend[];
 extern char *serial_names[];
 extern char *jumpnames[];
 #endif
-#endif
+
 
 #define EYESCALE_CODE 0
 #define EYECOLOR_CODE 1
@@ -1649,7 +1992,7 @@ extern char *jumpnames[];
 #define RDS_WRAP (1<<(LASTRDSFLAG+15))
 
 #define NUM_STIM_FLAGS (LASTRDSFLAG+16)
-#endif
+
 
 
 #define SU_TDR_TYPE_CANCEL_REP 16
@@ -1711,5 +2054,7 @@ extern char *jumpnames[];
 #define NJUMPTYPES 5
 
 
+
+#endif
 
 

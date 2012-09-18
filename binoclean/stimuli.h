@@ -1,4 +1,5 @@
-#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
+#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 
 #define MAXFREQS 80
 #define MAXCHANS 20
@@ -282,7 +283,7 @@ struct STIMULUS{
     float ucgap;
     double rolldisp;
     char *imprefix, *imname;
-    int immode,preload,preloaded,nimseed;
+    int immode,preload,preloaded,nimseed,nimplaces;
     float stimid;
     int mixdots;
     int dotdist;
@@ -296,6 +297,8 @@ struct STIMULUS{
     float tf,stimversion;
     float pix2deg, imsd,corrmix,dotfrac;
     int calculated, painted;
+    float xyshift[2];
+    int jumps;
 };
 
 typedef struct STIMULUS Stimulus;
@@ -427,6 +430,7 @@ struct EXPERIMENT{
     char *showflags;
     char *monkey;
     int verbose;
+    int laststimcode,lastserialcode,totalcodes,lastsavecode;
 };
 
 typedef struct EXPERIMENT Expt;

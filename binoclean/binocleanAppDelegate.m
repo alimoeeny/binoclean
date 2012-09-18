@@ -27,9 +27,12 @@ void quit_binoc()
 {
     [[NSApplication sharedApplication] terminate:nil];
 }
+
 void acknowledge(char * a ,int b)
 {
     NSLog(@"Acknowledge! %s", a);
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updatecommandhistory" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
 //    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
 //    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
 //    [acknowledgeAlert addButtonWithTitle:@"I know!"];
@@ -44,7 +47,7 @@ void displayOnMonkeyView(char *s, int x, int y)
         [bold12Attribs setObject: [NSFont fontWithName: @"Helvetica" size: 20.0f] forKey: NSFontAttributeName];
         [bold12Attribs setObject: [NSColor whiteColor] forKey: NSForegroundColorAttributeName];
     }
-    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithFormat:@"%s", s] withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
+    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithUTF8String:s] withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
     if (x && y)
         [messageTexture drawAtPoint:NSMakePoint(x, y)];        
     else
@@ -163,8 +166,9 @@ void notify(char * s)
 	}
     else if (useDIO)
     {
-        DIOWrite(0x0);
-        DIOWrite(0xF);
+        DIOWriteBit(0,0);
+        DIOWriteBit(0,1);
+//        DIOWrite(0xF);
     }
     
     
@@ -196,20 +200,22 @@ void notify(char * s)
     if (fullscreenmode==0)
     {
         r = CGRectMake(winpos[0], winpos[1], winsiz[0]*2, winsiz[1]*2);
-        monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
+        monkeyWindow = [[MonkeyWindow alloc] initWithContentRect:NSRectFromCGRect(r)
                                                    styleMask:NSBorderlessWindowMask
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES
                                                       screen:[self.window screen]];
         [monkeyWindow setLevel:NSFloatingWindowLevel];
-        [monkeyWindow setContentView:[[MonkeyGLView alloc] init]];
+        MonkeyGLView * mview = [[MonkeyGLView alloc] init];
+        [monkeyWindow setContentView:mview];
         //[monkeyWindow setTitle:[self.window title]];
         [monkeyWindow makeKeyAndOrderFront:nil];
+        [monkeyWindow invalidateCursorRectsForView:mview];
     }
     else
     {   
         r = CGRectMake(0, 0, 0, 0);
-        monkeyWindow = [[NSWindow alloc] initWithContentRect:NSRectFromCGRect(r)
+        monkeyWindow = [[MonkeyWindow alloc] initWithContentRect:NSRectFromCGRect(r)
                                                    styleMask:NSBorderlessWindowMask
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES
@@ -221,10 +227,10 @@ void notify(char * s)
         
         [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, [NSNumber numberWithBool:NO], NSFullScreenModeApplicationPresentationOptions, nil]]; 
         NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
+    //    NSLog(@"%@",screenFrame);
     }
-    
-    
-    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
+        
+    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.0100 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     StartRunning();
     WriteToOutputPipe(@"SENDINGstart1\n");
@@ -254,12 +260,26 @@ void notify(char * s)
 
 - (void) mainTimerFire:(NSTimer *)timer
 {
-    ReadInputPipe();
+    static struct timeval atime, btime;
+    float val,aval,bval;
+    int stimstate = 0;
+    gettimeofday(&btime,NULL);
+    aval = timediff(&btime,&atime);
+
+  ReadInputPipe();
+    gettimeofday(&atime,NULL);
+    bval = timediff(&atime,&btime);
     if (freeToGo) {
-        event_loop();
+       stimstate = event_loop(bval);
     }
     else
-    {    
+    {
+//        fprintf(stderr,"waiting for freetogo\n");       
+    }    
+    gettimeofday(&atime,NULL);
+    val = timediff(&atime,&btime);
+    if (aval > 0.03 || bval > 0.001){
+        fprintf(stderr,"#############Long delay (%.8f,%.4f,%.6f) in Timer\n",val,aval,bval);
     }
 }
 

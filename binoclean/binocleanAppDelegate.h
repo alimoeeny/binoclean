@@ -17,16 +17,16 @@
 #import <sys/ioctl.h>
 #import <sys/termios.h>
 #import "mainGUI.h"
+#import "MonkeyWindow.h"
 
 #define OUT_PIPE "/tmp/binocoutputpipe"
 #define IN_PIPE "/tmp/binocinputpipe"
 
 void WriteToOutputPipe(NSString * ns);
 
-
 @interface binocleanAppDelegate : NSObject <NSApplicationDelegate> {
     mainGUI *_window;
-    NSWindow * monkeyWindow;
+    MonkeyWindow * monkeyWindow;
     NSTimer * mainTimer;
     
     NSFileHandle * inputPipe;

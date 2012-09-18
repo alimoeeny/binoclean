@@ -66,7 +66,10 @@ typedef struct {
 	//GLfloat objectRotation [4];
 	//GLfloat shapeSize;
 	
+    NSCursor * crossCursor;
 }
+
+@property (nonatomic, strong) NSCursor * crossCursor;
 
 + (NSOpenGLPixelFormat*) basicPixelFormat;
 
@@ -82,6 +85,8 @@ typedef struct {
 -(IBAction) info: (id) sender;
 
 - (void)keyDown:(NSEvent *)theEvent;
+
+- (void) mouseMoved:(NSEvent *)theEvent;
 
 - (void) mouseDown:(NSEvent *)theEvent;
 - (void) rightMouseDown:(NSEvent *)theEvent;
@@ -105,6 +110,8 @@ typedef struct {
 
 - (id) initWithFrame: (NSRect) frameRect;
 - (void) awakeFromNib;
+
+- (void)resetCursorRects;
 
 @end
 

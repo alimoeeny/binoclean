@@ -51,7 +51,7 @@
 #define sign(x) (x > 0 ? 1 : -1)
 
 //Ali
-#define NOEVENT 0
+
 char * VERSION_NUMBER;
 char * SHORT_VERSION_NUMBER;
 
@@ -86,7 +86,7 @@ int thebuffer = 0,lastcodes[CODEHIST] = {0}, expstate = 0;
 int outcodes[CODEHIST] = {0};
 int codectr = 0, outctr = 0;
 int DIOval = 0;
-int Frames2DIO = 1;
+int Frames2DIO = 0;
 int rewardall = 0;
 char resbuf[BUFSIZ] = {0};
 
@@ -162,7 +162,7 @@ struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
 struct timeval lastcleartime;
 struct timeval progstarttime,calctime,paintframetime;
-struct timeval endexptime;
+struct timeval endexptime, changeframetime,lastcalltime,nftime;
 int wurtzctr = 0, wurtzbufferlen = 512,lasteyecheck;
 float clearcolor = 0;
 float lasttf = -1, lastsz = -1, lastsf = -1,lastor=0;
@@ -207,7 +207,6 @@ static char *loadfiles[100] = {NULL};
 /*Colormap */ int cmap;
 
 int next_frame(Stimulus *st);
-void makeRasterFont(void);
 void afc_statusline(char *s, int line);
 void framefront();
 void run_radial_test_loop();
@@ -251,7 +250,9 @@ char *toggle_strings[] = {
 	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
 	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
 	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
-	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3","AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
+	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
+    "Odd Man Out","Choice by icon","Image Jumps",
+    "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
     "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
     "Show Stim Boxes",
     NULL,
@@ -337,6 +338,9 @@ char *toggle_codes[] = {
     "rI", // random interocular correlation
     "sR", // show reward bias
     "C3", //Collapse Psychophysics across Expt3  
+    "af3", //Odd man out task
+    "Rcd", //Choice direction random
+    "ijump", //Image jumps
     
     "cd", // Auto Copy Online Data Files # not shown on panel
     "cb", //Custom vals for expt2
@@ -377,103 +381,6 @@ char *flagstrings[] = {
 };
 
 
-
-// Ali
-char fallback_resources[] = {"a", "b", "c", NULL};
-//String fallback_resources[] = {
-//  "*dragInitiatorProtocolStyle: XmDRAG_NONE",
-//  "*dragReceiverProtocolStyle: XmDRAG_NONE", 
-//  "*data_text.height: 300",
-//  "*help_text.height: 500",
-//  "*help_text.width: 600",
-//  "*sliderholder.orientation: vertical",
-//  "*sliderform*orientation: horizontal",
-//  "*sliderform*menuholder*orientation: vertical",
-//  "*sliderform*menuholder.width: 100",
-//  "*sliderform.fpscale.scaleWidth: 200",
-//  "*onesliderholder.orientation: vertical",
-//  "*onesliderform*orientation: horizontal",
-//  "*onesliderform*menuholder*orientation: vertical",
-//  "*onesliderform*menuholder.width: 100",
-//  "*onesliderform.fpscale.scaleWidth: 200",
-//  "*sliderform*menuholder*borderWidth: 2",
-//  "*onesliderform*menuholder*borderWidth: 0",
-//  "geometry:		+0+0",
-//  "*filesb.autoUnmanage:	TRUE",
-//  "*Control.autoUnmanage:	FALSE",
-//  "*Control.defaultPosition:	FALSE",
-//  "*Control.x:	100",
-//  "*Control.y:	1",
-//  "*BrainWave.autoUnmanage:	FALSE",
-//  "*BrainWave.defaultPosition:	FALSE",
-//  "*Replay.autoUnmanage:	FALSE",
-//  "*UnitLog.autoUnmanage:	FALSE",
-//  "*Control.defaultPosition:	FALSE",
-//  "*BrainWave.defaultPosition:	FALSE",
-//  "*BrainWave.x: 850",
-//  "*BrainWave.y: 700",
-//  "*Replay.defaultPosition:	FALSE",
-//  "*Replay.x: 0",
-//  "*Replay.y: 800",
-//  "*Options.defaultPosition:	FALSE",
-//  "*Options.x: 300",
-//  "*Options.y: 0",
-//  "*Options*togglebox.packing: PACK_COLUMN",
-//  "*Options*togglebox.numColumns: 5",
-//  "*form*togglebox.packing: PACK_COLUMN",
-//  "*form*togglebox.numColumns: 5",
-//  "*form*autoUnmanage: FALSE",
-//  "*wurtz*togglebox.packing: PACK_COLUMN",
-//  "*wurtz*togglebox.numColumns: 4",
-//  "*wurtz.defaultPosition:	FALSE",
-//  "*wurtz.x: 700",
-//  "*wurtz.y: 0",
-//  "*wurtz.autoUnmanage: FALSE",
-//  "*expt.x: 0",
-//  "*expt.y: 150",
-//  "*XmScale*orientation: HORIZONTAL",
-//  "*foreground: white",
-//  "*background:  blue",
-//	    "*paned*showGrip :	    FALSE",
-//	    "*paned.width:  	  896,"
-//	    "*paned.height:	    236",
-//	    "*marginHeight:        0",
-//	    "*Form.resizable:       False",
-//	    "*Form.background:       5",
-//	"*fontList: -*-times-*-r-*--12-*=charset1",
-//	"*HelpWin*fontList: -*-times-*-r-*--14-*=charset1",
-//	    "*ClientDecoration:  none",
-//	    "*BrainWave.ClientDecoration:  none",
-//	    "*expt.autoUnmanage:	FALSE",
-//	      "*bwtoggle.packing: PACK_COLUMN",
-//	      "*bwtoggle*numColumns: 2",
-//	      "*bwtoggle*numColumns: 2",
-//	      "*bwtoggle*bwsubtoggle.packing: PACK_COLUMN",
-//	      "*bwtoggle*bwsubtoggle.numColumns: 2",
-//	      "*bwtoggle*Channel1.labelString: Right  H",
-//	      "*bwtoggle*Channel2.labelString: Left   H",
-//	      "*bwtoggle*Channel3.labelString: Right  V",
-//	      "*bwtoggle*Channel4.labelString: Left   V",
-//	      "*bwtoggle*Channel5.labelString: Vgc Stim",
-//	      "*bwtoggle*Channel6.labelString: Conj Stim",
-//	      "*bwtoggle*Channel7.labelString: Vergence",
-//	      "*bwtoggle*Channel8.labelString: Conjug H",
-//	      "*bwtoggle*Channel9.labelString: Vergence V",
-//	      "*bwtoggle*Channel10.labelString: Conjug V",
-//	      "*bwtoggle*Channel11.labelString: XY Right",
-//	      "*sliderform*orientation: horizontal",
-//	      "*sliderform*menuholder*orientation: vertical",
-//	      "*sliderform*menuholder.width: 100",
-//	      "*sliderform.fpscale.scaleWidth: 200",
-//   "*afc*togglebox.packing: PACK_COLUMN",
-//   "*afc*togglebox.numColumns: 5",
-//   "*afc.defaultPosition:	FALSE",
-//   "*afc.x: 700",
-//   "*afc.y: 60",
-//   "*afc.autoUnmanage: FALSE",
-//   "*afc.x: 0",
-//   "*afc.y: 150",	    NULL,
-//};
 
 
 extern double fakestim;
@@ -526,13 +433,6 @@ void afc_statusline(char *s, int line);
 void paint_target(float color, int flag);
 
 
-void event_loop();
-void expback();
-void expfront(),exprun();
-
-
-void MakeConnection();
-void panel_popup();
 
 #define resetframectr() (mode |= RESET_FRAME_CTR)
 
@@ -603,7 +503,7 @@ void ShowTime()
             sprintf(buf,"Shake %.1f",val);
         }
         
-        BigString(buf);
+//        printStringOnMonkeyView(buf, 0);
     }
 }
 
@@ -653,19 +553,13 @@ int CheckStrings()
 {
 	int i,j,err = 0;
     
-	for(i = 0; i < MAXTOTALCODES; i++)
+	for(i = 0; i < expt.totalcodes; i++)
 	{
-		for(j = i+1; j < MAXTOTALCODES; j++)
+		for(j = i+1; j < expt.totalcodes; j++)
         {
-		    if(serial_strings[j] == NULL)
+		    if(strcmp(valstrings[i].code,valstrings[j].code) == 0)
             {
-                fprintf(stderr,"Serial strings %d undefsined!!\n",j);
-                err++;
-            }
-		    else if(strcmp(serial_strings[i],serial_strings[j]) == 0 && 
-                    strncmp(serial_strings[i],"xx",2) != 0)
-            {
-                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",serial_strings[i],i,j);
+                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",valstrings[i].code,i,j);
                 err++;
             }
         }
@@ -791,6 +685,9 @@ void initial_setup()
     
 	gettimeofday(&sessiontime,NULL);
     gettimeofday(&now,NULL);
+    ExptInit(&expt, TheStim, &mon);
+//ExptInit now sets up codesend and nfplaces from valstrings
+    return;
 	for(i = 0; i < MAXSERIALCODES; i++)
 	    switch(i)
     {
@@ -864,6 +761,7 @@ void initial_setup()
         case INITIAL_APPLY_MAX:
         case FP_MOVE_DIR:
         case REWARD_BIAS:
+        case IMAGEJUMPS:
             codesend[i] = SEND_EXPT;
             break;
         case PULSE_WIDTH:
@@ -933,6 +831,8 @@ void initial_setup()
             case SET_SEED:
             case SET_SEEDLOOP:
             case RC_SEED:
+            case SEEDOFFSET:
+            case EXPTYPE_NONE:
                 nfplaces[i] = 0;
                 break;
             default:
@@ -942,7 +842,6 @@ void initial_setup()
     }
 	codesend[UPLOAD_CODE] = SEND_USER_ONLY;
 	codesend[UFF_PREFIX] = SEND_USER_ONLY;
-	ExptInit(&expt, TheStim, &mon);
 }
 
 
@@ -1015,6 +914,10 @@ char **argv;
     
 	if((i = CheckStrings()) != 0)
 		exit(0);
+    
+#ifdef NIDAQ
+    printf("Using DIO\n");
+#endif
     
     
     /*
@@ -1436,14 +1339,10 @@ char **argv;
          }
          */
 	}
-	//Ali SetPanelColor(TheStim->gammaback);
-	//Ali SetStimPanel(TheStim);
-	//Ali if(!demomode)
-	//Ali  framefront();
+
 	setgamma(gammaval);
 	SetPriority(priority);
 	MakeConnection(0);
-	//Ali SetAllPanel(&expt);
     gettimeofday(&progstarttime,NULL);
 	
 	framerate = mon.framerate;
@@ -1451,15 +1350,22 @@ char **argv;
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
-    //	event_loop();
 }
 
 
 int SendTrialCount()
 {
     char buf[BUFSIZ];
+    int stim;
     
-    sprintf(buf,"STIMC %d %d %d %d %d %d %d\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stimno+1,expt.nreps*expt.nstim[5]);
+    if (stimstate == POSTTRIAL)
+        stim = stimno;
+    else if (stimstate == WAIT_FOR_RESPONSE)
+        stim = stimno+1;
+    else
+        stim = stimno;
+    
+    sprintf(buf,"STIMC %d %d %d %d %d %d %d\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stim,expt.nreps*expt.nstim[5]);
     notify(buf);
 }
 
@@ -1483,30 +1389,30 @@ void SendAllToGui()
     
     if(ChoiceStima->type != STIM_NONE){
         notify("mo=ChoiceU\n");
-        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        for(i = 0; i <= expt.laststimcode; i++)
         {
             buf[0] = '=';
             buf[1] = 0;
-            if((j = MakeString(i, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
+            if((j = MakeString(valstrings[i].icode, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
                 notify(buf);
         }
     }
     if(ChoiceStimb->type != STIM_NONE){
         notify("mo=ChoiceD\n");
-        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        for(i = 0; i <= expt.laststimcode; i++)
         {
             buf[0] = '=';
             buf[1] = 0;
-            if((j = MakeString(i, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
+            if((j = MakeString(valstrings[i].icode, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
                 notify(buf);
         }
     }
 
     if(expt.st->next != NULL){
         notify("mo=back\n");
-        for (i = 0; i < LAST_STIMULUS_CODE;  i++)
+        for (i = 0; i < expt.laststimcode;  i++)
         {
-            MakeString(i, buf, &expt, expt.st->next,TO_GUI);
+            MakeString(valstrings[i].icode, buf, &expt, expt.st->next,TO_GUI);
             notify(buf);
         }
         MakeString(STIMULUS_FLAG, buf, &expt, expt.st->next,TO_GUI);
@@ -1514,8 +1420,8 @@ void SendAllToGui()
         
     }
     notify("mo=fore\n");
-    for(i = 0; i < MAXTOTALCODES; i++){
-        if((j=MakeString(i, buf, &expt, expt.st,TO_GUI))>=0)
+    for(i = 0; i < expt.totalcodes; i++){
+        if((j=MakeString(valstrings[i].icode, buf, &expt, expt.st,TO_GUI))>=0)
             notify(buf);
     }
     i =0;
@@ -1533,12 +1439,14 @@ void SendAllToGui()
 
 void SendAll()
 {
-    int i;
+    int i,code;
     time_t tval;
     
-    for(i = 0; i < MAXSERIALCODES; i++)
-        if(codesend[i] != SEND_USER_ONLY)
-            SerialSend(i);
+    for(i = 0; i < expt.lastserialcode; i++){
+        code = valstrings[i].icode;
+        if(codesend[code] != SEND_USER_ONLY)
+            SerialSend(code);
+    }
     SendPenInfo();
     tval = time(NULL);
     if(seroutfile)
@@ -1597,12 +1505,12 @@ void glstatusline(char *s, int line)
 	if(states[EXPT_PAUSED]){
         x[1] = -winsiz[1] + 150;
         mycmv(x);
-        BigString("Paused");
+        statusline("Paused");
 	}
 	if(freezeexpt){
         x[1] = -winsiz[1] + 150;
         mycmv(x);
-        BigString("Expt Frozen");
+        statusline("Expt Frozen");
 	}
     glDrawBuffer(GL_BACK);
 }
@@ -1671,7 +1579,7 @@ void StopGo(int go)
         mode |= ANIMATE_BIT;
         monkeypress = 0;
         end_timeout();
-        sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+        sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
         SerialString(buf,0);
         if(!(TheStim->mode & EXPTPENDING) && expt.st->left->ptr->velocity > 0){
             oldvelocity = expt.st->left->ptr->velocity;
@@ -1691,14 +1599,14 @@ void StopGo(int go)
         optionflag &= (~GO_BIT);
         mode &= (~(ANIMATE_BIT | TEST_PENDING));
         monkeypress = WURTZ_STOPPED;
-        sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
+        sprintf(buf,"%2s+\n",valstrings[STOP_BUTTON].code);
         SerialString(buf,0);
         if(stimstate == INSTIMULUS)
             TrialOver();
         start_timeout(SEARCH);
         if(stimstate == IN_TIMEOUT)
             stimstate = STIMSTOPPED;
-        //Ali SetAllPanel(&expt);
+        SendAllToGui();
     }
 }
 
@@ -2423,7 +2331,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
 int RewardOn(int onoff){
     char buf[256];
     
-    sprintf(buf,"%2s%c\n",serial_strings[REWARD_SIZE],onoff?'+':'-');
+    sprintf(buf,"%2s%c\n",valstrings[REWARD_SIZE].code,onoff?'+':'-');
     SerialString(buf,0);
 }
 
@@ -2542,7 +2450,7 @@ void one_event_loop()
 
 #pragma mark Event_Loop
 
-void event_loop()
+int event_loop(float delay)
 {
 	int i, j, mask,ctr,nstim,estim = 0;
 	vcoord end[2],mpos[2];
@@ -2556,11 +2464,16 @@ void event_loop()
 	Locator *pos = &TheStim->pos;
 	int statectr = 0,tc;
 	static int testlaps = 0;
+    struct timeval then;
     
     //Ali 20/6/2011
     //stimstate = PRESTIMULUS;
     
     tc = 0;
+    gettimeofday(&then,NULL);
+    val = timediff(&then,&nftime); //time since next frame exited
+//    if (stimstate == POSTSTIMINTRIAL || stimstate == POSTPOSTSTIMULUS)
+//        fprintf(stdout,"loop delay %.5f\n",val);
     while((c = ReadSerial(ttys[0])) != MYEOF){
         GotChar(c);
         if(tc++ > 2048){
@@ -2568,6 +2481,9 @@ void event_loop()
                 fprintf(stderr,"Stuck in ReadSerial:%s\n",ser);
         }
     }
+    gettimeofday(&now,NULL);
+    val = timediff(&now,&then); //time since next frame exited
+
  //   ReadInputPipe();
     if(cleartime.tv_sec != 0){
         gettimeofday(&now,NULL);
@@ -2636,7 +2552,8 @@ void event_loop()
         ReadExptFile(NULL, 0, 0,0);
     }
     ctr++;
-	
+    gettimeofday(&nftime,NULL);
+    return(stimstate);
 }
 
 
@@ -2922,7 +2839,7 @@ void clear_display(int flag)
     setmask(BOTHMODE);
     if(expt.vals[FIXATION_OVERLAP] > 10)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-    ShowPerformanceString(0);
+//    ShowPerformanceString(0);
     glDrawBuffer(GL_BACK);
     glFlushRenderAPPLE();
     glFinishRenderAPPLE();
@@ -3111,6 +3028,9 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         st = TheStim;
 	switch(code)
 	{
+        case SEEDOFFSET:
+            stimptr->seedoffset = val;
+            break;
         case DOTREPEAT:
             stimptr->dotrpt = val;
             if(stimptr->next != NULL)
@@ -3515,11 +3435,15 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             else
                 pos->angle = val;
+            if(st->type == STIM_IMAGE && st->left->orbw < 0)
+                pos->angle -= M_PI/2;
             st->left->pos.angle = st->pos.angle + st->ori_disp;
             st->right->pos.angle = st->pos.angle - st->ori_disp;
-            if(st->type == STIM_CYLINDER && event == NULL)
+            if(st->type == STIM_CYLINDER && event == NULL && covaryprop != ORIENTATION)
                 SetTargets();
             break;
+            if((rdspair(st) || rlspair(st)) && !(optionflag & BACKGROUND_FIXED_BIT))
+                st->next->pos.angle = pos->angle;
         case SPINRATE:
             st->angleinc = val;
             break;
@@ -3554,7 +3478,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             break;
         case TF2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL)
+            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL || st->type == STIM_GRATING)
             {
                 psine = (OneStim *)(st->left->ptr);
                 psine->incr = (val *M_PI *2)/(mon.framerate);
@@ -3579,6 +3503,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 st->left->ptr->sf2 = val;
                 st->right->ptr->sf2 = val;
                 SetGratingFrequencies(st);
+            }
+            if(st->type == STIM_GRATING){
+                st->left->ptr->sf2 = val;
+                st->right->ptr->sf2 = val;
             }
             break;
         case SF:
@@ -3769,7 +3697,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
              * For GRATINGN stimulus types, disp phase 2 is what is added to the middle frequency component. 
              */
         case DISP_P2:
-            if(val > INTERLEAVE_EXPT && (st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type == STIM_GABOR))
+            if(val > INTERLEAVE_EXPT && (st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type == STIM_GABOR || st->type == STIM_GRATING))
                 st->phasedisp[1] = deg_rad(val)/2;
             break;
         case DISP_BACK:
@@ -3791,7 +3719,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",serial_strings[code],val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -3818,7 +3746,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",serial_strings[code],val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -4583,6 +4511,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->vals[code] = val;
             break;
         case NLOWCOMPONENTS:
+            if(st->type == STIM_GRATINGN){
             a = expt.stimvals[SF2] - expt.stimvals[SF]; //step
             b = expt.stimvals[SF] - a * ceil((expt.stimvals[NCOMPONENTS]-1)/2);
             st->nfreqs = val;
@@ -4592,8 +4521,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             for(i = 0; i < st->nfreqs; i++){
                 st->freqs[i] = st->f + a * (i - floor(st->nfreqs/2));
             }
+            }
             break;
         case NHIGHCOMPONENTS:
+            if(st->type == STIM_GRATINGN){
             a = expt.stimvals[SF2] - expt.stimvals[SF]; //step
             b = expt.stimvals[SF] + a * ceil((expt.stimvals[NCOMPONENTS]-1)/2);
             st->nfreqs = val;
@@ -4602,6 +4533,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->right->ptr->sf2 = st->f + a;
             for(i = 0; i < st->nfreqs; i++){
                 st->freqs[i] = st->f + a * (i - floor(st->nfreqs/2));
+            }
             }
             break;
         case NCOMPONENTS:
@@ -4972,7 +4904,7 @@ void end_timeout()
      optionflag |= (DRAW_FIX_BIT);
      }
      */
-    sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+    sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
     SerialString(buf,0);
     newtimeout = 1;
        glDrawBuffer(GL_BACK);
@@ -4993,9 +4925,16 @@ void SendMovements()
     SerialString(buf,0);
 }
 
+
+    static int stimchanged = 0;
 void WriteSignal()
 {
     char c;
+
+    struct timeval atime;
+    float val;
+    
+    
 	if(mode & WURTZ_FRAME_BIT)
     {
 	    c = START_TRIAL;
@@ -5006,20 +4945,21 @@ void WriteSignal()
     }
 	if(mode & FIRST_FRAME_BIT)
     {
+#ifdef NIDAQ
+        if (optionflags[MICROSTIM])
+            DIOWriteBit(1, 1);
+        DIOWriteBit(2, 1);
+#endif
+        stimchanged = 0;
 	    c = FRAME_SIGNAL;
         write(ttys[0],&c,1);
         gettimeofday(&firstframetime,NULL);
+        val = timediff(&firstframetime,&changeframetime);
         memcpy(&zeroframetime, &firstframetime, sizeof(struct timeval));
         expstate = 0;
         framesdone = 0;
         framectr = 0;
-#ifdef NIDAQ
-        if (optionflags[MICROSTIM])
-            DIOval = 0x6;
-        else
-            DIOval = 0x4;
-        DIOWrite(DIOval);
-#endif
+
         if(seroutfile)
             fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
 	}
@@ -5033,29 +4973,30 @@ void WriteSignal()
 	}
 	if(mode & LAST_FRAME_BIT)
     {
-	    c = END_STIM;
-        write(ttys[0],&c,1);
-#ifdef FRAME_OUTPUT
-	    DIOWrite(DIOval);
-#endif
+#ifdef NIDAQ
+            DIOval = 0;
+            DIOWriteBit(2,0); 
+#endif        
         gettimeofday(&endstimtime,NULL);
         if(seroutfile)
-            fprintf(seroutfile,"O %d %u %u\n",(int)(c),ufftime(&endstimtime),
-                    ufftime(&endstimtime)-ufftime(&zeroframetime));
-        
+            fprintf(seroutfile,"O %d %u %u %.3f\n",(int)(c),ufftime(&endstimtime),
+                    ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime));       
+
         expstate = END_STIM;
-#ifdef NIDAQ
-        DIOval = 0;
-        DIOWrite(0); 
+ 	    c = END_STIM;
+        write(ttys[0],&c,1);        
+#ifdef FRAME_OUTPUT
+                if (Frames2DIO)
+	    DIOWriteBit(3,1);
 #endif
 	}
 	if(mode & STIMCHANGE_FRAME)
     {
 	    c = STIM_CHANGE;
 	    write(ttys[0],&c,1);
+        stimchanged = 1;
 #ifdef NIDAQ
-	    DIOval = 0x7;
-	    DIOWrite(DIOval); // Pins 
+	    DIOWriteBit(0, 1);                  
 #endif
 	    if(!optionflags[REDUCE_SERIAL_OUTPUT]){
             if(seroutfile)
@@ -5095,7 +5036,7 @@ int change_frame()
 	}
 	memcpy(&lasttime, &now, sizeof(struct timeval));
 #endif
-    
+
 	if(mode & LAST_FRAME_BIT)
 	{
 		if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
@@ -5127,14 +5068,30 @@ int change_frame()
     //AliGLX	mySwapBuffers();
 	glFinishRenderAPPLE();
     glSwapAPPLE();
+    gettimeofday(&changeframetime,NULL);
+
 	framesswapped++;
-	if(mode & FRAME_BITS)
+#ifdef NIDAQ
+    if (stimchanged){
+        DIOWriteBit(0, 0);                 
+        stimchanged = 0;
+    }
+#endif
+    //This does nothing any more. But interferes with last frame timing. 
+    //This should be in nextframe/runexptstim
+    if(oldmode & LAST_FRAME_BIT && !(mode & LAST_FRAME_BIT))
+        stimstate = POSTSTIMULUS;
+
+
+    if(mode & FRAME_BITS)
     {
 #ifdef FRAME_OUTPUT
-	    DIOWrite(DIOval | 8);
+        if (Frames2DIO)
+	    DIOWriteBit(3,1);
 #endif
 	    if(!(mode & STIMCHANGE_FRAME))
             glFinishRenderAPPLE(); /* block until buffer swapped */
+        gettimeofday(&changeframetime,NULL);
 	    WriteSignal();
 	    if(c == END_STIM){
             sprintf(buf,"%s%d\n",serial_strings[NFRAMES_CODE],framesdone);
@@ -5145,14 +5102,14 @@ int change_frame()
 #ifdef FRAME_OUTPUT
 	else if (Frames2DIO)
     {
-        DIOWrite(DIOval | 8);
+        DIOWriteBit(3,1); //without 8 written in RunExptStim
     }
 #endif
 	thebuffer = !thebuffer;
 	if(mode & RESET_FRAME_CTR)
     {
 	    mode &= (~RESET_FRAME_CTR);
-	    gettimeofday(&zeroframetime, NULL);
+	    memcpy(&zeroframetime, &changeframetime, sizeof(struct timeval));
         /* 
          *       framecount = 1 = first frame and counting
          *       framecount = 0 = not running a set of frames
@@ -5160,8 +5117,6 @@ int change_frame()
 	    framecount = 1;
     }
 	realframecount = getframecount();
-	if(oldmode & LAST_FRAME_BIT)
-        stimstate = POSTSTIMULUS;
     
 	if(stmode & DRAG_STIMULUS)
     {
@@ -5302,7 +5257,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                             dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
                             newx = fixpos[0] + deg2pix(dx);
                             newy = fixpos[1] + deg2pix(dy);
-                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                        }while(newy < 8 && newy > -8 && newx > -8 && newx < 8);
                     }
                 }
                 else{
@@ -5315,7 +5270,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                             dy = expt.vals[FP_MOVE_SIZE] * sin(fval);
                             newx = fixpos[0] + deg2pix(dx);
                             newy = fixpos[1] + deg2pix(dy);
-                        }while(newy < 9 && newy > -5 && newx > -10 && newx < 7);
+                        }while(newy < 8 && newy > -8 && newx > -8 && newx < 8);
                     }
                     else{
                         fval = expt.vals[FP_MOVE_DIR];
@@ -5593,7 +5548,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
             pos->phase = M_PI/2;
-		else if (st->type == STIM_GRATING2)
+		else if (st->type == STIM_GRATING2 || st->type == STIM_GRATING)
         {
 		    pos->phase2 += psine->incr;
 		}
@@ -5718,19 +5673,39 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 
 void PaintBackIm(PGM im)
 {
-    float z = 1.0;
+    float z = 1.0,c;
     
     if(expt.vals[BACKGROUND_ZOOM] > 1)
         z = expt.vals[BACKGROUND_ZOOM];
     glPixelZoom(z,-z);
-    glRasterPos2i(-im.w * z/2,im.h * z/2);
+    
+    if(expt.st->pos.contrast < 0.99){
+        c = expt.st->pos.contrast;
+        glPixelTransferf(GL_RED_BIAS,0.5-c/2);
+        glPixelTransferf(GL_RED_SCALE,c);
+        glPixelTransferf(GL_BLUE_BIAS,0.5-c/2);
+        glPixelTransferf(GL_BLUE_SCALE,c);
+        glPixelTransferf(GL_GREEN_BIAS,0.5-c/2);
+        glPixelTransferf(GL_GREEN_SCALE, c);
+        //    glPixelTransferf(GL_GREEN_SCALE, 1.0);
+    }
+    else{
+        glPixelTransferf(GL_RED_BIAS,0);
+        glPixelTransferf(GL_RED_SCALE,1);
+        glPixelTransferf(GL_BLUE_BIAS,0);
+        glPixelTransferf(GL_BLUE_SCALE,1);
+        glPixelTransferf(GL_GREEN_BIAS,0);
+        glPixelTransferf(GL_GREEN_SCALE, 1);
+    }
+    glRasterPos2f(-im.w/2,im.h/2);
+  //  glRasterPos2i(-im.w * z/2,im.h * z/2);
     glDrawPixels(im.w, im.h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im.ptr);
     
 }
 void wipescreen(float color)
 {
     setmask(bothmask);
-    if(expt.backim.name){
+    if(expt.backim.name && optionflags[PAINT_BACKGROUND]){
         PaintBackIm(expt.backim);
     }
     else{
@@ -5810,6 +5785,12 @@ void paint_frame(int type, int showfix)
     setmask(BOTHMODE);
     if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
+    if (TheStim->noclear == 0)
+        clearstim(TheStim,TheStim->gammaback, 0);
+    TheStim->noclear = 1;
+    if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+        paint_target(expt.targetcolor, 0);
+    }
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
             paint_stimulus(TheStim->next);
@@ -5823,6 +5804,7 @@ void paint_frame(int type, int showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
     if(debug)
+        
         glFlushRenderAPPLE();
     paintdur = timediff(&btime,&paintframetime);
     if(optionflags[STIMULUS_IN_OVERLAY])
@@ -5859,7 +5841,7 @@ int CheckFix()
 int RunBetweenTrials(Stimulus *st, Locator *pos)
 {
     if(!(optionflag & STIM_IN_WURTZ_BIT)){
-        if(expt.st->type == STIM_IMAGE && expt.st->preload)
+        if(expt.st->type == STIM_IMAGE && expt.st->preload && expt.st->preloaded)
             expt.st->framectr = rnd_i() % expt.st->nframes;
         paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
         increment_stimulus(st, pos);
@@ -5886,7 +5868,7 @@ int StartTrial()
      */
     
     if(rcfd){
-        fprintf(rcfd,"Trial %d\n",ufftime(&now));
+ //       fprintf(rcfd,"Trial %d\n",ufftime(&now));
     }
     
     
@@ -5928,19 +5910,12 @@ void ShowInfo()
     char buf[BUFSIZ];
     
     if(optionflag & SEARCH_MODE_BIT && optionflags[FEEDBACK]){
-        glDrawBuffer(GL_FRONT_AND_BACK);
-        setmask(ALLPLANES);
-        SetGrey(0.0);
-        x[0] = 0;
-        x[1] = TheStim->fix.size;
-        mycmv(x);
         stp = getexpval(expt.stimno);
         if(stp->vals[EXP_PSYCHVAL] < 0)
             sprintf(buf,"Left (%.3f)",stp->vals[EXP_PSYCHVAL]);
         else
             sprintf(buf,"Right (%.3f)",stp->vals[EXP_PSYCHVAL]);
-        BigString(buf);
-        glDrawBuffer(GL_BACK);
+        statusline(buf);
     }
 }
 
@@ -6009,6 +5984,8 @@ int next_frame(Stimulus *st)
     
     
     gettimeofday(&now,NULL);
+    t2 = timediff(&now,&lastcalltime);
+    memcpy(&lastcalltime,&now,sizeof(struct timeval));
     /* some things need checking whatever the weather */
     if(stimno == NEW_EXPT)
         InitExpt();
@@ -6042,7 +6019,11 @@ int next_frame(Stimulus *st)
     {
         case STIMSTOPPED:
 #ifdef NIDAQ
-            DIOval = 0; DIOWrite(0);
+            DIOval = 0;
+            DIOWriteBit(2,  0);
+            DIOWriteBit(1,  0);
+            DIOWriteBit(0,  0);
+
 #endif
             if(rdspair(expt.st))
                 i = 0;
@@ -6146,7 +6127,10 @@ int next_frame(Stimulus *st)
             break;
         case INTERTRIAL:
 #ifdef NIDAQ
-            DIOval = 0; DIOWrite(0);
+            DIOWriteBit(2,  0);
+            DIOWriteBit(1,  0);
+            DIOWriteBit(0,  0);
+//            DIOval = 0; DIOWrite(0);
 #endif
             newtimeout = 1;
             if(rdspair(expt.st))
@@ -6281,16 +6265,13 @@ int next_frame(Stimulus *st)
             }
             
             wipescreen(clearcolor);
-            if(!(optionflag & STIM_IN_WURTZ_BIT)){
-                paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
-                increment_stimulus(st, pos);
-            }
-            else
-                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            RunBetweenTrials(st, pos);
+            draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
             change_frame();
             break;
         case PRESTIMULUS:
             //Ali CheckKeyboard(D, allframe);
+            mode &= (~FIXATION_OFF_BIT);
             microsaccade = 0;
             if(rdspair(expt.st))
                 expt.framesdone = 0;
@@ -6330,6 +6311,9 @@ int next_frame(Stimulus *st)
 #endif
             }
             CheckFix();
+            if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+                paint_target(expt.targetcolor, 0);
+            }
             //Ali CheckKeyboard(D, allframe);
             if((val = timediff(&now, &goodfixtime)) > expt.preperiod &&
                val > expt.vals[TRIAL_START_BLANK])
@@ -6388,15 +6372,13 @@ int next_frame(Stimulus *st)
                                 fflush(seroutfile);
 #endif
                             }
-                            if(optionflag & WAIT_FOR_BW_BIT && !gotspikes){
+                            if(optionflag & WAIT_FOR_BW_BIT){
                                 gettimeofday(&timeb,NULL);
                                 val = 0;
-                                while(!gotspikes && val < 0.1){
-                                    while((c = ReadSerial(ttys[0])) != MYEOF)
-                                        GotChar(c);
-                                    gettimeofday(&now,NULL);
-                                    val = timediff(&now,&timeb);
-                                }
+                                while((c = ReadSerial(ttys[0])) != MYEOF)
+                                    GotChar(c);
+                                gettimeofday(&now,NULL);
+                                val = timediff(&now,&timeb);
 #ifdef MONITOR_CLOSE
                                 if(seroutfile){
                                     fprintf(seroutfile,"#Done\n");
@@ -6481,6 +6463,7 @@ int next_frame(Stimulus *st)
                 change_frame();
                 glFinishRenderAPPLE();
             }
+
             break;
         case POSTSTIMINTRIAL:
             if(rdspair(expt.st))
@@ -6500,6 +6483,16 @@ int next_frame(Stimulus *st)
             }
             else if((val = timediff(&now, &endstimtime)) > expt.postperiod)
                 stimstate = PRESTIMULUS;
+            if (laststate != POSTSTIMINTRIAL){ // first call
+                val = timediff(&now, &endstimtime);
+                val = timediff(&now, &timeb);
+                val = timediff(&now, &nftime);
+                if (val > 0.02){
+                    fprintf(stderr,"ISI delay %.3f\n",val);
+                    if(seroutfile)
+                        fprintf(seroutfile,"#ISI delay %.3f\n",val);
+                }
+            }
             memcpy(&goodfixtime, &now, sizeof(struct timeval));
             break;
         case INSTIMULUS:
@@ -6582,6 +6575,10 @@ int next_frame(Stimulus *st)
             RunBetweenTrials(st, pos);
             if(expt.vals[FIXATION_OVERLAP] > 10)
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
+                paint_target(expt.targetcolor, 0);
+            }
+
             change_frame();
             if(testflags[PLAYING_EXPT]){
                 if((i = ReplayExpt(NULL)) == INTERTRIAL)
@@ -6755,6 +6752,7 @@ int next_frame(Stimulus *st)
                     fprintf(seroutfile,"#stimno %d\n",stimno);
                 fixstate = INTERTRIAL;
                 stimstate = POSTTRIAL;
+                SendTrialCount();
                 fsleep(0.05);
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);
@@ -6779,6 +6777,7 @@ int next_frame(Stimulus *st)
 #endif
             break;
         case POSTTRIAL:
+            ShowTrialCount(0, -1);
             if(rdspair(expt.st))
                 i = 0;
             if(seroutfile){
@@ -6797,10 +6796,11 @@ int next_frame(Stimulus *st)
                     change_frame();
                     search_background();
                 }
-            }
+            }            
             else{
                 setmask(bothmask);
                 wipescreen(clearcolor);
+                RunBetweenTrials(st, pos);
                 change_frame();
             }
             if(debug) glstatusline("PostTrial",3);
@@ -6931,6 +6931,7 @@ int next_frame(Stimulus *st)
     if(debug == 4){
         testcolor();
     }
+    gettimeofday(&nftime,NULL);
     return(framecount);
 }
 
@@ -6997,6 +6998,22 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[2],y+line[3]);
 }
 
+#ifdef Darwin
+void aarotrect(vcoord *line, vcoord x, vcoord y)
+{
+    
+    /*
+     if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
+     return;
+     */
+    glBegin(GL_POLYGON);
+    glVertex2f(x+line[0],y+line[1]);
+    glVertex2f(x+line[2],y+line[3]);
+    glVertex2f(x+line[4],y+line[5]);
+    glVertex2f(x+line[6],y+line[7]);
+    glEnd();
+}
+#else
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
     
@@ -7008,6 +7025,8 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[0],y+line[1]);
     glVertex2f(x+line[6],y+line[7]);
 }
+#endif
+
 
 void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
 {
@@ -7622,6 +7641,9 @@ float StimulusProperty(Stimulus *st, int code)
 	rds = st->left;
 	switch(code)
 	{
+        case SEEDOFFSET:
+            value = st->seedoffset;
+            break;
         case BLACKDOT_FRACTION:
             value = st->dotfrac;
             break;
@@ -7925,7 +7947,7 @@ float StimulusProperty(Stimulus *st, int code)
             value = st->f;
             break;
         case SF2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_GRATINGN)
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type ==STIM_GRATING)
             {
                 value = st->left->ptr->sf2;
             }
@@ -8818,8 +8840,7 @@ void select_stimulus(int type)
             StimulusType(stimptr,stimptr->type);
             break;
     }
-    //Ali SetStimPanel(stimptr);
-    //Ali SetAllPanel(&expt);
+ 
 }
 
 
@@ -9118,9 +9139,15 @@ int GotChar(char c)
         
 #ifdef NIDAQ  
         // trigger data collection for Spike2
-	    DIOWrite(0x7); 
+//	    DIOWrite(0x7);
+        DIOval = 0;
+        DIOWriteBit(0,1);
+        DIOWriteBit(2,1);
+
 	    fsleep(0.01);
-   	    DIOval = 0;  DIOWrite(0);
+        DIOWriteBit(0,0);
+        DIOWriteBit(2,0);
+//   	    DIOval = 0;  DIOWrite(0);
 #endif
 		MakeConnection();
 	}
@@ -9269,7 +9296,10 @@ int GotChar(char c)
                 gettimeofday(&endtrialtime, NULL);
                 
 #ifdef NIDAQ
-                DIOWrite(0); DIOval = 0;
+                DIOWriteBit(2,  0);
+                DIOWriteBit(1,  0);
+                DIOWriteBit(0,  0);
+//                DIOWrite(0); DIOval = 0;
 #endif
                 expstate = c;
                 gettimeofday(&now,NULL);
@@ -9366,7 +9396,7 @@ int GotChar(char c)
                 if(afc_s.newdirs)
                     sign = afc_s.stimsign;
                 else
-                    sign = afc_s.sacval[aid] *  afc_s.abssac[aid];
+                    sign = (afc_s.sacval[aid] *  afc_s.abssac[aid])*afc_s.sign;
                 if(sign < 0)
                     sign = -1;
                 else if(sign > 0)
@@ -9399,7 +9429,7 @@ int GotChar(char c)
                         sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade); 
                     else
                         sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
-                    
+                    sprintf(str,"%s %s",str,EyePosString());
                     if(expt.type3 != EXPTYPE_NONE)
                         fprintf(psychfile," %s=%.2f %s\n",serial_strings[expt.type3],expt.currentval[2],str);
                     else if(expt.mode == TWOCYL_DISP)
@@ -9488,7 +9518,7 @@ int GotChar(char c)
                 }
                 else
                     avctr = wurtzctr;
-                ShowTrialCount(down, wsum);
+  //              ShowTrialCount(down, wsum);
                 if(downtimes == NULL)
                     downtimes = (float *)malloc(sizeof(float) * (wurtzbufferlen));
                 if(stimtimes == NULL)
@@ -9589,7 +9619,7 @@ int GotChar(char c)
                     if(expt.mode == DISP_X && expt.type2 == CORRELATION && expt.vals[CORRELATION] == 0)
                         afc_s.loopstate = loopstate_counters(AMBIGUOUS, jonresult);
                     else
-                        afc_s.loopstate = loopstate_counters(stim_direction, jonresult);
+                        afc_s.loopstate = loopstate_counters(stim_direction * afc_s.sign, jonresult);
                     if(option2flag & PERF_STRING)
                         performance_string(afc_s.jlaststairval, jonresult, afc_s.loopstate, &afc_s.performance_1, &afc_s.performance_2, (afc_s.sacval[0] + afc_s.sacval[1]));
                     if(option2flag & STAIRCASE){ 
@@ -9739,7 +9769,7 @@ void paint_target(float color, int flag)
      */
     if(ChoiceStima->type != STIM_NONE && showa){
         contrast = ChoiceStima->pos.contrast;
-        if(afc_s.sacval[0]+afc_s.sacval[1] < 0)
+        if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign < 0)
             ChoiceStima->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStima->noclear = 1;
         calc_stimulus(ChoiceStima);
@@ -9748,7 +9778,7 @@ void paint_target(float color, int flag)
     }
     if(ChoiceStimb->type != STIM_NONE && showb){
         contrast = ChoiceStimb->pos.contrast;
-        if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
+        if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign > 0)
             ChoiceStimb->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStimb->noclear = 1;
         calc_stimulus(ChoiceStimb);
@@ -9876,16 +9906,16 @@ void chessboard(float w, float h)
     
 }
 
-void makeRasterFont(void)
-{
-}
-
 void printString(char *s, int size)
 {
     // Ali: we decided that at least for now we display this info on the mainGUI not the monkey screen
+    printf("%s\n",s);
     updateInfoText(s);
     return;
-    
+}
+
+void printStringOnMonkeyView(char *s, int size)
+{
     displayOnMonkeyView(s, -500, -450);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)
@@ -9898,50 +9928,6 @@ void printString(char *s, int size)
     glPopAttrib();
 }
 
-void BigString(char *s)
-{
-    //    glPushAttrib(GL_LIST_BIT);
-    //    glListBase(bigbase);
-    //    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
-    //    glPopAttrib();
-    //    
-    //    //Ali Draw text
-    //    GLuint texName;
-    //    glPushAttrib(GL_TEXTURE_BIT);
-    //    if (0 == texName) glGenTextures (1, &texName);
-    //    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-    //    glTexSubImage2D GL_TEXTURE_RECTANGLE_EXT,0,0,0,100,20, 1 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,bitmapData);
-    //    glPopAttrib();
-    //
-    //    
-    //    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT); // GL_COLOR_BUFFER_BIT for glBlendFunc, GL_ENABLE_BIT for glEnable / glDisable
-    //    
-    //    glDisable (GL_DEPTH_TEST); // ensure text is not remove by depth buffer test.
-    //    glEnable (GL_BLEND); // for text fading
-    //    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
-    //    glEnable (GL_TEXTURE_RECTANGLE_EXT);	
-    //    
-    //    //glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-    //    glBegin (GL_QUADS);
-    //    glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
-    //    glVertex2f (0, 0);
-    //	
-    //    glTexCoord2f (0.0f, 20.0f); // draw lower left in world coordinates
-    //    glVertex2f (0, 0 + 10);
-    //	
-    //    glTexCoord2f (100, 20); // draw upper right in world coordinates
-    //    glVertex2f (0 + 100, 0 + 20);
-    //	
-    //    glTexCoord2f (100.f, 0.0f); // draw lower right in world coordinates
-    //    glVertex2f (0 + 100, 0);
-    //    glEnd ();
-    //    
-    //    glPopAttrib();
-    //	
-    //    glFinishRenderAPPLE();
-    //    glSwapAPPLE();
-    
-}
 
 void WriteFrameData()
 {
@@ -10121,10 +10107,10 @@ void expt_over(int flag)
     optionflag &= (~GO_BIT);
     if(!testflags[PLAYING_EXPT])
         mode &= (~ANIMATE_BIT);
-    //Ali SetAllPanel(&expt);
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
     SaveExptFile("./leaneo.stm",SAVE_STATE);
+    SendAllToGui();
     notify("\nEXPTOVER\n");
 }
 
@@ -10146,7 +10132,7 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.2f %s=%.2f\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
         
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
                 serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION), 
@@ -10155,7 +10141,7 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.4f %s=%.4f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
+        fprintf(psychfile," %s=%.4f %s=%.4f x=0 x=0 x=0 x=0\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[JDEATH],GetProperty(&expt,expt.st,JDEATH));
         
         fprintf(psychfile,"R5 %s=%.4f %s=%.2f By=%.2f",
                 serial_strings[VERSION_CODE],version, 
@@ -10164,7 +10150,7 @@ void Stim2PsychFile()
         fprintf(psychfile," 0 %.2f %.2f",
                 GetProperty(&expt,expt.st,BACK_ORI),
                 GetProperty(&expt,expt.st,BACK_SIZE));
-        fprintf(psychfile," %s=%.0f %s=%.2f\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+        fprintf(psychfile," %s=%.0f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
         
         
         fprintf(psychfile,"R5 %s=%.4f %s=%.2f By=%.2f",
@@ -10174,7 +10160,7 @@ void Stim2PsychFile()
         fprintf(psychfile," 0 %.2f %.2f",
                 GetProperty(&expt,expt.st,BACK_ORI),
                 GetProperty(&expt,expt.st,BACK_SIZE));
-        fprintf(psychfile," %s=%.0f usenewdir=%d\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
+        fprintf(psychfile," %s=%.0f usenewdir=%d x=0 x=0 x=0 x=0\n",serial_strings[STIMULUS_MODE],GetProperty(&expt,expt.st,STIMULUS_MODE),usenewdirs);
         
         
         if(expt.st->next && expt.st->next->type != STIM_NONE){
@@ -10186,14 +10172,14 @@ void Stim2PsychFile()
             fprintf(psychfile," 0 %.2f %.2f",
                     GetProperty(&expt,expt.st,BACK_ORI),
                     GetProperty(&expt,expt.st,BACK_SIZE));
-            fprintf(psychfile," %s=%.4f %s=%.2f\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
+            fprintf(psychfile," %s=%.4f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[INITIAL_APPLY_MAX],GetProperty(&expt,expt.st,INITIAL_APPLY_MAX),serial_strings[BACK_CONTRAST],GetProperty(&expt,expt.st,BACK_CONTRAST));
         }
         if(expt.st->type == STIM_IMAGE){
-            fprintf(psychfile,"R6 se0=%d se1=%d se2=%d %d %d %d se6=%d imver=%.2f\n",
+            fprintf(psychfile,"R6 se0=%d se1=%d se2=%d %d %d %d se6=%d imver=%.2f x=0 x=0 x=0 x=0\n",
                     seedoffsets[0],seedoffsets[1],seedoffsets[2],
                     seedoffsets[3],seedoffsets[4],seedoffsets[5],
                     seedoffsets[6],expt.st->stimversion);
-            fprintf(psychfile,"R6 se7=%d se8=%d se9=%d %d %d %d se13=%d imver=%.2f\n",
+            fprintf(psychfile,"R6 se7=%d se8=%d se9=%d %d %d %d se13=%d imver=%.2f x=0 x=0 x=0 x=0\n",
                     seedoffsets[7],seedoffsets[8],seedoffsets[9],
                     seedoffsets[10],seedoffsets[11],seedoffsets[12],
                     seedoffsets[13],expt.st->stimversion);
@@ -10216,9 +10202,16 @@ void ReopenSerial(void)
     int i;
     
 #ifdef NIDAQ
-    DIOWrite(0x7); 
+    printf("Writing to DIO\n");
+    DIOWriteBit(2,  1);
+    DIOWriteBit(1,  1);
+    DIOWriteBit(0,  1);
+//    DIOWrite(0x7); 
     fsleep(0.01);
-    DIOWrite(0); DIOval = 0;
+    DIOWriteBit(2,  0);
+    DIOWriteBit(1,  0);
+    DIOWriteBit(0,  0);
+    //DIOWrite(0); DIOval = 0;
 #endif
     closeserial(0);
     if((i = OpenSerial(theport)) <= 0){
