@@ -1,4 +1,5 @@
-#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
+#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 
 #define MAXFREQS 80
 #define MAXCHANS 20
@@ -429,6 +430,7 @@ struct EXPERIMENT{
     char *showflags;
     char *monkey;
     int verbose;
+    int laststimcode,lastserialcode,totalcodes,lastsavecode;
 };
 
 typedef struct EXPERIMENT Expt;

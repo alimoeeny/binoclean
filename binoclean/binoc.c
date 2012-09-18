@@ -553,19 +553,13 @@ int CheckStrings()
 {
 	int i,j,err = 0;
     
-	for(i = 0; i < MAXTOTALCODES; i++)
+	for(i = 0; i < expt.totalcodes; i++)
 	{
-		for(j = i+1; j < MAXTOTALCODES; j++)
+		for(j = i+1; j < expt.totalcodes; j++)
         {
-		    if(serial_strings[j] == NULL)
+		    if(strcmp(valstrings[i].code,valstrings[j].code) == 0)
             {
-                fprintf(stderr,"Serial strings %d undefsined!!\n",j);
-                err++;
-            }
-		    else if(strcmp(serial_strings[i],serial_strings[j]) == 0 && 
-                    strncmp(serial_strings[i],"xx",2) != 0)
-            {
-                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",serial_strings[i],i,j);
+                fprintf(stderr,"Duplicate code (%s) at %d and %d\n",valstrings[i].code,i,j);
                 err++;
             }
         }
@@ -691,6 +685,9 @@ void initial_setup()
     
 	gettimeofday(&sessiontime,NULL);
     gettimeofday(&now,NULL);
+    ExptInit(&expt, TheStim, &mon);
+//ExptInit now sets up codesend and nfplaces from valstrings
+    return;
 	for(i = 0; i < MAXSERIALCODES; i++)
 	    switch(i)
     {
@@ -845,7 +842,6 @@ void initial_setup()
     }
 	codesend[UPLOAD_CODE] = SEND_USER_ONLY;
 	codesend[UFF_PREFIX] = SEND_USER_ONLY;
-	ExptInit(&expt, TheStim, &mon);
 }
 
 
@@ -1332,7 +1328,6 @@ char **argv;
 	setgamma(gammaval);
 	SetPriority(priority);
 	MakeConnection(0);
-	//Ali SetAllPanel(&expt);
     gettimeofday(&progstarttime,NULL);
 	
 	framerate = mon.framerate;
@@ -1340,7 +1335,6 @@ char **argv;
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
-    //	event_loop();
 }
 
 
@@ -1380,30 +1374,30 @@ void SendAllToGui()
     
     if(ChoiceStima->type != STIM_NONE){
         notify("mo=ChoiceU\n");
-        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        for(i = 0; i <= expt.laststimcode; i++)
         {
             buf[0] = '=';
             buf[1] = 0;
-            if((j = MakeString(i, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
+            if((j = MakeString(valstrings[i].icode, buf, &expt, ChoiceStima,TO_GUI)) >= 0)
                 notify(buf);
         }
     }
     if(ChoiceStimb->type != STIM_NONE){
         notify("mo=ChoiceD\n");
-        for(i = 0; i <= LAST_STIMULUS_CODE; i++)
+        for(i = 0; i <= expt.laststimcode; i++)
         {
             buf[0] = '=';
             buf[1] = 0;
-            if((j = MakeString(i, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
+            if((j = MakeString(valstrings[i].icode, buf, &expt, ChoiceStimb,TO_GUI)) >= 0)
                 notify(buf);
         }
     }
 
     if(expt.st->next != NULL){
         notify("mo=back\n");
-        for (i = 0; i < LAST_STIMULUS_CODE;  i++)
+        for (i = 0; i < expt.laststimcode;  i++)
         {
-            MakeString(i, buf, &expt, expt.st->next,TO_GUI);
+            MakeString(valstrings[i].icode, buf, &expt, expt.st->next,TO_GUI);
             notify(buf);
         }
         MakeString(STIMULUS_FLAG, buf, &expt, expt.st->next,TO_GUI);
@@ -1411,8 +1405,8 @@ void SendAllToGui()
         
     }
     notify("mo=fore\n");
-    for(i = 0; i < MAXTOTALCODES; i++){
-        if((j=MakeString(i, buf, &expt, expt.st,TO_GUI))>=0)
+    for(i = 0; i < expt.totalcodes; i++){
+        if((j=MakeString(valstrings[i].icode, buf, &expt, expt.st,TO_GUI))>=0)
             notify(buf);
     }
     i =0;
@@ -1451,12 +1445,14 @@ double GetFrameRate()
 
 void SendAll()
 {
-    int i;
+    int i,code;
     time_t tval;
     
-    for(i = 0; i < MAXSERIALCODES; i++)
-        if(codesend[i] != SEND_USER_ONLY)
-            SerialSend(i);
+    for(i = 0; i < expt.lastserialcode; i++){
+        code = valstrings[i].icode;
+        if(codesend[code] != SEND_USER_ONLY)
+            SerialSend(code);
+    }
     SendPenInfo();
     tval = time(NULL);
     if(seroutfile)
@@ -1589,7 +1585,7 @@ void StopGo(int go)
         mode |= ANIMATE_BIT;
         monkeypress = 0;
         end_timeout();
-        sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+        sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
         SerialString(buf,0);
         if(!(TheStim->mode & EXPTPENDING) && expt.st->left->ptr->velocity > 0){
             oldvelocity = expt.st->left->ptr->velocity;
@@ -1609,14 +1605,14 @@ void StopGo(int go)
         optionflag &= (~GO_BIT);
         mode &= (~(ANIMATE_BIT | TEST_PENDING));
         monkeypress = WURTZ_STOPPED;
-        sprintf(buf,"%2s+\n",serial_strings[STOP_BUTTON]);
+        sprintf(buf,"%2s+\n",valstrings[STOP_BUTTON].code);
         SerialString(buf,0);
         if(stimstate == INSTIMULUS)
             TrialOver();
         start_timeout(SEARCH);
         if(stimstate == IN_TIMEOUT)
             stimstate = STIMSTOPPED;
-        //Ali SetAllPanel(&expt);
+        SendAllToGui();
     }
 }
 
@@ -2341,7 +2337,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
 int RewardOn(int onoff){
     char buf[256];
     
-    sprintf(buf,"%2s%c\n",serial_strings[REWARD_SIZE],onoff?'+':'-');
+    sprintf(buf,"%2s%c\n",valstrings[REWARD_SIZE].code,onoff?'+':'-');
     SerialString(buf,0);
 }
 
@@ -3729,7 +3725,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",serial_strings[code],val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -3756,7 +3752,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",serial_strings[code],val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -4521,6 +4517,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->vals[code] = val;
             break;
         case NLOWCOMPONENTS:
+            if(st->type == STIM_GRATINGN){
             a = expt.stimvals[SF2] - expt.stimvals[SF]; //step
             b = expt.stimvals[SF] - a * ceil((expt.stimvals[NCOMPONENTS]-1)/2);
             st->nfreqs = val;
@@ -4530,8 +4527,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             for(i = 0; i < st->nfreqs; i++){
                 st->freqs[i] = st->f + a * (i - floor(st->nfreqs/2));
             }
+            }
             break;
         case NHIGHCOMPONENTS:
+            if(st->type == STIM_GRATINGN){
             a = expt.stimvals[SF2] - expt.stimvals[SF]; //step
             b = expt.stimvals[SF] + a * ceil((expt.stimvals[NCOMPONENTS]-1)/2);
             st->nfreqs = val;
@@ -4540,6 +4539,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->right->ptr->sf2 = st->f + a;
             for(i = 0; i < st->nfreqs; i++){
                 st->freqs[i] = st->f + a * (i - floor(st->nfreqs/2));
+            }
             }
             break;
         case NCOMPONENTS:
@@ -4910,7 +4910,7 @@ void end_timeout()
      optionflag |= (DRAW_FIX_BIT);
      }
      */
-    sprintf(buf,"%2s-\n",serial_strings[STOP_BUTTON]);
+    sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
     SerialString(buf,0);
     newtimeout = 1;
        glDrawBuffer(GL_BACK);
@@ -8847,8 +8847,7 @@ void select_stimulus(int type)
             StimulusType(stimptr,stimptr->type);
             break;
     }
-    //Ali SetStimPanel(stimptr);
-    //Ali SetAllPanel(&expt);
+ 
 }
 
 
@@ -10120,10 +10119,10 @@ void expt_over(int flag)
     optionflag &= (~GO_BIT);
     if(!testflags[PLAYING_EXPT])
         mode &= (~ANIMATE_BIT);
-    //Ali SetAllPanel(&expt);
     if(optionflag & FRAME_ONLY_BIT)
         WriteFrameData();
     SaveExptFile("./leaneo.stm",SAVE_STATE);
+    SendAllToGui();
     notify("\nEXPTOVER\n");
 }
 
