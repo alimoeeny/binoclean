@@ -2749,6 +2749,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     acknowledge("Can't chdir to /local either");
                 }
             }
+            
             break;
             
         case HELPFILE_PATH:
