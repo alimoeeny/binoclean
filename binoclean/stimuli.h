@@ -175,7 +175,7 @@ typedef struct ONESTIM{
     float dotsiz[2];
     float disp,depth_mod,disp_grad,lum[2];
     int mode;
-    vcoord *xpos, *ypos;
+    vcoord *xpos, *ypos, *zpos;
     int seed,baseseed,seedloop,seedctr;
     float density, xshift,correlation;
     float sf2,incr,phase2,ori2,phaseoff,sy,plaid_angle;
@@ -218,8 +218,8 @@ typedef struct SUBSTIM{
     int ndots,corrdots,mixdots;
     float dotsiz[2];
     float disp,lum[4],pdisp,disprem;
-    vcoord *xpos, *ypos;
-    int xpl,ypl;
+    vcoord *xpos, *ypos, *xposa, *yposa;
+    int xpl,ypl,xpla,ypla;
     int seed,baseseed,seedloop,seedctr;
     int *im;
     int imlen,imblen,imclen;
@@ -242,7 +242,7 @@ typedef struct SUBSTIM{
     double size;
     double orbw;  // Orientation Bandwidth
     unsigned long bits[10]; //for recording 1-D noise pattern
-    int npaint,nh,nw,nbars;
+    int npaint,nh,nw,nbars,npainta;
     float tf;
 } Substim;
 

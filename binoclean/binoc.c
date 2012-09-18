@@ -1416,6 +1416,12 @@ void SendAllToGui()
         notify(buf);
         if(expt.st->immode == IMAGEMODE_ORBW)
             notify("immode=orbw\n");
+        else if(expt.st->immode == BINOCULAR_PLAIN_IMAGES)
+            notify("immode=binocular\n");
+        if(expt.st->preload)
+            notify("imload=preload\n");
+        else
+            notify("imload=load\n");
     }
 
     ListExpStims(NULL);
@@ -3454,7 +3460,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             st->angleinc = val;
             break;
         case PLAID_ANGLE:
-            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR)
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR || st->type == STIM_RLS)
             {
                 st->left->ptr->plaid_angle =  deg_rad(val);
                 st->right->ptr->plaid_angle =  deg_rad(val);
@@ -3478,7 +3484,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             break;
         case PHASE2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_GABOR)
+            if(st->type == STIM_GRATING2 || st->type == STIM_GABOR || st->type == STIM_RLS)
             {
                 pos->phase2 = val;
             }
@@ -3697,6 +3703,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             expt.vals[DISP_P] = st->phasedisp[0] = deg_rad(val)/2;
             if(st->type == STIM_RDS)
                 st->phaseangle = 0;
+            else if(st->type == STIM_RLS){
+                st->phasedisp[0] = deg2pix(val/2);
+                st->phaseangle = 0;
+            }
             break;
             
             /*
@@ -3705,6 +3715,9 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case DISP_P2:
             if(val > INTERLEAVE_EXPT && (st->type == STIM_GRATING2 || st->type == STIM_GRATINGN || st->type == STIM_GABOR || st->type == STIM_GRATING))
                 st->phasedisp[1] = deg_rad(val)/2;
+            else if (val > INTERLEAVE_EXPT && st->type == STIM_RLS)
+                   st->phasedisp[1] = deg2pix(val/2);
+                   
             break;
         case DISP_BACK:
             if(st->next == NULL && st->prev == NULL)
@@ -7973,7 +7986,7 @@ float StimulusProperty(Stimulus *st, int code)
                 value = 0.0;
             break;
         case PHASE2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_GABOR)
+            if(st->type == STIM_GRATING2 || st->type == STIM_GABOR || st->type == STIM_RLS)
             {
                 value = pos->phase2;
             }
@@ -7994,7 +8007,7 @@ float StimulusProperty(Stimulus *st, int code)
             value = st->angleinc;
             break;
         case PLAID_ANGLE:
-            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR)
+            if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR || st->type == STIM_RLS)
             {
                 value = rad_deg(st->left->ptr->plaid_angle);
             }
@@ -8117,10 +8130,16 @@ float StimulusProperty(Stimulus *st, int code)
             /*
              * Phase disp recorded in radians in the UFF files, so report it that way here
              */
-            value = st->phasedisp[0]*2;
+            if (st->type == STIM_RLS)
+                value = pix2deg(st->phasedisp[0]*2);
+            else
+                value = st->phasedisp[0]*2;
             break;
         case DISP_P2:
-            value = st->phasedisp[1]*2;
+            if (st->type == STIM_RLS)
+                value = pix2deg(st->phasedisp[1]*2);
+            else
+                value = st->phasedisp[1]*2;
             break;
         case DOT_DENSITY:
             if(st->type == STIM_CYLINDER || st->type == STIM_CORRUG || st->type == STIM_SQCORRUG)
@@ -8759,9 +8778,9 @@ void SaveExptFile(char *filename,int flag)
 		//Ali write_windowpos(ofd);
 		if(expt.st->type == STIM_IMAGE){
             if(expt.st->preload)
-                fprintf(ofd,"immode=preload\n");
+                fprintf(ofd,"imload=preload\n");
             else
-                fprintf(ofd,"immode=load\n");
+                fprintf(ofd,"immload=load\n");
             if(expt.st->immode == IMAGEMODE_ORBW)
                 fprintf(ofd,"immode=orbw\n");
             else

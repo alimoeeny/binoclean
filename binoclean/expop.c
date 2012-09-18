@@ -265,7 +265,7 @@ extern char *toggle_strings[];
 extern char *toggle_codes[];
 extern char *flag_codes[];
 extern char *mode_codes[];
-extern char *serial_strings[];
+//extern char *serial_strings[];
 extern char *stimulus_names[];
 extern Monitor mon;
 extern Expt expt;
@@ -1631,7 +1631,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     int i,j,code;
     struct plotdata *plot;
     time_t tval;
-    int codes[BUFSIZ];
+    int codes[BUFSIZ],ncodes = 0;;
     
     
     tval = time(NULL);
@@ -1644,8 +1644,17 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     i = 0;
     while((code = valstrings[i].icode) >= 0){
         codes[i] = 0;
+        if (valstrings[i].icode > ncodes)
+            ncodes = valstrings[i].icode;
         i++;
     }
+    ncodes = ncodes+1;
+    expt.totalcodes = i;
+// serial_stings[i] gives the string associated with code i
+    serial_strings = (char**)(malloc(sizeof(char *) * ncodes));
+    for (i = 0; i < ncodes; i++)
+        serial_strings[i] = NULL;
+    
     i = 0;
     while((code = valstrings[i].icode) >= 0){
 //        if (codes[code] > 0) //already done
@@ -1654,7 +1663,8 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 //                valstrings[code].code = valstrings[i].code;
         valstringindex[code] = i; // The valstring element that has code icode in
   //      codes[code] = valstrings[i].code;
-  //      serial_names[code] = valstrings[i].label;
+        serial_names[code] = valstrings[i].label;
+        serial_strings[code] = valstrings[i].code;
         if(code == LAST_STIMULUS_CODE)
             expt.laststimcode = i;
         if(code == MAXSERIALCODES)
@@ -1665,7 +1675,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         codesend[code] = valstrings[i].codesend;
         i++;
     }
-    expt.totalcodes = i;
     for(i = 2; i < MAXWINS; i++){
         winposns[i].x = 80;
         winposns[i].y = 200;
@@ -5951,6 +5960,7 @@ void ResetExpt()
     expt.vals[STIMULUS_MODE] = 0;
     expt.vals[EXPT1_MAXSIG] = 0;
     expt.vals[FP_MOVE_FRAME] = 0;
+    optionflags[TILE_XY] = 0;
     expt.biasedreward = 0;  
     afc_s.proportion = 0.5;
 }
@@ -14024,6 +14034,18 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             expt.st->imprefix = myscopy(expt.st->imprefix,nonewline(++s));
         else
             return(MAXTOTALCODES);
+    }
+    else if(!strncmp(line,"imload",5)  && (s = strchr(line,'='))){
+// used to be done with immode, but best to have one attribute per code for sending to verg
+        ok = 1;
+        if(!strncmp(++s,"preload",4)){
+            expt.st->preload = 1;
+        }
+        else if(!strncmp(s,"load",4)){
+            expt.st->preload = 0;
+        }
+        else
+            ok = 0;
     }
     else if(!strncmp(line,"immode",5)  && (s = strchr(line,'='))){
         ok = 1;

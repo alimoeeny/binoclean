@@ -669,6 +669,10 @@ function SaveExpt(DATA, name)
     for j = 1:length(f)
         fprintf(fid,'%s\n',CodeText(DATA, f{j}));
     end
+    f = fields(DATA.binocstr);
+    for j = 1:length(f)
+        fprintf(fid,'%s=%s\n', f{j}, DATA.binocstr.(f{j}));
+    end
     fclose(fid);
     fprintf('Saved %s\n',name);
 

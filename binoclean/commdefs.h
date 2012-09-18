@@ -628,6 +628,7 @@ StringCode commstrings[] = {
     {"monkey", "Monkey name", MONKEYNAME, NULL},
     {"impref", "prefix for image files", 0, NULL},
     {"immode", "image mode", 0, NULL},
+    {"imload", "image load type", 0, NULL},
     {"psychfile", "Psych results file", 0, NULL},
     {NULL, NULL, 0, NULL}
 };
@@ -645,7 +646,7 @@ char *bwtoggle_codes[] = {
  * groups  1 stim prop
  *         2 binocular stim prop (disparity etc)
  *         4 Dot stimuli 
- *         8 fixation point 
+ *         8 fixation point/eye movement
  *         16 Expt setup
  *         32 General Display
  *         64 Background stim
@@ -856,6 +857,7 @@ ValueCode valstrings[] = {
   {"ijump",     "Image Jumps",IMAGEJUMPS, 1 , 'N' ,0, SEND_EXPT},
   {"Tt",     "Tone time",TONETIME, 16 , 'N' ,2, SEND_EXPLICIT},
   {"iD",  "Opposite Delay",OPPOSITE_DELAY , 1 , 'N' ,5, SEND_EXPLICIT},
+    {"baddir",  "Saccade Punish Direcion",SACCADE_PUNISH_DIRECTION , 8 , 'N' ,1, SEND_EXPLICIT},
   {"Fr", "FAST_SEQUENCE rpt +1 ",FAST_SEQUENCE_RPT, 16 , 'N' ,2, SEND_EXPLICIT},
   {"db", "Wurtz Brightness Shift, +2 ",BRIGHTSHIFT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"tc", "Timeout color, +3",BLANKCOLOR_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1029,10 +1031,15 @@ ValueCode valstrings[] = {
   {"aOp",     "absolute OrthoPos",ABS_ORTHOG_POS, 256+512 , 'N' ,2, SEND_EXPLICIT},
   {"aPp",     "absolute ParaPos",ABS_PARA_POS, 0 , 256+512, 'N' ,2, SEND_EXPLICIT},
   {"verbose", "Verbosity", VERBOSE_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
+    {  "seof", "Seed Offst", SEEDOFFSET, 0, 'N', 0, SEND_EXPLICIT},
+    {  "serange", "Seed Range", SEEDRANGE, 0, 'N', 0, SEND_EXPLICIT},
+    {  "nimplaces", "NumDigits for image name", NIMPLACES, 0, 'N', 0, SEND_EXPLICIT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 
-char *serial_strings[NCODES+1] = {
+char **serial_strings;
+
+char *oldserial_strings[NCODES+1] = {
 
 	  "xo",
         "yo",
@@ -1904,7 +1911,7 @@ char *channel_strings[] = {
 
 
 #else
-extern char *serial_strings[];
+extern char **serial_strings;
 extern char *channel_strings[];
 extern char *stimulus_names[];
 extern char *bwtoggle_codes[];

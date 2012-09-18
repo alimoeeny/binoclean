@@ -130,6 +130,20 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
             free(sst->ypos);
         sst->ypos = (vcoord *)malloc(sst->xpl * sizeof(vcoord));
 	}
+	if(ndots *4*nrect> sst->xpla || sst->xpos == NULL) /* need new memory */
+	{
+        sst->xpla = ndots *4*nrect;
+        if(sst->xposa != NULL)
+            free(sst->xposa);
+        sst->xposa = (vcoord *)malloc(sst->xpla * sizeof(vcoord));
+	}
+	if(ndots *4*nrect> sst->ypla || sst->ypos == NULL) /* need new memory */
+	{
+        sst->ypla = ndots *4*nrect;
+        if(sst->yposa != NULL)
+            free(sst->yposa);
+        sst->yposa = (vcoord *)malloc(sst->ypla * sizeof(vcoord));
+	}
 	if(ndots > 0)
         sst->ndots = ndots;
 	if(st->correlation < 1 && st->correlation > -1)
@@ -171,16 +185,16 @@ void calc_rls(Stimulus *st, Substim *sst)
     int i,j,partdisp,ndots,nx = 0;
     float cval,f,sy,cm,deg,iscale[2],val[2];
     float asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2];
-    int *p,*q,*cend,yi,lastp;
-    vcoord *x,*y,w,h,lastx,eh=0,lasty;
-    int xshift[2],iw,ih;
+    int *p,*q,*cend,yi,lastp,lastq;
+    vcoord *x,*y,w,h,lastx,eh=0,lasty,*zy,*zx,lastzx,lastzy;
+    int xshift[3],iw,ih;
     Locator *pos = &sst->pos;
     float phase,contrast = pos->contrast;
     int pixmul = 1,seedcall = 0;
     vcoord yp,diff;
     double drnd,aval;
     int bit, nbit;
-    long *rp,rnd,rnd_i();
+    long *rp,rnd,rnd_i(),*rq;
     
     
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
@@ -287,6 +301,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     else
     {
         xshift[1] = (phase * pixmul);
+        xshift[2] = pos->phase2 * pixmul;
         while(xshift[1] > h){
             xshift[1] -= h;
         }
@@ -320,8 +335,11 @@ void calc_rls(Stimulus *st, Substim *sst)
     if(st->prev != NULL && optionflags[PAINT_BACKGROUND])
         csq = dsq = 0;
     p = sst->im;
+    q = sst->imb;
     x = sst->xpos;
     y = sst->ypos;
+    zy = sst->yposa;
+    zx = sst->xposa;
     iw = w;
     ih = h;
     seedcall = 0;
@@ -343,22 +361,26 @@ void calc_rls(Stimulus *st, Substim *sst)
     if(sst->ndots > rndarraylen){
         if(rndarray != NULL)
             free(rndarray);
-        rndarray = (long *)malloc(2 * sst->ndots * sizeof(long));
-        rndarraylen = 2 * sst->ndots;
+        rndarray = (long *)malloc(4 * sst->ndots * sizeof(long));
+        rndarraylen = 4 * sst->ndots;
     }
     rp = rndarray;
+    rq = &rndarray[sst->ndots];
     rnd_init(sst->seed);
     for(i = 0; i < 10; i++){
         sst->bits[i] = 0;
     }
     
-    sst->npaint = sst->ndots;
+    sst->npaint = sst->npainta = sst->ndots;
     for(i = 0; i < sst->ndots; )
     {
         *x = 0;
         *y = -h/2 + i * sst->dotsiz[1] + xshift[1];
         if(*y > h/2)
             *y -= h;
+        *zy = -h/2 + i * sst->dotsiz[1] + xshift[2];
+        if(*zy > h/2)
+            *zy -= h;
         
         /*     
          * Aproach 1. Don't reset the seed, just call lrand again.
@@ -389,6 +411,13 @@ void calc_rls(Stimulus *st, Substim *sst)
             *p = WHITEMODE;
         else
             *p = BLACKMODE;
+        
+        if(*rp & (1<<3))
+            *q = WHITEMODE;
+        else
+            *q = BLACKMODE;
+        
+        
         if(sst->corrdots > 0 && sst->corrdots < sst->ndots && sst->mode == RIGHTMODE){
             rnd = (*rp>>3) % sst->ndots;
             if(rnd > sst->corrdots){
@@ -465,6 +494,16 @@ void calc_rls(Stimulus *st, Substim *sst)
                 }
                 else
                     *x = 0;
+                
+                aval = 1 - (*zy * *zy)/bsq;
+                if(aval > 0)
+                    lastzx = *zx = pos->radius[0] * sqrt(aval);
+                else if (i == 0 || lastzx > 0){
+                    *zx = eh;
+                    lastzx = 0;
+                }
+                else
+                    *zx = 0;
             }
             else
                 *x = pos->radius[0];
@@ -510,8 +549,47 @@ void calc_rls(Stimulus *st, Substim *sst)
             }
             lasty = *y;
             lastp = *p;
+            if(*zy < lastzy && i > 0 && bsq > 0){
+                lastzy = *zy;
+                if(lastzy+1 < h/2){
+                    *zy++ = h/2;
+                    if(optionflag & SQUARE_RDS){
+                        *zx++ = pos->radius[0];
+                        *zx = pos->radius[0];
+                    }
+                    else{
+                        lastzx = *zx;
+                        *zx++ = 0;
+                        *zx = lastzx;
+                    }
+                    *zy = lastzy;
+                    *q++ = lastq; // finish off last bar;
+                    sst->npainta++;
+                }
+                if(*zy > 1-h/2){
+                    lastzy = *zy;
+                    *zy++ = -h/2;
+                    *zy = lastzy;
+                    /* now set lasty so we don't come here again */
+                    lastzy = -h/2;
+                    if(optionflag & SQUARE_RDS){
+                        *zx++ = pos->radius[0];
+                        *zx = pos->radius[0];
+                    }
+                    else{
+                        lastzx = *zx;
+                        *zx++ = 0;
+                        *zx = lastx;
+                    }
+                    *(q+1) = *q;
+                    *q++;
+                    sst->npainta++;
+                }
+            }
+            lastq = *q;
+            lastzy = *zy;
         }
-        i++,x++,y++,p++,rp++;
+        i++,x++,y++,p++,rp++,q++,zx++,zy++;
         nx++;
     }
     if(nx > sst->xpl)
@@ -536,7 +614,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     int i,j,partdisp,ndots,nx=0;
     float cval,f,sy,cm,deg,iscale[2],val[2];
     float asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2];
-    int *p,*q,*cend,yi,lastp;
+    int *p,*q,*cend,yi,lastp,lastq;
     vcoord *x,*y,w,h,lastx,eh=0,lasty;
     int xshift[2],iw,ih;
     Locator *pos = &sst->pos;
@@ -871,6 +949,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
             } // end last y
             lasty = *y;
             lastp = *p;
+
         }
         i++,rp++;
     }
@@ -909,6 +988,11 @@ void paint_rls(Stimulus *st, int mode)
     float angle,cosa,sina,val,valsum = 0;
     vcoord rect[8],crect[8];
     
+    
+    if (fabs(st->left->ptr->plaid_angle) > 0){
+        paint_rls_plaid(st, mode);
+        return;
+    }
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
     {
         paint_rls_polygons(st, mode);
@@ -1070,6 +1154,232 @@ void paint_rls(Stimulus *st, int mode)
     }
     glEnd();
     }
+    glPopMatrix();
+    val = valsum/n;
+}
+
+/*
+ * Draws two RLS superimposed to make a noise plaid
+ */
+void paint_rls_plaid(Stimulus *st, int mode)
+{
+    int i;
+    int *p,d,*end,n = 0;
+    vcoord  w,h,*x,*y,fw,fh,lasty;
+    vcoord z[2];
+    short pt[2];
+    float vcolor[4], bcolor[4];
+    vcoord xmv;
+    int dotmode = 0;
+    Substim *sst = st->left;
+    Locator *pos = &st->pos;
+    float angle,cosa,sina,val,valsum = 0,alpha=1.0;
+    vcoord rect[8],crect[8];
+    
+    if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
+    {
+        paint_rls_polygons(st, mode);
+        return;
+    }
+    
+    angle = rad_deg(pos->angle);
+    /*
+     * first glTranslatef the co-ordinate system to put the stimulus
+     * in the right place/orientation. Use different colors for
+     * L/R dots
+     */
+    
+    glPushMatrix();
+    vcolor[0] = vcolor[1] = vcolor[2] = 0;
+    bcolor[0] = bcolor[1] = bcolor[2] = 0;
+    bcolor[3] = vcolor[3] = 1.0;
+    if(mode == LEFTMODE)
+    {
+        dotmode = LEFTDOT;
+        xmv = pos->xy[0]+st->disp;
+        glTranslatef(xmv,pos->xy[1]+st->vdisp,0);
+        vcolor[0] = sst->lum[0];
+        bcolor[0] = sst->lum[1];
+        vcolor[3] = sst->lum[0];
+        bcolor[3] = sst->lum[1];
+    }
+    else if(mode == RIGHTMODE)
+    {
+        dotmode = RIGHTDOT;
+        sst = st->right;
+        xmv = pos->xy[0]-st->disp;
+        glTranslatef(xmv,pos->xy[1]-st->vdisp,0);
+        vcolor[3] = vcolor[1] = vcolor[2] = sst->lum[0];
+        bcolor[3] = bcolor[1] = bcolor[2] = sst->lum[1];
+    }
+    if(optionflags[STIMULUS_IN_OVERLAY])
+    {
+        vcolor[1] = vcolor[2] = vcolor[0] = sst->lum[0];
+        bcolor[1] = bcolor[2] = bcolor[0] = sst->lum[1];
+    }
+    glRotatef(angle,0.0,0.0,1.0);
+    
+    mycolor(vcolor);
+    w = sst->dotsiz[0]/2;
+    h = sst->dotsiz[1]/2;
+    fw = sst->dotsiz[1];
+    fh = sst->dotsiz[0];
+    
+    h = h - 0.5;
+    
+    cosa = cos(pos->angle);
+    sina = sin(pos->angle);
+    rect[0] = -w * cosa - h * sina;
+    rect[1] = -h * cosa + w * sina;
+    rect[2] = -w * cosa + h * sina;
+    rect[3] = h * cosa + w * sina;
+    rect[4] = w * cosa + h * sina;
+    rect[5] = h * cosa - w * sina;
+    rect[6] = w * cosa - h * sina;
+    rect[7] = -h * cosa - w * sina;
+    h = h+0.5;
+    crect[0] = -h * sina;
+    crect[1] = -h * cosa;
+    crect[2] = h * sina;
+    crect[3] = h * cosa;
+    
+    p = sst->im;
+    end = (sst->im+sst->npaint);
+    x = sst->xpos;
+    y = sst->ypos;
+    i = 0;
+    /* now paint the lines */
+    
+    p = sst->im;
+    x = sst->xpos;
+    y = sst->ypos;
+    glDisable(GL_BLEND);
+    glDisable(GL_LINE_SMOOTH);
+    glLineWidth(1.0);
+    
+    if(optionflag & ANTIALIAS_BIT)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_LINE_SMOOTH);
+		if(expt.polygonsmooth)
+            //            glEnable(GL_POLYGON_SMOOTH);
+            glLineWidth(1.0);
+	}
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    glBegin(GL_QUAD_STRIP);
+    i = 0;
+    lasty = *y;
+    for(;p < end; p++,x++,y++)
+    {
+        if(*y < lasty){
+            glEnd();
+            glBegin(GL_QUAD_STRIP);
+        }
+        lasty = *y;
+        
+        if(st->dotdist == WHITENOISE16){
+            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+            valsum += val;
+            n++;
+            glColor4f(val,val,val,alpha);
+        }
+        else if(*p & BLACKMODE)
+            glColor4f(vcolor[0], vcolor[1], vcolor[2], alpha);
+        else if(*p & WHITEMODE)
+            glColor4f(bcolor[0], bcolor[1], bcolor[2], alpha);
+        if(*p & dotmode){
+            z[0] = *x;
+            z[1] = *y;
+            myvx(z);
+            z[0] = -*x;
+            z[1] = *y;
+            myvx(z);
+        }
+    }
+    glEnd();
+    
+    if(optionflag & ANTIALIAS_BIT)
+	{
+        p = sst->im;
+        x = sst->xpos;
+        y = sst->ypos;
+        glEnable(GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(1.0);
+        glBegin(GL_LINES);
+        i = 0;
+        lasty = *y;
+        for(;p < end; p++,x++,y++)
+        {
+            lasty = *y;
+            
+            if(st->dotdist == WHITENOISE16){
+                val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+                valsum += val;
+                n++;
+                glColor3f(val,val,val);
+            }
+            else if(*p & BLACKMODE)
+                mycolor(vcolor);
+            else if(*p & WHITEMODE)
+                mycolor(bcolor);
+            if(*p & dotmode){
+                z[0] = *x;
+                z[1] = *y;
+                myvx(z);
+                z[0] = -*x;
+                z[1] = *y;
+                myvx(z);
+            }
+        }
+        glEnd();
+    }
+    
+    
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glRotatef(rad_deg(sst->ptr->plaid_angle),0.0,0.0,1.0);
+    p = sst->imb;
+        end = (sst->imb+sst->npainta);
+    x = sst->xposa;
+    y = sst->yposa;
+    glBegin(GL_QUAD_STRIP);
+    i = 0;
+    lasty = *y;
+    alpha = 0.5;
+    for(;p < end; p++,x++,y++)
+    {
+        if(*y < lasty){
+            glEnd();
+            glBegin(GL_QUAD_STRIP);
+        }
+        lasty = *y;
+        
+        if(st->dotdist == WHITENOISE16){
+            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+            valsum += val;
+            n++;
+            glColor4f(val,val,val, alpha);
+        }
+        else if(*p & BLACKMODE)
+            glColor4f(vcolor[0], vcolor[1], vcolor[2], alpha);
+        else if(*p & WHITEMODE)
+            glColor4f(bcolor[0], bcolor[1], bcolor[2], alpha);
+            z[0] = *x;
+            z[1] = *y;
+            myvx(z);
+            z[0] = -*x;
+            z[1] = *y;
+            myvx(z);
+    }
+    glEnd();
+    glDisable(GL_BLEND);
+    
     glPopMatrix();
     val = valsum/n;
 }

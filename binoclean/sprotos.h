@@ -35,6 +35,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst);
 void paint_rls(Stimulus *st, int mode);
 void paint_rls_polygons(Stimulus *st, int mode);
 void paint_rls_lines(Stimulus *st, int mode);
+void paint_rls_plaid(Stimulus *st, int mode);
+
 int SaveRls(Stimulus *st, FILE *fd);
 OneStim *NewBar(Stimulus *st,Substim *sst);
 void free_bar(Substim *st);
