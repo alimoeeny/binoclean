@@ -268,8 +268,8 @@ void calc_rls(Stimulus *st, Substim *sst)
     else
         phase = 0;
  
- // for RLS, phase is only used for disp phase, so its in pixels already
-  
+    // for RLS, phase is only used for disp phase, so its in pixels already
+    
     phase = -(pos->phase+pos->locn[0]);
     
     if(optionflag & ANTIALIAS_BIT)
@@ -713,6 +713,9 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     
     phase = -(pos->radius[1]*2 - sst->dotsiz[1]) * pos->phase/( 2 * M_PI);
     phase = -(deg2pix(1/st->f) * pos->phase/(2 * M_PI)+pos->locn[0]);
+    // for RLS, phase is only used for disp phase, so its in pixels already
+    
+    phase = -(pos->phase+pos->locn[0]);
     
     if(optionflag & ANTIALIAS_BIT)
         pixmul = 1; // RLS all done in floats anyway
