@@ -1419,6 +1419,15 @@ function SaveFile(a,b,type)
     end
     if strcmp(type,'current')
         filename = DATA.stimfilename;
+        if exist(filename,'file')
+            bakfile = [filename '.bak'];
+            a = copyfile(filename,bakfile)
+            if a
+                fprintf('Saved backup in %s\n',bakfile);
+            else
+                fprintf('Couldnt save backup %s\n',bakfile)
+            end
+        end
         SaveExpt(DATA, filename)
     elseif strcmp(type,'layout')
         SaveLayout(DATA, DATA.layoutfile);
@@ -2599,7 +2608,7 @@ if strcmp(code,'optionflag')
     elseif strcmp(code,'st')
         s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
     elseif isfield(DATA.binoc{cstim},code)
-        id = strmatch(code,{DATA.comcodes.code},'exact')
+        id = strmatch(code,{DATA.comcodes.code},'exact');
         if length(id) ==1 && DATA.comcodes(id).type == 'C'
             s = sprintf('%s=%s',code,DATA.binoc{cstim}.(code));
         else

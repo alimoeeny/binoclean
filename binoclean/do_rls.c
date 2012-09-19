@@ -267,9 +267,10 @@ void calc_rls(Stimulus *st, Substim *sst)
     }
     else
         phase = 0;
-    
-    phase = -(pos->radius[1]*2 - sst->dotsiz[1]) * pos->phase/( 2 * M_PI);
-    phase = -(deg2pix(1/st->f) * pos->phase/(2 * M_PI)+pos->locn[0]);
+ 
+ // for RLS, phase is only used for disp phase, so its in pixels already
+  
+    phase = -(pos->phase+pos->locn[0]);
     
     if(optionflag & ANTIALIAS_BIT)
         pixmul = 1; // RLS all done in floats anyway
@@ -300,13 +301,21 @@ void calc_rls(Stimulus *st, Substim *sst)
     }
     else
     {
+//xshift translates the pattern (relative to the window).  Make sure its a positive number to simplify calculations
+//below
         xshift[1] = (phase * pixmul);
-        xshift[2] = pos->phase2 * pixmul;
         while(xshift[1] > h){
             xshift[1] -= h;
         }
         while(xshift[1] < 0){
             xshift[1] += h;
+        }
+        xshift[2] = pos->phase2 * pixmul;
+        while(xshift[2] > h){
+            xshift[2] -= h;
+        }
+        while(xshift[2] < 0){
+            xshift[2] += h;
         }
         xshift[0] = 0;
     }
@@ -510,7 +519,7 @@ void calc_rls(Stimulus *st, Substim *sst)
             *p |= (RIGHTDOT | LEFTDOT);
             if(*y < lasty && i > 0 && bsq > 0){
                 lasty = *y;
-                if(lasty+1 < h/2){
+                if(lasty+1 < h/2){ //gone back to Left side. Add final vertex to R first
                     *y++ = h/2;
                     if(optionflag & SQUARE_RDS){
                         *x++ = pos->radius[0];
@@ -579,7 +588,7 @@ void calc_rls(Stimulus *st, Substim *sst)
                     else{
                         lastzx = *zx;
                         *zx++ = 0;
-                        *zx = lastx;
+                        *zx = lastzx;
                     }
                     *(q+1) = *q;
                     *q++;
@@ -1297,6 +1306,9 @@ void paint_rls_plaid(Stimulus *st, int mode)
             z[1] = *y;
             myvx(z);
         }
+        else{ // for debugger
+            z[0] = *x;
+        }
     }
     glEnd();
     
@@ -1334,6 +1346,9 @@ void paint_rls_plaid(Stimulus *st, int mode)
                 z[1] = *y;
                 myvx(z);
             }
+            else{ // for debugger
+                z[0] = *x;
+            }
         }
         glEnd();
     }
@@ -1344,6 +1359,12 @@ void paint_rls_plaid(Stimulus *st, int mode)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glRotatef(rad_deg(sst->ptr->plaid_angle),0.0,0.0,1.0);
+    
+    if(optionflag & ANTIALIAS_BIT)
+	{
+		glEnable(GL_LINE_SMOOTH);
+        glLineWidth(1.0);
+	}
     p = sst->imb;
         end = (sst->imb+sst->npainta);
     x = sst->xposa;
@@ -1378,6 +1399,49 @@ void paint_rls_plaid(Stimulus *st, int mode)
             myvx(z);
     }
     glEnd();
+    
+    
+    if(optionflag & ANTIALIAS_BIT)
+	{
+        p = sst->imb;
+        x = sst->xposa;
+        y = sst->yposa;
+        glEnable(GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(1.0);
+        glBegin(GL_LINES);
+        i = 0;
+        lasty = *y;
+        for(;p < end; p++,x++,y++)
+        {
+            lasty = *y;
+            
+            if(st->dotdist == WHITENOISE16){
+                val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+                valsum += val;
+                n++;
+                glColor3f(val,val,val);
+            }
+            else if(*p & BLACKMODE)
+                mycolor(vcolor);
+            else if(*p & WHITEMODE)
+                mycolor(bcolor);
+            if(*p & dotmode){
+                z[0] = *x;
+                z[1] = *y;
+                myvx(z);
+                z[0] = -*x;
+                z[1] = *y;
+                myvx(z);
+            }
+            else{ // for debugger
+                z[0] = *x;
+            }
+        }
+        glEnd();
+    }
+    
     glDisable(GL_BLEND);
     
     glPopMatrix();

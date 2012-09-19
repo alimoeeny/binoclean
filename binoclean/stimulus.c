@@ -1692,7 +1692,7 @@ void calc_stimulus(Stimulus *st)
             if(testflags[REPEAT_DOTS])
                 rds->seed++;
             st->left->pos.phase = st->phasedisp[0];
-            st->right->pos.phase = st->phasedisp[0];
+            st->right->pos.phase = -st->phasedisp[0];
             rds->newdots = rdsr->newdots = 1;
             st->left->pos.phase2 = st->phasedisp[1];
             st->right->pos.phase2 = -st->phasedisp[1];
