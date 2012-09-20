@@ -666,6 +666,10 @@ static int *isset, nstimorder, nisset,*stim3order,*stim2order;
 
 
 
+/*
+ * FindCode(*s)  return the numerical index of the code matching string *s
+ * this is the index to serial_strings, not valstrings (whose order can be changed)
+ */
 int FindCode(char *s)
 {
     int i=0,j,code;
@@ -978,7 +982,6 @@ void write_expvals(FILE *ofd, int flag)
             fprintf(ofd,"qe=%s\n",quicknames[i]);
     }
     fprintf(ofd,"usenewdirs=%d\n",usenewdirs);
-    fprintf(ofd,"fixcolors=%.2f %.2f %.2f %.2f\n",expt.st->fix.fixcolors[0],expt.st->fix.fixcolors[1],expt.st->fix.fixcolors[2],expt.st->fix.fixcolors[3]);
 }
 
 write_helpfiles(FILE *ofd)
@@ -4277,6 +4280,9 @@ int ReadCommand(char *s)
         ReopenSerial();
         SendAll();
     }
+    else if(!strncasecmp(s,"savefile=",9)){
+        SaveExptFile(&s[9],0);
+    }
     else if(!strncasecmp(s,"stop",2)){
         StopGo(STOP);
     }
@@ -7056,7 +7062,9 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     icode = valstringindex[code];
     switch(code)
     {
-
+        case FIXCOLORS:
+            sprintf(cbuf,"fixcolors=%.2f %.2f %.2f %.2f\n",expt.st->fix.fixcolors[0],expt.st->fix.fixcolors[1],expt.st->fix.fixcolors[2],expt.st->fix.fixcolors[3]);
+            break;
         case RF_SET:
             c = '*';
         case RF_DIMENSIONS:
@@ -7095,7 +7103,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s=%s", scode,userstrings[userid]);
             break;
         case BACKGROUND_IMAGE:
-            if(flag == TO_FILE){
+            if(flag != TO_BW){
                 if(expt.backprefix)
                     sprintf(cbuf,"%s=%s", scode,expt.backprefix);
                 else
@@ -7200,7 +7208,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
              */
             break;
         case RAMP_VERGENCE_CODE:
-            if((optionflag & (RAMP_EXPT_BIT | CLAMP_HOLD_BIT)) || flag == TO_FILE)
+            if((optionflag & (RAMP_EXPT_BIT | CLAMP_HOLD_BIT)) || flag != TO_BW)
                 sprintf(cbuf,"%s%s%.2f",scode,temp,
                         expt.cramp);
             else if (optionflag & (RAMP_HOLD_BIT))
@@ -7209,7 +7217,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                 sprintf(cbuf,"%sxx",scode); /* turns off ramp */
             break;
         case RAMP_HOLD_CODE:
-            if((optionflag & (RAMP_HOLD_BIT)) || flag == TO_FILE)
+            if((optionflag & (RAMP_HOLD_BIT)) || flag != TO_BW)
                 sprintf(cbuf,"%s%s%.2f",scode,temp,
                         expt.cramp);
             else if (optionflag & (RAMP_EXPT_BIT))
@@ -7243,7 +7251,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             }
             break;
         case MODE_CODE:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
             {
                 sprintf(cbuf,"%s%s",scode,temp);
                 i = 0;
@@ -7427,7 +7435,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             }
             break;
         case STIMULUS_OPTIONS:/* only needed for BW */
-            if(flag != TO_FILE)
+            if(flag == TO_BW)
             {
                 ival = expt.st->flag;
                 if(optionflag & SQUARE_RDS)
@@ -7442,23 +7450,23 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                     (expt.st->nframes)/expt.mon->framerate);
             break;
         case TIMEOUT_CODE:
-            if(flag == TO_FILE)
-                sprintf(cbuf,"%s%.3f",scode,expt.st->fix.timeout);
-            else
-                sprintf(cbuf,"%s%.0f",scode, 
+            if(flag == TO_BW)
+                sprintf(cbuf,"%s%.0f",scode,
                         (1000 * expt.st->fix.timeout));
+            else
+                sprintf(cbuf,"%s=%.3f",scode,expt.st->fix.timeout);
             break;
         case WRONG_TIMEOUT_CODE:
-            sprintf(cbuf,"%s%.3f",scode,afc_s.wrongtimeout);
+            sprintf(cbuf,"%s%s%.3f",scode,temp,afc_s.wrongtimeout);
             break;
         case SHORT_PREM_CODE:
-            if(flag == TO_FILE)
-                sprintf(cbuf,"%s%.3f",scode,expt.st->fix.minprem);
+            if(flag != TO_BW)
+                sprintf(cbuf,"%s%s%.3f",scode,temp,expt.st->fix.minprem);
             else
                 sprintf(cbuf,"%s%0f",scode,(10000 * expt.st->fix.minprem));
             break;
         case WURTZ_RT_CODE:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 sprintf(cbuf,"%s%s%.2f",scode,temp,expt.st->fix.rt);
             else
                 sprintf(cbuf,"%s%.3f",scode, 10000 * expt.st->fix.rt);
@@ -7510,7 +7518,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
 #if defined(USING_SOLENOID)
         case REWARD_SIZE:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 sprintf(cbuf,"%s%s%d",scode,temp,expt.st->fix.rwsize);
             else
                 sprintf(cbuf,"%s%.0f",scode, floor((float)(expt.st->fix.rwsize)/rwduration));
@@ -7536,19 +7544,19 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                     (expt.vals[PENXPOS]),(expt.vals[PENYPOS]));
             break;
         case EXPT2_INCR:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 sprintf(cbuf,"%s%s%.4f%s",scode,temp,expt.incr2,(expt.flag & LOGINCR2) ? "log" : "lin");
             else
                 sprintf(cbuf,"%s%s%.4f",scode,temp,expt.incr2);
             break;
         case EXPT3_INCR:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 sprintf(cbuf,"%s%s%.4f%s",scode,temp,expt.incr3,(expt.flag & LOGINCR2) ? "log" : "lin");
             else
                 sprintf(cbuf,"%s%s%.4f",scode,temp,expt.incr3);
             break;
         case EXPT_INCR:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 sprintf(cbuf,"%s%s%.4f%s",scode,temp,expt.incr,(expt.flag & LOGINCR) ? "log" : "lin");
             else
                 sprintf(cbuf,"%s%s%.4f",scode,temp,expt.incr);
@@ -7558,7 +7566,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
              * DISP_P is represtented in radians. Save it in degrees to the file
              */
             val = StimulusProperty(st,code);
-            if(flag == TO_FILE){
+            if(flag != TO_BW){
                 val = val * 180/M_PI;
                 sprintf(cbuf,"%s%s%.1f",scode,temp,val);
             }
@@ -7578,7 +7586,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
         case HSACCADE_VALUE:
         case VSACCADE_VALUE:
             i = (code == HSACCADE_VALUE) ? 0 : 1;
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 sprintf(cbuf,"%s%s%.4f",scode,temp, afc_s.abssac[i]);
             else{
                 if(i==0 && optionflags[NO_MIRRORS])
@@ -7594,7 +7602,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],val);
             break;
         case TRIGGER_LEVEL1:
-            if(flag == TO_FILE)
+            if(flag != TO_BW)
                 return(-1);
         default:
             val = ExptProperty(ex, code);
@@ -13739,7 +13747,7 @@ int LabelAndPath(char *s, char *sublabel, char *path, char *name)
 
 int InterpretLine(char *line, Expt *ex, int frompc)
 {
-    int i,n,len,ival,total,j,vals[MAXBINS],k,code,oldmode,x,y;
+    int i,n,len,ival,total,j,vals[MAXBINS],k,code,icode,oldmode,x,y;
     int bins,prebins,postbins,chan;
     char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ],outbuf[BUFSIZ];
     float val,fval, addval = 0,in[10],aval,bval;
@@ -13850,13 +13858,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(0);
     }
     
-    else if(!strncmp(line,"fixcolors",6) && (s = strchr(line,'=')) != 0)
-    {
-        n = sscanf(++s,"%f %f %f %f",&in[0],&in[1],&in[2],&in[3]);
-        for(i = 0; i < n; i++)
-            expt.st->fix.fixcolors[i] = in[i];
-        return(0);
-    }	
     else if(!strncmp(line,"stepper",6)  && (s = strchr(line,'=')) != 0){
         sscanf(++s,"%d %d",&x,&y);
         winposns[STEPPER_WIN].x = x;
@@ -14174,10 +14175,14 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(code);
     
     
-    if(code >= 0)
-        s = &line[strlen(valstrings[valstringindex[code]].code)];
-    else
+    if(code >= 0){
+        icode = valstringindex[code];
+        s = &line[strlen(valstrings[icode].code)];
+    }
+    else{
+        icode = -1;
         s = &line[2];
+    }
     
     while(*s != 0 && (isspace(*s) || *s == '='))
         s++;
@@ -14244,12 +14249,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
-            
+        case FIXCOLORS:
+            n = sscanf(++s,"%f %f %f %f",&in[0],&in[1],&in[2],&in[3]);
+                for(i = 0; i < n; i++)
+                    expt.st->fix.fixcolors[i] = in[i];
+            break;
         case ELECTRODE_DEPTH:
             if (*s == '+'){
                 sscanf(s,"%f",&fval);
                 stepproc(fval);
-                sprintf(buf,"%2s=%.3fmore characters to flush\n",valstrings[code].code,expt.vals[ELECTRODE_DEPTH]);
+                sprintf(buf,"%2s=%.3f\n",valstrings[icode].code,expt.vals[ELECTRODE_DEPTH]);
                 notify(buf);
             }
             break;
@@ -14629,7 +14638,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sprintf(buf,"%s\nfs%d\nss%d\nes%d tc%d %u",&line[2],fixstate,stimstate,expstate,trialcnt,ufftime(&now));
             acknowledge(buf,NULL);
             if(seroutfile)
-                fprintf(seroutfile,"%2s%s\n",valstrings[code].code,buf);
+                fprintf(seroutfile,"%2s%s\n",valstrings[icode].code,buf);
             return(code);
         case EXPTYPE_CODE3:
         case EXPTYPE_CODE2:

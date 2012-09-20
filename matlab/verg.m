@@ -67,10 +67,11 @@ while j <= length(varargin)
     j = j+1;
 end
 
-function DATA = InterpretLine(DATA, line)
+function [DATA, codetype] = InterpretLine(DATA, line)
 
 strs = textscan(line,'%s','delimiter','\n');
 setlist = 0;  %% don't update gui for every line read.
+codetype = 0;
 
 for j = 1:length(strs{1})
  %   fprintf('%s\n', strs{1}{j});
@@ -144,12 +145,19 @@ for j = 1:length(strs{1})
         if ~strcmp(str,'xx') && sum(strcmp(str,{DATA.comcodes.code}))
             x = strcmp(str,{DATA.comcodes.code});
         end
+       
         DATA.comcodes(code).label = s(id(3)+1:id(end)-2);
         DATA.comcodes(code).code = s(id(1)+1:id(2)-1);
         DATA.comcodes(code).const = code;
         DATA.comcodes(code).type = s(id(end)-1);
         DATA.comcodes(code).group = str2num(s(id(end)+1:end));
+        try
         DATA.codeids.(DATA.comcodes(code).code) = code; %index of codes
+        catch
+            fprintf('Invalid field name %s\n',str);
+        DATA.codeids.xx = code; %index of codes
+        DATA.comcodes(code).code = 'xx';
+        end
     elseif strncmp(s,'status',5)
         DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
         if ishandle(DATA.statusitem)
@@ -271,6 +279,20 @@ for j = 1:length(strs{1})
             else
                 DATA.showflags.(f{code}) = 0;
             end
+        end
+    elseif strncmp(s,'helpfile=',9)
+        s = s(10:end);
+        id = strfind(s,'"');
+        if ~isempty(id)
+            n = length(DATA.helpfiles)+1;
+            DATA.helpfiles(n).filename = s(id(end)+1:end);
+            DATA.helpfiles(n).label = s(2:id(end)-1);
+        end
+    elseif strncmp(s,'xyfsd',5)
+        x = sscanf(value,'%f');
+        DATA.binoc{1}.xyfsd = x(1);
+        if length(x) == 4
+            DATA.showxy = x(2:4);
         end
     elseif strncmp(s,'qe=',3)
         
@@ -408,8 +430,21 @@ for j = 1:length(strs{1})
                 set(it,'string',DATA.exptstimlist{1});
             end
         end
-        
-    elseif s(1) == 'E'
+    
+    elseif sum(strcmp(code,{DATA.comcodes.code}))
+        cid = find(strcmp(code,{DATA.comcodes.code}));
+        code = DATA.comcodes(cid(1)).code;
+        id = strfind(s,'=');
+        if id
+            if DATA.comcodes(cid(1)).type == 'C'
+                DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
+            else
+                val = sscanf(s(id(1)+1:end),'%f');
+                DATA.binoc{DATA.currentstim}.(code) = val;
+            end
+            codetype = DATA.comcodes(cid(1)).group;
+        end    
+    elseif s(1) == 'E'  %don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
         elseif strncmp(s,'ECCLEAR',5)
@@ -456,18 +491,6 @@ for j = 1:length(strs{1})
             end
             if strncmp(s,'ECLEAR',5)
                 DATA.exptstimlist{1} = {};
-            end
-        end
-    elseif sum(strcmp(code,{DATA.comcodes.code}))
-        cid = find(strcmp(code,{DATA.comcodes.code}));
-        code = DATA.comcodes(cid(1)).code;
-        id = strfind(s,'=');
-        if id
-            if DATA.comcodes(cid(1)).type == 'C'
-                DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
-            else
-                val = sscanf(s(id(1)+1:end),'%f');
-                DATA.binoc{DATA.currentstim}.(code) = val;
             end
         end
     else
@@ -523,7 +546,7 @@ if fid > 0
     
     tline = fgets(fid);
     while ischar(tline)
-        DATA = InterpretLine(DATA,tline);
+        [DATA, type] = InterpretLine(DATA,tline);
         if DATA.over
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
@@ -652,14 +675,28 @@ function SendState(DATA, varargin)
     fprintf(DATA.outid,'\neventcontinue\n');
 
 function SaveExpt(DATA, name)
+    bname = name;
+    if strfind(name, '.stm')
+        bname = strrep(name,'.stm','.bstm');
+    else
+        bname = [name '.bstm'];
+    end
+    if DATA.outid
+    fprintf(DATA.outid,'\\savefile=%s\n',bname);
+    end
     fid = fopen(name,'w');
     f = fields(DATA.binoc{2});
+    fprintf(fid,'mo=fore\n');
+    fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
+    fprintf(fid,'%s\n',CodeText(DATA, 'expts'));
+    fprintf(fid,'%s\n',CodeText(DATA, 'nr'));
+    fprintf(fid,'uf=%s\n',DATA.datafile);
     
     fprintf(fid,'mo=back\n');
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
-
     for j = 1:length(f)
-        fprintf(fid,'%s\n',CodeText(DATA, f{j},'back'));
+        [s, lbl] = CodeText(DATA, f{j},'back');
+        fprintf(fid,'%s\t#Back %s\n',s,lbl);
     end
     
     
@@ -667,11 +704,27 @@ function SaveExpt(DATA, name)
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
     for j = 1:length(f)
-        fprintf(fid,'%s\n',CodeText(DATA, f{j}));
+        [s, lbl, type] = CodeText(DATA, f{j});
+        if bitand(type, 512) == 0
+            fprintf(fid,'%s\t#%s\n',s,lbl);
+        end
     end
     f = fields(DATA.binocstr);
     for j = 1:length(f)
-        fprintf(fid,'%s=%s\n', f{j}, DATA.binocstr.(f{j}));
+        id = find(strcmp(f{j},{DATA.strcodes.code}));
+        fprintf(fid,'%s=%s\t#%s\n', f{j}, DATA.binocstr.(f{j}),DATA.strcodes(id).label);
+    end
+    fprintf(fid,'%s\n',CodeText(DATA, 'optionflag'));
+    fprintf(fid,'%s\n',CodeText(DATA, 'pf'));
+    for j = 1:length(DATA.quickexpts)
+        if isempty(DATA.quickexpts(j).submenu)
+        fprintf(fid,'qe=%s\n',DATA.quickexpts(j).filename);
+        else
+        fprintf(fid,'qe="%s"%s\n',DATA.quickexpts(j).submenu,DATA.quickexpts(j).filename);
+        end
+    end
+    for j = 1:length(DATA.helpfiles)
+        fprintf(fid,'helpfile="%s"%s\n',DATA.helpfiles(j).label,DATA.helpfiles(j).filename);
     end
     fclose(fid);
     fprintf('Saved %s\n',name);
@@ -839,6 +892,7 @@ DATA.inid = 0;
 DATA.incr = [0 0 0];
 DATA.nstim = [0 0 0];
 DATA.quickexpts = [];
+DATA.helpfiles = [];
 DATA.stepsize = [20 10];
 DATA.stepperpos = -2000;
 DATA.tag.stepper = 'Stepper';
@@ -2369,6 +2423,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
         set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
 
 nr = 2;
+nc=6
 bp = [0.01 0.99-1/nr 0.115 1./nr];
     uicontrol(gcf,'style','text','string','RH', ...
         'units', 'norm', 'position',bp,'value',1);
@@ -2572,8 +2627,11 @@ function SendCode(DATA, code)
     fprintf(DATA.outid,'%s\n',s);
     end
     
-function s = CodeText(DATA,code, varargin)
+function [s, lbl, type] = CodeText(DATA,code, varargin)
 s = [];
+lbl = [];
+type = 0;
+
 cstim = DATA.currentstim;
 j = 1;
 while j <= length(varargin)
@@ -2607,13 +2665,25 @@ if strcmp(code,'optionflag')
         s = [s sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3))];
     elseif strcmp(code,'st')
         s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
+    elseif strcmp(code,'pf')
+        s = 'pf=';
+        f = fields(DATA.showflags);
+        s = sprintf('pf=%s',sprintf('+%s',f{:}));
     elseif isfield(DATA.binoc{cstim},code)
         id = strmatch(code,{DATA.comcodes.code},'exact');
         if length(id) ==1 && DATA.comcodes(id).type == 'C'
             s = sprintf('%s=%s',code,DATA.binoc{cstim}.(code));
         else
             s = sprintf('%s=%s',code,num2str(DATA.binoc{cstim}.(code)'));
+        end  
+        if length(id) ==1
+            lbl = DATA.comcodes(id).label;
+            type = DATA.comcodes(id).group;
         end
+    elseif sum(strcmp(code,{DATA.strcodes.code})) == 1
+        id = find(strcmp(code,{DATA.strcodes.code}));
+        s = sprintf('%s=%s',coe,DATA.binocstr.(code));
+        lbl = DATA.strcodes(id).label;
     end
         
 function StimToggle(a,b, flag)       

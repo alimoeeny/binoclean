@@ -410,6 +410,8 @@ static int width = 300,height= 400;
 extern int *framebuf,framebufctr;
 extern float frameseq[];
 extern int frameiseqp[];
+extern int valstringindex[];
+
 
 AppResources app_resources;
 int framesdone = 0;
@@ -1591,7 +1593,7 @@ void StopGo(int go)
         mode |= ANIMATE_BIT;
         monkeypress = 0;
         end_timeout();
-        sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
+        sprintf(buf,"%2s-\n",valstrings[valstringindex[STOP_BUTTON]].code);
         SerialString(buf,0);
         if(!(TheStim->mode & EXPTPENDING) && expt.st->left->ptr->velocity > 0){
             oldvelocity = expt.st->left->ptr->velocity;
@@ -1611,7 +1613,7 @@ void StopGo(int go)
         optionflag &= (~GO_BIT);
         mode &= (~(ANIMATE_BIT | TEST_PENDING));
         monkeypress = WURTZ_STOPPED;
-        sprintf(buf,"%2s+\n",valstrings[STOP_BUTTON].code);
+        sprintf(buf,"%2s+\n",valstrings[valstringindex[STOP_BUTTON]].code);
         SerialString(buf,0);
         if(stimstate == INSTIMULUS)
             TrialOver();
@@ -2343,7 +2345,7 @@ vcoord StimLine(vcoord *pos, Expstim *es, float color)
 int RewardOn(int onoff){
     char buf[256];
     
-    sprintf(buf,"%2s%c\n",valstrings[REWARD_SIZE].code,onoff?'+':'-');
+    sprintf(buf,"%2s%c\n",valstrings[valstringindex[REWARD_SIZE]].code,onoff?'+':'-');
     SerialString(buf,0);
 }
 
@@ -2966,7 +2968,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 	int oldflag = st->flag, ival = (int)val;
 	float aval, bval, cval, dval, left, right, eccentricity, chord_scale;
 	double cosa,sina,meandisp,dm,a,b,total;
-	int oldoptionflag = optionflag;
+	int oldoptionflag = optionflag,icode;
 	static int laststimtype[2] = {STIM_NONE};
 	static int setblank = 0, setuc = 0, setleft = 0, setright = 0;
     
@@ -3038,6 +3040,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         up = 1;
 	if(st == NULL)
         st = TheStim;
+    icode = valstringindex[code];
 	switch(code)
 	{
         case SEEDOFFSET:
@@ -3738,7 +3741,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[icode].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -3765,7 +3768,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 CheckRect(stimptr);
                 if(event != NOEVENT && mode & SERIAL_OK)
                 {
-                    sprintf(buf,"%s=%.2f\n",valstrings[code].code,val);
+                    sprintf(buf,"%s=%.2f\n",valstrings[icode].code,val);
                     SerialString(buf,0);
                     st = st->next;
                 }
@@ -4923,7 +4926,7 @@ void end_timeout()
      optionflag |= (DRAW_FIX_BIT);
      }
      */
-    sprintf(buf,"%2s-\n",valstrings[STOP_BUTTON].code);
+    sprintf(buf,"%2s-\n",valstrings[valstringindex[STOP_BUTTON]].code);
     SerialString(buf,0);
     newtimeout = 1;
        glDrawBuffer(GL_BACK);
@@ -8543,11 +8546,11 @@ int BackupStimFile()
 
 void SaveExptFile(char *filename,int flag)
 {
-	char cbuf[BUFSIZ];
+	char cbuf[BUFSIZ],*s;
 	char spacestr[BUFSIZ];
 
     
-    int i,j,go = 0;
+    int i,j,go = 0,code = 0,use = 0;
 	FILE *ofd;
 	static int write_fail_acknowledged;
     
@@ -8556,7 +8559,7 @@ void SaveExptFile(char *filename,int flag)
 	if(seroutfile){
         fprintf(seroutfile,"#Save %d %s VS%.1f\n",flag,filename,afc_s.sacval[1]);
 	}
-    printf("Saving expt in %s\n",getcwd(cbuf, BUFSIZ));
+    printf("Saving expt %s (cwd is %s)\n",filename,getcwd(cbuf, BUFSIZ));
 	if((ofd = fopen(filename,"w")) != NULL)
     {
 	    cbuf[0] = '=';
@@ -8582,7 +8585,7 @@ void SaveExptFile(char *filename,int flag)
             cbuf[0] = '=';
             cbuf[1] = 0;
             if((j = MakeString(i, cbuf, &expt, TheStim, TO_FILE)) >= 0)
-                fprintf(ofd,"%s%.*s #Fore %s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
+                fprintf(ofd,"%s%.*s #%s\n",cbuf,15-strlen(cbuf),spacestr,serial_names[i]);
         }
 	    cbuf[0] = '=';
 		cbuf[1] = 0;
@@ -8646,11 +8649,14 @@ void SaveExptFile(char *filename,int flag)
 			optionflag |= CLAMP_EXPT_BIT;
 		for(i = LAST_STIMULUS_CODE; i < MAXSAVECODES; i++)
 		{
-            
 			cbuf[0] = '=';
 			cbuf[1] = 0;
 			go = 0;
-			if((j = MakeString(i, cbuf, &expt, TheStim,TO_FILE)) >= 0){
+            code = valstringindex[i];
+            use = !(valstrings[code].group & 512);
+            if (use == 0)
+                s = serial_strings[i];
+			if((j = MakeString(i, cbuf, &expt, TheStim,TO_FILE)) >= 0 && use){
                 switch(i){
                         
                         
@@ -8748,7 +8754,7 @@ void SaveExptFile(char *filename,int flag)
                         
                 }
                 if(go)
-                    fprintf(ofd,"%s\t#%s\n",cbuf,serial_names[i]);
+                    fprintf(ofd,"%s\t#%s\n",cbuf,valstrings[code].label);
 			}
 		}
 		if(expt.st->imprefix != NULL){
