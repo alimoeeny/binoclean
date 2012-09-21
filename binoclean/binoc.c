@@ -6216,6 +6216,8 @@ int next_frame(Stimulus *st)
             }
             else
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION])
+                paint_target(expt.targetcolor,2);
             if(rdspair(expt.st))
                 i = 0;
             change_frame();
@@ -6668,6 +6670,9 @@ int next_frame(Stimulus *st)
             if(freezestimulus)
                 return(framecount);
             wipescreen(clearcolor);
+            if (fixstate == RESPONDED)
+                val = timediff(&now, &endtrialtime);
+        
             RunBetweenTrials(st, pos);
             if(option2flag & PSYCHOPHYSICS_BIT || fixstate == WAIT_FOR_MOUSE){
                 TheStim->fixcolor = TheStim->fix.fixcolor;
@@ -6777,6 +6782,8 @@ int next_frame(Stimulus *st)
                 fsleep(0.05);
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);
+                else if (expt.vals[CHOICE_TARGET_DURATION] > 0)
+                    paint_target(expt.targetcolor,2);
             }
             else if (CheckFix() < 0){ /* Bad saccade gives BAD_FIXATION code here */
                 if(!(option2flag & PSYCHOPHYSICS_BIT))
@@ -9786,14 +9793,17 @@ void paint_target(float color, int flag)
     float bcolor = 1-color;
     int showa = 0,showb = 0,oldoption;
     
-    if(flag)
+    if(flag == 1)
         glDrawBuffer(GL_FRONT_AND_BACK);
     
     // Choice targets always boxes...  
     oldoption = optionflag;
     optionflag |= SQUARE_FIXATION;
-    if(option2flag & AFC)
+    if(option2flag & AFC){
         showa = showb = 1;
+        if (flag == 2) // only show  correct target
+            showb = 0;
+    }
     else if(afc_s.sacval[0]+afc_s.sacval[1] > 0)
         showa = 1;
     else

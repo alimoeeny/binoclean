@@ -641,7 +641,7 @@ function SendState(DATA, varargin)
         end
     end
     end
-    
+    SendChoiceTargets(DATA.outid,DATA);
     fprintf(DATA.outid,'mo=fore\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
@@ -674,6 +674,28 @@ function SendState(DATA, varargin)
     
     fprintf(DATA.outid,'\neventcontinue\n');
 
+    
+function SendChoiceTargets(fid, DATA)
+    if DATA.stimtype(3)
+        fprintf(fid,'mo=ChoiceU\n');
+        fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(3)});
+        f = fields(DATA.binoc{3});
+        for j = 1:length(f)
+            [s, lbl] = CodeText(DATA, f{j},'ChoiceU');
+            fprintf(fid,'%s\t#ChoiceU %s\n',s,lbl);
+        end
+    end
+    if DATA.stimtype(4)
+        fprintf(fid,'mo=ChoiceD\n');
+        fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(4)});
+        f = fields(DATA.binoc{4});
+        for j = 1:length(f)
+            [s, lbl] = CodeText(DATA, f{j},'ChoiceD');
+            fprintf(fid,'%s\t#ChoiceD %s\n',s,lbl);
+        end
+    end
+    
+
 function SaveExpt(DATA, name)
     bname = name;
     if strfind(name, '.stm')
@@ -685,7 +707,7 @@ function SaveExpt(DATA, name)
     fprintf(DATA.outid,'\\savefile=%s\n',bname);
     end
     fid = fopen(name,'w');
-    f = fields(DATA.binoc{2});
+
     fprintf(fid,'mo=fore\n');
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     fprintf(fid,'%s\n',CodeText(DATA, 'expts'));
@@ -694,12 +716,12 @@ function SaveExpt(DATA, name)
     
     fprintf(fid,'mo=back\n');
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(2)});
+    f = fields(DATA.binoc{2});
     for j = 1:length(f)
         [s, lbl] = CodeText(DATA, f{j},'back');
         fprintf(fid,'%s\t#Back %s\n',s,lbl);
     end
-    
-    
+    SendChoiceTargets(fid, DATA);
     fprintf(fid,'mo=fore\n');
     fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
     f = fields(DATA.binoc{1});
@@ -2677,6 +2699,10 @@ j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'back',4)
         cstim = 2;
+    elseif strncmpi(varargin{j},'ChoiceU',7)
+        cstim = 3;
+    elseif strncmpi(varargin{j},'ChoiceD',7)
+        cstim = 4;
     end
     j = j+1;
 end
@@ -2693,7 +2719,6 @@ if strcmp(code,'optionflag')
         end
         s = sprintf('op=0\n%s\n',s);
         s= [s sprintf('%s',StimToggleString(DATA))];
-        fprintf('%s\n',s);
     elseif strcmp(code,'nr')
         s = sprintf('%s=%d',code,DATA.binoc{1}.nr);
     elseif strmatch(code,{'nt' 'n2' 'n3'})

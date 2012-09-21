@@ -58,6 +58,7 @@ Things that need fixing:
 * stop filtering messages for status line
 - total reward given in verg or binoc window
 -fix color scheme for lines printed to monkey view
--make sure setup file saving works.  
+-make sure setup file saving works.
+-allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?    
 
 

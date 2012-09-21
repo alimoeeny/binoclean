@@ -431,6 +431,7 @@ struct EXPERIMENT{
     char *monkey;
     int verbose;
     int laststimcode,lastserialcode,totalcodes,lastsavecode;
+    int maxcode; //largest value of any code = length of serial_strings
 };
 
 typedef struct EXPERIMENT Expt;

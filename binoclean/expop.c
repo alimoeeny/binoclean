@@ -1622,12 +1622,14 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     }
     ncodes = ncodes+1;
     expt.totalcodes = i;
+    expt.maxcode = ncodes-1;
 // serial_stings[i] gives the string associated with code i
     serial_strings = (char**)(malloc(sizeof(char *) * ncodes));
     for (i = 0; i < ncodes; i++)
         serial_strings[i] = NULL;
     
     i = 0;
+    j = 0;
     while((code = valstrings[i].icode) >= 0){
 //        if (codes[code] > 0) //already done
 //            fprintf(stdout,"Already Done %d,%s\n", code, valstrings[code].code);
@@ -1645,6 +1647,16 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
             expt.lastsavecode = i;
         nfplaces[code] = valstrings[i].nfplaces;
         codesend[code] = valstrings[i].codesend;
+        if(strlen(serial_strings[code]) > 2)
+            longnames[j++] = code;
+        i++;
+    }
+    
+    i = 0;
+    j = 0;
+    while(serial_strings[i] != NULL){
+        if(strlen(serial_strings[i]) > 2)
+            longnames[j++] = i;
         i++;
     }
     for(i = 2; i < MAXWINS; i++){
@@ -1746,13 +1758,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     //	  i++;
     //	expt.bwptr->nchans = i;
     
-    i = 0;
-    j = 0;
-    while(serial_strings[i] != NULL){
-        if(strlen(serial_strings[i]) > 2)
-            longnames[j++] = i;
-        i++;
-    }
+
     
     expplots = (struct plotdata *)malloc(sizeof(struct plotdata) * (NPLOTDATA+1));
     pursuedir = 1;
@@ -2841,6 +2847,10 @@ int SetProperty(Expt *exp, Stimulus *st, int code, float val)
     int i;
     if((i = SetExptProperty(exp, st, code, val)) < 0)
         i = SetStimulus(st, val, code, NULL);
+    if (i < 0 && code <= expt.maxcode && valstringindex[code] > 0){
+        expt.vals[code] = val;
+        i = code;
+    }
     return(i);
 }
 
@@ -3623,6 +3633,9 @@ float GetProperty(Expt *exp, Stimulus *st, int code)
     
     if((val = ExptProperty(exp, code)) == NOTSET)
         val = StimulusProperty(st, code);
+    if (val == NOTSET && code < expt.maxcode && valstringindex[code] > 0){
+        val = expt.vals[code];
+    }
     return(val);
 }
 
@@ -5934,6 +5947,7 @@ void ResetExpt()
     optionflags[TILE_XY] = 0;
     expt.biasedreward = 0;  
     afc_s.proportion = 0.5;
+    expt.st->jumps = 0;
 }
 
 
@@ -10240,6 +10254,8 @@ int PrepareExptStim(int show, int caller)
                     SetStimulus(expt.st,frameseqb[i],expt.fastbtype,NOEVENT);
                 SetStimulus(expt.st,frameseq[i],expt.fasttype,NOEVENT);
             }
+            else
+                frameseq[i] = 0;
             if (expt.st->jumps > 0){
                 nv = expt.st->jumps/2;
                 if(optionflags[TILE_XY]){
@@ -14800,7 +14816,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             if(code < MAXTOTALCODES)
             {
                 sscanf(s,"%f",&val);
-                SetExptProperty(ex, TheStim,code, val);
+                SetProperty(ex, TheStim,code, val);
             }
             else if(line[0] != '\n')
             {
