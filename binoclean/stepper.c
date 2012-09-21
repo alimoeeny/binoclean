@@ -676,8 +676,6 @@ void NewPosition(int pos)
         sprintf(buf,"Thats a big step (%d) Proceed?",diff);
         if(!confirm_yes(buf,NULL))
             return;
-        if(pos < -1000) // leaving brain
-            SetWaterAlarm(300);
         
     }
     

@@ -854,36 +854,6 @@ int SetTargets()
     
 }
 
-void SetWaterAlarm(int delay){
-    time_t t;
-    char *s;
-    
-    time(&t);
-    s= ctime(&t);
-    if(verbose)
-        printf("Setting Alarm %d\n",delay);
-    if((strstr(s,"Fri") || strstr(s,"Sat") || verbose) && userid == 3) {//hn at weekend
-        gettimeofday(&alarmstart,NULL);
-        alarmstart.tv_sec += delay;
-    }
-}
-
-void RunWaterAlarm()
-{
-    int i;
-    char mbuf[256];
-    time_t t;
-    time(&t);
-    
-    sprintf(mbuf,"mssg:Have You Recorded the Water Hendikje?\0\n");
-    SerialString(mbuf,0);
-    i = 0; confirm_yes("!!      ???????             Did you record the water ?????????        !!",NULL);
-    if(i && penlog){
-        fprintf(penlog,"Water recorded by %s %s\n",userstrings[userid],ctime(&t));
-    }
-    alarmstart.tv_sec = 0;
-}
-
 
 void SetExpVals()
 {
@@ -981,7 +951,6 @@ void write_expvals(FILE *ofd, int flag)
 //        else
             fprintf(ofd,"qe=%s\n",quicknames[i]);
     }
-    fprintf(ofd,"usenewdirs=%d\n",usenewdirs);
 }
 
 write_helpfiles(FILE *ofd)
@@ -2794,10 +2763,6 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             while(userstrings[i] && strcmp(s,userstrings[i]))
                 i++;
             if(userstrings[i]){
-                if(i ==3 && userid == 1){ // test for bgc
-                    userid = i;
-                    SetWaterAlarm(2);
-                }
                 userid = i;
             }
             break;
@@ -7062,6 +7027,9 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     icode = valstringindex[code];
     switch(code)
     {
+        case USENEWDIRS:
+            sprintf(cbuf,"%s=%d",serial_strings[code],usenewdirs);
+            break;
         case FIXCOLORS:
             sprintf(cbuf,"fixcolors=%.2f %.2f %.2f %.2f\n",expt.st->fix.fixcolors[0],expt.st->fix.fixcolors[1],expt.st->fix.fixcolors[2],expt.st->fix.fixcolors[3]);
             break;
@@ -8000,8 +7968,7 @@ void InitExpt()
             SerialString(cbuf,0);
         }
         SerialSend(ELECTRODE_DEPTH);
-        sprintf(cbuf,"usenewdirs=%d\n",usenewdirs);
-        SerialString(cbuf,0);
+        SerialSend(USENEWDIRS);
         
     }
     if(option2flag & INTERLEAVE_VERGENCE)
@@ -14121,11 +14088,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         showexp[1][EXPTYPE_NONE] = 1;
         return(0);
     }
-    else if(!strncmp(line,"usenewdir",9)){
-        if(s)
-            sscanf(++s,"%d",&usenewdirs);
-        return(0);
-    }
     else if(line[0] == '\?'){
         i = FindCode(&line[1]);
         val = GetProperty(ex,stimptr,i);
@@ -14249,6 +14211,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
+        case USENEWDIRS:
+            sscanf(++s,"%d",&usenewdirs);
+            break;
         case FIXCOLORS:
             n = sscanf(++s,"%f %f %f %f",&in[0],&in[1],&in[2],&in[3]);
                 for(i = 0; i < n; i++)

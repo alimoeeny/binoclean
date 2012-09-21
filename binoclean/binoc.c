@@ -2853,7 +2853,7 @@ void clear_display(int flag)
     setmask(BOTHMODE);
     if(expt.vals[FIXATION_OVERLAP] > 10)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-//    ShowPerformanceString(0);
+
     glDrawBuffer(GL_BACK);
     glFlushRenderAPPLE();
     glFinishRenderAPPLE();
@@ -2910,7 +2910,7 @@ void redraw_overlay(struct plotdata  *plot)
         setmask(ALLPLANES);
     /*  statusline(NULL);  redraws info line too often*/
 //    glstatusline(NULL,2);
-//    ShowPerformanceString(-1);
+
     if(optionflag & SHOW_CONJUG_BIT)
     {
         draw_conjpos(cmarker_size,PLOT_COLOR);
@@ -4521,7 +4521,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             break;
         case RUNAVERAGE_LENGTH:
             avglen = (int)val;
-            ShowPerformanceString(1);
+
             break;
         case MODULATION_F:
             if(optionflags[MODULATE_DISPARITY] < 2){
@@ -4876,7 +4876,7 @@ void start_timeout(int mode)
 	if(stimstate != IN_TIMEOUT && stimstate != POSTTRIAL)
         stimstate = STIMSTOPPED;
 	BackupStimFile();
-	ShowPerformanceString(0);
+
 	if(ExptIsRunning()){
         gettimeofday(&estart,NULL);
         /*
@@ -6139,9 +6139,7 @@ int next_frame(Stimulus *st)
                 search_background();
             glSwapAPPLE();
             gettimeofday(&now,NULL);
-            if(timediff(&now,&alarmstart) >  1){
-                RunWaterAlarm();
-            }
+
             if(testflags[PLAYING_EXPT]){
                 ReplayExpt("Show");
             }
@@ -9841,35 +9839,7 @@ void paint_target(float color, int flag)
     optionflag = oldoption;
 }
 
-void ShowPerformanceString(int force)
-{
-    int total;
-    char cbuf[BUFSIZ];
-    
-    if(option2flag & PSYCHOPHYSICS_BIT){
-        if (option2flag & PERF_STRING)
-            StairPerfString();
-        return;
-    }
-    
-    /*
-     * if force is negative, dhone show tthe trial count in the panel
-     */
-    if(wurtzctr > 0 && (force > 0 || (stimstate != STIMSTOPPED && stimstate != IN_TIMEOUT && force >=0)))
-        ShowTrialCount(downtimes[wurtzctr-1], wsum);
-    if (option2flag & PERF_STRING){
-	    afc_statusline(afc_s.performance_1, 0);
-	    afc_statusline(afc_s.performance_2, 15); 
-	    total = afc_s.totals.allcorrect+afc_s.totals.allwrong;
-	    sprintf(cbuf,"%d/%d %d/%d, %d/%d (%.0f%%), L=%d+%d R=%d+%d",
-                afc_s.totals.twenty_tot,(total > 20) ? 20 : total,
-                afc_s.totals.hundred_tot, (total > 100) ? 100 : total,
-                afc_s.totals.allcorrect,(afc_s.totals.allcorrect+afc_s.totals.allwrong),
-                (total > 0) ? (float)(afc_s.totals.allcorrect * 100)/total : 0.0,
-                ranleft, ranleftc, ranright, ranrightc);
-	    afc_statusline(cbuf, 30);
-	}
-}
+
 
 void afc_statusline(char *s, int line)
 {

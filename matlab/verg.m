@@ -880,13 +880,14 @@ DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
-DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow'};
+DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [600 scrsz(4)-100 400 100];
 DATA.winpos{4} = [600 scrsz(4)-600 400 500];
 DATA.winpos{5} = [600 scrsz(4)-100 400 100];
 DATA.winpos{6} = [600 scrsz(4)-100 400 100];
+DATA.winpos{7} = [600 scrsz(4)-100 400 100];
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.incr = [0 0 0];
@@ -1310,12 +1311,51 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
     uimenu(hm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     uimenu(hm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
+    hm = uimenu(cntrl_box,'Label','Help','Tag','QuickMenu');
+    BuildHelpMenu(DATA, hm);
+
     DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
 
-    function BuildQuickMenu(DATA, hm)
+function ShowHelp(a,b,file)
+
+  DATA = GetDataFromFig(a);
+  cntrl_box = findobj('Tag',DATA.windownames{7},'type','figure');
+  if isempty(cntrl_box)
+  cntrl_box = figure('Position', DATA.winpos{7},...
+        'NumberTitle', 'off', 'Tag',DATA.windownames{7},'Name','HelpText','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+        set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
+
+    
+    lst = uicontrol(gcf, 'Style','list','String', 'HelpText',...
+        'HorizontalAlignment','left',...
+        'Max',10,'Min',0,...
+        'Tag','HelpText',...
+'units','norm', 'Position',[0.01 0.01 0.99 0.99]);
+  else
+      lst = findobj(cntrl_box,'Tag','HelpText')
+      figure(cntrl_box);
+      return;
+  end
+  try
+a = textread(file);
+set(lst,'string',a);
+  catch
+      fprintf('%s\n',lasterr)
+  end
+
+   function BuildHelpMenu(DATA, hm)
+        
+    for j = 1:length(DATA.helpfiles)
+        uimenu(hm,'Label',DATA.helpfiles(j).label,'Callback',{@ShowHelp, DATA.helpfiles(j).filename});
+    end
+
+        
+  function BuildQuickMenu(DATA, hm)
         
     if isfield(DATA.quickexpts,'submenu')
     subs = unique({DATA.quickexpts.submenu});

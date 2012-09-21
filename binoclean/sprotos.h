@@ -95,7 +95,7 @@ int FindCode(char *s);
 int NewSeed(Stimulus *st);
 int PrintInfo(FILE *fd);
 int SetTargets();
-void RunWaterAlarm();
+
 void SetExpVals();
 //int *AdjustEyePos(int len);
 int CheckEyeDrift();
@@ -382,7 +382,7 @@ int GotChar(char c);
 void SerialSignal(char flag);
 void CloseLog(void);
 void paint_target(float color, int flag);
-void ShowPerformanceString(int force);
+
 void afc_statusline(char *s, int line);
 void PaintGammaCheck(int iw, int ih);
 void chessboard(float w, float h);
