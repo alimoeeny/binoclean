@@ -1361,11 +1361,12 @@ function ShowHelp(a,b,file)
   else
       lst = findobj(cntrl_box,'Tag','HelpText')
       figure(cntrl_box);
-      return;
   end
   try
-a = textread(file);
-set(lst,'string',a);
+      fid = fopen(file,'r');
+      fclose(fid)
+      txt = textread(file,'%s','delimiter','\n');
+      set(lst,'string',txt);
   catch
       fprintf('%s\n',lasterr)
   end
