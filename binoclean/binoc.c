@@ -1767,21 +1767,7 @@ void ButtonReleased(vcoord *start, vcoord *end, WindowEvent e)
     vcoord mpos[2];
     char s[256];
     
-    if(mode & PLACE_PLOT_BIT)
-    {
-        mode &= (~PLACE_PLOT_BIT);
-        StartOverlay();
-        SetGrey(0.0);
-        expt.plot->pos[0] = start[0] - winsiz[0];
-        expt.plot->pos[1] = winsiz[1] - start[1];
-        expt.plot->size[0] = end[0] - start[0];
-        expt.plot->size[1] = start[1]-end[1];
-        Box(start[0],start[1],end[0],end[1],0);
-        SetColor(PLOT_COLOR,0);
-        EndOverlay();
-        glFinish();
-    }
-    else if(fixstate == 0 && !(option2flag & PSYCHOPHYSICS_BIT)){
+    if(fixstate == 0 && !(option2flag & PSYCHOPHYSICS_BIT)){
         /*
          * ? allow middle button press to simulate fixation? 
          * OK if a real bad fixation signal back from BW cancels trial....
@@ -8511,7 +8497,6 @@ void setoption()
     if((old2 | new2) & (INTERLEAVE_BLANK | INTERLEAVE_MONOCULAR| INTERLEAVE_ONE_MONOCULAR | INTERLEAVE_UNCORRELATED | INTERLEAVE_RANDOM) && (mode & RUNNING) &&
        !(TheStim->mode & EXPTPENDING))
     {
-        PlotAlloc(&expt);
         setstimuli(1);
         //Ali ListExpStims(NULL);
     }
@@ -8781,12 +8766,12 @@ void SaveExptFile(char *filename,int flag)
             write_helpfiles(ofd);
 		}
         
-		//Ali write_sliders(ofd);
+
 		if(flag == SAVE_STATE){
             for(i = 0; i < rfctr; i++)
                 fprintf(ofd,"oldrf %.2f %.2f %d %d %.2f\n",oldrfs[i].pos[0],oldrfs[i].pos[1],oldrfs[i].size[0],oldrfs[i].size[1],oldrfs[i].angle);
 		}
-		//Ali write_windowpos(ofd);
+
 		if(expt.st->type == STIM_IMAGE){
             if(expt.st->preload)
                 fprintf(ofd,"imload=preload\n");
