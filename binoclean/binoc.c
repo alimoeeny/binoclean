@@ -1738,11 +1738,11 @@ void CntrlDrag(vcoord *start, vcoord *end,  WindowEvent e)
 void ShiftDrag(vcoord *start, vcoord *end, WindowEvent e)
 {
     vcoord mpos[2];
-    Expstim *es,*esp;
+//    Expstim *es,*esp;
     short *pl;
     int nstim;
     
-    es = expt.plot->stims;
+//    es = expt.plot->stims;
     mpos[0] = e.mouseX;
     mpos[1] = e.mouseY;
     if(eventstate & LBUTTON)
@@ -1754,8 +1754,8 @@ void ShiftDrag(vcoord *start, vcoord *end, WindowEvent e)
     }
     if(eventstate & MBUTTON)
     {
-        StimLine(start,es,TheStim->gammaback);
-        StimLine(mpos,es,BOX_COLOR);
+//        StimLine(start,es,TheStim->gammaback);
+//        StimLine(mpos,es,BOX_COLOR);
         start[0] = e.mouseX;
         start[1] = e.mouseY;
     }
@@ -1982,11 +1982,11 @@ void CntrlButtonRelease(vcoord *start, vcoord *end, WindowEvent e)
 void ShiftButtonDown(vcoord *start, vcoord *end, WindowEvent e)
 {
     vcoord mpos[2];
-    Expstim *es,*esp;
+//    Expstim *es,*esp;
     short *pl;
     int nstim, i = 0;
     
-    es = expt.plot->stims;
+  //  es = expt.plot->stims;
     mpos[0] = e.mouseX;
     mpos[1] = e.mouseY;
     eventstate |= SHIFTKEY;
@@ -1999,28 +1999,7 @@ void ShiftButtonDown(vcoord *start, vcoord *end, WindowEvent e)
     }
     if(e.mouseButton == Button2)
     {
-        esp = NULL;
-        es = expt.plot->stims;
-        start[0] = e.mouseX;
-        start[1] = e.mouseY;
-        nstim = expt.plot->nstim[0];
-        while(i < nstim)
-        {
-            if(es->flag & BOX_ON)
-            {
-                if(es->flag & PHASEMARKER_ON && esp == NULL)
-                    esp = es;
-                else 
-                    break;
-            }
-            es++,i++;
-        }
-        if(i < nstim || esp != NULL)
-        {
-            if(i >= nstim)
-                es = esp;
-            StimLine(start,es,BOX_COLOR);
-        }
+
     }
 }
 
@@ -2029,10 +2008,10 @@ void ShiftButtonDown(vcoord *start, vcoord *end, WindowEvent e)
 void ShiftButtonRelease(vcoord *start, vcoord *end, WindowEvent e)
 {
     vcoord mpos[2];
-    Expstim *es;
+//    Expstim *es;
     short *pl;
     
-    es = expt.plot->stims;
+//    es = expt.plot->stims;
     mpos[0] = e.mouseX;
     mpos[1] = e.mouseY;
     StartOverlay();
@@ -2055,9 +2034,9 @@ void ShiftButtonRelease(vcoord *start, vcoord *end, WindowEvent e)
     }
     else if(e.mouseButton == Button2)
     {
-        StimLine(start,es,expt.overlay_color);
-        es->phasemark = StimLine(mpos,es,BOX_COLOR);
-        es->flag |= PHASEMARKER_ON;
+//        StimLine(start,es,expt.overlay_color);
+//        es->phasemark = StimLine(mpos,es,BOX_COLOR);
+//        es->flag |= PHASEMARKER_ON;
     }
     EndOverlay();
     glFinish();
@@ -2073,7 +2052,7 @@ int HandleMouse(WindowEvent e)
     char c,s[256];
     float angle = 90;
     float aval;
-    Expstim *es,*esp;
+//    Expstim *es,*esp;
     Locator *pos = &TheStim->pos;
     
     char cbuf[256];
@@ -2147,8 +2126,6 @@ int HandleMouse(WindowEvent e)
                 CntrlDrag(start, endpt, e);
             else if(e.modifierKey & ControlMask)
                 ShowPos(e.mouseX,e.mouseY);
-            else if(e.modifierKey & ShiftMask)
-                ShowDataPos(expt.plot, e.mouseX,e.mouseY);
             else
                 ButtonDrag(start, endpt, e);
             break;
@@ -2433,7 +2410,7 @@ void one_event_loop()
 	float angle = 90;
 	float sina,cosa,aval;
 	float val;
-	Expstim *es,*esp;
+//	Expstim *es,*esp;
 	Locator *pos = &TheStim->pos;
 	int statectr = 0,tc;
 	static int testlaps = 0;
@@ -2788,16 +2765,7 @@ void LocateStimulus(Stimulus *st, vcoord x, vcoord y)
 	CheckRect(st);
 }
 
-void ShowDataPos(struct plotdata *plot, int x, int y)
-{
-    int wx = x - winsiz[0], wy = winsiz[1] - y;
-    float dx,dy;
-    
-    dx = plot->xrange[0] + plot->range * (wx - plot->offset)/plot->w;
-    dy = plot->maxrate * (wy - plot->pos[1])/plot->size[1];
-    sprintf(mssg,"%.3f %.1f",dx,dy);
-    glstatusline(mssg,2);
-}
+
 
 void ShowPos(int x, int y)
 {
@@ -6202,7 +6170,7 @@ int next_frame(Stimulus *st)
             }
             else
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-            if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION])
+            if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION] && laststate == POSTTRIAL)
                 paint_target(expt.targetcolor,2);
             if(rdspair(expt.st))
                 i = 0;
@@ -6658,7 +6626,7 @@ int next_frame(Stimulus *st)
             wipescreen(clearcolor);
             if (fixstate == RESPONDED)
                 val = timediff(&now, &endtrialtime);
-        
+            
             RunBetweenTrials(st, pos);
             if(option2flag & PSYCHOPHYSICS_BIT || fixstate == WAIT_FOR_MOUSE){
                 TheStim->fixcolor = TheStim->fix.fixcolor;
@@ -6734,13 +6702,15 @@ int next_frame(Stimulus *st)
             if(SACCREQD(afc_s) && fixstate != RESPONDED && stimstate != POSTTRIAL){
                 paint_target(expt.targetcolor, 0);
             }
-            else if(expt.vals[FIXATION_OVERLAP] > 10)
+            else if(expt.vals[FIXATION_OVERLAP] > 10){
                 if(fabsf(TheStim->fixcolor-TheStim->background) < 0.1)
                     draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fix.offcolor);
                 else
                     draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-                else
-                    draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
+            }
+            else
+                draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
+            
             if(fixstate == RESPONDED && ! (option2flag & PSYCHOPHYSICS_BIT))
             {
                 /* 
@@ -6763,19 +6733,25 @@ int next_frame(Stimulus *st)
                 if(seroutfile)
                     fprintf(seroutfile,"#stimno %d\n",stimno);
                 fixstate = INTERTRIAL;
-                stimstate = POSTTRIAL;
                 SendTrialCount();
                 fsleep(0.05);
+// if late resp just detected above, fixstate==RESPONDED but stimstate = POSTTRIAL                
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);
-                else if (expt.vals[CHOICE_TARGET_DURATION] > 0)
+                else if (expt.vals[CHOICE_TARGET_DURATION] > 0 && stimstate != POSTTRIAL)
                     paint_target(expt.targetcolor,2);
+                stimstate = POSTTRIAL;
             }
             else if (CheckFix() < 0){ /* Bad saccade gives BAD_FIXATION code here */
                 if(!(option2flag & PSYCHOPHYSICS_BIT))
                     ResetExpStim(0);
                 ShuffleStimulus(BAD_FIXATION);
             }
+            else{
+                if (expt.vals[CHOICE_TARGET_DURATION] > 0)
+                    paint_target(expt.targetcolor,2);
+            }
+    
             if(testflags[PLAYING_EXPT]){
                 ReplayExpt(NULL);
                 if(stimstate == WAIT_FOR_RESPONSE) //not changed
@@ -6815,6 +6791,8 @@ int next_frame(Stimulus *st)
                 setmask(bothmask);
                 wipescreen(clearcolor);
                 RunBetweenTrials(st, pos);
+                if (expt.vals[CHOICE_TARGET_DURATION] > 0)
+                    paint_target(expt.targetcolor,2);
                 change_frame();
             }
             if(debug) glstatusline("PostTrial",3);
@@ -9818,7 +9796,7 @@ void paint_target(float color, int flag)
     draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, color);
     
     lcolor = TheStim->background + (color - TheStim->background) * expt.vals[TARGET_RATIO];
-    if(option2flag & AFC){
+    if(option2flag & AFC && flag != 2){
         draw_fix(fixpos[0]+deg2pix(afc_s.sacval[4]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[5]+afc_s.sacval[3]), afc_s.targsize, lcolor);
         if(optionflags[FOUR_CHOICES]){
             draw_fix(fixpos[0]-deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]-deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, bcolor);

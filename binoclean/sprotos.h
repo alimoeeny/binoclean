@@ -301,7 +301,7 @@ int EndOverlay();
 int ShowBox(Expstim *ps, float color);
 void RotateStimulus(int x, int y);
 void LocateStimulus(Stimulus *st, vcoord x, vcoord y);
-void ShowDataPos(struct plotdata *plot, int x, int y);
+
 void ShowPos(int x, int y);
 void monocwipe();
 void clear_display(int flag);

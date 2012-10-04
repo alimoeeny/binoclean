@@ -1710,6 +1710,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         expplots[i].size[1] = 200;
         expplots[i].fplaces = 1;
     }
+    expplots[0].linedata = (short *)malloc((MAXUSERLINES+1) * 4 * sizeof(short));
     ex->vals[EARLY_RWSIZE] = 0.05;
     ex->plot = &expplots[0];
     ex->rcframes = (int *)malloc(MAXRCFRAMES * sizeof(int));
@@ -1739,12 +1740,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         rcstimxy[i] = (int *)malloc(MAXFRAMES * sizeof(int));
     rcstimframetimes = (float *)malloc(MAXFRAMES * sizeof(int));
     sframetimes = (float *)malloc(MAXFRAMES * sizeof(int));
-    
-    plot = &expplots[NPLOTDATA];
-    plot->stims = (Expstim *)malloc(100  * sizeof(Expstim));
-    plot->label = (char **)malloc(100  * sizeof(char *));
-    for(i = 0; i < 100; i++)
-        plot->label[i] = 0;
+
     afc_s.lasttrial = -(BAD_TRIAL);
     afc_s.targsize = 20;
     if(ex->nstim[0] <= 0)
@@ -1942,10 +1938,6 @@ void psychclear(struct plotdata *plot, int allflag)
     if(allflag)
         clear_afccounters();
     return;
-    for(i=0; i < plot->nstim[5]; i++, es++){
-        es->psychdata[0] = 0;
-        es->psychdata[1] = 0;
-    }
     expt.hasdata = 0;
 }
 
@@ -2222,12 +2214,13 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
     {
         case MONKEYNAME:
             expt.monkey = myscopy(expt.monkey,s);
-            sprintf(buf,"/local/%s",expt.monkey);
-            if (chdir(buf)!=0)
+            sprintf(expt.cwd,"/local/%s",expt.monkey);
+            if (chdir(expt.cwd)!=0)
             {
-                acknowledge("Can't chdir to the /local/MONKEYNAME directory");
-                sprintf(buf,"/local");
-                if (chdir(buf)) {
+                sprintf(buf,"Can't chdir to %s",expt.cwd);
+                acknowledge(buf);
+                sprintf(expt.cwd,"/local");
+                if (chdir(expt.cwd)) {
                     acknowledge("Can't chdir to /local either");
                 }
             }
@@ -2311,8 +2304,11 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     sprintf(sfile,"%s_replay",t);
                 else
                     strcpy(sfile,t);
-                if((seroutfile = fopen(sfile,"a")) != NULL)
+                if((seroutfile = fopen(sfile,"a")) != NULL){
+                    sprintf(buf,"Serial Out to %s/%s",expt.cwd,sfile);
+                    statusline(buf);
                     fprintf(seroutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);
+                }
                 else
                 {
                     sprintf(buf,"Can't open serial file %s:",sfile);
@@ -9218,7 +9214,7 @@ int ExpStimOver(int retval, int lastchar)
     int i;
     int ntotal;
     char c,buf[BUFSIZ];
-    Expstim *es,*exs;
+ //   Expstim *es,*exs;
     struct plotdata *plot;
     
     if(expt.st->type == STIM_NONE){
@@ -9257,24 +9253,7 @@ int ExpStimOver(int retval, int lastchar)
     while((c = ReadSerial(0)) != MYEOF)
         i = GotChar(c);
     
-    if(!option2flag & PSYCHOPHYSICS_BIT){
-        StartOverlay();
-        
-        if(expt.stimid <= expt.nstim[5])
-        {
-            es = &plot->stims[expt.stimid];
-            es->size[0] = expt.st->pos.imsize[0];
-            es->size[1] = expt.st->pos.imsize[1];
-            es->pos[0] = (vcoord)expt.st->pos.xy[0];
-            es->pos[1] = (vcoord)expt.st->pos.xy[1];
-            es->angle = (expt.st->pos.angle*180.0/M_PI);
-            if(optionflags[SHOWSTIMBOXES])
-                es->flag |= (BOX_ON | PSTH_ON);
-            ShowBox(es,1.0);
-        }
-        EndOverlay();
-    }
-    
+
     //	ResetExpStim();
     ntotal = expt.nstim[5] * expt.nreps;
     /*
@@ -9320,9 +9299,9 @@ int RunExptStimSeq(Stimulus *st, int nframes, int nstims, /* Ali Display */D)
     Substim *rds;
     char c,buf[BUFSIZ],tmp[BUFSIZ];
     float val;
-    Expstim *stim;
+//    Expstim *stim;
     struct plotdata *plot;
-    Expstim *es,*exs;
+//    Expstim *es,*exs;
     int istim = 0;
     int framesperstim = 1;
     int preframes = 0;
@@ -9581,9 +9560,9 @@ int RunStrobedStim(Stimulus *st, int n, /*Ali Display */ int D)
     Substim *rds;
     char c,buf[256];
     float val,period,step;
-    Expstim *stim;
+//    Expstim *stim;
     struct plotdata *plot;
-    Expstim *es,*exs;
+//    Expstim *es,*exs;
     int stimmode = rint(expt.vals[ALTERNATE_STIM_MODE]);
     int preframes =(int)((expt.preperiod * mon.framerate) + 0.5);
     int postframes =(int)((expt.postperiod * mon.framerate) + 0.5);
@@ -9866,9 +9845,9 @@ int RunHarrisStim(Stimulus *st, int n, /*Ali Display */ int D, /*Ali Window */ i
     Substim *rds;
     char c,buf[256];
     float val;
-    Expstim *stim;
+//    Expstim *stim;
     struct plotdata *plot;
-    Expstim *es,*exs;
+//    Expstim *es,*exs;
     int framecounts[MAXFRAMES];
     float frametimes[MAXFRAMES];
     float swapwaits[MAXFRAMES];
@@ -10010,9 +9989,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     Substim *rds;
     char c,buf[BUFSIZ*20],tmp[BUFSIZ*20];
     float val;
-    Expstim *stim;
+//    Expstim *stim;
     struct plotdata *plot;
-    Expstim *es,*exs;
+//    Expstim *es,*exs;
     int framecounts[MAXFRAMES],lastframesdone;
     float frametimes[MAXFRAMES],fframecounts[MAXFRAMES],tval;
     float swapwaits[MAXFRAMES],calctimes[MAXFRAMES],painttimes[MAXFRAMES];
@@ -11564,7 +11543,7 @@ void MakePlotLabel(struct plotdata *plot, char *s, int i, int flip)
 
 int FindStimId(Expt *ex, AFCstructure *afc)
 {
-    Expstim *es;
+//    Expstim *es;
     int stimid = 0;
     int i,j,k,imin = 0;
     double diff, mindiff = 100000, stimval = 0;
@@ -11607,7 +11586,7 @@ int FindStimId(Expt *ex, AFCstructure *afc)
 
 void inc_psychdata(int response_direction, Expt *ex, int jstimno)
 {
-    Expstim *es;
+ //   Expstim *es;
     int stimid = jstimno & (~ORDER_BITS);
     int i,j,k,imin = 0,e3=0;
     double diff, mindiff = 100000, stimval = 0;
@@ -11624,21 +11603,10 @@ void inc_psychdata(int response_direction, Expt *ex, int jstimno)
     
     if(stimid > ex->nstim[5]) /* something wrong */
         return;
-    
-    es = &(ex->plot->stims[stimid]);
-    
-    
-    /*j add one to count for a left, 1 to rightcount for right nowt for foul*/
-    if(response_direction == JONLEFT)
-        es->psychdata[0]++;
-    else if (response_direction == JONRIGHT){
-        es->psychdata[1]++;    
-        es->psychdata[0]++;
-    }	
     if(rcfd)
-        fprintf(rcfd,"RespDir %d\n",response_direction);
-    if(seroutfile)
-        fprintf(seroutfile," %d/%d %d ",es->psychdata[1],es->psychdata[0],stimid);
+        fprintf(rcfd,"RespDir %d\n",response_direction); 
+    return;    
+
 }
 
 

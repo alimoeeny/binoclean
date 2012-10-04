@@ -551,6 +551,8 @@ if fid > 0
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
             tline = strrep(tline,'\','\\');
+            tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
+            tline = strrep(tline,'\s+\n','\n');
             fprintf(DATA.outid,tline);
         end
         tline = fgets(fid);
@@ -2122,16 +2124,42 @@ function CodesPopup(a,b, type)
           set(lst,'string','Alphabetical by Label');
           [c,b] = sort({DATA.comcodes.label});
       elseif strcmp(type,'bygroup')
-          set(lst,'string','Grouped');
-          [c,b] = sort({DATA.comcodes.code});
+          set(lst ,'string','Groups:');
+          id = find(bitand(1,[DATA.comcodes.group]));
+          [c,b] = sort({DATA.comcodes(id).code});
+          labels{1} = 'Group 1';
+          id = find(bitand(2,[DATA.comcodes.group]));
+          [c,d] = sort({DATA.comcodes(id).code});
+          labels{2} = 'Group 2';
+          b = [b 0 d];
+          id = find(bitand(4,[DATA.comcodes.group]));
+          [c,d] = sort({DATA.comcodes(id).code});
+          labels{3} = 'Group 3';
+          b = [b 0 d];
+          id = find(bitand(8,[DATA.comcodes.group]));
+          [c,d] = sort({DATA.comcodes(id).code});
+          labels{4} = 'Group 4';
+          b = [b 0 d];
+          id = find(bitand(16,[DATA.comcodes.group]));
+          [c,d] = sort({DATA.comcodes(id).code});
+          labels{5} = 'Group 5';
+          b = [b 0  d];
       else
           set(lst,'string','Numerical');
           b = 1:length(DATA.comcodes);
       end
       nl=1;
       a = get(lst,'string');
-      for j = 1:length(DATA.comcodes)
-          s = sprintf('%s %s',DATA.comcodes(b(j)).code,DATA.comcodes(b(j)).label);
+      nlab = 0;
+      for j = 1:length(b)
+          if b(j) > 0
+              s = sprintf('%s %s',DATA.comcodes(b(j)).code,DATA.comcodes(b(j)).label);
+          else
+              nlab = nlab+1;
+              a(j+nl,1) = ' ';
+              nl = nl+1;
+              s = labels{nlab};
+          end
           a(j+nl,1:length(s)) = s;
       end
       set(lst,'string',a);
