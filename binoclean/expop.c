@@ -3818,7 +3818,11 @@ int ReadCommand(char *s)
         expt_over(0);
     }
     else if(!strncasecmp(s,"ecancel",7)){
-        expt_over(CANCEL_EXPT);
+        if(expt.st->mode & EXPTPENDING) // if verg sends cancel, but not in expt, ignore
+            expt_over(CANCEL_EXPT);
+        else {
+            notify("\nEXPTOVER\n");
+        }
     }
     else if(!strncasecmp(s,"expt",4)){
         runexpt(NULL,NULL,NULL);
@@ -12100,6 +12104,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(!strncmp(line,"QueryState",9)){
         SendAllToGui();
+        if(!(expt.st->mode & EXPTPENDING)){ //if not in expt make sure verg knows 
+            notify("\nEXPTOVER\n");
+        }
         return(0);
     }
     else if(!strncmp(line,"monkeyshake",10)){

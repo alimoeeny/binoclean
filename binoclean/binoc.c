@@ -6170,8 +6170,11 @@ int next_frame(Stimulus *st)
             }
             else
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
-            if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION] && laststate == POSTTRIAL)
+            if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION] && monkeypress == WURTZ_OK)
                 paint_target(expt.targetcolor,2);
+            else {
+                printf("%.3f sec since end\n",val);
+            }
             if(rdspair(expt.st))
                 i = 0;
             change_frame();
@@ -6738,7 +6741,7 @@ int next_frame(Stimulus *st)
 // if late resp just detected above, fixstate==RESPONDED but stimstate = POSTTRIAL                
                 if(monkeypress == WURTZ_OK_W && rewardall == 0)
                     start_timeout(monkeypress);
-                else if (expt.vals[CHOICE_TARGET_DURATION] > 0 && stimstate != POSTTRIAL)
+                else if (expt.vals[CHOICE_TARGET_DURATION] > 0 && monkeypress == WURTZ_OK)
                     paint_target(expt.targetcolor,2);
                 stimstate = POSTTRIAL;
             }
@@ -6748,7 +6751,7 @@ int next_frame(Stimulus *st)
                 ShuffleStimulus(BAD_FIXATION);
             }
             else{
-                if (expt.vals[CHOICE_TARGET_DURATION] > 0)
+                if (expt.vals[CHOICE_TARGET_DURATION] > 0 && monkeypress == WURTZ_OK)
                     paint_target(expt.targetcolor,2);
             }
     
@@ -6791,7 +6794,7 @@ int next_frame(Stimulus *st)
                 setmask(bothmask);
                 wipescreen(clearcolor);
                 RunBetweenTrials(st, pos);
-                if (expt.vals[CHOICE_TARGET_DURATION] > 0)
+                if (expt.vals[CHOICE_TARGET_DURATION] > 0  && monkeypress == WURTZ_OK)
                     paint_target(expt.targetcolor,2);
                 change_frame();
             }
