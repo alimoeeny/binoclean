@@ -6172,9 +6172,6 @@ int next_frame(Stimulus *st)
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
             if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION] && monkeypress == WURTZ_OK)
                 paint_target(expt.targetcolor,2);
-            else {
-                printf("%.3f sec since end\n",val);
-            }
             if(rdspair(expt.st))
                 i = 0;
             change_frame();
@@ -6246,6 +6243,9 @@ int next_frame(Stimulus *st)
             wipescreen(clearcolor);
             RunBetweenTrials(st, pos);
             draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
+            val = timediff(&now, &endtrialtime);
+            if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION] && monkeypress == WURTZ_OK)
+                paint_target(expt.targetcolor,2);
             change_frame();
             break;
         case PRESTIMULUS:
@@ -9548,7 +9548,7 @@ int GotChar(char c)
                  * check for changes
                  */
                 if(logfd){
-                    fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],TimeString());
+                    fprintf(logfd,"%.1f %c %.3f%s\n",starttimes[wurtzctr],result,downtimes[wurtzctr],binocTimeString());
                     fflush(logfd);
                     /*
                      close(logfd);
