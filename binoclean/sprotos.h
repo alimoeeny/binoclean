@@ -141,8 +141,7 @@ void CheckExpts();
 GLubyte *GetStimImage(int x, int y, int w, int h, char eye);
 int SaveImage(Stimulus *st, int type);
 int ReadCommand(char *s);
-char *ShowTextVal(int i, char *s);
-void DoCommand(char *s);
+
 void AddElectrodeString(char *s);
 void AddUserString(char *s);
 double pos2phase(Stimulus *st);

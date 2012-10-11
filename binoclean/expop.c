@@ -3914,87 +3914,10 @@ int ReadCommand(char *s)
     }
     else
         retval = -1;
-    if(retval >= 0){ //recognized command
-        //Ali      settextvalue(comitem,"");
-        //Ali      my_set_label(cmdlabel,command_result);
-        //      settextlabel(comitem,command_result);
-    }
-    
+
     return(retval);
 }
 
-
-char *ShowTextVal(int i, char *s)
-{
-    char buf[256],tmp[256];
-    static char lasttxt[BUFSIZ] = "empty";
-    int new = 0,j;
-    
-    if(i == MAXTOTALCODES){
-        if(s == NULL)
-            s = lasttxt;
-        else{
-            strcpy(lasttxt,s);
-            new = 1;
-        }
-        //Ali    my_set_label(cmdlabel,s);
-        if(new)
-            //Ali      settextvalue(comitem,"");
-            sprintf(buf,"xx:");
-        //Ali    settextlabel(comitem,buf);
-        return(buf);
-    }
-    sprintf(buf,"%s=:",serial_strings[i]);
-    if(s != NULL)
-        //Ali    settextvalue(comitem,"");
-        //Ali  settextlabel(comitem,buf);
-        
-        if(logfd)
-            fprintf(logfd,"%s %s\n",buf,binocTimeString());
-    
-    //Ali      MakeTextLabel(i, buf);
-    //Ali      my_set_label(cmdlabel,buf);
-    glstatusline(buf,2);
-    switch(i){
-        case CHANNEL_CODE:
-            SerialSend(i);
-            break;
-    }
-    return(buf);
-}
-
-void DoCommand(char *s)
-{
-    
-    int i;
-    char buf[256],*result = NULL;
-    
-    i = -1;
-    while(*s == ' ')
-        s++;
-    if(cmdhistory)
-        fprintf(cmdhistory,"%s\n",s);
-    if(s[0] == '\\'){
-        ReadCommand(&s[1]);
-    }
-    else if(isdigit(s[0]) || s[0] == '-' || s[0] == '.' || s[0] == '+')/* just a number */
-    {
-        sprintf(buf,"%s%s",serial_strings[textcode],s);
-        i = InterpretLine(buf, &expt,2);
-    }
-    else
-        i = InterpretLine(s, &expt,2);
-    if(i >= 0 && i <= MAXTOTALCODES)
-    {
-        textcode=i;
-        ShowTextVal(i,s);
-
-    }
-    else if (i == CUSTOM_EXPVAL){
-        ShowTextVal(i,s);
-    }
-    
-}
 
 void AddElectrodeString(char *s)
 {

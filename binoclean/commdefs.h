@@ -1,3 +1,6 @@
+#include "stimdefs.h"
+
+
 #ifndef COMMDEFS_INCLUDED
 #define COMMDEFS_INCLUDED 1
 
@@ -603,6 +606,15 @@ typedef struct stringcode {
     
 } StringCode;
 
+typedef struct togglecode {
+    char *code;
+    char *label;
+  int on;  //if on
+  int value;  // bit set
+  int group; //optionflag 1 or 2 or optionflags
+    
+} ToggleCode;
+
 typedef struct valuecode {
     char *code;
     char *label;
@@ -620,6 +632,139 @@ typedef struct valuecode {
 #ifdef CHARCODES_DEFINE
 
 #define NCODES MAXTOTALCODES
+
+
+
+ToggleCode togglestrings[] = {
+  {"Goraud Shading",    "gs", 0, DITHERMODE, 1},
+  {"Dithering",    "di", 0, FRAME_ONLY_BIT, 1},
+  {"Frame Test",    "ft", 0, FRAME_ONLY_BIT, 1},
+  {"Go",   "do",  0, GO_BIT, 1},
+  {"AntiAlias",  "aa", 0, ANTIALIAS_BIT, 1},
+  {"Square", "sq", 0, SQUARE_RDS, 1},
+  {"Cnrst Rev",    "cr",  0, CONTRAST_REVERSE_BIT, 1},
+   {"S.E.",    "se",  0, SE_BIT, 1},
+   {"Back Fixed",    "bf",  0, BACKGROUND_FIXED_BIT, 1},
+   {"Test mode",    "tm", 0, TEST_BIT, 1},
+   {"Fix cross",    "fc", 0, DRAW_FIX_BIT, 1},
+   {"Box",    "fb", 0, SQUARE_FIXATION, 1},
+   {"Auto Plot",    "ap", 0, AUTO_PLOT, 1},
+   {"Wurtz Task",    "wt", 0, WURTZFLAG, 1},
+   {"PreBack",    "pb", 0, BACKGROUND_IN_PREPERIOD, 1},
+   {"L Monoc",    "lm", 0, LEFT_FIXATION_CHECK, 1},
+   {"R Monoc",    "rm", 0, RIGHT_FIXATION_CHECK, 1},
+   {"Checkfix",    "cf", 0, FIXATION_CHECK, 1},
+   {"Verg Check",    "cv", 0, VERGENCE_CHECK, 1},
+   {"Whole Stimuli",    "ws", 0, WURTZ_WHOLE_STIMULI, 1},
+   {"Store",    "ts", 0, STORE_WURTZ_BIT, 1},
+   {"Show Val",    "pw", 0, PLOT_WURTZ_BIT, 1},
+   {"Conjuate Tracking",    "ct", 0, WURTZ_TRACK_BIT, 1},
+   {"Trials",    "sw", 0, STIM_IN_WURTZ_BIT, 1},
+   {"Wait for BW",    "bw", 0, WAIT_FOR_BW_BIT, 1},
+   {"Disp Clamp",    "dc", 0, CLAMP_EXPT_BIT, 1},
+   {"Clamp+Hold",    "ch", 0, CLAMP_HOLD_BIT, 1},
+   {"Search..",    "sm", 0, SEARCH_MODE_BIT, 1},
+   {"Vgc Ramps",    "vr", 0, RAMP_EXPT_BIT, 1},
+   {"RampHold",    "rh", 0, RAMP_HOLD_BIT, 1},
+   {"See Conj",  "co", 0, SHOW_CONJUG_BIT, 1},
+   {"Flash",    "fl", 0, FLASH_BIT, 2},
+   {"Interact",    "ei", 0, EXPT_INTERACTIVE, 1},
+   {"FREE",    "xx", 0},
+   {"Vary Vergence",    "te", 0, INTERLEAVE_VERGENCE, 1},
+   {"+Anti",    "ia", 0, INTERLEAVE_ANTICORRELATE, 1},
+   {"+Blank",    "ic", 0, INTERLEAVE_BLANK, 1},
+   {"+random",    "ir", 0, INTERLEAVE_RANDOM, 1},
+   {"+monoc",    "im", 0, INTERLEAVE_MONOCULAR, 1},
+   {"+uncorr",    "iu", 0, INTERLEAVE_UNCORRELATED, 1},
+   {"wipe screen",    "cs", 0, WIPE_WHOLE_SCREEN, 1},
+   {"PsychoPhysics",    "py", 0, PSYCHOPHYSICS_BIT, 1},
+   {"Alt Probe",    "pa", 0, ALT_PROBE_BIT, 1},
+   {"RANDOM",    "ra", 0, RANDOM, 2},
+   {"Stair",    "sc",  0, STAIRCASE, 1},
+   {"AFC", "afc", 0}, AFC, 1, 
+   {"P.Perf",     "pp",  0, PERF_STRING, 1},
+   {"IFC",    "if",  0, IFC, 1},
+   {"Feedback",    "fe",  0, FEEDBACK, 3},
+   {"Flip",    "ff",  0, FLIP_FEEDBACK, 1},
+   {"Paint back",    "bp",  0, PAINT_BACKGROUND, 1},
+   {"Fix Sepn",    "fs",  0, FIXED_BARSEP, 1},
+   {"RandExp2",    "r2",  0, RANDOM_EXPT2, 1},
+   {"RevExpt2",    "i2",  0, REVERSE_EXPT2, 1},
+   {"Binoc FP",    "bm",  0, BINOCULAR_FIXPOINT, 1},
+   {"RC",    "rc",  0, REVERSE_CORRELATE, 1},
+   {"+zero",    "iz",  0, INTERLEAVE_ZERO, 1},
+   {"no status",    "s0",  0, HIDE_STATUS, 1},
+   {"no mirrors",    "m0",  0, NO_MIRRORS, 1},
+   {"Move RF",    "mr",  0, MOVE_RF, 1},
+   {"Grey Monoc",    "gm",  0, GREY_MONOC, 1},
+   {"Contour",    "cn",  0, CONTOUR_PLOT, 1},
+   {"Smooth/Polar",    "gc",  0, SMOOTH_CONTOUR, 1},
+   {"Sequence",    "to",  0, PLOT_SEQUENCE, 1},
+   {"Xexp2",    "x2",  0, TIMES_EXPT, 1},
+   {"Fake dFP",    "fp",  0, SIMULATE_FP_MOVE, 1},
+   {"+sine",    "is",  0,  INTERLEAVE_SINE, 1},
+   {"Sp Clear",    "sp",  0, 1, STEP_CLEAR_SPIKES, 1},
+   {"+highTF",    "ht",  0, INTERLEAVE_HIGHTF, 1},
+   {"+highSF",    "hs",  0, INTERLEAVE_HIGHSF, 1},
+   {"Counterphase",    "cp", 0, COUNTERPHASE, 1},
+   {"+highSQ",    "hq", 0, INTERLEAVE_HIGHSQ, 1},
+   {"+highX",    "hx",  0, INTERLEAVE_HIGH, 1},
+   {"+ ZeroS",    "I0", 0, INTERLEAVE_ZERO_ALL, 1},
+   {"+MonocS",    "Im", 0, INTERLEAVE_MONOC_ALL, 1},
+   {"+component",    "Ic",  0, INTERLEAVE_COMPONENT, 1},
+   {"xUncorr",    "Iu",  0, INTERLEAVE_UNCORR_ALL, 1},
+   {"Rand Phase",    "rp",  0, RANDOM_PHASE, 1},
+   {"Track",    "pt",  0, PLOT_ELECTRODE_TRACK, 1},
+   {"Rnd FPdir",    "rd",  0, RAND_FP_DIR, 1},
+   {"SplitScreen",    "ss",  0, SPLITSCREEN, 1},
+   {"Count BadFix",    "cB",  0, COUNT_BADFIX_FOR_BONUS, 1},
+   {"RunSeq",    "rS",  0, RUN_SEQUENCE, 1},
+   {"microstim",    "uS",  0, MICROSTIM, 1},
+   {"Tile-XY",    "xy",  0, TILE_XY, 1},
+   {"Store Expt Only",    "sE",  0, STORE_EXPT_ONLY, 1},
+   {"FixGrat",    "fG",  0, FIXPT_GRATING, 1},
+   {"+FPmove",    "iF",  0, ADD_FPJUMP, 1},
+   {"Rand RelPhase",    "rr",  0, RANDOM_RELPHASE, 1},
+   {"Always Change",    "ac",  0, ALWAYS_CHANGE_STIM, 1},
+   {"TGauss",    "tg",  0, TEMPORAL_GAUSS, 1},
+   {"Check Frames",    "cF",  0, FRAMESWARN, 1},
+   {"Random dPhase",    "rP",  0, RANDOM_DEPTH_PHASE, 1},
+   {"xHigh",    "hX",  0, INTERLEAVE_HIGH_ALL, 1},
+   {"Always Backgr",    "ab",  0, BACKGROUND_ALWAYS, 1},
+   {"Store LFP",    "lf",  0, STORE_LFP, 1},
+   {"Nonius",    "no",  0, NONIUS_LINES, 1},
+   {"+Flip",    "fi",  0, INTERLEAVE_FLIP, 1},
+   {"Online Data",    "da",  0, ONLINE_DATA, 1},
+   {"AutoCopy",    "ao",  0, ONLINE_AUTO_COPY, 1},
+   {"PlotFlip",    "pf",  0, PLOTFLIP, 1},
+   {"FastSeq",    "fS",  0, FAST_SEQUENCE, 1},
+   {"4Choice",    "af4", 0, FOUR_CHOICES, 1},
+   {"BackLast",    "tl",  0, PAINT_THIRD_LAST, 1},
+   {"Us0only",    "U0",  0, USTIM_ZERO_ONLY, 1},
+   {"Random Contrast",    "rC",  0, RANDOM_CONTRAST, 1},
+   {"Random Correlation",    "rI",  0, RANDOM_CORRELATION, 1},
+   {"Indicate Reward Bias",    "sR",  0, SHOW_REWARD_BIAS, 1},
+   {"Collapse Expt3",    "C3",  0, COLLAPSE_EXPT3, 1},
+   {"Odd Man Out",    "af3", 0, ODD_MAN_OU_TASK, 1},
+   {"Choice by icon",    "Rcd", 0, CHOICE_BY_ICON, 1},
+   {"Image Jumps",    "ijump", 0, JUMP_IMAGE, 1},
+   {"AutoCopy",    "cd",  0, AUTO_COPY_ONLINE_FILES, 1},
+   {"Custom Vals Expt2",    "cb", 0, CUSTOM_EXPVALB, 1},
+   {"Stim In Overlay",    "pe", 0, STIMULUS_IN_OVERLAY, 1},
+   {"reduce serial out",    "ls", 0, REDUCE_SERIAL_OUTPUT, 1},
+   {"center staircase",    "cS", 0, STAIR_CENTER, 1},
+   {"Paint all frames",    "FN", 0, FIXNUM_PAINTED_FRAMES, 1},
+   {"modulate disparity",    "md", 0, MODULATE_DISPARITY, 1},
+   {"stereo Glasses",    "sg", 0, STEREO_GLASSES, 1},
+   {"nonius for V",    "vn", 0, VVNONIUS_LINES, 1},
+   {"Calc once only",    "Co", 0, CALCULATE_ONCE_ONLY, 1},
+   {"Debug",    "od", 0, DEBUG_OUTPUT, 1},
+   {"Watch Times",    "WT", 0, WATCH_TIMES, 1},
+   {"Initial Training",    "IT", 0, INITIAL_TRAINING, 1},
+   {"Check FrameCounts",    "CF", 0, CHECK_FRAMECOUNTS, 1},
+   {"Show Stim Boxes",    "SB", 0, SHOWSTIMBOXES, 1},
+   {NULL, NULL, 0, 0, 0}
+};
 
 
 
