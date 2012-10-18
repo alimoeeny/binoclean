@@ -10561,7 +10561,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
                 j=0;
                 for(i = 0; i < framesdone; i++){
-                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                    sprintf(tmp,"%.1f ",fframecounts[i]);
+                    if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
                         strcat(buf,tmp);
                     if (i > 1 && fframecounts[i]-fframecounts[i-1] > 1.5)
                         fprintf(stderr,"Skip at %d:%.1f\n",i,fframecounts[i]);
