@@ -15,7 +15,7 @@
 
 
 
-extern char *toggle_strings[];
+
 extern long optionflag,option2flag;
 extern FILE *plotfd;
 extern Expt expt;

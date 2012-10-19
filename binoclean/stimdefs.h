@@ -264,11 +264,11 @@ float pix2degy(float val);
 
 #define NULL_BIT 0
 #define GORAUD_BIT 1
-#define DITHERMODE (1L<<1)
+#define DITHERMODE (1L<<5)
 #define FRAME_ONLY_BIT (1L<<2)
 #define GO_BIT (1L<<3)
 #define ANTIALIAS_BIT (1<<4)
-#define SQUARE_RDS (1L<<5)
+#define SQUARE_RDS (1L<<1)
 #define HZ72_BIT (1L<<6)
 #define CONTRAST_REVERSE_BIT (1L<<7)
 #define SE_BIT (1L<<8)
@@ -331,7 +331,7 @@ float pix2degy(float val);
 #define MAXOPTIONBITS 49
 #define FEEDBACK 0
 #define FLIP_FEEDBACK 1
-#define PAINT_BACKGROUND 2
+// keep 2 free for SQUARE_RDS
 #define FIXED_BARSEP 3
 #define RANDOM_EXPT2 4
 #define REVERSE_EXPT2 5
@@ -395,7 +395,9 @@ float pix2degy(float val);
 #define ODD_MAN_OU_TASK 61
 #define CHOICE_BY_ICON 62
 #define JUMP_IMAGE 63
-#define LAST_CODED_OPTION 63
+#define PAINT_BACKGROUND 64
+
+#define LAST_CODED_OPTION 64
 
 
 #define AUTO_COPY_ONLINE_FILES (LAST_CODED_OPTION+1)
