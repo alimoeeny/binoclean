@@ -2319,6 +2319,8 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     sprintf(buf,"Serial Out to %s/%s",expt.cwd,sfile);
                     statusline(buf);
                     fprintf(seroutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);
+                    sprintf(buf,"Reopened %s",ctime(&tval));
+                    SerialString(buf,NULL);
                 }
                 else
                 {
@@ -6225,9 +6227,9 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                 sprintf(cbuf,"%s%s%.4f",scode,temp, afc_s.abssac[i]);
             else{
                 if(i==0 && optionflags[NO_MIRRORS])
-                    sprintf(cbuf,"%s%s%.4f %.4f",scode,temp, -afc_s.sacval[i], afc_s.sacval[i+2]);
+                    sprintf(cbuf,"%s%s%.4f %.4f %d",scode,temp, -afc_s.sacval[i], afc_s.sacval[i+2],afc_s.sign);
                 else
-                    sprintf(cbuf,"%s%s%.4f %.4f",scode,temp, afc_s.sacval[i], afc_s.sacval[i+2]);
+                    sprintf(cbuf,"%s%s%.4f %.4f %d",scode,temp, afc_s.sacval[i], afc_s.sacval[i+2], afc_s.sign);
             }
             if(rewardall)
                 strcat(cbuf,"!");
@@ -10574,7 +10576,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
                 j=0;
                 for(i = 0; i < framesdone; i++){
-                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                    sprintf(tmp,"%.1f ",fframecounts[i]);
+                    if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
                         strcat(buf,tmp);
                     if (i > 1 && fframecounts[i]-fframecounts[i-1] > 1.5)
                         fprintf(stderr,"Skip at %d:%.1f\n",i,fframecounts[i]);

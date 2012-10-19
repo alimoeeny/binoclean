@@ -45,7 +45,7 @@ Expt expt;
         counter = counter + 1;
         if (counter<r) {
             [newS appendFormat:@"%@\n", line];
-            NSLog(@"Line is: %@", line);
+  //          NSLog(@"Line is: %@", line);
         }
         else {
             stop = YES;
