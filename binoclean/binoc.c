@@ -6598,6 +6598,10 @@ int next_frame(Stimulus *st)
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->gammaback);
             setmask(OVERLAY);
             redraw_overlay(expt.plot);
+            
+            if (expt.vals[CHOICE_TARGET_DURATION])
+                paint_target(expt.targetcolor,2);
+            
             change_frame();
             SerialSignal(WURTZ_OK);
             glDrawBuffer(GL_BACK);
