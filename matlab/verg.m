@@ -1040,7 +1040,7 @@ function ShowStatus(DATA)
             str = 'Expt not over But In Expt!';
         end
     else
-        str = [];
+        str = ['No status'];
     end
     if isfield(DATA,'trialcounts')
     s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...

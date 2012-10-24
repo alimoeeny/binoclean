@@ -8453,14 +8453,7 @@ void setoption()
     gone2 = ((~option2flag) & old2);
     new2 = (option2flag & (~old2));
     
-    if(new & SE_BIT)
-    {
-        clear_overlay();
-        redraw_overlay(expt.plot);
-    }
-    /*
-     * If L mononc selected, be sure to un-set R monoc
-     */
+
     
     if(new & MONOCULAR_MODE)
     {

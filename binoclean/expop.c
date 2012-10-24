@@ -5997,7 +5997,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                         }
                     }
                     else if(togglestrings[i].group == 1){
-                        if(optionflag & (1<<i))
+                        if(optionflag & togglestrings[i].icode)
                         {
                         sprintf(temp,"+%s",togglestrings[i].code);
                         strcat(cbuf,temp);
@@ -11101,7 +11101,7 @@ int ReplayExpt(char *name)
             if(!strncmp(buf,serial_strings[OPTION_CODE],2)){
                 option2flag = 0;
                 optionflag = 0;
-                for(i = 0; i <= LAST_CODED_OPTION; i++)
+                for(i = 0; i <= MAXALLFLAGS; i++)
                     optionflags[i] = 0;
             }
             code = InterpretLine(buf, &expt,0);
@@ -12684,7 +12684,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 // if seting optionflag to 0, set all flags to 0.
                 if(optionflag == 0){
                     option2flag = 0;
-                    for(i = 0; i <= LAST_CODED_OPTION; i++)
+                    for(i = 0; i <= MAXALLFLAGS; i++)
                         optionflags[i] = 0;
                 }
             }
