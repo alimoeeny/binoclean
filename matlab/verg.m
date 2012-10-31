@@ -270,12 +270,15 @@ for j = 1:length(strs{1})
         s = [s '+'];
         id = regexp(s,'[+-]');
         f = fields(DATA.optionflags);
+        nflag = 1;
         for k= 1:length(id)-1
             code = strmatch(s(id(k)+1:id(k+1)-1),f);
             if isempty(code)
                 fprintf('No Code for %s\n,',s(id(k):end));
             elseif s(id(k)) == '+'
                 DATA.showflags.(f{code}) = 1;
+               DATA.showflagseq{nflag} = f{code};
+               nflag = nflag+1;
             else
                 DATA.showflags.(f{code}) = 0;
             end
@@ -1259,26 +1262,29 @@ function DATA = InitInterface(DATA)
         'units', 'norm', 'position',bp,'value',DATA.stimtype(2),'Tag','BackgroundType','callback',{@SetExpt, 'bs'});
 
     
+    tagc = 6;%# of columns for toggles
     bp(1) = 0.01;
-    bp(2) = 0.99-1/nr;
-    bp(3) = 1/nc;
+    bp(2) = 1-1/nr;
     bp(4) = 1./nr;
-    bp(3) = 1./6;
-    uicontrol(gcf,'style','checkbox','string','go', ...
+    bp(3) = 1./tagc;
+    uicontrol(gcf,'style','checkbox','string','Go', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','do','callback',@GoToggle);
     f = fields(DATA.showflags);
     allf = fields(DATA.optionflags);
-    for j = 1:length(f)
+    f = DATA.showflagseq;
+    nrows = ceil(length(f)./tagc)./nr;
+    ymin = 1-1./nr - nrows;
+    for j = 2:length(f)
         id = strmatch(f{j},allf);
         if length(id) == 1
             str = DATA.optionstrings.(allf{id});
         else
             str = num2str(j);
         end
-        bp(1) = bp(1)+bp(3);
-        if bp(1) > 1
-            bp(1) = 0.01;
-            bp(2) = bp(2) - 1./nr;
+        bp(2) = bp(2)-bp(4);
+        if bp(2) < ymin
+            bp(1) = bp(1)+bp(3);
+            bp(2) = 1- 1./nr;
         end
         if isfield(DATA.optionflags,f{j})
             uicontrol(gcf,'style','checkbox','string',str, ...
