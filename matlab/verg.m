@@ -2790,11 +2790,12 @@ function StimToggle(a,b, flag)
 function s = StimToggleString(DATA)
     s = 'fl=';
     f = fields(DATA.stimflags{1});
+%always send + and -, so that don't have to track clearing
     for j = 1:length(f)
         if DATA.stimflags{1}.(f{j})
             s = [s '+' f{j}];
         else
-%            s = [s '-' f{j}];
+            s = [s '-' f{j}];
         end
     end
         
