@@ -876,6 +876,8 @@ DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
 DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
+DATA.stimflagnames.nc = 'Black Dots';
+DATA.stimflagnames.pc = 'White Dots';
 DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
@@ -2090,7 +2092,7 @@ if length(DATA.winpos{2}) ~= 4
 end
 f = fields(DATA.optionflags);
 nc = 4;
-nr = ceil((length(f)+2)/nc);
+nr = ceil((length(f)+nc-1)/nc);
 scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
         'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Options','menubar','none');
@@ -2100,15 +2102,21 @@ cntrl_box = figure('Position', DATA.winpos{2},...
 
 bp = [0.01 0.99-1/nr 1./nc 1./nr];
 for j = 1:length(f)
-    bp(1) = floor(j/nr) .* 1./nc;
-    bp(2) = 1- (rem(j,nr) .* 1./nr);
+    bp(1) = floor((j-1)/nr) .* 1./nc;
+    bp(2) = 1- ((1+rem(j-1,nr)) .* 1./nr);
+    if strncmp('lbl',f{j},3)
+    uicontrol(gcf,'style','text','string',[DATA.optionstrings.(f{j}) ':'], ...
+        'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},...
+        'callback',{@HitToggle, f{j}},'foregroundcolor','r');
+    else
     uicontrol(gcf,'style','checkbox','string',[DATA.optionstrings.(f{j}) '(' f{j} ')'], ...
         'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
+    end
 end
 nf = j;
 f = fields(DATA.stimflags{1});
 for j = 1:length(f)
-    str = f{j};
+    str = DATA.stimflagnames.(f{j});
     k = nf+j; 
     bp(1) = floor(k/nr) .* 1./nc;
     bp(2) = 1- (rem(k,nr) .* 1./nr);

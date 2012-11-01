@@ -11588,7 +11588,7 @@ int ShowFlag(char *s, int flag)
         bit = togglestrings[i].icode;
     else if(togglestrings[i].group ==2)
         bit2 = togglestrings[i].icode;
-    else if(togglestrings[i].group ==2)
+    else if(togglestrings[i].group ==3)
     {
         j = togglestrings[i].icode;
         if(j >= MAXALLFLAGS)
