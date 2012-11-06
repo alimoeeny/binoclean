@@ -317,6 +317,8 @@ static char *quicknames[MAXQUICKEXP] = {NULL};
 static char *quicksubnames[MAXQUICKEXP] = {NULL};
 static char *defaultexps[6] = {"none","flash_bar","move_bar","qrds","qsine","monocd"};
 
+int toggleidx[MAXALLFLAGS];
+
 char *incrstrings[5] = {
     "Lin",
     "+-",
@@ -1436,9 +1438,11 @@ int SendToggleCodesToGui()
     int i;
     char buf[BUFSIZ],tmp[BUFSIZ];
     
-    for (i = 0; i < MAXTOGGLES-1; i++){
-        sprintf(buf,"TOGGLE %s %s\n",toggle_codes[i],toggle_strings[i]);
+    i = 0;
+    while(togglestrings[i].code != NULL){
+        sprintf(buf,"TOGGLE %s %s\n",togglestrings[i].code,togglestrings[i].label);
         notify(buf);
+        i++;
     }
     for (i = 0; i < N_STIMULUS_TYPES; i++){
         sprintf(buf,"STIMTYPE %d %s\n",i,stimulus_names[i]);
@@ -1548,6 +1552,15 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     winposns[PENLOG_WIN].x = 80;
     winposns[PENLOG_WIN].y = 10;
     
+    i = 0;
+    while(togglestrings[i].code != NULL){
+        if (togglestrings[i].group == 1 && togglestrings[i].icode == SQUARE_RDS)
+            toggleidx[togglestrings[i].icode] = i;
+        else if (togglestrings[i].group == 3)
+            toggleidx[togglestrings[i].icode] = i;
+        i++;
+    }
+
     i = 0;
     while((code = valstrings[i].icode) >= 0){
         codes[i] = 0;
@@ -1689,9 +1702,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     
     
     i = 0;
-    //	while(bwtoggle_strings[i] != NULL)
-    //	  i++;
-    //	expt.bwptr->nchans = i;
+
     
 
     
@@ -5964,31 +5975,33 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             {
                 sprintf(cbuf,"%s=0",scode);
                 i = 0;
-                while(toggle_codes[i] != NULL)
+                while(togglestrings[i].code != NULL)
                 {
-                    if(i >= MAXOPTIONBITS)
+                    if (togglestrings[i].group == 3)
                     {
-                        if(optionflags[i-MAXOPTIONBITS]){
-                            sprintf(temp,"+%s",toggle_codes[i]);
+                        if(optionflags[togglestrings[i].icode]){
+                            sprintf(temp,"+%s",togglestrings[i].code);
                             strcat(cbuf,temp);
                         }
-                        else if(defaultflags[i-MAXOPTIONBITS]){
-                            sprintf(temp,"-%s",toggle_codes[i]);
+                        else if(defaultflags[togglestrings[i].icode]){
+                            sprintf(temp,"-%s",togglestrings[i].code);
                             strcat(cbuf,temp);
                         }
                     }
-                    else if(i > 31)
+                    else if(togglestrings[i].group == 2)
                     {
-                        if(option2flag & (1<<(i-32)))
+                        if(option2flag & togglestrings[i].icode)
                         {
-                            sprintf(temp,"+%s",toggle_codes[i]);
+                            sprintf(temp,"+%s",togglestrings[i].code);
                             strcat(cbuf,temp);
                         }
                     }
-                    else if(optionflag & (1<<i))
-                    {
-                        sprintf(temp,"+%s",toggle_codes[i]);
+                    else if(togglestrings[i].group == 1){
+                        if(optionflag & togglestrings[i].icode)
+                        {
+                        sprintf(temp,"+%s",togglestrings[i].code);
                         strcat(cbuf,temp);
+                        }
                     }
                     i++;
                 }
@@ -11088,7 +11101,7 @@ int ReplayExpt(char *name)
             if(!strncmp(buf,serial_strings[OPTION_CODE],2)){
                 option2flag = 0;
                 optionflag = 0;
-                for(i = 0; i <= LAST_CODED_OPTION; i++)
+                for(i = 0; i <= MAXALLFLAGS; i++)
                     optionflags[i] = 0;
             }
             code = InterpretLine(buf, &expt,0);
@@ -11565,28 +11578,27 @@ int ShowFlag(char *s, int flag)
     }
     
     i = 0;
-    while(toggle_codes[i] != NULL)
+    while(togglestrings[i].code!= NULL)
     {
-        if(!strncmp(s,toggle_codes[i],strlen(toggle_codes[i])))
+        if(!strncmp(s,togglestrings[i].code,strlen(togglestrings[i].code)))
             break;
         i++;
     }
-    
-    if(i < 32)
-        bit = (1<<i);
-    else if(i >= MAXOPTIONBITS)
+    if(togglestrings[i].group ==1)
+        bit = togglestrings[i].icode;
+    else if(togglestrings[i].group ==2)
+        bit2 = togglestrings[i].icode;
+    else if(togglestrings[i].group ==3)
     {
-        j = i- MAXOPTIONBITS;
+        j = togglestrings[i].icode;
         if(j >= MAXALLFLAGS)
             fprintf(stderr,"Unrecognized flag %s",s);
         if(c == '+')
-            allflags[i - MAXOPTIONBITS] = 1;
+            allflags[j] = 1;
         else
-            allflags[i - MAXOPTIONBITS] = 0;
+            allflags[j] = 0;
         return(i);
     }
-    else if(i < 64)
-        bit2 = (1 <<(i-32));
     
     if(c == '+')
     {
@@ -11662,24 +11674,17 @@ int ChangeFlag(char *s)
     s++;
     
     i = 0;
-    while(toggle_codes[i] != NULL)
+    while(togglestrings[i].code!= NULL)
     {
-        /*
-         * Why is this case invariant? Causes trouble when programmer forgets, and
-         * uses case to differentiate sprawling toggle codes.
-         * Changed to case sensitive, July 2002
-         if(!strncasecmp(s,toggle_codes[i],2))
-         */
-        if(!strncmp(s,toggle_codes[i],strlen(toggle_codes[i])))
+        if(!strncmp(s,togglestrings[i].code,strlen(togglestrings[i].code)))
             break;
         i++;
     }
-    if(i >= MAXOPTIONBITS+MAXALLFLAGS)
+    if(togglestrings[i].code == NULL)
         return(-1); //invalid code
     
-    if(i < 32){
-        bit = (1<<i);
-        switch(bit){
+    if(togglestrings[i].group ==1){
+        switch(togglestrings[i].icode){
             case SQUARE_RDS:
                 if(c == '+')
                     expt.st->flag |= STIMULUS_IS_SQUARE;
@@ -11687,28 +11692,29 @@ int ChangeFlag(char *s)
                     expt.st->flag &= ~(STIMULUS_IS_SQUARE);
                 break;
         }
+        bit = togglestrings[i].icode;
     }
-    else if(i >= MAXOPTIONBITS)
+    else if(togglestrings[i].group ==3)
     {
         if(c == '+'){
-            optionflags[i - MAXOPTIONBITS] = 1;
+            optionflags[togglestrings[i].icode] = 1;
             /*
              * framecounts are either checked for every stim (-CF), or only for first 
              * of expt (+CF). When variable is 0  gets reset to 1. So setting to 2 keeps
              * it on check expt first only.
              */
-            if(i-MAXOPTIONBITS == CHECK_FRAMECOUNTS){
+            if(togglestrings[i].icode == CHECK_FRAMECOUNTS){
                 optionflags[i - MAXOPTIONBITS] = 2;
                 printf("Frame Checking First stim of expt only\n");
             }
         }
         else
-            optionflags[i - MAXOPTIONBITS] = 0;
+            optionflags[togglestrings[i].icode] = 0;
         CheckOption(i);
         return(i);
     }
-    else
-        bit2 = (1 <<(i-32));
+    else if(togglestrings[i].group ==2)
+        bit2 = togglestrings[i].icode;
     
     if(c == '+')
     {
@@ -12678,7 +12684,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 // if seting optionflag to 0, set all flags to 0.
                 if(optionflag == 0){
                     option2flag = 0;
-                    for(i = 0; i <= LAST_CODED_OPTION; i++)
+                    for(i = 0; i <= MAXALLFLAGS; i++)
                         optionflags[i] = 0;
                 }
             }
@@ -13269,7 +13275,7 @@ char *DescribeStim(Stimulus *st)
     sprintf(dbuf,"%s %s=%.3f (%.0f frames %.2f)",stimulus_names[st->type],serial_strings[STIMULUS_DURATION_CODE],GetProperty(&expt,st,STIMULUS_DURATION_CODE),GetProperty(&expt,st,NFRAMES_CODE),val);
     if(optionflag & SQUARE_RDS)
     {
-        sprintf(buf,"+%s",toggle_codes[5]);
+        sprintf(buf,"+%s",togglestrings[toggleidx[SQUARE_RDS]].code);
         strcat(dbuf,buf);
     }
     strcat(dbuf,",");

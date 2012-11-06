@@ -270,12 +270,15 @@ for j = 1:length(strs{1})
         s = [s '+'];
         id = regexp(s,'[+-]');
         f = fields(DATA.optionflags);
+        nflag = 1;
         for k= 1:length(id)-1
             code = strmatch(s(id(k)+1:id(k+1)-1),f);
             if isempty(code)
                 fprintf('No Code for %s\n,',s(id(k):end));
             elseif s(id(k)) == '+'
                 DATA.showflags.(f{code}) = 1;
+               DATA.showflagseq{nflag} = f{code};
+               nflag = nflag+1;
             else
                 DATA.showflags.(f{code}) = 0;
             end
@@ -873,6 +876,8 @@ DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
 DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
+DATA.stimflagnames.nc = 'Black Dots';
+DATA.stimflagnames.pc = 'White Dots';
 DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
@@ -1040,7 +1045,7 @@ function ShowStatus(DATA)
             str = 'Expt not over But In Expt!';
         end
     else
-        str = [];
+        str = ['No status'];
     end
     if isfield(DATA,'trialcounts')
     s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...
@@ -1167,18 +1172,31 @@ function DATA = InitInterface(DATA)
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.nr), 'Tag', 'binoc.nr', 'units', 'norm',...
         'callback',{@TextGui, 'nr'},'position',bp);
     
+    
+    
+    cmenu = uicontextmenu;
+    uimenu(cmenu,'label','Apply','Callback',{@EditValsMenu, 'apply'});
+    uimenu(cmenu,'label','Cancel','Callback',{@EditValsMenu, 'cancel'});
+    
     bp(3) = 1./nc;
     bp(2) = 9./nr;
     bp(4) = 4/nr;
     bp(1) = 0.02+cw;
-    uicontrol(gcf,'style','list','string',DATA.exptstimlist{1}, ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Expt1StimList','buttondownfcn',@EditList,'keypressfcn',@EditList);
+    a= uicontrol(gcf,'style','edit','string',DATA.exptstimlist{1}, 'min',1,'max',5,...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt1StimList','keypressfcn',@EditText,'callback',@TextCallback);
+    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(a,'uicontextmenu',cmenu);
     bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','list','string',num2str(DATA.nstim(2)), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Expt2StimList','buttondownfcn',@EditList,'keypressfcn',@EditList);
+    a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(2)),  'min',1,'max',5,...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt2StimList','keypressfcn',@EditText);
     bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','list','string',num2str(DATA.nstim(3)), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Expt3StimList','buttondownfcn',@EditList,'keypressfcn',@EditList);
+    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(a,'uicontextmenu',cmenu);
+
+    a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(3)),  'min',1,'max',5, ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt3StimList','keypressfcn',@EditText,'callback',@TextCallback);
+    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(a,'uicontextmenu',cmenu);
     
     
     bp(1) = 0.01;
@@ -1259,26 +1277,29 @@ function DATA = InitInterface(DATA)
         'units', 'norm', 'position',bp,'value',DATA.stimtype(2),'Tag','BackgroundType','callback',{@SetExpt, 'bs'});
 
     
+    tagc = 6;%# of columns for toggles
     bp(1) = 0.01;
-    bp(2) = 0.99-1/nr;
-    bp(3) = 1/nc;
+    bp(2) = 1-1/nr;
     bp(4) = 1./nr;
-    bp(3) = 1./6;
-    uicontrol(gcf,'style','checkbox','string','go', ...
+    bp(3) = 1./tagc;
+    uicontrol(gcf,'style','checkbox','string','Go', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','do','callback',@GoToggle);
     f = fields(DATA.showflags);
     allf = fields(DATA.optionflags);
-    for j = 1:length(f)
+    f = DATA.showflagseq;
+    nrows = ceil(length(f)./tagc)./nr;
+    ymin = 1-1./nr - nrows;
+    for j = 2:length(f)
         id = strmatch(f{j},allf);
         if length(id) == 1
             str = DATA.optionstrings.(allf{id});
         else
             str = num2str(j);
         end
-        bp(1) = bp(1)+bp(3);
-        if bp(1) > 1
-            bp(1) = 0.01;
-            bp(2) = bp(2) - 1./nr;
+        bp(2) = bp(2)-bp(4);
+        if bp(2) < ymin
+            bp(1) = bp(1)+bp(3);
+            bp(2) = 1- 1./nr;
         end
         if isfield(DATA.optionflags,f{j})
             uicontrol(gcf,'style','checkbox','string',str, ...
@@ -1308,10 +1329,10 @@ function DATA = InitInterface(DATA)
             RecoverFile(x,[],'list');    
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     BuildQuickMenu(DATA, hm);
-        hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
+        hm = uimenu(cntrl_box,'Label','&Pop','Tag','QuickMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
-    uimenu(hm,'Label','Options','Callback',{@OptionPopup});
+    uimenu(hm,'Label','&Options','Callback',{@OptionPopup});
     uimenu(hm,'Label','Test','Callback',{@TestIO});
     uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
@@ -1325,7 +1346,7 @@ function DATA = InitInterface(DATA)
     end
     sm = uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
-    uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
+    uimenu(hm,'Label','&Null Softoff','Callback',{@SendStr, 'sonull'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
     uimenu(hm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
     uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
@@ -1572,15 +1593,76 @@ function SaveLayout(DATA, name)
         fprintf(fid,'%s=%s\n',DATA.windownames{j},sprintf('%d ',DATA.winpos{j}));
     end
     fclose(fid);
+
+function TextCallback(a,b)
+    SendManualVals(a);
+
+function SendManualVals(a);
+    DATA = GetDataFromFig(get(a,'parent'));
+
+     str = get(a,'string');
+    tag = get(a,'Tag');
+    if strcmp(tag,'Expt2StimList')
+        c = 'EB';
+    elseif strcmp(tag,'Expt3StimList')
+        c = 'EC';
+    else
+        if size(str,2) > DATA.nt
+            yn = questdlg('Nstim mismatch','That will Change N stims','OK','Cancel','OK');
+        end
+        c = 'E';
+    end
+
+    for j = 1:length(str)
+            fprintf(DATA.outid,'%s%d=%s\n',c,j-1,str{j});
+    end
+    fprintf(DATA.outid,'EDONE\n');
+     
     
+    
+function EditValsMenu(a,b, fcn)
+if strcmpi(fcn,'apply')
+    SendManualVals(get(get(a,'parent'),'UserData'));
+elseif strcmpi(fcn,'cancel')
+    f = get(a,'parent');
+    DATA = GetDataFromFig(get(f,'parent'));
+    SendCode(DATA,'nt');
+end
+    
+function EditText(a,b)
+     sendvals = 0;
+     if double(b.Character) == 13
+         str = get(a,'string');
+     end
+     
+     if strcmp(b.Modifier,'command')
+         if b.Key == 'g'
+            sendvals = 1;
+         end
+     end
+     if strcmp(b.Key,'escape')
+          DATA = GetDataFromFig(get(a,'parent'));
+         SendCode(DATA,'nt'); %makes binoc resend expt vals
+     end
+ if sendvals
+     SendManualVals(a);
+end
+   
  function EditList(a,b)
-     id = get(a,'value');
+     id = get(a,'value')
      str = get(a,'string');
      c = get(a,'UserData');
      sendvals = 0;
-     
+%c(1) is index of current char
+%c(2) is current line
+%nb if this is changed with the mouse, watch out!
      DATA = GetDataFromFig(get(a,'parent'));
      
+     
+     
+     if length(c) > 1 && c(2) ~= id  %line #changed
+         c(1) = 0;
+     end
      if isempty(c) || c(1) == 0;
          c= 1;
          str{id} = ' ';
@@ -1592,6 +1674,7 @@ function SaveLayout(DATA, name)
          end
      end
      if double(b.Character) == 13
+         newstr = input('Edit Values','Expt 1', length(str),str);
          c(1) = 0;
          set(a,'UserData',[c(1)]);
          sendvals = 1;
@@ -1604,9 +1687,13 @@ function SaveLayout(DATA, name)
          set(a,'UserData',[c(1) (id-1)]);
          sendvals = 1;
      elseif length(b.Character)
-             str{id}(c(1)) = b.Character;
+             if strcmp(b.Key,'backspace')
+                 str{id} = ' ';
+             else
+                str{id}(c(1)) = b.Character;
+             end
              set(a,'string',str);
-             set(a,'UserData',[c(1) id]);
+             set(a,'UserData',[c(1) id],'value',id);
      end
 
 if sendvals
@@ -1625,7 +1712,7 @@ if sendvals
     fprintf(DATA.outid,'EDONE\n');
 end
 
-     fprintf('%d:%s\n',id,str{id});
+     fprintf('%d:%s %d (C%d)\n',id,str{id},get(a,'value'),c(1));
      
 function MenuGui(a,b)
      DATA = GetDataFromFig(a);
@@ -2084,7 +2171,7 @@ if length(DATA.winpos{2}) ~= 4
 end
 f = fields(DATA.optionflags);
 nc = 4;
-nr = ceil((length(f)+2)/nc);
+nr = ceil((length(f)+nc-1)/nc);
 scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
         'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Options','menubar','none');
@@ -2094,15 +2181,21 @@ cntrl_box = figure('Position', DATA.winpos{2},...
 
 bp = [0.01 0.99-1/nr 1./nc 1./nr];
 for j = 1:length(f)
-    bp(1) = floor(j/nr) .* 1./nc;
-    bp(2) = 1- (rem(j,nr) .* 1./nr);
+    bp(1) = floor((j-1)/nr) .* 1./nc;
+    bp(2) = 1- ((1+rem(j-1,nr)) .* 1./nr);
+    if strncmp('lbl',f{j},3)
+    uicontrol(gcf,'style','text','string',[DATA.optionstrings.(f{j}) ':'], ...
+        'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},...
+        'callback',{@HitToggle, f{j}},'foregroundcolor','r');
+    else
     uicontrol(gcf,'style','checkbox','string',[DATA.optionstrings.(f{j}) '(' f{j} ')'], ...
         'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
+    end
 end
 nf = j;
 f = fields(DATA.stimflags{1});
 for j = 1:length(f)
-    str = f{j};
+    str = DATA.stimflagnames.(f{j});
     k = nf+j; 
     bp(1) = floor(k/nr) .* 1./nc;
     bp(2) = 1- (rem(k,nr) .* 1./nr);
@@ -2790,11 +2883,12 @@ function StimToggle(a,b, flag)
 function s = StimToggleString(DATA)
     s = 'fl=';
     f = fields(DATA.stimflags{1});
+%always send + and -, so that don't have to track clearing
     for j = 1:length(f)
         if DATA.stimflags{1}.(f{j})
             s = [s '+' f{j}];
         else
-%            s = [s '-' f{j}];
+            s = [s '-' f{j}];
         end
     end
         

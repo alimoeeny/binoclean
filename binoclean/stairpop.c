@@ -14,7 +14,7 @@
 #define ISI 5
 
 
-extern char *toggle_strings[];
+
 extern long optionflag,option2flag;
 extern Expt expt;
 extern AFCstructure afc_s;
