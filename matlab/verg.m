@@ -1172,18 +1172,31 @@ function DATA = InitInterface(DATA)
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.nr), 'Tag', 'binoc.nr', 'units', 'norm',...
         'callback',{@TextGui, 'nr'},'position',bp);
     
+    
+    
+    cmenu = uicontextmenu;
+    uimenu(cmenu,'label','Apply','Callback',{@EditValsMenu, 'apply'});
+    uimenu(cmenu,'label','Cancel','Callback',{@EditValsMenu, 'cancel'});
+    
     bp(3) = 1./nc;
     bp(2) = 9./nr;
     bp(4) = 4/nr;
     bp(1) = 0.02+cw;
-    uicontrol(gcf,'style','list','string',DATA.exptstimlist{1}, ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Expt1StimList','buttondownfcn',@EditList,'keypressfcn',@EditList);
+    a= uicontrol(gcf,'style','edit','string',DATA.exptstimlist{1}, 'min',1,'max',5,...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt1StimList','keypressfcn',@EditText,'callback',@TextCallback);
+    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(a,'uicontextmenu',cmenu);
     bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','list','string',num2str(DATA.nstim(2)), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Expt2StimList','buttondownfcn',@EditList,'keypressfcn',@EditList);
+    a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(2)),  'min',1,'max',5,...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt2StimList','keypressfcn',@EditText);
     bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','list','string',num2str(DATA.nstim(3)), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Expt3StimList','buttondownfcn',@EditList,'keypressfcn',@EditList);
+    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(a,'uicontextmenu',cmenu);
+
+    a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(3)),  'min',1,'max',5, ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Expt3StimList','keypressfcn',@EditText,'callback',@TextCallback);
+    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(a,'uicontextmenu',cmenu);
     
     
     bp(1) = 0.01;
@@ -1316,10 +1329,10 @@ function DATA = InitInterface(DATA)
             RecoverFile(x,[],'list');    
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     BuildQuickMenu(DATA, hm);
-        hm = uimenu(cntrl_box,'Label','Pop','Tag','QuickMenu');
+        hm = uimenu(cntrl_box,'Label','&Pop','Tag','QuickMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
-    uimenu(hm,'Label','Options','Callback',{@OptionPopup});
+    uimenu(hm,'Label','&Options','Callback',{@OptionPopup});
     uimenu(hm,'Label','Test','Callback',{@TestIO});
     uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
@@ -1333,7 +1346,7 @@ function DATA = InitInterface(DATA)
     end
     sm = uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
-    uimenu(hm,'Label','Null Softoff','Callback',{@SendStr, '\nullsoftoff'});
+    uimenu(hm,'Label','&Null Softoff','Callback',{@SendStr, 'sonull'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
     uimenu(hm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
     uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
@@ -1580,15 +1593,76 @@ function SaveLayout(DATA, name)
         fprintf(fid,'%s=%s\n',DATA.windownames{j},sprintf('%d ',DATA.winpos{j}));
     end
     fclose(fid);
+
+function TextCallback(a,b)
+    SendManualVals(a);
+
+function SendManualVals(a);
+    DATA = GetDataFromFig(get(a,'parent'));
+
+     str = get(a,'string');
+    tag = get(a,'Tag');
+    if strcmp(tag,'Expt2StimList')
+        c = 'EB';
+    elseif strcmp(tag,'Expt3StimList')
+        c = 'EC';
+    else
+        if size(str,2) > DATA.nt
+            yn = questdlg('Nstim mismatch','That will Change N stims','OK','Cancel','OK');
+        end
+        c = 'E';
+    end
+
+    for j = 1:length(str)
+            fprintf(DATA.outid,'%s%d=%s\n',c,j-1,str{j});
+    end
+    fprintf(DATA.outid,'EDONE\n');
+     
     
+    
+function EditValsMenu(a,b, fcn)
+if strcmpi(fcn,'apply')
+    SendManualVals(get(get(a,'parent'),'UserData'));
+elseif strcmpi(fcn,'cancel')
+    f = get(a,'parent');
+    DATA = GetDataFromFig(get(f,'parent'));
+    SendCode(DATA,'nt');
+end
+    
+function EditText(a,b)
+     sendvals = 0;
+     if double(b.Character) == 13
+         str = get(a,'string');
+     end
+     
+     if strcmp(b.Modifier,'command')
+         if b.Key == 'g'
+            sendvals = 1;
+         end
+     end
+     if strcmp(b.Key,'escape')
+          DATA = GetDataFromFig(get(a,'parent'));
+         SendCode(DATA,'nt'); %makes binoc resend expt vals
+     end
+ if sendvals
+     SendManualVals(a);
+end
+   
  function EditList(a,b)
-     id = get(a,'value');
+     id = get(a,'value')
      str = get(a,'string');
      c = get(a,'UserData');
      sendvals = 0;
-     
+%c(1) is index of current char
+%c(2) is current line
+%nb if this is changed with the mouse, watch out!
      DATA = GetDataFromFig(get(a,'parent'));
      
+     
+     
+     if length(c) > 1 && c(2) ~= id  %line #changed
+         c(1) = 0;
+     end
      if isempty(c) || c(1) == 0;
          c= 1;
          str{id} = ' ';
@@ -1600,6 +1674,7 @@ function SaveLayout(DATA, name)
          end
      end
      if double(b.Character) == 13
+         newstr = input('Edit Values','Expt 1', length(str),str);
          c(1) = 0;
          set(a,'UserData',[c(1)]);
          sendvals = 1;
@@ -1612,9 +1687,13 @@ function SaveLayout(DATA, name)
          set(a,'UserData',[c(1) (id-1)]);
          sendvals = 1;
      elseif length(b.Character)
-             str{id}(c(1)) = b.Character;
+             if strcmp(b.Key,'backspace')
+                 str{id} = ' ';
+             else
+                str{id}(c(1)) = b.Character;
+             end
              set(a,'string',str);
-             set(a,'UserData',[c(1) id]);
+             set(a,'UserData',[c(1) id],'value',id);
      end
 
 if sendvals
@@ -1633,7 +1712,7 @@ if sendvals
     fprintf(DATA.outid,'EDONE\n');
 end
 
-     fprintf('%d:%s\n',id,str{id});
+     fprintf('%d:%s %d (C%d)\n',id,str{id},get(a,'value'),c(1));
      
 function MenuGui(a,b)
      DATA = GetDataFromFig(a);
