@@ -411,7 +411,7 @@ extern int *framebuf,framebufctr;
 extern float frameseq[];
 extern int frameiseqp[];
 extern int valstringindex[];
-
+extern int toggleidx[];
 
 AppResources app_resources;
 int framesdone = 0;
@@ -443,8 +443,8 @@ int PrintToggles(FILE *ofd)
 {
     int i = 0,j = 0;
     fprintf(ofd,"ON/OFF codes:\n");
-    while(toggle_strings[i]){
-        fprintf(ofd, "%s %s\n",toggle_codes[i],toggle_strings[i]);
+    while(togglestrings[i].code != NULL){
+        fprintf(ofd, "%s %s\n",togglestrings[i].code,togglestrings[i].label);
         i++;
     }
     fprintf(ofd,"Stimulus codes:\n");
@@ -8453,14 +8453,7 @@ void setoption()
     gone2 = ((~option2flag) & old2);
     new2 = (option2flag & (~old2));
     
-    if(new & SE_BIT)
-    {
-        clear_overlay();
-        redraw_overlay(expt.plot);
-    }
-    /*
-     * If L mononc selected, be sure to un-set R monoc
-     */
+
     
     if(new & MONOCULAR_MODE)
     {
@@ -9484,7 +9477,7 @@ int GotChar(char c)
                     if((i =MakeString(STIMULUS_FLAG, buf,&expt, TheStim, TO_FILE)) >= 0)
                         fprintf(seroutfile," %s",buf);
                     if(optionflags[MICROSTIM])
-                        fprintf(seroutfile,"+%2s",toggle_codes[MAXOPTIONBITS+MICROSTIM]);
+                        fprintf(seroutfile,"+%2s",togglestrings[toggleidx[MICROSTIM]].code);
                     buf[0] = '=';
                     buf[1] = 0;
                     if((i =MakeString(STIMULUS_TYPE_CODE, buf,&expt, TheStim, TO_FILE)) >= 0)
