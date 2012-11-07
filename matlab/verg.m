@@ -1184,18 +1184,18 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.02+cw;
     a= uicontrol(gcf,'style','edit','string',DATA.exptstimlist{1}, 'min',1,'max',5,...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt1StimList','keypressfcn',@EditText,'callback',@TextCallback);
-    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(cmenu,'UserData',a);
     set(a,'uicontextmenu',cmenu);
     bp(1) = bp(1)+bp(3)+0.01;
     a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(2)),  'min',1,'max',5,...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt2StimList','keypressfcn',@EditText);
     bp(1) = bp(1)+bp(3)+0.01;
-    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(cmenu,'UserData',a);
     set(a,'uicontextmenu',cmenu);
 
     a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(3)),  'min',1,'max',5, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt3StimList','keypressfcn',@EditText,'callback',@TextCallback);
-    set(cmenu,'tag','Expt1StimList','UserData',a);
+    set(cmenu,'UserData',a);
     set(a,'uicontextmenu',cmenu);
     
     

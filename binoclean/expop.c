@@ -11931,6 +11931,14 @@ int LabelAndPath(char *s, char *sublabel, char *path, char *name)
     return(ret);
 }
 
+
+
+int KeyPressed(char c)
+{
+    
+
+}
+
 /*
  * Interpretline pases text strings from files, the serial line, and the GUI input pipe;
  * frompc = 1 mean it came form the serial line

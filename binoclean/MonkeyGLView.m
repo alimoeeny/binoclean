@@ -292,6 +292,7 @@ GLenum glReportError (void)
     NSString *characters = [theEvent characters];
     if ([characters length]) {
         unichar character = [characters characterAtIndex:0];
+        KeyPressed(character);
 		switch (character) {
 			case 'h':
 				// toggle help
