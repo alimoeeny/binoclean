@@ -710,6 +710,7 @@ ToggleCode togglestrings[] = {
     //   {"AutoCopy",    "cd",  0, AUTO_COPY_ONLINE_FILES, 3},
     {"Custom Vals Expt2",    "cb", 0, CUSTOM_EXPVALB, 3},
     {"Search..",    "sm", 0, SEARCH_MODE_BIT, 1},
+    {"Online Data",    "da",  0, ONLINE_DATA, 3},
 
     {"Stimulus Rendering","lbl3",0,0, 0},
     {"AntiAlias",  "aa", 0, ANTIALIAS_BIT, 1},
@@ -749,7 +750,6 @@ ToggleCode togglestrings[] = {
    {"Always Backgr",    "ab",  0, BACKGROUND_ALWAYS, 3},
     {"Rnd FPdir",    "rd",  0, RAND_FP_DIR, 3},
 //   {"Store LFP",    "lf",  0, STORE_LFP, 3},
-//   {"Online Data",    "da",  0, ONLINE_DATA, 3},
 //   {"AutoCopy",    "ao",  0, ONLINE_AUTO_COPY, 3},
 //   {"PlotFlip",    "pf",  0, PLOTFLIP, 3},
    {"BackLast",    "tl",  0, PAINT_THIRD_LAST, 3},

@@ -11704,7 +11704,7 @@ int ChangeFlag(char *s)
              * it on check expt first only.
              */
             if(togglestrings[i].icode == CHECK_FRAMECOUNTS){
-                optionflags[i - MAXOPTIONBITS] = 2;
+                optionflags[CHECK_FRAMECOUNTS] = 2;
                 printf("Frame Checking First stim of expt only\n");
             }
         }
