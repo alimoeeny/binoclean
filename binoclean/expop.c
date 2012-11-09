@@ -22,6 +22,7 @@
 
 #import "protos.h"
 
+#define NEWTEST 1
 
 #define MAXREPS 500
 #define MAXTRIALS 300
