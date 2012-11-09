@@ -11934,8 +11934,28 @@ int LabelAndPath(char *s, char *sublabel, char *path, char *name)
 
 int KeyPressed(char c)
 {
-    
+    static char instring[256];
+    static int sctr = 0;
 
+
+    switch(c){
+        case 4: // F1
+            ReadExptFile(NULL, 0, 0 , 0);
+            break;
+            case '\x7f':
+            case '\b':
+                if (sctr > 0)
+            instring[--sctr] = 0;
+            break;
+            case '\r':
+            case '\n':
+            InterpretLine(instring, &expt, 0);
+            sctr = 0;
+            break;
+        default:
+            instring[sctr++] = c;
+            break;
+    }
 }
 
 /*
