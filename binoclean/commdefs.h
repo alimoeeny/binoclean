@@ -690,8 +690,6 @@ ToggleCode togglestrings[] = {
     {"+zero",    "iz",  0, INTERLEAVE_ZERO, 3},
     {"xZeroS",    "I0", 0, INTERLEAVE_ZERO_ALL, 3},
     {"+random",    "ir", 0, INTERLEAVE_RANDOM, 2},
-    {"+Anti",    "ia", 0, INTERLEAVE_ANTICORRELATE, 2},
-    {"+sine",    "is",  0,  INTERLEAVE_SINE, 3},
 //    {"Sp Clear",    "sp",  0, 1, STEP_CLEAR_SPIKES, 3},
     {"+highX",    "hx",  0, INTERLEAVE_HIGH, 3},
     {"xHigh",    "hX",  0, INTERLEAVE_HIGH_ALL, 3},
