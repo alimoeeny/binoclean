@@ -6901,16 +6901,23 @@ void InitExpt()
 
 void CheckPsychVal(Thisstim *stp)
 {
-    double val;
+    double val, expt1crit;
+    
+    if (optionflags[EXPTMEAN_FOR_PSYCH])
+        expt1crit = expt.mean;
+    else
+        expt1crit = 0;
+    
     if (expt.mode == CONTRAST_DIFF){
         if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
-            stp->vals[EXP_PSYCHVAL] = stp->vals[0];
+            stp->vals[EXP_PSYCHVAL] = stp->vals[0]-expt1crit;
         }
         else {
-            stp->vals[EXP_PSYCHVAL] = -stp->vals[0];
+            stp->vals[EXP_PSYCHVAL] = -(stp->vals[0]-expt1crit);
         }
+        if (fabs(stp->vals[EXP_PSYCHVAL]/expt.incr) < 0.001)
+            stp->vals[EXP_PSYCHVAL] = 0;
     }
-
 }
 
 Thisstim *getexpval(int stimi)
@@ -6919,7 +6926,7 @@ Thisstim *getexpval(int stimi)
     float vals[2],temp,vtemp;
     static Thisstim stimret;
     int rnd;
-    double drnd,val;
+    double drnd,val,expt1crit = 0;
     
     stimret.a = stimret.b = 0;
     
@@ -6941,6 +6948,10 @@ Thisstim *getexpval(int stimi)
         stimret.vals[EXP_THIRD] = expt.exp3vals[0];
     }
     
+    if (optionflags[EXPTMEAN_FOR_PSYCH])
+        expt1crit = expt.mean;
+    else
+        expt1crit = 0;
     i = i % expt.nstim[3];
     if(i < expt.nstim[2])
         stimret.interleave = 1;
@@ -6962,7 +6973,7 @@ Thisstim *getexpval(int stimi)
         stimret.vals[EXP_PSYCHVAL] = 0;
         stimret.stimno[1] = j;
         stimret.expno = EXP_FIRST;
-        stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
+        stimret.vals[EXP_PSYCHVAL] = stimret.vals[0]-expt1crit;
         
         if(optionflags[RANDOM_EXPT2] && expt.type2 == DELAY && stimret.vals[1] != 0){
             if((rnd = lrand48() & 1) > 0)
@@ -7105,10 +7116,10 @@ Thisstim *getexpval(int stimi)
     }
     if (expt.mode == CONTRAST_DIFF){
         if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
-            stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
+            stimret.vals[EXP_PSYCHVAL] = stimret.vals[0]-expt1crit;
         }
         else {
-            stimret.vals[EXP_PSYCHVAL] = -stimret.vals[0];
+            stimret.vals[EXP_PSYCHVAL] = -(stimret.vals[0]-expt1crit);
         }
     }
 
@@ -10757,7 +10768,7 @@ int ExptTrialOver(int type)
     if(type == WURTZ_OK || type == WURTZ_OK_W){
         completed[stimi]++;
         if (expt.st->mode & EXPTPENDING){ // only count rpts in expt
-            if(dorpt){
+            if(dorpt == 1){ //if == 2, then seed set from list made at start
                 if(seroutfile)
                     fprintf(seroutfile,"Repeated %d=%d (%d,%d) (%d) stim %d\n", unrepeated[stimi][unrepeatn[stimi]-1],dorpt,unrepeatn[stimi]-1,completed[stimi],currentstim.lastseed,expt.stimid,stimi);
                 if(unrepeatn > 0)
@@ -11941,6 +11952,16 @@ int KeyPressed(char c)
     switch(c){
         case 4: // F1
             ReadExptFile(NULL, 0, 0 , 0);
+            break;
+        case 5: // F2
+            RunOneTrial();
+            break;
+        case 6: // F3
+            runexpt(NULL,NULL,NULL);
+            break;
+        case 27: //ESC
+            if (demomode != 0)
+                exit_program();
             break;
             case '\x7f':
             case '\b':
