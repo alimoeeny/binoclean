@@ -5509,7 +5509,7 @@ void setstimuli(int flag)
             j = i + expt.nstim[2];
             val = log10(expt.mean) + loginc *( i - (float)(ns)/2);
             expval[j] = pow(10.0,val);
-            expt.plot->stims[j].x[0] = expval[j];
+//            expt.plot->stims[j].x[0] = expval[j];
         }
         
     }

@@ -23,6 +23,7 @@ if isempty(it)
         DATA = OpenPipes(DATA, 0);
         DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
+        DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
         if exist(DATA.binocstr.lo,'file')
             DATA = ReadLogFile(DATA, DATA.binocstr.lo);
         end
@@ -113,6 +114,8 @@ for j = 1:length(strs{1})
             DATA.optionflags.(cc) = 0;
         end
         DATA.optionstrings.(cc) = s(id(2)+1:end);
+    elseif strncmp(s,'rptexpts',6)
+        DATA.rptexpts = value;
     elseif strncmp(s,'STIMTYPE',6)
         id = strfind(s,' ');
         code = str2num(s(id(1)+1:id(2)-1))+1;
