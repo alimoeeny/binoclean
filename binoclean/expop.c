@@ -5509,7 +5509,7 @@ void setstimuli(int flag)
             j = i + expt.nstim[2];
             val = log10(expt.mean) + loginc *( i - (float)(ns)/2);
             expval[j] = pow(10.0,val);
-            expt.plot->stims[j].x[0] = expval[j];
+//            expt.plot->stims[j].x[0] = expval[j];
         }
         
     }
@@ -6901,16 +6901,23 @@ void InitExpt()
 
 void CheckPsychVal(Thisstim *stp)
 {
-    double val;
+    double val, expt1crit;
+    
+    if (optionflags[EXPTMEAN_FOR_PSYCH])
+        expt1crit = expt.mean;
+    else
+        expt1crit = 0;
+    
     if (expt.mode == CONTRAST_DIFF){
         if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
-            stp->vals[EXP_PSYCHVAL] = stp->vals[0];
+            stp->vals[EXP_PSYCHVAL] = stp->vals[0]-expt1crit;
         }
         else {
-            stp->vals[EXP_PSYCHVAL] = -stp->vals[0];
+            stp->vals[EXP_PSYCHVAL] = -(stp->vals[0]-expt1crit);
         }
+        if (fabs(stp->vals[EXP_PSYCHVAL]/expt.incr) < 0.001)
+            stp->vals[EXP_PSYCHVAL] = 0;
     }
-
 }
 
 Thisstim *getexpval(int stimi)
@@ -6919,7 +6926,7 @@ Thisstim *getexpval(int stimi)
     float vals[2],temp,vtemp;
     static Thisstim stimret;
     int rnd;
-    double drnd,val;
+    double drnd,val,expt1crit = 0;
     
     stimret.a = stimret.b = 0;
     
@@ -6941,6 +6948,10 @@ Thisstim *getexpval(int stimi)
         stimret.vals[EXP_THIRD] = expt.exp3vals[0];
     }
     
+    if (optionflags[EXPTMEAN_FOR_PSYCH])
+        expt1crit = expt.mean;
+    else
+        expt1crit = 0;
     i = i % expt.nstim[3];
     if(i < expt.nstim[2])
         stimret.interleave = 1;
@@ -6962,7 +6973,7 @@ Thisstim *getexpval(int stimi)
         stimret.vals[EXP_PSYCHVAL] = 0;
         stimret.stimno[1] = j;
         stimret.expno = EXP_FIRST;
-        stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
+        stimret.vals[EXP_PSYCHVAL] = stimret.vals[0]-expt1crit;
         
         if(optionflags[RANDOM_EXPT2] && expt.type2 == DELAY && stimret.vals[1] != 0){
             if((rnd = lrand48() & 1) > 0)
@@ -7105,10 +7116,10 @@ Thisstim *getexpval(int stimi)
     }
     if (expt.mode == CONTRAST_DIFF){
         if ((val = StimulusProperty(expt.st,ORIENTATION_DIFF)) < 0){
-            stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
+            stimret.vals[EXP_PSYCHVAL] = stimret.vals[0]-expt1crit;
         }
         else {
-            stimret.vals[EXP_PSYCHVAL] = -stimret.vals[0];
+            stimret.vals[EXP_PSYCHVAL] = -(stimret.vals[0]-expt1crit);
         }
     }
 
@@ -10757,7 +10768,7 @@ int ExptTrialOver(int type)
     if(type == WURTZ_OK || type == WURTZ_OK_W){
         completed[stimi]++;
         if (expt.st->mode & EXPTPENDING){ // only count rpts in expt
-            if(dorpt){
+            if(dorpt == 1){ //if == 2, then seed set from list made at start
                 if(seroutfile)
                     fprintf(seroutfile,"Repeated %d=%d (%d,%d) (%d) stim %d\n", unrepeated[stimi][unrepeatn[stimi]-1],dorpt,unrepeatn[stimi]-1,completed[stimi],currentstim.lastseed,expt.stimid,stimi);
                 if(unrepeatn > 0)
@@ -11942,6 +11953,16 @@ int KeyPressed(char c)
         case 4: // F1
             ReadExptFile(NULL, 0, 0 , 0);
             break;
+        case 5: // F2
+            RunOneTrial();
+            break;
+        case 6: // F3
+            runexpt(NULL,NULL,NULL);
+            break;
+        case 27: //ESC
+            if (demomode != 0)
+                exit_program();
+            break;
             case '\x7f':
             case '\b':
                 if (sctr > 0)
@@ -13109,146 +13130,11 @@ int ButtonResponse(int button, int revise, vcoord *locn)
     stim = expt.stimid;
     
     //  if(option2flag & IFC){
-    //    stim = ifcstim;
-    //    if(revise){
-    //      es = &expt.plot->stims[laststim];
-    //      stp = getexpval(laststim);
-    //      if(lastbutton == True) /* was correct */
-    //	es->resps[0]--;
-    //      else if(lastbutton == False) /* was wrong */
-    //	es->resps[1]--;
-    //    }
-    //	else{
-    //	  es = &expt.plot->stims[stim];
-    //	  stp = getexpval(stim);
-    //	  ifcsum += !ifcanswer;
-    //	  if(ifcanswer)
-    //	    es->nsame++;
-    //	}
-    //    val = stp->vals[EXP_PSYCHVAL];
-    //    if(ifcanswer == 0 && button == Button1 || 
-    //       ifcanswer == 1 && button == Button3){
-    //      c = 'C';
-    //	res = True;
-    //	es->resps[0]++;
-    //	if(ifcanswer)
-    //	  es->resps[4]++;
-    //	else
-    //	  es->resps[3]++;
-    //    }
-    //    else{
-    //      c = 'F';
-    //	res = False;
-    //	es->resps[1]++;
-    //	if(ifcanswer)
-    //	  es->resps[3]++;
-    //	else
-    //	  es->resps[4]++;
-    //    }
-    //    laststim = stimorder[stimno];
-    //    if(stimno &1)
-    //      ifcfirst = stimorder[stimno-1];
-    //    else
-    //      ifcfirst = -1;
-    //    lastbutton = res;
-    //  }
-    //  else{
-    //    if(revise){
-    //      es = &expt.plot->stims[laststim];
-    //      stp = getexpval(laststim);
-    //      val = stp->vals[EXP_PSYCHVAL];
-    //      if(lastbutton == Button1)
-    //	es->resps[0]--;
-    //      else if(lastbutton == Button3)
-    //	es->resps[1]--;
-    //      if(button == Button1)
-    //	{
-    //	  es->resps[0]++;
-    //	  c = 'L';
-    //	  retval = -1;
-    //	}
-    //      else if(button == Button3)
-    //	{
-    //	  es->resps[1]++;
-    //	  c = 'R';
-    //	  retval = 1;
-    //	}
-    //      else
-    //	{
-    //	  es->resps[2]++;
-    //	  c = 'M';
-    //	  retval = 0;
-    //	}
-    //    }
-    //    else{
-    //      es = &expt.plot->stims[stim];
-    //      stp = getexpval(stim);
-    //      val = stp->vals[EXP_PSYCHVAL];
-    //      if(val > 0)
-    //	{
-    //	  if(button == Button1)
-    //	    res = False;
-    //	  else
-    //	    res = True;
-    //	}
-    //      else if(val < 0)
-    //	{
-    //	  if(button == Button1)
-    //	    res = True;
-    //	  else
-    //	    res = False;
-    //	}
-    //      if(button == Button1)
-    //	{
-    //	  es->resps[0]++;
-    //	  c = 'L';
-    //	  retval = -1;
-    //	}
-    //  else if(button == Button3)
-    //    {
-    //    es->resps[1]++;
-    //    c = 'R';
-    //    retval = 1;
-    //  }
-    //  else
-    //    {
-    //    es->resps[2]++;
-    //    c = 'M';
-    //    retval = 0;
-    //  }
-    ///* 
-    // * only update laststim if this is not a revision
-    // */
-    //      laststim = stim;
-    //    } /* end else (i.e. not revize) */
-    //  lastbutton = button;
-    //  }
-    //
-    //  if(res == False)
-    //    afc_s.result = WRONG;
-    //  else if(res == TRUE)
-    //    afc_s.result = CORRECT;
-    //
-    //  if(optionflags[FLIP_FEEDBACK] && res >= 0)
-    //    res = !res;
-    //  if(res == False && optionflags[FEEDBACK] && res >= 0)
-    //    {
-    //    fprintf(stdout,"Wrong:");
-    //    start_timeout(SEARCH);
-    ////AliGLX    mySwapBuffers();
-    //    end_timeout();
-    ////AliGLX    mySwapBuffers();
-    //    }
-    //  
-    
     /*
      * left button % stored as spike 0., type 0.
      * this count is divided by nreps at plotting time, so each
      * button press scores 100% here
      */
-    if(!revise)
-        es->nreps[0][0]++; 
-    es->spcnt[0][0] = (100 * es->resps[0]);
     if(expt.stimid >= 0){
         if(option2flag & IFC)
             res = ifcanswer;
@@ -13264,7 +13150,6 @@ int ButtonResponse(int button, int revise, vcoord *locn)
         else
             sprintf(sbuf,"");
         
-        sprintf(buf,"%s %d(%d:%d,%d) %.3f(%3f) %d/%d %c %d %.3f %d %d/%d%s%s\n",(revise) ? "Revise" : "",stimno, stim,laststim,ifcfirst,expval[stim],es->x[0],es->resps[0],es->nreps[0][0],c,res,val,optionflags[FLIP_FEEDBACK],framesdone,realframes,rbuf,sbuf);
         framesum += framesdone;
         realframesum += realframes;
         fputs(buf,stdout);
@@ -13462,18 +13347,6 @@ int PrintPsychData(char *filename)
         fprintf(psychlog,"\nStimulus %s\n",DescribeStim(expt.st));
         fprintf(psychlog,"%s\n",cbuf);
     }
-    if(option2flag & IFC){
-        ntrials = 0;
-        first = 1;
-        for(i = first; i < expt.plot->nstim[5]; i++,es++){
-            ntrials += es->nreps[0][0];
-        }
-        es = &expt.plot->stims[expt.nstim[2]];
-        fprintf(fd,"IFC  %d/%d First\n",ifcsum,ntrials);
-    }
-    else
-        first = 0;
-    fprintf(fd,"Frames %.1f/%.1f\n",(float)(framesum)/ntrials,(float)(realframesum)/ntrials);
     
     if(expt.type2 != EXPTYPE_NONE && expt.nstim[1] > 0)
         fprintf(fd,"Trials: %s, n, left, right x%s\n",serial_names[expt.mode],serial_names[expt.type2]);
@@ -13493,8 +13366,6 @@ int PrintPsychData(char *filename)
                 else if(expt.type2 != EXPTYPE_NONE)
                     fprintf(fd,"Condition: %2s=%.4g \n",serial_strings[expt.type2],stp->vals[1]);
             }
-            if(es->nreps[0][0] > 0){
-                fprintf(fd,"%.5f %d %d %d %2s=%.*f",stp->vals[0],es->nreps[0][0],es->resps[0],es->resps[1],serial_strings[expt.type2],nfplaces[expt.type2],stp->vals[1]);
                 if(expt.type3 == XPOS){
                     id = expt.type3;
                     if(i >= expt.nstim[3])
@@ -13516,13 +13387,9 @@ int PrintPsychData(char *filename)
                     else
                         fprintf(fd," %s%.2f",serial_strings[id],expt.exp3vals[0]);
                 }
-                if(option2flag & IFC && optionflags[INTERLEAVE_FLIP]){
-                    fprintf(fd," %d %d %d",es->nsame,es->resps[3],es->resps[4]);
-                }
                 fprintf(fd,"\n");
             }
             lastval = stp->vals[1];
-        }
     }
     else
     {
@@ -13530,10 +13397,6 @@ int PrintPsychData(char *filename)
             stp = getexpval(i);
             if(stp->vals[1] != lastval && expt.type2 != EXPTYPE_NONE && expt.nstim[1] > 0){
                 fprintf(fd,"Condition: %2s=%.4g %2s=%.4g\n",serial_strings[expt.type2],stp->vals[1],serial_strings[XPOS], (i >= expt.nstim[3]) ? expt.vals[XPOS] *-1: expt.vals[XPOS]);
-            }
-            fprintf(fd,"%.5f %d %d %d",es->x[0],es->nreps[0][0],es->resps[0],es->resps[1]);
-            if(option2flag & IFC && optionflags[INTERLEAVE_FLIP]){
-                fprintf(fd," %d %d %d",es->nsame,es->resps[3],es->resps[4]);
             }
             fprintf(fd,"\n");
             lastval = stp->vals[1];

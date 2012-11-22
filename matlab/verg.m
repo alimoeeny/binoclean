@@ -23,6 +23,7 @@ if isempty(it)
         DATA = OpenPipes(DATA, 0);
         DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
+        DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
         if exist(DATA.binocstr.lo,'file')
             DATA = ReadLogFile(DATA, DATA.binocstr.lo);
         end
@@ -113,6 +114,8 @@ for j = 1:length(strs{1})
             DATA.optionflags.(cc) = 0;
         end
         DATA.optionstrings.(cc) = s(id(2)+1:end);
+    elseif strncmp(s,'rptexpts',6)
+        DATA.rptexpts = value;
     elseif strncmp(s,'STIMTYPE',6)
         id = strfind(s,' ');
         code = str2num(s(id(1)+1:id(2)-1))+1;
@@ -414,11 +417,11 @@ for j = 1:length(strs{1})
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
     elseif strncmp(s, 'EDONE', 5) %finished listing expt stims
         if isfield(DATA,'toplevel')
-            it = findobj(DATA.toplevel,'Tag','Expt3StimList');
+            it = findobj(DATA.toplevel,'Tag','Expt3StimList','style','edit');
             if length(it) == 1
                 set(it,'string',DATA.exptstimlist{3});
             end
-            it = findobj(DATA.toplevel,'Tag','Expt2StimList');
+            it = findobj(DATA.toplevel,'Tag','Expt2StimList','style','edit');
             if length(it) == 1
                 ival = get(it,'value');
                 ival = min([size(DATA.exptstimlist{2},2) ival]);
@@ -428,9 +431,21 @@ for j = 1:length(strs{1})
                 set(it,'string',DATA.exptstimlist{2},'value',ival);
             end
             
-            it = findobj(DATA.toplevel,'Tag','Expt1StimList');
+            it = findobj(DATA.toplevel,'Tag','Expt1StimList','style','edit');
             if length(it) == 1
                 set(it,'string',DATA.exptstimlist{1});
+            end
+        end
+        if isfield(DATA,'exptstimlist')
+            for j = 1:length(DATA.exptstimlist)
+                S = DATA.exptstimlist{j};
+                for m = 1:length(S)
+                    [val,n] = sscanf(S{m},'%f');
+                    if n == 1
+                        DATA.expvals{j}(m) = val;
+                    end
+                end
+                
             end
         end
     
@@ -472,7 +487,7 @@ for j = 1:length(strs{1})
             if length(n)
                 DATA.exptstimlist{2}{n(1)+1} = s(id(1)+1:end);
                 if isfield(DATA,'toplevel') && setlist
-                    it = findobj(DATA.toplevel,'Tag','Expt2StimList');
+                    it = findobj(DATA.toplevel,'Tag','Expt2StimList','style','edit');
                     if length(it) == 1
                         ival = get(it,'value');
                         ival = min([size(DATA.exptstimlist{2},2) ival]);
@@ -689,6 +704,7 @@ function SendChoiceTargets(fid, DATA)
             [s, lbl] = CodeText(DATA, f{j},'ChoiceU');
             fprintf(fid,'%s\t#ChoiceU %s\n',s,lbl);
         end
+%        StimToggleString(DATA,3);
     end
     if DATA.stimtype(4)
         fprintf(fid,'mo=ChoiceD\n');
@@ -698,6 +714,7 @@ function SendChoiceTargets(fid, DATA)
             [s, lbl] = CodeText(DATA, f{j},'ChoiceD');
             fprintf(fid,'%s\t#ChoiceD %s\n',s,lbl);
         end
+ %       StimToggleString(DATA,3);
     end
     
 
@@ -1087,7 +1104,7 @@ function DATA = InitInterface(DATA)
     lst = uicontrol(gcf, 'Style','list','String', 'Command History',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
-        'Callback', {@TextEntered}, 'Tag','NextButton',...
+        'Tag','CommandHistory',...
 'units','norm', 'Position',bp);
    DATA.txtrec = lst;
    
@@ -1175,27 +1192,36 @@ function DATA = InitInterface(DATA)
     
     
     cmenu = uicontextmenu;
-    uimenu(cmenu,'label','Apply','Callback',{@EditValsMenu, 'apply'});
-    uimenu(cmenu,'label','Cancel','Callback',{@EditValsMenu, 'cancel'});
+    uimenu(cmenu,'label','Apply to Expt 1 (cntrl-g)','Callback',{@EditValsMenu, 'apply1'});
+    uimenu(cmenu,'label','Cancel (Esc)','Callback',{@EditValsMenu, 'cancel'});
     
     bp(3) = 1./nc;
     bp(2) = 9./nr;
     bp(4) = 4/nr;
     bp(1) = 0.02+cw;
+ %elsewhere use findobj to get this item, so only use the tag once
     a= uicontrol(gcf,'style','edit','string',DATA.exptstimlist{1}, 'min',1,'max',5,...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt1StimList','keypressfcn',@EditText,'callback',@TextCallback);
-    set(cmenu,'UserData',a);
+    set(cmenu,'UserData',a,'tag','Expt1StimList');
     set(a,'uicontextmenu',cmenu);
+
+    
+    cmenu = uicontextmenu;
+    uimenu(cmenu,'label','Apply to Expt2 (cntrl-g)','Callback',{@EditValsMenu, 'apply2'});
+    uimenu(cmenu,'label','Cancel (Esc)','Callback',{@EditValsMenu, 'cancel'});
     bp(1) = bp(1)+bp(3)+0.01;
     a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(2)),  'min',1,'max',5,...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt2StimList','keypressfcn',@EditText);
     bp(1) = bp(1)+bp(3)+0.01;
-    set(cmenu,'UserData',a);
+    set(cmenu,'UserData',a,'tag','Expt2StimList');
     set(a,'uicontextmenu',cmenu);
 
+    cmenu = uicontextmenu;
+    uimenu(cmenu,'label','Apply to Expt3 (cntrl-g)','Callback',{@EditValsMenu, 'apply3'});
+    uimenu(cmenu,'label','Cancel (Esc)','Callback',{@EditValsMenu, 'cancel'});
     a = uicontrol(gcf,'style','edit','string',num2str(DATA.nstim(3)),  'min',1,'max',5, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt3StimList','keypressfcn',@EditText,'callback',@TextCallback);
-    set(cmenu,'UserData',a);
+    set(cmenu,'UserData',a,'tag','Expt3StimList');
     set(a,'uicontextmenu',cmenu);
     
     
@@ -1621,7 +1647,7 @@ function SendManualVals(a);
     
     
 function EditValsMenu(a,b, fcn)
-if strcmpi(fcn,'apply')
+if strncmpi(fcn,'apply',5)
     SendManualVals(get(get(a,'parent'),'UserData'));
 elseif strcmpi(fcn,'cancel')
     f = get(a,'parent');
@@ -1635,7 +1661,7 @@ function EditText(a,b)
          str = get(a,'string');
      end
      
-     if strcmp(b.Modifier,'command')
+     if strcmp(b.Modifier,'control')
          if b.Key == 'g'
             sendvals = 1;
          end
@@ -2840,12 +2866,15 @@ if strcmp(code,'optionflag')
             end
         end
         s = sprintf('op=0\n%s\n',s);
-        s= [s sprintf('%s',StimToggleString(DATA))];
+        s= [s sprintf('%s',StimToggleString(DATA,DATA.currentstim))];
     elseif strcmp(code,'nr')
         s = sprintf('%s=%d',code,DATA.binoc{1}.nr);
     elseif strmatch(code,{'nt' 'n2' 'n3'})
         id = strmatch(code,{'nt' 'n2' 'n3'});
         s = sprintf('%s=%d',code,DATA.nstim(id));
+    elseif strmatch(code,{'et' 'e2' 'e3'})
+        id = strmatch(code,{'et' 'e2' 'e3'});
+        s = sprintf('%s=%s',code,DATA.exptype{id});
     elseif strcmp(code,'expts')
         s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
         s = [s sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2))];
@@ -2877,15 +2906,18 @@ function StimToggle(a,b, flag)
     DATA = GetDataFromFig(a);
 %    flag = get(a,'Tag');
     DATA.stimflags{1}.(flag) = get(a,'value');
-    fprintf(DATA.outid,'%s\n',StimToggleString(DATA));
+    fprintf(DATA.outid,'%s\n',StimToggleString(DATA,DATA.currentstim));
     ReadFromBinoc(DATA);
 
-function s = StimToggleString(DATA)
+function s = StimToggleString(DATA, current)
     s = 'fl=';
-    f = fields(DATA.stimflags{1});
+    if current > length(DATA.stimflags)
+        return;
+    end
+    f = fields(DATA.stimflags{current});
 %always send + and -, so that don't have to track clearing
     for j = 1:length(f)
-        if DATA.stimflags{1}.(f{j})
+        if DATA.stimflags{current}.(f{j})
             s = [s '+' f{j}];
         else
             s = [s '-' f{j}];
@@ -2959,7 +2991,7 @@ if txt(end) == '='
     if strcmp(code,'op')
        txt = ['?' CodeText(DATA, 'optionflag')]; 
        str = 'Optionflag';
-    elseif strmatch(code,{'nr' 'nt' 'n2' 'n3'})
+    elseif strmatch(code,{'nr' 'nt' 'n2' 'n3' 'et' 'e2' 'e3' })
        txt = ['?' CodeText(DATA, code)];       
        str = 'Nstim';
     elseif isfield(DATA.binoc{DATA.currentstim},code)
@@ -3181,12 +3213,34 @@ function DATA = PlotPsych(DATA)
     else
         Expt.Header.psych  = 0;
     end
+    
+    f = {'m2' 'or' 'm3' 'n2'};
+    for j = 1:length(f)
+        if isfield(DATA.binoc{1},f{j})
+            Expt.Stimvals.(f{j}) = DATA.binoc{1}.(f{j});
+        end
+    end    
+    
     if DATA.psych.show
     DATA = SetFigure('VergPsych', DATA);
     hold off; 
     np = sum(abs([Expt.Trials.RespDir]) ==1); %psych trials
+    eargs = {};
     if np > 1
-    [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown');
+        if strcmp(Expt.Stimvals.e2,'od') && isfield(Expt.Stimvals,'or')
+            for j = 1:length(DATA.expvals{2})
+                do = DATA.expvals{2}(j);
+                lo = Expt.Stimvals.or + do/2;
+                ro = Expt.Stimvals.or - do/2;
+                legendlabels{j} = sprintf('R%.0dL%.0f',ro,lo);
+            end
+            eargs = {eargs{:} 'legendlabels' legendlabels};
+        end
+        [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown',eargs{:});
+        id = find(strcmp(Expt.Stimvals.et,{DATA.comcodes.code}));
+        if length(id) == 1
+            set(get(gca,'xlabel'),'string',DATA.comcodes(id).label);
+        end
     if DATA.psych.crosshairs
         plot([0 0], get(gca,'ylim'),'k:')
         plot(get(gca,'xlim'),[0.5 0.5],'k:')
