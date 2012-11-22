@@ -23,7 +23,7 @@ Things that need fixing:
 * display these (verge or binoc): total Number of trials, trials done so far, time lapsed, time since the end of the last experiment
 * keep list of quickexpts in binoc to feed to verg.
 * expt cancel often doesn't work
-- Verg needs to send back \mimic
+* Verg needs to send back \mimic
 - Electrode Position does not update on the display
 - uDrive commands larger than 300 should be confimed not rejected
 - uDrive commands that are rejected should be reverted (not applied to the variable)
@@ -47,9 +47,9 @@ Things that need fixing:
 * change all the recovery file extension to .stm 
 * handle quit commands comming from verg
 * change all the recovery file extension to .stm 
-- in the PsychMon window add a list (history) of experiments to the Expt menu
-- Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
-- increase the font size in verg window
+* in the PsychMon window add a list (history) of experiments to the Expt menu
+* Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
+* increase the font size in verg window
 * in the PsychMon window add a list (history) of experiments to the Expt menu
 * cd paint_targ Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
 - need to make cursor invisible in Red and Blue
