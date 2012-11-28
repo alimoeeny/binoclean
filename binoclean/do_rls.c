@@ -54,6 +54,7 @@ Substim *NewRls(Stimulus *st, Substim *sst, Substim  *copy)
     if(sst->ptr == NULL)
         sst->ptr = (OneStim *) (malloc(sizeof(OneStim)));
     init_rls(st,sst,sst->density);
+    st->flag |= (CONTRAST_POSITIVE | CONTRAST_NEGATIVE);
     st->type = STIM_RLS;
     sst->type = STIM_RLS;
     return(sst);

@@ -4978,7 +4978,7 @@ void setstimulusorder(int warnings)
                         rnd = rnd_i();
                         n = twoseq[tw] = rnd % expt.nstim[1];
                         if((tw+i)%expt.stimpertrial == 0)
-                            tm = threeseq[tw] = (rnd > 8) % expt.nstim[4];
+                            tm = threeseq[tw] = (rnd >> 8) % expt.nstim[4];
                         else
                             threeseq[tw] = tm;
                         j = tm * expt.nstim[1] + n;
@@ -4992,7 +4992,7 @@ void setstimulusorder(int warnings)
                     do{
                         rnd = rnd_i();
                         n = twoseq[tw] = rnd % expt.nstim[1];
-                        m = threeseq[tw] = (rnd > 8) % expt.nstim[4];
+                        m = threeseq[tw] = (rnd >> 8) % expt.nstim[4];
                         j = m * expt.nstim[1] + n;
                     }while(donetwo[j] && maxcnt++ < 1000);
                     donetwo[j] = 1;
@@ -7667,7 +7667,7 @@ int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
          * PROPORTION of frames contains the signal disparity.
          */
         frameseq[i] = minval + (rnd-nextra) * inc;
-        if(((lrnd > 8) & 0xff) < 255 * stp->vals[1]){
+        if(((lrnd >> 8) & 0xff) < 255 * stp->vals[1]){
             frameseq[i] = stp->vals[0];
             frameiseq[i] = 0;
         }
@@ -8784,7 +8784,7 @@ int PrepareExptStim(int show, int caller)
                     fprintf(seroutfile,"#rnd%.5f %ld\n",rval,expt.st->left->baseseed);
                 
                 if(rval <= 0.4){ // add a pulse
-                    i = (lrnd > 16) % k;
+                    i = (lrnd >> 16) % k;
                     for(k = sigframes[i]+1; k < sigframes[i]+pw; k++)
                     {
                         rcstimid[k] = frameiseq[k] = 0;
