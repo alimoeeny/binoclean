@@ -65,6 +65,7 @@ static float pursued = 0;
 int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
+float totalreward = 0;
 
 int useDIO = 1;
 int fullscreenmode = 0;
@@ -1352,7 +1353,7 @@ int SendTrialCount()
     else
         stim = stimno;
     
-    sprintf(buf,"STIMC %d %d %d %d %d %d %d\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stim,expt.nreps*expt.nstim[5]);
+    sprintf(buf,"STIMC %d %d %d %d %d %d %d %.1f\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stim,expt.nreps*expt.nstim[5],totalreward);
     notify(buf);
 }
 
@@ -8991,6 +8992,8 @@ int ShowTrialCount(float down, float sum)
                 totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
     
     
+    sprintf(buf," rw%.1f ",totalreward);
+    strcat(mssg,buf);
 	if(TheStim->mode & EXPTPENDING)
     {
 	    sprintf(buf,"Ex: %d/%d",stimno,expt.nreps*expt.nstim[5]);
@@ -9328,6 +9331,7 @@ int GotChar(char c)
                         afctrials++;
                         afc_s.lasttrial = c;
                     }
+                    totalreward += expt.vals[REWARD_SIZE];
                 }
 			    else if(c==BAD_FIXATION)
                 {
@@ -9670,8 +9674,9 @@ int GotChar(char c)
                 }
                 else if(option2flag & AFC){
                 }
-                else if(rndbonus > 0 && (i = random())%rndbonus == 0 && !optionflags[INITIAL_TRAINING])
-                    TheStim->fix.rwsize = oldrw * 3;		 
+                else if(rndbonus > 0 && (i = random())%rndbonus == 0 && !optionflags[INITIAL_TRAINING]){
+                    TheStim->fix.rwsize = oldrw * 3;
+                }
                 SerialSend(REWARD_SIZE);
                 expt.vals[REWARD_SIZE] = TheStim->fix.rwsize;
                 TheStim->fix.rwsize = oldrw;		    

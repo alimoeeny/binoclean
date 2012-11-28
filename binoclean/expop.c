@@ -6109,7 +6109,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
         case CHANNEL_CODE:
             cbuf[0] = 0;
-            for(i = 0; i < expt.bwptr->nchans; i++)
+            for(i = 10; i < expt.bwptr->nchans; i++)
             {
                 sprintf(temp,"ch%d%c,%2s%.2f,%.2s%d\n",i, 
                         (expt.bwptr->cflag & (1<<i)) ? '+' : '-',
@@ -6466,6 +6466,8 @@ char *SerialSend(int code)
         case STIMULUS_TYPE_CODE:
             SerialString(cbuf,0);
             break;
+        case CHANNEL_CODE:
+            i = 0; //for debugger
         default:
             SerialString(cbuf,0);
             break;
@@ -7252,9 +7254,11 @@ void SetSacVal(float stimval, int index)
          */
         
         /* only need this when NOT in an expt so remove for now*/
+// But unless check for in expt, can mess up expt, esp if MAGONE_SIGNTWO
+// when it can prevent exiting the loop
         if(afc_s.loopstate == CORRECTION_LOOP){
             //	val = expt.mean + ((expt.nstim[0]-1) * expt.incr)/2;
-            val = (float)copysign((double)val, (double)afc_s.jstairval); /* same direction as one got wrong */
+//            val = (float)copysign((double)val, (double)afc_s.jstairval); /* same direction as one got wrong */
         }
         
         
@@ -10765,6 +10769,8 @@ int ExptTrialOver(int type)
     if(stimi < 0)
         stimi = 0;
     
+    if (dorpt == 2 || afc_s.loopstate == CORRECTION_LOOP)
+        return(0);
     if(type == WURTZ_OK || type == WURTZ_OK_W){
         completed[stimi]++;
         if (expt.st->mode & EXPTPENDING){ // only count rpts in expt
@@ -11951,13 +11957,18 @@ int KeyPressed(char c)
 
     switch(c){
         case 4: // F1
-            ReadExptFile(NULL, 0, 0 , 0);
+            if (demomode > 0)
+                ReadExptFile(NULL, 0, 0 , 0);
             break;
         case 5: // F2
             RunOneTrial();
             break;
         case 6: // F3
-            runexpt(NULL,NULL,NULL);
+            if (demomode > 0)
+                runexpt(NULL,NULL,NULL);
+            break;
+        case 9: //F6
+            SerialSignal(FREE_REWARD);
             break;
         case 27: //ESC
             if (demomode != 0)

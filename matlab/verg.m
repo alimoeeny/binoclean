@@ -268,7 +268,10 @@ for j = 1:length(strs{1})
         DATA.winpos{4} = sscanf(s(eid(1)+1:end),'%d');
 
     elseif strncmp(s,'STIMC ',6)
-        DATA.trialcounts = sscanf(s(7:end),'%d');
+        DATA.trialcounts = sscanf(s(7:end),'%f');
+        if length(DATA.trialcounts) < 8
+            DATA.trialcounts(8) = 0;
+        end
         ShowStatus(DATA);
     elseif strncmp(s,'mo=fore',7)
         DATA.currentstim = 1;
@@ -565,6 +568,11 @@ firstline = 1+DATA.exptnextline;
             break;
         end
         [DATA, type] = InterpretLine(DATA,tline);
+  %if filename set before monkey, set monkeyname first
+        if strncmp(tline,'uf=',3) && strcmp(DATA.binocstr.monkey,'none')
+            DATA.binocstr.monkey = GetMonkeyName(DATA.datafile);
+            SendCode(DATA,'monkey');
+        end
         if DATA.over
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
@@ -1098,10 +1106,10 @@ function ShowStatus(DATA)
     else
         str = ['No status'];
     end
-    if isfield(DATA,'trialcounts')
-    s = sprintf('Trials %d/%d Bad%d Late%d  Ex:%d/%d %s',...
+    if isfield(DATA,'trialcounts') && length(DATA.trialcounts) > 7
+    s = sprintf('Trials %d/%d Bad%d Late%d  Rw%.1f Ex:%d/%d %s',...
     DATA.trialcounts(1),DATA.trialcounts(2),DATA.trialcounts(3),DATA.trialcounts(4),...
-    DATA.trialcounts(6),DATA.trialcounts(7),str);
+    DATA.trialcounts(8),DATA.trialcounts(6),DATA.trialcounts(7),str);
     else
         s = str;
     end
@@ -2951,7 +2959,7 @@ if strcmp(code,'optionflag')
         end
     elseif sum(strcmp(code,{DATA.strcodes.code})) == 1
         id = find(strcmp(code,{DATA.strcodes.code}));
-        s = sprintf('%s=%s',coe,DATA.binocstr.(code));
+        s = sprintf('%s=%s',code,DATA.binocstr.(code));
         lbl = DATA.strcodes(id).label;
     end
         
