@@ -7626,7 +7626,7 @@ int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
             frameiseq[i] = 1;
         }
         frameseq[i] = minval + (rnd-nextra) * inc;
-        if(((lrnd > 8) & 0xff) < 255 * stp->vals[0]){
+        if(((lrnd >> 8) & 0xff) < 255 * stp->vals[0]){
             frameseq[i] = stp->vals[1];
             frameiseq[i] = 0;
         }
