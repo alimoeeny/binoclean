@@ -70,9 +70,14 @@ end
 
 function [DATA, codetype] = InterpretLine(DATA, line)
 
-strs = textscan(line,'%s','delimiter','\n');
+    
 setlist = 0;  %% don't update gui for every line read.
 codetype = 0;
+
+if isempty(line)
+        return;
+end
+strs = textscan(line,'%s','delimiter','\n');
 
 for j = 1:length(strs{1})
  %   fprintf('%s\n', strs{1}{j});
@@ -104,7 +109,10 @@ for j = 1:length(strs{1})
         DATA.font.FontName = value;
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
-        DATA.electrodestrings = [DATA.electrodestrings{:} estr];
+        DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+    elseif strncmp(s,'user',4)
+        estr = s(eid(1)+1:end);
+        DATA.userstrings = {DATA.userstrings{:} estr};
     elseif strncmp(s,'layout',6)
         DATA.layoutfile = value;
     elseif strncmp(s,'TOGGLE',6)
@@ -136,6 +144,7 @@ for j = 1:length(strs{1})
         for j = 1:length(DATA.comcodes)
             if isempty(DATA.comcodes(j).code)
                 DATA.comcodes(j).code = 'xx';
+                DATA.comcodes(j).label = '';
             end
         end
     elseif strncmp(s,'CODE',4)
@@ -202,7 +211,13 @@ for j = 1:length(strs{1})
         tic; PsychMenu(DATA); 
         tic; SetGui(DATA,'set'); 
         ShowStatus(DATA);
-        if DATA.rptexpts > 0
+        if DATA.exptstoppedbyuser  
+        %if user hist cancal/stop, dont repeat or move on to automatic next expt
+            DATA.exptstoppedbyuser = 0;
+        elseif DATA.exptnextline > 0
+            DATA = ReadExptLines(DATA);
+            RunButton(DATA,[],1);
+        elseif DATA.rptexpts > 0
             DATA.rptexpts = DATA.rptexpts-1;
             it = findobj(DATA.toplevel,'Tag','RptExpts');
             set(it,'string',num2str(DATA.rptexpts));
@@ -539,6 +554,41 @@ function [code, codeid] = FindCode(DATA, s)
     end
         
 
+function DATA = ReadExptLines(DATA)
+
+firstline = 1+DATA.exptnextline;
+
+    for j = firstline:length(DATA.exptlines)
+        tline = DATA.exptlines{j};
+        if strncmp(tline,'next',4)
+            DATA.exptnextline = j;
+            break;
+        end
+        [DATA, type] = InterpretLine(DATA,tline);
+        if DATA.over
+            DATA.overcmds = {DATA.overcmds{:} tline};
+        elseif DATA.outid > 0
+            tline = strrep(tline,'\','\\');
+            tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
+            tline = strrep(tline,'\s+\n','\n');
+            fprintf(DATA.outid,[tline '\n']);
+        end
+    end
+    if j >= length(DATA.exptlines)
+            DATA.exptnextline = 0;
+    end
+    if DATA.outid > 0
+        fprintf(DATA.outid,'\neventcontinue\nEDONE\n');
+    end
+    for ex = 1:3
+        if length(DATA.expts{ex})
+            id = find(~ismember(DATA.expmenuvals{ex}, DATA.expts{ex}));
+            DATA.expmenuvals{ex} = [DATA.expts{ex} DATA.expmenuvals{ex}(id)];
+        end
+        DATA = SetExptMenus(DATA);
+    end
+
+    
 function DATA = ReadStimFile(DATA, name, varargin)
    
     setall = 0;
@@ -561,31 +611,12 @@ if fid > 0
         end
     DATA.over = 0;
     DATA.overcmds = {};
-    
-    tline = fgets(fid);
-    while ischar(tline)
-        [DATA, type] = InterpretLine(DATA,tline);
-        if DATA.over
-            DATA.overcmds = {DATA.overcmds{:} tline};
-        elseif DATA.outid > 0
-            tline = strrep(tline,'\','\\');
-            tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
-            tline = strrep(tline,'\s+\n','\n');
-            fprintf(DATA.outid,tline);
-        end
-        tline = fgets(fid);
-    end
+    DATA.exptnextline = 0;
+    a = textscan(fid,'%s','delimiter','\n');
+    DATA.exptlines = a{1};
     fclose(fid);
-    if DATA.outid > 0
-        fprintf(DATA.outid,'\neventcontinue\nEDONE\n');
-    end
-    for ex = 1:3
-        if length(DATA.expts{ex})
-            id = find(~ismember(DATA.expmenuvals{ex}, DATA.expts{ex}));
-            DATA.expmenuvals{ex} = [DATA.expts{ex} DATA.expmenuvals{ex}(id)];
-        end
-        DATA = SetExptMenus(DATA);
-    end
+    
+    DATA = ReadExptLines(DATA);
 else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
 end
@@ -865,6 +896,8 @@ DATA.Coil.offset= [0 0 0 0];
 DATA.Coil.so = [0 0 0 0];
 DATA.Coil.CriticalWeight = 0;
 DATA.layoutfile = '/local/verg.layout';
+DATA.exptnextline = 0;
+DATA.exptstoppedbyuser = 0;
 
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
@@ -899,6 +932,7 @@ DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
+DATA.userstrings = {};
 DATA.electrodestring = 'default';
 DATA.binocstr.monkey = 'none';
 DATA.binocstr.lo = '';
@@ -1357,6 +1391,8 @@ function DATA = InitInterface(DATA)
     BuildQuickMenu(DATA, hm);
         hm = uimenu(cntrl_box,'Label','&Pop','Tag','QuickMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
+%currently can do everything in binoc. Stick with this til need something
+%new....
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
     uimenu(hm,'Label','&Options','Callback',{@OptionPopup});
     uimenu(hm,'Label','Test','Callback',{@TestIO});
@@ -2087,14 +2123,16 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.Stimvals.st = DATA.stimulusnames{DATA.stimtype(1)};
             DATA.Expts{DATA.nexpts}.Start = now;
             DATA.optionflags.do = 1;
+            DATA.exptstoppedbyuser = 0;
                 DATA = ReadFromBinoc(DATA);
             %            DATA = GetState(DATA);
             else
                 DATA.rptexpts = 0;
-               fprintf(DATA.outid,'\\ecancel\n');
+                fprintf(DATA.outid,'\\ecancel\n');
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
-            DATA.optionflags.do = 0;
+                DATA.optionflags.do = 0;
+                DATA.exptstoppedbyuser = 1;
             end
         elseif type == 2
             fprintf(DATA.outid,'\\estop\n');
@@ -2102,6 +2140,7 @@ function RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
             DATA.Expts{DATA.nexpts}.End = now;
             DATA.optionflags.do = 0;
+            DATA.exptstoppedbyuser = 1;
         end
 %if expt is over, EXPTOVER should be received. - query state then
 %    DATA = GetState(DATA);
@@ -2147,15 +2186,21 @@ cntrl_box = figure('Position', DATA.winpos{3},...
             set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
     set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
 
-    nr = 10;
+    nr = 4;
     nc = 6;
     bp = [0.01 0.99-1/nr 1./nc 1./nr];
     uicontrol(gcf,'style','pushbutton','string','Apply', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Penset','callback',@OpenPenLog);
     bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 3./nc;
    uicontrol(gcf,'style','pop','string',DATA.electrodestrings, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','ElectrodeType','callback',{@MenuGui});
  
+    
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 1./nc;
+    uicontrol(gcf,'style','pop','string',DATA.userstrings, ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
     
     bp(1) = 0.01;
     bp(2) = bp(2)-1./nr;
@@ -2164,7 +2209,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
 
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','pe','callback',{@TextGui, 'pe'});
+        'units', 'norm', 'position',bp,'value',1,'Tag','pe','callback',{@TextGui, 'Pn'});
 
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','text','string','X', ...
@@ -2172,14 +2217,14 @@ cntrl_box = figure('Position', DATA.winpos{3},...
 
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','px','callback',{@TextGui, 'py'});
+        'units', 'norm', 'position',bp,'value',1,'Tag','px','callback',{@TextGui, 'Xp'});
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','text','string','Y', ...
         'units', 'norm', 'position',bp,'value',1);
 
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'py'});
+        'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'Yp'});
 
     bp(1) = 0.01;
     bp(2) = bp(2)-1./nr;
@@ -2772,6 +2817,13 @@ val = str2num(s(j,:));
 
 function OpenPenLog(a,b)
     DATA = GetDataFromFig(a);
+    F = get(a,'parent');
+    DATA.binoc{1}.Xp = Text2Val(findobj(F,'Tag','Xp'));
+    DATA.binoc{1}.Yp = Text2Val(findobj(F,'Tag','Yp'));
+    DATA.binoc{1}.Pn = Text2Val(findobj(F,'Tag','Pn'));
+    SendCode(DATA,{'Pn' 'Xp' 'Yp'});
+    %writing to pen log fone in binoc
+    if 0 
     if DATA.penid > 0
         fclose(DATA.penid);
     end
@@ -2779,6 +2831,7 @@ function OpenPenLog(a,b)
     DATA.penid = fopen(name,'a');
     fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc{1}.pe,DATA.binoc{1}.px,DATA.binoc{1}.py,datestr(now));
     fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);
+    end
     set(DATA.toplevel,'UserData',DATA);
     
     
