@@ -5253,12 +5253,14 @@ void setstimulusorder(int warnings)
             rptid[k][stimcount[k]] = i;
             stimcount[k]++;
         }
-        n = nreps/2;
+        n = floor(nreps/(1+expt.vals[RC_REPEATS]));
         for(j = 0; j < nstimtotal; j++){
             for(k = 0; k < n; k++){
-                a = rpts[j][k+n];
-                b = rpts[j][k];
-                seedorder[rptid[j][a]] = seedorder[rptid[j][b]];
+                a = rpts[j][k*n];
+                for (m = 1; m <= expt.vals[RC_REPEATS]; m++){
+                    b = rpts[j][k*n+m];
+                    seedorder[rptid[j][b]] = seedorder[rptid[j][a]];
+                }
             }
         }
 #ifdef WATCHSEQ
