@@ -9785,6 +9785,9 @@ void paint_target(float color, int flag)
         if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign < 0)
             ChoiceStima->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStima->noclear = 1;
+        increment_stimulus(ChoiceStima,&(ChoiceStima->pos));
+//        if (ChoiceStima->left->seedloop == 0)
+ //           ChoiceStima->left->baseseed+=2;
         calc_stimulus(ChoiceStima);
         paint_stimulus(ChoiceStima);
         ChoiceStima->pos.contrast = contrast;
@@ -9794,6 +9797,9 @@ void paint_target(float color, int flag)
         if((afc_s.sacval[0]+afc_s.sacval[1]) * afc_s.sign > 0)
             ChoiceStimb->pos.contrast = contrast * expt.vals[TARGET_RATIO];
         ChoiceStimb->noclear = 1;
+        increment_stimulus(ChoiceStimb,&(ChoiceStimb->pos));
+//        if (ChoiceStimb->left->seedloop == 0)
+//            ChoiceStimb->left->baseseed+=2;
         calc_stimulus(ChoiceStimb);
         paint_stimulus(ChoiceStimb);
         ChoiceStimb->pos.contrast = contrast;

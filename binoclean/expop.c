@@ -4829,6 +4829,7 @@ void setstimulusorder(int warnings)
     int rptid[MAXSTIM][MAXREPS];
     FILE *out;
     int noneed = 0;
+    int rcrpt = 0;
     
     if(!(mode & RUNNING))
         return;
@@ -5243,6 +5244,7 @@ void setstimulusorder(int warnings)
      * Check that have correctly generated nreps repetitions
      */
     if(expt.vals[RC_REPEATS] > 0){
+        rcrpt = expt.vals[RC_REPEATS]+1;
         for(j = 0; j < nstimtotal; j++)
             permute(&rpts[j][0], nreps);
         for(i = 0; i < nstimtotal; i++){
@@ -5253,12 +5255,20 @@ void setstimulusorder(int warnings)
             rptid[k][stimcount[k]] = i;
             stimcount[k]++;
         }
-        n = floor(nreps/(1+expt.vals[RC_REPEATS]));
+//#define WATCHSEQ 1
+#ifdef WATCHSEQ
+        out = fopen("preseed.test","w");
+        for(j = 0; j < ntoset; j++){
+            fprintf(out,"%d %d\n",seedorder[j],stimorder[j]);
+        }
+        fclose(out);
+#endif
+        n = floor(nreps/(rcrpt));
         for(j = 0; j < nstimtotal; j++){
             for(k = 0; k < n; k++){
-                a = rpts[j][k*n];
-                for (m = 1; m <= expt.vals[RC_REPEATS]; m++){
-                    b = rpts[j][k*n+m];
+                a = rpts[j][k*rcrpt];
+                for (m = 1; m < rcrpt; m++){
+                    b = rpts[j][(k*rcrpt)+m];
                     seedorder[rptid[j][b]] = seedorder[rptid[j][a]];
                 }
             }

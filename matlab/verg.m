@@ -1234,7 +1234,7 @@ function DATA = InitInterface(DATA)
     
     
     cmenu = uicontextmenu;
-    uimenu(cmenu,'label','Apply to Expt 1 (cntrl-g)','Callback',{@EditValsMenu, 'apply1'});
+    uimenu(cmenu,'label','Apply to Expt 1 (cntrl-g)','Callback',{@EditValsMenu, 'apply'});
     uimenu(cmenu,'label','Cancel (Esc)','Callback',{@EditValsMenu, 'cancel'});
     
     bp(3) = 1./nc;
@@ -1335,7 +1335,14 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.01;
     bp(2) = bp(2)+bp(4);
     bp(3) = cw;
-    uicontrol(gcf,'style','text','string','Fore',  'units', 'norm', 'Tag','CurrentStimLabel','position',bp);
+    a = uicontrol(gcf,'style','text','string','Fore',  'units', 'norm', 'Tag','CurrentStimLabel','position',bp);     
+    cmenu = uicontextmenu;
+    uimenu(cmenu,'label','Edit ForeGround','Callback',{@StimulusSelectMenu, 'fore'});
+    uimenu(cmenu,'label','Edit BackGround','Callback',{@StimulusSelectMenu, 'back'});
+    uimenu(cmenu,'label','Edit Choice Icon (U/R)','Callback',{@StimulusSelectMenu, 'ChoiceU'});
+    uimenu(cmenu,'label','Edit Choice Icon (D/L)','Callback',{@StimulusSelectMenu, 'ChoiceD'});
+    set(a,'uicontextmenu',cmenu);
+    
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = cw;
     uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
@@ -1689,6 +1696,15 @@ function SendManualVals(a);
     fprintf(DATA.outid,'EDONE\n');
      
     
+function StimulusSelectMenu(a,b, fcn)
+    DATA = GetDataFromFig(a);
+    txt = ['mo=' fcn];
+    DATA = InterpretLine(DATA, txt);
+    if DATA.outid > 0
+         fprintf(DATA.outid,'%s\n',txt);
+    end
+    SetGui(DATA);
+    set(DATA.toplevel,'UserData',DATA);
     
 function EditValsMenu(a,b, fcn)
 if strncmpi(fcn,'apply',5)
