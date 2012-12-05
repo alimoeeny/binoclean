@@ -63,6 +63,7 @@ while j <= length(varargin)
         DATA = ReadStimFile(DATA, varargin{j});
         AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
+        DATA.optionflags.afc
         set(DATA.toplevel,'UserData',DATA);
     end
     j = j+1;
@@ -534,6 +535,7 @@ for j = 1:length(strs{1})
         if id
             code = s(1:id(1)-1);
             if isempty(strmatch(code, {'1t' '2t' '3t' '4t'})) %illegal names
+                code = deblank(code);
             val = sscanf(s(id(1)+1:end),'%f');
             DATA.binoc{DATA.currentstim}.(code) = val;
             end
@@ -576,6 +578,9 @@ firstline = 1+DATA.exptnextline;
         if DATA.over
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
+            if strncmp(tline,'op',2)
+                tline = strrep(tline,'+2a','+afc');
+            end
             tline = strrep(tline,'\','\\');
             tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
             tline = strrep(tline,'\s+\n','\n');
@@ -631,6 +636,8 @@ end
 if setall
     DATA = ReadVergFile(DATA, DATA.layoutfile);
 end
+
+
 
 function DATA = ReadVergFile(DATA, name, varargin)
 %Read file htat only affects verg, not binoc (e.g. layout)
