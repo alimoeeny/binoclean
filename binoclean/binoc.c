@@ -6407,6 +6407,7 @@ int next_frame(Stimulus *st)
                 } // end ExptItsRunning
                 else if(mode & ANIMATE_BIT)
                 {
+                    fprintf("Not in Expt %d %d\n",TheStim->mode & EXPTPENDING,states[EXPT_PAUSED]);
                     drag = 0;
                     mode |= NEED_REPAINT; /* make sure background done */
                     expt.st->framectr = 0;
@@ -9606,7 +9607,7 @@ int GotChar(char c)
                             stim_direction = AMBIGUOUS;
                     }
                     else
-                        stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right*/
+                        stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right. NB -1 is up/right*/
                     if (expt.vals[TARGET_RATIO] > 0.99)
                         trueafc = 1;
                     monkey_dir = monkey_direction(jonresult, afc_s);

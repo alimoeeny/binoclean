@@ -7120,10 +7120,12 @@ Thisstim *getexpval(int stimi)
             stimret.vals[EXP_PSYCHVAL] = stimret.vals[0];
         stimret.vals[SIGNAL_STRENGTH] = fabs(stimret.vals[0]);
         if(stimret.vals[EXP_PSYCHVAL] == 0 || stimret.vals[0] == INTERLEAVE_EXPT_ZERO){
-            if((drnd = drand48()) <= afc_s.proportion) // flip sign to match 2D expts above
+            if(afc_s.loopstate == CORRECTION_LOOP)
+                stimret.vals[EXP_PSYCHVAL] = afc_s.jlaststairval;
+            else if((drnd = drand48()) <= afc_s.proportion) // flip sign to match 2D expts above
                 stimret.vals[EXP_PSYCHVAL] = -1; 
             else
-                stimret.vals[EXP_PSYCHVAL] = 1;
+                stimret.vals[EXP_PSYCHVAL] = 1; //up/left on binoc screen
             afc_s.jsignval = 0;
             stimret.vals[SIGNAL_STRENGTH] = 0;
         }
@@ -7289,8 +7291,10 @@ void SetSacVal(float stimval, int index)
             val = 0;
         
         rewardall = 0;
-        if (val < 0.00001 && val > -0.00001){ // zero signal
-            if ( (d = rnd_01d()) >= afc_s.proportion)
+        if (val < 0.00001 && val > -0.00001){ // zero signal N.B.  may not get here when EXP_PSCHVAL is set to +/-1 in getexpval
+            if(afc_s.loopstate == CORRECTION_LOOP)
+                afc_s.sacval[0] = -afc_s.sacval[0];  //don't change'
+            else if ( (d = rnd_01d()) >= afc_s.proportion)
             {
                 afc_s.sacval[0] = -afc_s.abssac[0];
                 afc_s.sacval[1] = -afc_s.abssac[1];
@@ -7573,12 +7577,14 @@ char *ShowStimVals(Thisstim *stp)
         }
         else
             strcat(cbuf," ustim");
-        
     }
     else
         strcat(cbuf,ebuf);
     if(afc_s.loopstate == CORRECTION_LOOP)
         strcat(cbuf,"**");
+    else if(!expt.st->mode & EXPTPENDING)
+        strcat(cbuf,"*rolling*");
+        
     statusline(cbuf);
     return(cbuf);
 }
@@ -8652,18 +8658,19 @@ int PrepareExptStim(int show, int caller)
         minval = expt.vals[DISTRIBUTION_MEAN] - ((nv-1) * inc/2);
         expt.fasttype = expt.mode;
         expt.fastbtype = ORIENTATION;
+        expt.fastctype = EXPTYPE_NONE;
         for(i = 0; i < expt.st->nframes+1; i++){
             rval = rnd_01d();
             if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[0]) < expt.vals[INITIAL_APPLY_MAX]){
                 lrnd = rnd_i();
-                frameseq[i] = 1;
+                frameseq[i] = 1; // full contrast for grating 1
                 frameseqb[i] = minval + (lrnd%nv) * inc;
                 frameiseq[i] = 1+(lrnd%nv);
                 dframeseq[i] = 1;
             }
             else{
-                frameseqb[i] = expt.vals[ORIENTATION];
-                frameseq[i] = expt.vals[expt.mode];
+                frameseqb[i] = expt.stimvals[ORIENTATION];
+                frameseq[i] = stp->vals[0];
                 frameiseq[i] = 0;
                 dframeseq[i] = 1;
             }

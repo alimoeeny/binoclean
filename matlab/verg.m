@@ -2771,7 +2771,9 @@ function CloseWindow(a,b,wid)
   DATA = GetDataFromFig(a);
   x = get(a, 'position');
   DATA.winpos{wid} = x;
+  if isfigure(DATA.toplevel)
   set(DATA.toplevel,'UserData',DATA);
+  end
   delete(a);
         
     

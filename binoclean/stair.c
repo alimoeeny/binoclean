@@ -178,7 +178,7 @@ int loopstate_counters(int direction, int response)
     char buf[BUFSIZ];
     
     switch (direction){
-        case JONLEFT:
+        case JONLEFT:  //Right/Up on binoc screen!  if afc_s.sign > 0
             if (afc_s.sign < 0){  // tagets reversed
             switch(response){
                 case CORRECT:
@@ -224,7 +224,7 @@ int loopstate_counters(int direction, int response)
                     ranleft++;
             }
             break;
-        case JONRIGHT:
+        case JONRIGHT: //Left/Down on binoc screen!  if afc_s.sign > 0
             if (afc_s.sign < 0){  // tagets reversed
                 switch(response){
                     case WRONG:
@@ -279,6 +279,12 @@ int loopstate_counters(int direction, int response)
     sprintf(buf,"Wrong. Dir %d x %d. Loopctr %d,%d",direction, afc_s.sign,missed_positive,missed_negative);
     statusline(buf);
     }
+
+#define MONITOR_CORRECTION_LOOP 1
+#ifdef MONITOR_CORRECTION_LOOP
+    if(seroutfile)
+        fprintf(seroutfile,"#CL%dR%d %d,%d\n",afc_s.loopstate,response,missed_positive,missed_negative);
+#endif
 
     
     afc_s.laststate = afc_s.loopstate;
