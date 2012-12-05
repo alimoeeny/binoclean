@@ -902,7 +902,7 @@ double *AdjustEyePos(int len)
 char *EyePosString()
 {
     static char ebuf[BUFSIZ];
-    int i = wurtzctr-1;
+    int i = (wurtzctr-1)%BUFSIZ;
     
     if (i < 0)
         i = 0;
@@ -8644,6 +8644,32 @@ int PrepareExptStim(int show, int caller)
         for(j = nv; j < nv+expt.vals[PULSE_WIDTH]; j++)
             frameseq[j] = stp->vals[1];
     }
+    else if(expt.vals[DISTRIBUTION_CONC] > 0 && (nv = expt.vals[DISTRIBUTION_WIDTH]) > 1
+            && expt.mode == PLAID_RATIO)
+    {
+        optionflags[FAST_SEQUENCE] = 1;
+        inc = expt.vals[RC1INC];
+        minval = expt.vals[DISTRIBUTION_MEAN] - ((nv-1) * inc/2);
+        expt.fasttype = expt.mode;
+        expt.fastbtype = ORIENTATION;
+        for(i = 0; i < expt.st->nframes+1; i++){
+            rval = rnd_01d();
+            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[0]) < expt.vals[INITIAL_APPLY_MAX]){
+                lrnd = rnd_i();
+                frameseq[i] = 1;
+                frameseqb[i] = minval + (lrnd%nv) * inc;
+                frameiseq[i] = 1+(lrnd%nv);
+                dframeseq[i] = 1;
+            }
+            else{
+                frameseqb[i] = expt.vals[ORIENTATION];
+                frameseq[i] = expt.vals[expt.mode];
+                frameiseq[i] = 0;
+                dframeseq[i] = 1;
+            }
+            rcstimid[i] = frameiseq[i];
+        }
+    }
     else if(optionflags[FAST_SEQUENCE]){
         expt.fastbtype = EXPTYPE_NONE;
         expt.fastctype = EXPTYPE_NONE;
@@ -12232,8 +12258,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
          */
         sscanf(line,"%*s %f %f %f %f",&in[0],&in[1],&in[2],&in[3]);
         
-        fxpos[2] = fxpos[3] = expt.stimvals[FIXPOS_Y] * DEG2INT;
-        fxpos[0] = fxpos[1] = expt.stimvals[FIXPOS_X] * DEG2INT;
+        fxpos[2] = fxpos[3] = expt.stimvals[FIXPOS_Y];
+        fxpos[0] = fxpos[1] = expt.stimvals[FIXPOS_X];
         i = (wurtzctr-1) % BUFSIZ;
         for(j = 0; j < 4; j++)
             trialeyepos[j][i] = in[j]-fxpos[j];

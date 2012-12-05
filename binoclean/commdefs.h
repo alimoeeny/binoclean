@@ -424,7 +424,8 @@
 #define BLACKDOT_FRACTION MAXSERIALCODES+160
 #define HIGHXTYPE MAXSERIALCODES+161
 #define MONKEYNAME MAXSERIALCODES+162
-#define MAXSAVECODES MAXSERIALCODES+163 //362
+#define SIGNALFRAME_P MAXSERIALCODES+163
+#define MAXSAVECODES MAXSERIALCODES+164 //362
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -873,7 +874,7 @@ ValueCode valstrings[] = {
   {"hx",     "High X Value for Interleaves",HIGHX, 16 , 'N' ,2, SEND_EXPLICIT},
   {"sM",     "Stimulus mode",STIMULUS_MODE, 1 , 'N' ,2, SEND_EXPT},
   {"wr",     "WURTZ task response period", WURTZ_RT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"mD",     "Max disp Initial manip", INITIAL_APPLY_MAX, 17 , 'N' ,5, SEND_EXPT},
+  {"mD",     "Max Signal for Near-zero manip", INITIAL_APPLY_MAX, 17 , 'N' ,5, SEND_EXPT},
   {"op",     "optionflag setup", OPTION_CODE, 16 , 'N' ,2, SEND_STIMULUS},
   {"nr",     "N Repetitions", NREPS_CODE, 16 , 'N' ,2, SEND_EXPT},
   {"tl",     "trigger level", TRIGGER_LEVEL, 0 , 'N' ,2, SEND_EXPLICIT},
@@ -1108,6 +1109,7 @@ ValueCode valstrings[] = {
   {"oS",     "Log Size",LOG_SIZE, 528 , 'N' ,2, SEND_EXPLICIT},
   {"m3",     "Expt 3 Mean",EXPT3_MEAN, 16 , 'N' ,2, SEND_EXPT},
   {"pU",     "p(Uncorr)",UNCORR_P , 16 , 'N' ,2, SEND_EXPLICIT},
+    {"pS",  "p(Signal frame)", SIGNALFRAME_P, 16, 'N', 2, SEND_EXPLICIT},
   {"pT",     "p(One Target)",ONETARGET_P, 16 , 'N' ,2, SEND_EXPLICIT},
   {"sO",     "StimOrthog Pos",STIMORTHOG_POS, 513 , 'N' ,2, SEND_EXPLICIT},
   {"pR",     "Plaid Contrast Ratio",PLAID_RATIO, 1 , 'N' ,4, SEND_EXPLICIT},
