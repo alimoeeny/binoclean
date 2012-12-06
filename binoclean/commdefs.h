@@ -812,6 +812,7 @@ char *bwtoggle_codes[] = {
  *         128 commands
  *         256 RF properties
  *         512 Indirect properties
+ *         1024 Internal commands (sb+)
  */
 ValueCode valstrings[] = {
   {"xo","X offset",  XPOS, 1, 'N' ,2, SEND_EXPT},
@@ -903,10 +904,10 @@ ValueCode valstrings[] = {
   {"ti",     "Timeout",  TIMEOUT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"so",     "Software Offsets",SOFTOFF_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
   {"qs",     "Query State", QUERY_STATE, 128 , 'N' ,2, SEND_USER_ONLY},
-  {"sb",     "Stop Button", STOP_BUTTON, 128 , 'N' ,2, SEND_EXPLICIT},
+  {"sb",     "Stop Button", STOP_BUTTON, 1024 , 'N' ,2, SEND_EXPLICIT},
   {"ra",     "Ramp Amplitude", RAMP_AMPLITUDE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"lb",     "Initial Blank Period", TRIAL_START_BLANK, 16 , 'N' ,2, SEND_EXPT},
-  {"ul",     "UpLoad Directory*", UPLOAD_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"ul",     "UpLoad Directory*", UPLOAD_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"vw",     "Vergence Window",VERGENCE_WINDOW, 8 , 'N' ,2, SEND_EXPLICIT},
   {"sp",     "Short Prem Trial Length",SHORT_PREM_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"ed",     "electrode depth", ELECTRODE_DEPTH, 32 , 'N' ,2, SEND_USER_ONLY},
@@ -914,11 +915,11 @@ ValueCode valstrings[] = {
   {"ss",     "Seed Shift/UC gap", SEED_SHIFT, 7 , 'N' ,0, SEND_EXPLICIT},
   {"cp",     "Conjugate Position",CONJUGATE_POSITION, 8 , 'N' ,2, SEND_EXPLICIT},
   {"pd",     "Deg2pix", DEG2PIX, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"yx",     "DRAGGED_POS",DRAGGED_POS, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"yx",     "DRAGGED_POS",DRAGGED_POS, 1024 , 'N' ,2, SEND_EXPLICIT},
   {"o2",     "optionflag2",STIMULUS_OPTIONS, 32 , 'N' ,2, SEND_EXPLICIT},
   {"sq",     "H Saccade Size",SACCADE_VALUE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"to",     "WRONG_TIMEOUT",WRONG_TIMEOUT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"s0",     "STARTVAL",STARTVAL, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"s0",     "STARTVAL", STARTVAL, 8 , 'N' ,2, SEND_EXPLICIT},
   {"sh",     "MAXSTAIRVAL",MAXSTAIRVAL, 8 , 'N' ,2, SEND_EXPLICIT},
   {"sm",     "MINSTAIRVAL",MINSTAIRVAL, 8 , 'N' ,2, SEND_EXPLICIT},
   {"js",     "STANDING_DISP",STANDING_DISP, 1 , 'N' ,4, SEND_EXPT},

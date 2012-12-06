@@ -5932,7 +5932,8 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             break;
         case EXPTVALS:
             if(optionflags[FAST_SEQUENCE]){
-                if(expt.mode == DISTRIBUTION_CONC){
+                if(expt.mode == DISTRIBUTION_CONC ||
+                   (expt.vals[DISTRIBUTION_CONC] > 0 && (expt.mode == PLAID_RATIO || expt.mode == CONTRAST_DIFF))){
                     fastvals[0] = INTERLEAVE_SIGNAL_FRAME;
                     // +1 to make room for fastvals[0]
                     nstim = 1+expt.vals[DISTRIBUTION_WIDTH];
@@ -6776,6 +6777,7 @@ void InitExpt()
         stimulus_is_prepared = 0;
         PrepareExptStim(1,6);
     }
+
     else{
         expt.vals[BLANK_P] = 0;
         expt.vals[UNCORR_P] = 0;
@@ -7697,6 +7699,10 @@ int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
             frameiseq[i] = rnd+1;
         frameseqb[i] = stp->vals[1];
         
+    }
+    else if (expt.vals[DISTRIBUTION_CONC] > 0 && expt.mode == CONTRAST_DIFF || expt.mode == PLAID_RATIO){
+        frameseq[i] = minval + (rnd-nextra) * inc;
+        frameiseq[i] = rnd+1;
     }
     else if(expt.type2 != EXPTYPE_NONE && expt.nstim[1] > 1){
         /*
@@ -8676,6 +8682,41 @@ int PrepareExptStim(int show, int caller)
             }
             rcstimid[i] = frameiseq[i];
         }
+        expt.nfast = nv;
+        expt.minval = minval;
+        expt.fastincr = inc;
+    }
+    else if(expt.vals[DISTRIBUTION_CONC] > 0 && (nv = expt.vals[DISTRIBUTION_WIDTH]) > 1
+            &&  expt.mode == CONTRAST_DIFF)
+    {
+        optionflags[FAST_SEQUENCE] = 1;
+        inc = expt.vals[RC1INC];
+        minval = expt.vals[DISTRIBUTION_MEAN] - ((nv-1) * inc/2);
+        expt.fasttype = expt.mode;
+        expt.fastbtype = ORIENTATION;
+        expt.fastctype = expt.type2;
+        for(i = 0; i < expt.st->nframes+1; i++){
+            rval = rnd_01d();
+            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[0]) < expt.vals[INITIAL_APPLY_MAX]){
+                lrnd = rnd_i();
+                frameseq[i] = 0; // same ori in each eye
+                frameseqb[i] = minval + (lrnd%nv) * inc;
+                frameseqc[i] = 0; //same contrast in each eye
+                frameiseq[i] = 1+(lrnd%nv);
+                dframeseq[i] = 1;
+            }
+            else{
+                frameseqb[i] = expt.stimvals[ORIENTATION];
+                frameseq[i] = stp->vals[0];
+                frameseqc[i] = stp->vals[1];
+                frameiseq[i] = 0;
+                dframeseq[i] = 1;
+            }
+            rcstimid[i] = frameiseq[i];
+        }
+        expt.nfast = nv;
+        expt.minval = minval;
+        expt.fastincr = inc;
     }
     else if(optionflags[FAST_SEQUENCE]){
         expt.fastbtype = EXPTYPE_NONE;

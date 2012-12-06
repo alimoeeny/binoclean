@@ -6407,7 +6407,7 @@ int next_frame(Stimulus *st)
                 } // end ExptItsRunning
                 else if(mode & ANIMATE_BIT)
                 {
-                    fprintf("Not in Expt %d %d\n",TheStim->mode & EXPTPENDING,states[EXPT_PAUSED]);
+                    fprintf(stderr,"Not in Expt %d %d\n",TheStim->mode & EXPTPENDING,states[EXPT_PAUSED]);
                     drag = 0;
                     mode |= NEED_REPAINT; /* make sure background done */
                     expt.st->framectr = 0;

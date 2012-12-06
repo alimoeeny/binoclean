@@ -2310,9 +2310,17 @@ function CodesPopup(a,b, type)
 
   DATA = GetDataFromFig(a);
   
-  if strmatch(type,{'bycode' 'bylabel' 'bygroup' 'numeric'},'exact')
+  if isnumeric(type) | strmatch(type,{'bycode' 'bylabel' 'bygroup' 'numeric'},'exact')
       lst = findobj(get(get(a,'parent'),'parent'),'Tag','CodeListString');
-      if strcmp(type,'bycode')
+      if isnumeric(type)
+          if type == 8
+            set(lst,'string','Codes controlling PsychoPhysics/Reward/Eye movement');
+          else
+          end
+          id = find(bitand([DATA.comcodes.group],type) > 0);
+        [c,b] = sort({DATA.comcodes(id).code});
+        b = id(b);
+      elseif strcmp(type,'bycode')
           set(lst,'string','Alphabetical by code');
           [c,b] = sort({DATA.comcodes.code});
       elseif strcmp(type,'bylabel')
@@ -2322,10 +2330,10 @@ function CodesPopup(a,b, type)
           set(lst ,'string','Groups:');
           id = find(bitand(1,[DATA.comcodes.group]));
           [c,b] = sort({DATA.comcodes(id).code});
-          labels{1} = 'Group 1';
+          labels{1} = 'Stimulus Rendering';
           id = find(bitand(2,[DATA.comcodes.group]));
           [c,d] = sort({DATA.comcodes(id).code});
-          labels{2} = 'Group 2';
+          labels{2} = 'Psychophysics/Reward';
           b = [b 0 d];
           id = find(bitand(4,[DATA.comcodes.group]));
           [c,d] = sort({DATA.comcodes(id).code});
@@ -2356,8 +2364,15 @@ function CodesPopup(a,b, type)
               s = labels{nlab};
           end
           a(j+nl,1:length(s)) = s;
+          a(j+nl,2+length(s):end) = 0;
       end
+      a = a(1:j+nl,:);
+      cmenu = uicontextmenu;
+      set(cmenu,'UserData',lst);
+      uimenu(cmenu,'label','Help','Callback',{@CodeListMenu, 'Help'});
       set(lst,'string',a);
+      %set(lst,'uicontextmenu',cmenu);    
+      
   end
   if ~strcmp(type,'popup')
       return;
@@ -2377,6 +2392,7 @@ function CodesPopup(a,b, type)
     sm = uimenu(hm,'Label','By Code','callback',{@CodesPopup, 'bycode'});
     sm = uimenu(hm,'Label','By Label','callback',{@CodesPopup, 'bylabel'});
     sm = uimenu(hm,'Label','By Group','callback',{@CodesPopup, 'bygroup'});
+    sm = uimenu(hm,'Label','Psych/Reward','callback',{@CodesPopup, 8 });
     sm = uimenu(hm,'Label','Numerical','callback',{@CodesPopup, 'numeric'});
     
     lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
@@ -2416,6 +2432,50 @@ set(lst,'string',DATA.Statuslines);
 DATA.statusitem = lst;
 set(DATA.toplevel,'UserData',DATA);
     
+
+function CodeListMenu(a,b,c)
+    lst = get(get(a,'parent'),'userdata');
+    strs = get(lst,'string')
+    line = get(lst,'value');
+    code = regexprep(strs(line,:),' .*','');
+    DATA = GetDataFromFig(lst);
+    if ~isfield(DATA,'helpdata')
+        DATA.helpdata = loadhelp('/local/binochelp.txt');
+    end
+    id = find(strcmp(code,DATA.helpdata.codes));
+    if ~isempty(id)
+       helpdlg(DATA.helpdata.help{id},code); 
+    else
+       helpdlg(sprintf('No Help on %s :(',code),code); 
+    end
+    
+function helpdata = loadhelp(name)
+    
+    fid = fopen(name,'r');
+    if (fid > 0)
+        a = textscan(fid,'%s','delimiter','\n');
+    end
+    txt = a{1};
+    hlp = [];
+    nh = 0;
+    for j = 1:length(txt)
+        if txt{j}(1) == ':'
+            id = strfind(txt{j},':');
+            if nh > 0
+                helpdata.codes{nh} = code;
+                helpdata.help{nh} = hlp;
+            end
+            nh = nh+1;
+            code = txt{j}(id(1)+1:id(2)-1);
+            hlp = txt{j}(id(2):end);
+            
+        else 
+            hlp = [hlp txt{j}];
+        end
+        helpdata.codes{nh} = code;
+        helpdata.help{nh} = hlp;
+    end
+        
 
 function DATA = ReadLogFile(DATA, name)
 
