@@ -9075,7 +9075,7 @@ int GotChar(char c)
 	float down, *ptr,t1,t2,t3,val,start,sacval[4],sacdir,sacsiz;
 	float choiceaxis,tansac;
 	static float intended;
-	char result = '0',buf[MBUFLEN],str[BUFSIZ];
+	char result = '0',buf[MBUFLEN],str[BUFSIZ],xresult = 0;
 	static int cctr = 0,lastcharcnt;
 	int jonresult,presult =-1;
 	int stim_direction;
@@ -9455,14 +9455,13 @@ int GotChar(char c)
                 {
                     if(c == WURTZ_OK || c == WURTZ_OK_W){
                     }
-                    
                     if(expt.flag & TIMES_EXPT2)
                         fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
-                                result,serial_strings[expt.mode],expt.currentval[0], 
+                                result,serial_strings[expt.mode],expt.currentval[0],
                                 serial_strings[expt.type2],expt.currentval[1]);
                     else if(abs(afc_s.ccvar) > 0.01)
                         fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
-                                result,serial_strings[expt.mode],expt.currentval[0], 
+                                result,serial_strings[expt.mode],expt.currentval[0],
                                 serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
                     else if(expt.type2 == OPPOSITE_DELAY &&expt.flag & ADD_EXPT2){
                         fprintf(seroutfile,"R%c %s=%.5f %s=%.5f",
@@ -9498,6 +9497,10 @@ int GotChar(char c)
                     
                     if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
                         fprintf(seroutfile," Corloop");
+                    if (microsaccade > 0)
+                        fprintf(seroutfile," Saccade");
+                    if (!(expt.st->mode & EXPTPENDING))// mark lines not in expt
+                        fprintf(seroutfile,'*');
                     fprintf(seroutfile,"\n");
                     fflush(seroutfile);
                 }

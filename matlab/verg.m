@@ -63,7 +63,7 @@ while j <= length(varargin)
         DATA = ReadStimFile(DATA, varargin{j});
         AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
-        DATA.optionflags.afc
+        DATA.optionflags.afc;
         set(DATA.toplevel,'UserData',DATA);
     end
     j = j+1;
@@ -124,7 +124,7 @@ for j = 1:length(strs{1})
         end
         DATA.optionstrings.(cc) = s(id(2)+1:end);
     elseif strncmp(s,'rptexpts',6)
-        DATA.rptexpts = value;
+        DATA.rptexpts = sscanf(value,'%d');
     elseif strncmp(s,'STIMTYPE',6)
         id = strfind(s,' ');
         code = str2num(s(id(1)+1:id(2)-1))+1;
@@ -1523,9 +1523,10 @@ function MenuHit(a,b, arg)
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
         end
-        for j = 1:length(DATA.windownames)
+        for j = 2:length(DATA.windownames)
             CloseTag(DATA.windownames{j});
         end
+        CloseTag(DATA.windownames{1}); %%close main window last
     elseif strcmp(arg,'choosefont')
         fn = uisetfont;
         DATA.font = fn;
@@ -2003,7 +2004,8 @@ function MenuGui(a,b)
            set(it,'value',DATA.optionflags.(f{j}));
            end
        end
-
+    ot = findobj('tag',DATA.windownames{3},'type','figure');
+    SetSoftOffWindow(DATA,ot);
 
  function SetTextItem(top, tag, value, varargin)
  it = findobj(top,'Tag',tag);
@@ -2725,24 +2727,32 @@ bp(1) = bp(1)+bp(3)+0.01;
     
 set(gcf,'CloseRequestFcn',{@CloseWindow, 6});
 
+function SetSoftOffWindow(DATA, a)
+    if ~isfigure(a)
+        return;
+    end
+     SetTextItem(a,'RH',DATA.binoc{1}.so(1));
+     SetTextItem(a,'LH',DATA.binoc{1}.so(2));
+     SetTextItem(a,'RV',DATA.binoc{1}.so(3));
+     SetTextItem(a,'LV',DATA.binoc{1}.so(4));
+
 function SoftoffPopup(a,b, type)
   DATA = GetDataFromFig(a);
   
   
-  id = strmatch(type,{'RH' 'LH' 'RV' 'LV' 'null' 'clear' 'popup'});
-  if isempty(id)
+  id = strmatch(type,{'RH' 'LH' 'RV' 'LV' 'null' 'clear' 'popup' 'set'});
+  if isempty(id)'
       return;
   elseif id < 5
       DATA.binoc{1}.so(id) = str2num(get(a,'string'));
       SendCode(DATA, 'so');
       set(DATA.toplevel,'UserData',DATA);
-  elseif id == 5
+  elseif id == 5 || id ==8
+      if id == 5
      fprintf(DATA.outid,'sonull\n');
      DATA = ReadFromBinoc(DATA);
-     SetTextItem(gcf,'RH',DATA.binoc{1}.so(1));
-     SetTextItem(gcf,'LH',DATA.binoc{1}.so(2));
-     SetTextItem(gcf,'RV',DATA.binoc{1}.so(3));
-     SetTextItem(gcf,'LV',DATA.binoc{1}.so(4));
+      end
+      SetSoftOffWindow(DATA, gcf);
   elseif id == 6
      fprintf(DATA.outid,'so=0 0 0 0\n');
      SetTextItem(gcf,'RH',0);

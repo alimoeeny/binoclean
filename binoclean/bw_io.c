@@ -64,7 +64,7 @@ char *getfilename(char *path)
 int SetBWChannel(int chan, char *s)
 {
     char *r,*t;
-    int i,ival,onoff;
+    int i,ival,onoff=0;
     
     
     r = s;

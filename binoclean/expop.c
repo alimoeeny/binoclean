@@ -972,7 +972,7 @@ write_helpfiles(FILE *ofd)
 
 int ResetCustomVals(int imode)
 {
-    int i;
+    int i=0;
     if(imode & CUSTOM_EXPVAL){
         mode |= CUSTOM_EXPVAL;
         for(i = 0; i < expt.nstim[0]; i++)
@@ -3203,7 +3203,7 @@ float GetProperty(Expt *exp, Stimulus *st, int code)
 
 float ExptProperty(Expt *exp, int flag)
 {
-    float val;
+    float val=0;
     Position x;
     
     switch(flag)
