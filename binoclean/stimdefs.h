@@ -543,6 +543,8 @@ float pix2degy(float val);
 #define isadotstim(x) (x != NULL && x->type == STIM_RDS || x->type == STIM_RLS || x->type == STIM_CORRUG || x->type == STIM_SQCORRUG)
 #define isanumber(c) (isdigit(c) || c == '-' || c =='+' || c == '*' || c == '.')
 
+// Need something else for 64 bit version.  drand48? 
+#define mydrand rnd_01d
 
 #define sinf(x) sin(x)
 #define cosf(x) cos(x)

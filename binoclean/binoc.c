@@ -5165,7 +5165,7 @@ int SetRandomPhase( Stimulus *st,     Locator *pos)
 void SetRandomCorrelation(Stimulus *st)
 {
     double arnd,brnd;
-    arnd = rnd_01d(); //left
+    arnd = mydrand(); //left
     if(st->flag & ANTICORRELATE)
         arnd *= -1;
     st->correlation = arnd;
@@ -5177,8 +5177,8 @@ void SetRandomCorrelation(Stimulus *st)
 void SetRandomContrast(Stimulus *st)
 {
 	double arnd,brnd;
-	arnd = rnd_01d(); //left
-	brnd = rnd_01d(); //right
+	arnd = mydrand(); //left
+	brnd = mydrand(); //right
 	st->pos.contrast = st->pos.contrast_amp * (arnd+brnd)/2;
 	st->contrast_disp = st->pos.contrast_amp * (arnd-brnd)/2;
 	if(rdspair(st) || rlspair(st)){
@@ -6650,7 +6650,7 @@ int next_frame(Stimulus *st)
                     GotChar(WURTZ_OK);
                 
             }
-            else if(mimic_fixation && (o = rnd_01d()) < mimicbadfix && stimno > 0
+            else if(mimic_fixation && (o = mydrand()) < mimicbadfix && stimno > 0
                     && waitcount == 0 && o != lasto){
                 lasto = 0;
                 if (dorpt && dorpt == lastrpt){
@@ -9500,7 +9500,7 @@ int GotChar(char c)
                     if (microsaccade > 0)
                         fprintf(seroutfile," Saccade");
                     if (!(expt.st->mode & EXPTPENDING))// mark lines not in expt
-                        fprintf(seroutfile,'*');
+                        fprintf(seroutfile,"*");
                     fprintf(seroutfile,"\n");
                     fflush(seroutfile);
                 }

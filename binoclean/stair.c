@@ -283,7 +283,7 @@ int loopstate_counters(int direction, int response)
 #define MONITOR_CORRECTION_LOOP 1
 #ifdef MONITOR_CORRECTION_LOOP
     if(seroutfile)
-        fprintf(seroutfile,"#CL%dR%d %d,%d\n",afc_s.loopstate,response,missed_positive,missed_negative);
+        fprintf(seroutfile,"#CL%dR%d %d,%d  %.1f,%.1f",afc_s.loopstate,response,missed_positive,missed_negative,afc_s.jstairval,afc_s.jlaststairval);
 #endif
 
     
@@ -292,6 +292,10 @@ int loopstate_counters(int direction, int response)
         loopstate = set_loop_state();
     if(afc_s.type == MAGONE_SIGNTWO)
         loopstate = set_loop_state();
+#ifdef MONITOR_CORRECTION_LOOP
+    if(seroutfile)
+        fprintf(seroutfile,"-> %d\n",loopstate);
+#endif
     return (loopstate);
     
 }

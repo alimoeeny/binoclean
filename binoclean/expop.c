@@ -1017,7 +1017,7 @@ int mygreg_setstair(int result, AFCstructure *afc, double *expvals)
     double scale = 2, rnd,arnd;
     int nstim = expt.nstim[0]+expt.nstim[2];
     
-    arnd = rnd = rnd_01d();
+    arnd = rnd = mydrand();
     
     
     scale = afc->gregvals[4];
@@ -1028,7 +1028,7 @@ int mygreg_setstair(int result, AFCstructure *afc, double *expvals)
         if(rnd < afc->gregvals[0]){
             afc->magid -= afc->stairsign;
         }
-        rnd = rnd_01d();
+        rnd = mydrand();
         if(rnd < afc->gregvals[2])
             afc->sign = -1 * afc->sign;
     }
@@ -1036,7 +1036,7 @@ int mygreg_setstair(int result, AFCstructure *afc, double *expvals)
         if(rnd < afc->gregvals[1]){
             afc->magid += afc->stairsign;
         }
-        rnd = rnd_01d();
+        rnd = mydrand();
         if(rnd < afc->gregvals[3])
             afc->sign = -1 * afc->sign;
     }
@@ -6315,8 +6315,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
         if(SACCREQD(afc_s) && !(option2flag & AFC) && confirm_no("Sure You Don't want AFC?",NULL))
             option2flag |= (AFC);
         if(optionflags[FAST_SEQUENCE] && expt.stimpertrial > 1){
-            if(confirm_no("Sure you want Nper > 1? (Fast Seq is ON)",NULL))
-                return;
+            acknowledge("You have Nper > 1? (Fast Seq is ON)",NULL);
         }
         if(!(optionflag & FIXATION_CHECK) && confirm_no("Sure You Don't want Fixation check?",NULL))
             optionflag |= FIXATION_CHECK;
@@ -7022,7 +7021,9 @@ Thisstim *getexpval(int stimi)
              * so that biases can be trained out.
              */
             if(stimret.vals[0] == 0 || stimret.vals[0] == INTERLEAVE_EXPT_ZERO){
-                if((drnd = rnd_01d()) <= afc_s.proportion)
+                if(afc_s.loopstate == CORRECTION_LOOP)
+                    stimret.vals[EXP_PSYCHVAL] = afc_s.jlaststairval;
+                else if((drnd = mydrand()) <= afc_s.proportion)
                     stimret.vals[EXP_PSYCHVAL] = -1; 
                 else
                     stimret.vals[EXP_PSYCHVAL] = 1;
@@ -7043,8 +7044,10 @@ Thisstim *getexpval(int stimi)
              * For broadband stimuli (defined by bw > 100) don't necessarily reward 50/50
              * but allow this to be set with afc-s.proportion, for training bad monkeys.
              */
-            if(stimret.vals[1] > MAXORBW){ 
-                if((drnd = rnd_01d()) <= afc_s.proportion)
+            if(stimret.vals[1] > MAXORBW){
+                if(afc_s.loopstate == CORRECTION_LOOP)
+                    stimret.vals[EXP_PSYCHVAL] = afc_s.jlaststairval;
+                else if((drnd = mydrand()) <= afc_s.proportion)
                     stimret.vals[EXP_PSYCHVAL] = -1; 
                 else
                     stimret.vals[EXP_PSYCHVAL] = 1;
@@ -7280,7 +7283,7 @@ void SetSacVal(float stimval, int index)
         
         if(  (option2flag & RANDOM) && (afc_s.loopstate == NORMAL_LOOP) ){
             val = fabs(stimval);
-            if(rnd_01d() <= afc_s.proportion)
+            if(mydrand() <= afc_s.proportion)
                 val *= -1; /*j swaps over*/
         }
         
@@ -7295,8 +7298,8 @@ void SetSacVal(float stimval, int index)
         rewardall = 0;
         if (val < 0.00001 && val > -0.00001){ // zero signal N.B.  may not get here when EXP_PSCHVAL is set to +/-1 in getexpval
             if(afc_s.loopstate == CORRECTION_LOOP)
-                afc_s.sacval[0] = -afc_s.sacval[0];  //don't change'
-            else if ( (d = rnd_01d()) >= afc_s.proportion)
+                afc_s.sacval[0] = afc_s.sacval[0];  //don't change'
+            else if ( (d = mydrand()) >= afc_s.proportion)
             {
                 afc_s.sacval[0] = -afc_s.abssac[0];
                 afc_s.sacval[1] = -afc_s.abssac[1];
@@ -7330,7 +7333,7 @@ void SetSacVal(float stimval, int index)
             }
             if (expt.vals[PREWARD] > 0.5){
                 temp = 2 * (expt.vals[PREWARD]-0.5);
-                if ( (d = rnd_01d()) < temp){
+                if ( (d = mydrand()) < temp){
                     rewardall = 1;
                 }
             }
@@ -7411,7 +7414,7 @@ void SetSacVal(float stimval, int index)
          * reward is random for both positions
          */
         if (val < 0.0001 && val > -0.0001){
-            if ( (d = rnd_01d()) >= 0.5)
+            if ( (d = mydrand()) >= 0.5)
                 SetProperty(&expt,expt.st,covaryprop,afc_s.ccvar);
             else
                 SetProperty(&expt,expt.st,covaryprop,-afc_s.ccvar);
@@ -7609,7 +7612,7 @@ int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
             nextra--;
             xoff++;
         }
-        frnd = rnd_01d();
+        frnd = mydrand();
     }
     else{
         frnd = expt.vals[BLANK_P] + 1;
@@ -7767,7 +7770,7 @@ int PrepareExptStim(int show, int caller)
     }
     if(expt.vals[RANDOM_ORI] > 0.001)
     {
-        rval = rnd_01d();
+        rval = mydrand();
         rval = (rval *2) - 1;
         val = expt.vals[RANDOM_ORI] * rval;
         SetProperty(&expt, expt.st, ORIENTATION, val + expt.stimvals[ORIENTATION]);
@@ -8133,7 +8136,7 @@ int PrepareExptStim(int show, int caller)
         sprintf(ebuf,"");
     
     if(expt.vals[ONETARGET_P] > 0){
-        if ((drnd = rnd_01d()) < expt.vals[ONETARGET_P])
+        if ((drnd = mydrand()) < expt.vals[ONETARGET_P])
             expt.vals[TARGET_RATIO] = 0;
         SerialSend(TARGET_RATIO);
     }
@@ -8481,7 +8484,7 @@ int PrepareExptStim(int show, int caller)
     if(expt.vals[RANDOM_X] > 0.0001)
     {
         
-        rval = rnd_01d();
+        rval = mydrand();
         rval = (rval *2) - 1;
         val = expt.vals[RANDOM_X] * rval;
         if(expt.type2 == STIM_POLARANGLE)
@@ -8553,7 +8556,7 @@ int PrepareExptStim(int show, int caller)
 #ifdef WATCHSEQ
         printf("Stim %d not done %d, unrep %d, val %.3f (%d)",expt.stimid,uncompleted[expt.stimid],unrepeatn[expt.stimid],val,stimno);
 #endif
-        if(rnd_01d() < val){
+        if(mydrand() < val){
             id = rnd_i() %  unrepeatn[expt.stimid];
             dorpt = unrepeated[expt.stimid][id];
             lastid = unrepeated[expt.stimid][unrepeatn[expt.stimid]-1];
@@ -8640,7 +8643,7 @@ int PrepareExptStim(int show, int caller)
             frameseq[i] = 0;
         }
         for(i = 0; i < expt.vals[STIM_PULSES]; i++){
-            nv = rint(rnd_01d() * (expt.st->nframes - expt.vals[PULSE_WIDTH]));
+            nv = rint(mydrand() * (expt.st->nframes - expt.vals[PULSE_WIDTH]));
             for(j = nv; j < nv+expt.vals[PULSE_WIDTH]; j++)
                 frameseq[j] = 1;
         }
@@ -8666,8 +8669,9 @@ int PrepareExptStim(int show, int caller)
         expt.fastbtype = ORIENTATION;
         expt.fastctype = EXPTYPE_NONE;
         for(i = 0; i < expt.st->nframes+1; i++){
-            rval = rnd_01d();
-            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[0]) < expt.vals[INITIAL_APPLY_MAX]){
+            rval = mydrand();
+            //use EXP_SPCYHVAL to determine whehter to add interleaves.  In case mean not zero
+            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[EXP_PSYCHVAL]) < expt.vals[INITIAL_APPLY_MAX]){
                 lrnd = rnd_i();
                 frameseq[i] = 1; // full contrast for grating 1
                 frameseqb[i] = minval + (lrnd%nv) * inc;
@@ -8696,8 +8700,8 @@ int PrepareExptStim(int show, int caller)
         expt.fastbtype = ORIENTATION;
         expt.fastctype = expt.type2;
         for(i = 0; i < expt.st->nframes+1; i++){
-            rval = rnd_01d();
-            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[0]) < expt.vals[INITIAL_APPLY_MAX]){
+            rval = mydrand();
+            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[EXP_PSYCHVAL]) < expt.vals[INITIAL_APPLY_MAX]){
                 lrnd = rnd_i();
                 frameseq[i] = 0; // same ori in each eye
                 frameseqb[i] = minval + (lrnd%nv) * inc;
@@ -8869,7 +8873,7 @@ int PrepareExptStim(int show, int caller)
                         isig = frameiseq[i];
                     }
                 }
-                rval = rnd_01d();
+                rval = mydrand();
                 if(seroutfile)
                     fprintf(seroutfile,"#rnd%.5f %ld\n",rval,expt.st->left->baseseed);
                 
