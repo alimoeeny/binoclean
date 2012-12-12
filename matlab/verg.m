@@ -1725,6 +1725,8 @@ end
     
 function EditText(a,b)
      sendvals = 0;
+    DATA = get(gcf,'UserData');  %this only called from main window
+    DATA.listmodified(1) = 1;
      if double(b.Character) == 13
          str = get(a,'string');
      end
@@ -1735,12 +1737,14 @@ function EditText(a,b)
          end
      end
      if strcmp(b.Key,'escape')
-          DATA = GetDataFromFig(get(a,'parent'));
          SendCode(DATA,'nt'); %makes binoc resend expt vals
      end
- if sendvals
-     SendManualVals(a);
-end
+     
+     if sendvals
+         SendManualVals(a);
+    end
+     set(DATA.toplevel,'UserData',DATA);
+    
    
  function EditList(a,b)
      id = get(a,'value')
@@ -2278,7 +2282,7 @@ nc = 4;
 nr = ceil((length(f)+nc-1)/nc);
 scrsz = get(0,'Screensize');
 cntrl_box = figure('Position', DATA.winpos{2},...
-        'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Options','menubar','none');
+        'NumberTitle', 'off', 'Tag',DATA.windownames{2},'Name','Options','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
         set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
             set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);

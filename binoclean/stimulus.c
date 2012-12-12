@@ -331,7 +331,7 @@ void draw_conjpos(vcoord fixw, float color)
     
     
     
-    if(fixw <= 0)
+    if(fixw <= 0 || !(optionflag & SHOW_CONJUG_BIT))
         return;
     linw = 1.0;
     glLineWidth(2.0);
@@ -570,8 +570,7 @@ void draw_fix(vcoord px, vcoord py, vcoord fixw, float color)
         setmask(BOTHMODE);
     }
     glPopMatrix();
-    if(optionflag & SHOW_CONJUG_BIT)
-        draw_conjpos(cmarker_size, 1.0);
+    draw_conjpos(cmarker_size, 1.0);
     
 }
 

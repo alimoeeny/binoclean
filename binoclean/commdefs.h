@@ -660,10 +660,11 @@ ToggleCode togglestrings[] = {
     {"no mirrors",    "m0",  0, NO_MIRRORS, 3},
     {"Check Vergence",    "cv", 0, VERGENCE_CHECK, 1},
     {"Vary Vergence",    "te", 0, INTERLEAVE_VERGENCE, 2},
+    {"See Conjug Pos",  "co", 0, SHOW_CONJUG_BIT, 1},
+    {"Move RF with conjug",    "mr",  0, MOVE_RF, 3},
 
     
     {"PsychoPhysics","lbl1",0,0, 0},
-//    {"See Conj",  "co", 0, SHOW_CONJUG_BIT, 1},
     {"AFC", "afc", 0, AFC, 2,},
     //   {"P.Perf",     "pp",  0, PERF_STRING, 2},
     {"Indicate Reward Bias",    "sR",  0, SHOW_REWARD_BIAS, 3},
@@ -762,7 +763,6 @@ ToggleCode togglestrings[] = {
    {"Initial Training",    "IT", 0, INITIAL_TRAINING, 3},
    {"Check FrameCounts",    "CF", 0, CHECK_FRAMECOUNTS, 3},
    {"Show Stim Boxes",    "SB", 0, SHOWSTIMBOXES, 3},
-    {"Move RF",    "mr",  0, MOVE_RF, 3},
     {"Frame Test",    "ft", 0, FRAME_ONLY_BIT, 1},
     {"SplitScreen",    "ss",  0, SPLITSCREEN, 3},
     {"Debug",    "od", 0, DEBUG_OUTPUT, 3},

@@ -12080,6 +12080,19 @@ int KeyPressed(char c)
     }
 }
 
+int ReadConjPos(Expt*ex, char *line)
+{
+    int x,y;
+    float ch,cv;
+    
+    sscanf(line,"$%3x%3x",&x,&y);
+    ch = ((float)(x)/60)-20;
+    cv = ((float)(y)/60)-20;
+    conjpos[0] = (vcoord)deg2pix(ch);
+    conjpos[1] = (vcoord)deg2pix(cv);
+    
+    return(0);
+}
 /*
  * Interpretline pases text strings from files, the serial line, and the GUI input pipe;
  * frompc = 1 mean it came form the serial line
@@ -12128,6 +12141,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(line[0] == '\\'){
         ReadCommand(&line[1]);
+    }
+    else if(line[0] == '\$'){
+        ReadConjPos(ex,line);
     }
     else if(!strcmp(line,"whatsup")){
         sendNotification();

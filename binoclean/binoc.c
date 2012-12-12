@@ -2863,13 +2863,7 @@ void redraw_overlay(struct plotdata  *plot)
     if(option2flag & PSYCHOPHYSICS_BIT && stimstate == STIMSTOPPED
        && option2flag & PERF_STRING)
         setmask(ALLPLANES);
-    /*  statusline(NULL);  redraws info line too often*/
-//    glstatusline(NULL,2);
-
-    if(optionflag & SHOW_CONJUG_BIT)
-    {
         draw_conjpos(cmarker_size,PLOT_COLOR);
-    }
     
 }
 
@@ -5780,6 +5774,8 @@ void paint_frame(int type, int showfix)
     if(showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
+    draw_conjpos(cmarker_size,PLOT_COLOR);
+
     if(debug)
         
         glFlushRenderAPPLE();
@@ -5798,6 +5794,7 @@ void paint_frame(int type, int showfix)
         else
             ShowBox(expt.rf,RF_COLOR);
     }
+    
 }
 
 int CheckFix()
@@ -6092,6 +6089,7 @@ int next_frame(Stimulus *st)
             }
             else
                 search_background();
+        draw_conjpos(cmarker_size,PLOT_COLOR);
             glSwapAPPLE();
             gettimeofday(&now,NULL);
 
