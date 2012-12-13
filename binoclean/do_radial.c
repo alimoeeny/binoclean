@@ -16,7 +16,7 @@ void init_radial(Stimulus *st, Substim *sst)
 	int i,j,w,h;
 	float val,xval,yval,x,y,cval,cm,deg,sx,sy;
 	Locator *pos = &sst->pos;
-	OneStim *gb = (OneStim *)sst->ptr;
+	OneStim *gb = sst->ptr;
     
 	w = st->pos.imsize[0];
 	h = st->pos.imsize[1];

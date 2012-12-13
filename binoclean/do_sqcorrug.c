@@ -155,7 +155,7 @@ void calc_sqcorrug(Stimulus *st, Substim *sst)
 {
     int i,j,partdisp,ndots;
     float cval,f,sy,cm,deg,iscale[2],val[2];
-    float asq,bsq,csq,dsq,xsq,ysq,pixdisp[2],offset[2],sindisp[2];
+    float asq=0,bsq=0,csq,dsq,xsq,ysq,pixdisp[2],offset[2],sindisp[2];
     float cosa, sina;
     int *p,*q,*cend;
     vcoord *x,*y,w,h, y_tra_with_angle;

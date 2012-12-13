@@ -4900,7 +4900,7 @@ void SendMovements()
     static int stimchanged = 0;
 void WriteSignal()
 {
-    char c;
+    char c = ' ';
 
     struct timeval atime;
     float val;
@@ -5192,7 +5192,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
     Thisstim *stp;
     static double dispphase = 0,idisp = 0;
     double rphase,rnd,arnd,brnd;
-    int period,asmode,newseed,ival,iphase;
+    int period,asmode,newseed=0,ival,iphase;
     char buf[BUFSIZ];
     static int dispchanged = 0;
     

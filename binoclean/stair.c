@@ -113,7 +113,7 @@ void nullify(char *s, int length)
 /********************************************************************************/
 int find_direction(float expval)
 {
-    int direction;
+    int direction =0;
     if(expval < 0.00001 && expval > -0.00001)
         direction = AMBIGUOUS;
     else if(expval < 0.0){
@@ -174,7 +174,7 @@ int monkey_direction(int response, AFCstructure afc_s)
 /********************************************************************************/
 int loopstate_counters(int direction, int response)
 {
-    int loopstate, count = afc_s.correction_leave+afc_s.correction_entry;
+    int loopstate =0, count = afc_s.correction_leave+afc_s.correction_entry;
     char buf[BUFSIZ];
     
     switch (direction){
@@ -568,7 +568,7 @@ stair_hist_s setup_stairstruct(float *startvalue, float stairfactor, float maxva
     float binvalue;
     stair_hist_s stair_structure;
     float upval;
-    int startbin;   
+    int startbin=0;
     
     if(*startvalue > maxvalue)
         *startvalue = maxvalue;

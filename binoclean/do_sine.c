@@ -110,7 +110,7 @@ void init_grating(Stimulus *st, Substim *sst)
 	int i,j,w,h;
 	float val,xval,yval,x,y,cval,cm,deg,sx,sy;
 	Locator *pos = &sst->pos;
-	OneStim *gb = (OneStim *)sst->ptr;
+	OneStim *gb = sst->ptr;
     
 	w = st->pos.size[0];
 	h = st->pos.size[1];

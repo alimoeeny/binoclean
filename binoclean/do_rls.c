@@ -1707,7 +1707,7 @@ int SaveRls(Stimulus *st, FILE *fd)
     static int firstcall = 1;
     
     
-    
+    ndots[0] = ndots[1] = 0;
     if(fd == NULL){
         fprintf(stderr,"Can't write rls\n");
         return(0);

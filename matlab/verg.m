@@ -39,6 +39,8 @@ if isempty(it)
     else
         DATA = ReadVergFile(DATA, DATA.layoutfile);
         DATA = OpenPipes(DATA, 1);
+        DATA.nexpts = 1;
+        DATA.Expts{1} = ExptSummary(DATA);
     end
     
     DATA = InitInterface(DATA);
@@ -913,7 +915,7 @@ DATA.Coil.CriticalWeight = 0;
 DATA.layoutfile = '/local/verg.layout';
 DATA.exptnextline = 0;
 DATA.exptstoppedbyuser = 0;
-
+DATA.listmodified = [0 0 0];
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
 DATA.Trial.sv = [];
@@ -1682,11 +1684,19 @@ function SaveLayout(DATA, name)
 function TextCallback(a,b)
     SendManualVals(a);
 
-function SendManualVals(a);
-    DATA = GetDataFromFig(get(a,'parent'));
-
-     str = get(a,'string');
-    tag = get(a,'Tag');
+    
+function SendManualVals(a, b)
+% a can be a handel to the list, or
+% a is DATA and b is the tag
+    if ishandle(a)
+        DATA = GetDataFromFig(get(a,'parent'));
+        tag = get(a,'Tag');
+    elseif nargin > 1
+        DATA = a;
+        tag = b;
+        a = findobj(DATA.toplevel,'Tag',tag,'type','uicontrol');
+    end
+    str = get(a,'string');
     if strcmp(tag,'Expt2StimList')
         c = 'EB';
     elseif strcmp(tag,'Expt3StimList')
@@ -1726,7 +1736,9 @@ end
 function EditText(a,b)
      sendvals = 0;
     DATA = get(gcf,'UserData');  %this only called from main window
-    DATA.listmodified(1) = 1;
+    tag = get(a,'tag');
+    e = find(strcmp(tag,{'Expt1StimList' 'Expt2StimList' 'Expt3StimList'}));
+    DATA.listmodified(e) = 1;
      if double(b.Character) == 13
          str = get(a,'string');
      end
@@ -2143,22 +2155,38 @@ function OpenUffFile(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf(DATA.outid,'\\openuff\n');
 
+
+function Expt = ExptSummary(DATA)
+    Expt.first = DATA.Trial.Trial;
+    Expt.Stimvals.et = DATA.exptype{1};
+    Expt.Stimvals.e2 = DATA.exptype{2};
+    Expt.Stimvals.e3 = DATA.exptype{3};
+    Expt.Stimvals.ei = DATA.incr(1);
+    Expt.Stimvals.i2 = DATA.incr(2);
+    Expt.Stimvals.i3 = DATA.incr(3);
+    Expt.Stimvals.st = DATA.stimulusnames{DATA.stimtype(1)};
+    Expt.Start = now;
+
+        
 function RunButton(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
         if type == 1
+
             if DATA.inexpt == 0 %sarting a new one. Increment counter
+            if DATA.listmodified(1)
+                SendManualVals(DATA,'Expt1StimList');
+            end
+            if DATA.listmodified(2)
+                SendManualVals(DATA,'Expt2StimList');
+            end
+            if DATA.listmodified(3)
+                SendManualVals(DATA,'Expt3StimList');
+            end
+            DATA.listmodified = [0 0 0];
             fprintf(DATA.outid,'\\expt\n');
             DATA.nexpts = DATA.nexpts+1;
-            DATA.Expts{DATA.nexpts}.first = DATA.Trial.Trial;
-            DATA.Expts{DATA.nexpts}.Stimvals.et = DATA.exptype{1};
-            DATA.Expts{DATA.nexpts}.Stimvals.e2 = DATA.exptype{2};
-            DATA.Expts{DATA.nexpts}.Stimvals.e3 = DATA.exptype{3};
-            DATA.Expts{DATA.nexpts}.Stimvals.ei = DATA.incr(1);
-            DATA.Expts{DATA.nexpts}.Stimvals.i2 = DATA.incr(2);
-            DATA.Expts{DATA.nexpts}.Stimvals.i3 = DATA.incr(3);
-            DATA.Expts{DATA.nexpts}.Stimvals.st = DATA.stimulusnames{DATA.stimtype(1)};
-            DATA.Expts{DATA.nexpts}.Start = now;
+            DATA.Expts{DATA.nexpts} = ExptSummary(DATA);
             DATA.optionflags.do = 1;
             DATA.exptstoppedbyuser = 0;
                 DATA = ReadFromBinoc(DATA);
