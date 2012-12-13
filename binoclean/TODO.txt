@@ -61,4 +61,5 @@ Things that need fixing:
 -make sure setup file saving works.
 -allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?    
 -could binoc write to pipe when started so that verg automatically reopens pipes? 
+-when verg connects to a running binoc which is mid expt, get vert to know and set Run button
 
