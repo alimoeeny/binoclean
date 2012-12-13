@@ -845,6 +845,16 @@ int SetTargets()
         afc_s.abssac[0] = -val * sin(aval * M_PI/180);
         afc_s.abssac[1] = val * cos(aval * M_PI/180);
     }
+    if(expt.vals[FORCE_CHOICE_ANGLE] >= -0.1 && expt.vals[FORCE_CHOICE_ANGLE] <= 91){
+        afc_s.abssac[0] = cos(expt.vals[FORCE_CHOICE_ANGLE] * M_PI/180) * expt.vals[SACCADE_AMPLITUDE];
+        afc_s.abssac[1] = sin(expt.vals[FORCE_CHOICE_ANGLE] * M_PI/180) * expt.vals[SACCADE_AMPLITUDE];
+        SetStimulus(ChoiceStima, afc_s.abssac[0]+expt.fixpos[0],  XPOS, NULL);
+        SetStimulus(ChoiceStima, afc_s.abssac[1]+expt.fixpos[1],  YPOS, NULL);
+        SetStimulus(ChoiceStimb, -afc_s.abssac[0]+expt.fixpos[0],  XPOS, NULL);
+        SetStimulus(ChoiceStimb, -afc_s.abssac[1]+expt.fixpos[1],  YPOS, NULL);
+
+    }
+
     afc_s.sacval[2] = expt.vals[TARGET_XOFFSET];
     afc_s.sacval[3] = expt.vals[TARGET_YOFFSET];
     if(optionflags[FLIP_FEEDBACK]){
@@ -1582,6 +1592,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 //            fprintf(stdout,"Already Done %d,%s\n", code, valstrings[code].code);
 //            else
 //                valstrings[code].code = valstrings[i].code;
+        if (valstrings[i].code != NULL){
         valstringindex[code] = i; // The valstring element that has code icode in
   //      codes[code] = valstrings[i].code;
         serial_names[code] = valstrings[i].label;
@@ -1596,6 +1607,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         codesend[code] = valstrings[i].codesend;
         if(strlen(serial_strings[code]) > 2)
             longnames[j++] = code;
+        }
         i++;
     }
     
@@ -1671,6 +1683,8 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->vals[BACKGROUND_ZOOM]  = 1.0;
     ex->vals[VSR]  = 1.0;
     ex->vals[COVARIATE]  = SETZXOFF;
+    ex->vals[FORCE_CHOICE_ANGLE] = -1000; //off
+    
     for(i = 2; i < ex->bwptr->nchans; i++)
         ex->bwptr->colors[i] = 1 + ((i+1)%15);
     

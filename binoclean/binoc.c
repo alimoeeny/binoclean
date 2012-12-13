@@ -161,7 +161,7 @@ struct timeval firstframetime,now, wurtzstart, timeb, timec, lastframetime,sessi
 static int loopframes = 0;
 struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
-struct timeval lastcleartime;
+struct timeval lastcleartime,lastsertime;
 struct timeval progstarttime,calctime,paintframetime;
 struct timeval endexptime, changeframetime,lastcalltime,nftime;
 int wurtzctr = 0, wurtzbufferlen = 512,lasteyecheck;
@@ -4782,6 +4782,7 @@ void start_timeout(int mode)
         glDrawBuffer(GL_BACK);
     }
 	gettimeofday(&starttimeout,NULL);
+	gettimeofday(&lastsertime,NULL);
     
     switch (mode){   /*j monkey needs to know what he has done wrong */   
 	    default:
@@ -6092,6 +6093,10 @@ int next_frame(Stimulus *st)
         draw_conjpos(cmarker_size,PLOT_COLOR);
             glSwapAPPLE();
             gettimeofday(&now,NULL);
+            if ((optionflag & SHOW_CONJUG_BIT) && (val = timediff(&now,&lastsertime)) > 2){
+                lastsertime = now;
+                SerialSend(BW_IS_READY);
+            }
 
             if(testflags[PLAYING_EXPT]){
                 ReplayExpt("Show");
@@ -9041,7 +9046,7 @@ void ShowConjugReadState(char *line)
     char *s,buf[BUFSIZ];
     int i;
     
-    
+    return; //don't need this any more
     fprintf(stderr,"Char %d (%d) last conjug %d buf %s.last%c\n",totalchrs,
             strlen(line),conjctr,conjbuf,lastchar);
     if((s = CheckSerialInput(100)) != NULL){
