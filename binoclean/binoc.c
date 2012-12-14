@@ -37,6 +37,8 @@
  INTRIAL = TRIAL_PENDING | POST_STIMULUS_BIT
  */
 #define LINESEP 30
+#define MONITOR_CLOSE 1
+
 #define testout fprintf
 
 #define LBUTTON 1
@@ -4952,8 +4954,8 @@ void WriteSignal()
         gettimeofday(&endstimtime,NULL);
  	    c = END_STIM;
         if(seroutfile)
-            fprintf(seroutfile,"O %d %u %u %.3f\n",(int)(c),ufftime(&endstimtime),
-                    ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime));       
+            fprintf(seroutfile,"O %d %u %u %.3f%c\n",(int)(c),ufftime(&endstimtime),
+                    ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime),InExptChar);
 
         expstate = END_STIM;
         write(ttys[0],&c,1);
@@ -5955,6 +5957,7 @@ int next_frame(Stimulus *st)
     time_t t;
     struct tm *ltime;
     static double lasto = 0,lastt = 0;
+    char exptchr = ' ';
     int nf;
     
     
@@ -5967,11 +5970,16 @@ int next_frame(Stimulus *st)
     if(abs(expt.st->sf_disp) > 0.01)
 	    markercolor = 1.0;
     
+    if (ExptIsRunning())
+        exptchr = '@';
+    else
+        exptchr = ' ';
+    
     markercolor = 1.0;
 //    glstatusline(NULL,2);
 #ifdef MONITOR_CLOSE
     if(seroutfile && laststate != stimstate){
-        fprintf(seroutfile,"#State %d %d VS%.1f\n",stimstate,fixstate,afc_s.sacval[1]);
+        fprintf(seroutfile,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
         PrintInfo(seroutfile);
         fflush(seroutfile);
     }
@@ -5990,6 +5998,8 @@ int next_frame(Stimulus *st)
     }
     if(timeout_type == SHAKE_TIMEOUT)
         start_timeout(SHAKE_TIMEOUT);
+    if (stimno > 1 && ~ExptIsRunning())
+        fprintf(seroutfile,"#Not in Expt S%d\n",stimstate);
     switch(stimstate)
     {
         case STIMSTOPPED:
@@ -6192,7 +6202,7 @@ int next_frame(Stimulus *st)
             if(!ExptIsRunning())
                 stimctr = 0;
             if(seroutfile && optionflags[DEBUG_OUTPUT])
-                fprintf(seroutfile,"#Trial at %u (%d)\n",ufftime(&now),fixstate);
+                fprintf(seroutfile,"#Trial at %u (%d)%c\n",ufftime(&now),fixstate,exptchr);
             if(testflags[PLAYING_EXPT])
                 fixstate = GOOD_FIXATION;
             if (optionflags[SHOW_REWARD_BIAS])
@@ -6267,7 +6277,7 @@ int next_frame(Stimulus *st)
             }
             else if (expt.st->type == STIM_CYLINDER){
                 if(expt.st->left->ptr->velocity < 0.0001 && seroutfile)
-                    fprintf(seroutfile,"#Cyl velocity %.6f (%.f)\n",expt.st->left->ptr->velocity,oldvelocity);
+                    fprintf(seroutfile,"#Cyl velocity %.6f (%.f)%c\n",expt.st->left->ptr->velocity,oldvelocity,exptchr);
             }
             
             if(debug) glstatusline("PreStim",3);
@@ -6290,7 +6300,7 @@ int next_frame(Stimulus *st)
                 mode |= STIM_FRAME_BIT; /* send trial signal at next frame */
 #ifdef MONITOR_CLOSE
                 if(seroutfile)
-                    fprintf(seroutfile,"#Presstim VS%.1f %.3f\n",afc_s.sacval[1],timediff(&now,&goodfixtime));
+                    fprintf(seroutfile,"#Presstim VS%.1f %.3f%c\n",afc_s.sacval[1],timediff(&now,&goodfixtime),exptchr);
 #endif
             }
             CheckFix();
@@ -6326,7 +6336,7 @@ int next_frame(Stimulus *st)
                         framesdone = RunExptStim(TheStim, TheStim->nframes, D, -1);
 #ifdef MONITOR_CLOSE
                         if(seroutfile)
-                            fprintf(seroutfile,"#Over%d: %d %d\n",framesdone,fixstate, stimctr);
+                            fprintf(seroutfile,"#Over%d: %d %d%c\n",framesdone,fixstate, stimctr,exptchr);
 #endif
                         inexptstim = 0;
                         if(debug == 4)
@@ -6349,7 +6359,7 @@ int next_frame(Stimulus *st)
                              * need to get spikes back from BW before preparing next expt stim
                              */
                             if(seroutfile){
-                                fprintf(seroutfile,"#Pre %d\n",stimno);
+                                fprintf(seroutfile,"#Pre %d%c\n",stimno,exptchr);
 #ifdef MONITOR_CLOSE
                                 fprintf(seroutfile,"#Spikes %d\n",gotspikes);
                                 fflush(seroutfile);
@@ -6364,7 +6374,7 @@ int next_frame(Stimulus *st)
                                 val = timediff(&now,&timeb);
 #ifdef MONITOR_CLOSE
                                 if(seroutfile){
-                                    fprintf(seroutfile,"#Done\n");
+                                    fprintf(seroutfile,"#Done%c\n",exptchr);
                                     fflush(seroutfile);
                                 }
 #endif
@@ -6455,7 +6465,7 @@ int next_frame(Stimulus *st)
             if(debug) glstatusline("Poststim",3);
 #ifdef MONITOR_CLOSE
             if(seroutfile && laststate != stimstate)
-                fprintf(seroutfile,"#Poststimintrial\n");
+                fprintf(seroutfile,"#Poststimintrial%c\n",exptchr);
 #endif
             CheckFix();
             if(testflags[PLAYING_EXPT]){
@@ -6531,7 +6541,7 @@ int next_frame(Stimulus *st)
             if(debug) glstatusline("Poststim",3);
 #ifdef MONITOR_CLOSE
             if(seroutfile){
-                fprintf(seroutfile,"#Poststim VS%.1f (%.3f)\n",afc_s.sacval[1],timediff(&now,&goodfixtime));
+                fprintf(seroutfile,"#Poststim VS%.1f (%.3f)%c\n",afc_s.sacval[1],timediff(&now,&goodfixtime),exptchr);
                 fflush(seroutfile);
             }
 #endif
@@ -6576,7 +6586,7 @@ int next_frame(Stimulus *st)
             if(debug) glstatusline("PostPostStim",3);
 #ifdef MONITOR_CLOSE
             if(seroutfile)
-                fprintf(seroutfile,"#PostPoststim\n");
+                fprintf(seroutfile,"#PostPoststim%c\n",exptchr);
 #endif
             if (expt.mode != BACKGROUND_IMAGE){
                 glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
@@ -6622,7 +6632,7 @@ int next_frame(Stimulus *st)
             val = timediff(&now, &endtrialtime);
 #ifdef MONITOR_CLOSE
             if(seroutfile)
-                fprintf(seroutfile,"#WaitFor %.2f VS%.1f\n",val,afc_s.sacval[1]);
+                fprintf(seroutfile,"#WaitFor %.2f VS%.1f%c\n",val,afc_s.sacval[1],exptchr);
 #endif
 #if defined(WIN32) 
             if(waitcount > 2 && option2flag & PSYCHOPHYSICS_BIT)
@@ -6685,7 +6695,7 @@ int next_frame(Stimulus *st)
             else if(val > TheStim->fix.rt)
             {
                 if(seroutfile)
-                    fprintf(seroutfile,"#LATE stimno %d\n",stimno);
+                    fprintf(seroutfile,"#LATE stimno %d%c\n",stimno,exptchr);
                 stimstate = POSTTRIAL;
                 fctr = 0;
                 TheStim->fixcolor = TheStim->fix.offcolor;
@@ -6743,7 +6753,7 @@ int next_frame(Stimulus *st)
                    && !optionflags[RUN_SEQUENCE] && !freezeexpt)
                     stimno++;
                 if(seroutfile)
-                    fprintf(seroutfile,"#stimno %d\n",stimno);
+                    fprintf(seroutfile,"#stimno %d%c\n",stimno,exptchr);
                 fixstate = INTERTRIAL;
                 SendTrialCount();
                 fsleep(0.05);
@@ -6783,7 +6793,7 @@ int next_frame(Stimulus *st)
             if(rdspair(expt.st))
                 i = 0;
             if(seroutfile){
-                fprintf(seroutfile,"#PostTrial, last %d stimno%d \n",laststate,stimno);
+                fprintf(seroutfile,"#PostTrial, last %d stimno%d%c\n",laststate,stimno,exptchr);
                 fflush(seroutfile);
             }
             if(option2flag & AFC)

@@ -9134,7 +9134,7 @@ int PrepareExptStim(int show, int caller)
         expt.targetcolor = 1;
     
     if(seroutfile){
-        fprintf(seroutfile,"##prep\n");
+        fprintf(seroutfile,"##prep%c\n",InExptChar);
     }
     return(stimno);
 }
