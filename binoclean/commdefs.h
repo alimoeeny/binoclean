@@ -448,7 +448,8 @@
 #define NIMPLACES (MAXSAVECODES+18)
 #define USENEWDIRS (MAXSAVECODES+19)
 #define CHOICE_TARGET_DURATION (MAXSAVECODES+20)
-#define MAXTOTALCODES (MAXSAVECODES+21)  //372
+#define FORCE_CHOICE_ANGLE (MAXSAVECODES+21)
+#define MAXTOTALCODES (MAXSAVECODES+22)  //372
 
 
 /*
@@ -1197,7 +1198,8 @@ ValueCode valstrings[] = {
     {  "nimplaces", "NumDigits for image name", NIMPLACES, 0, 'N', 0, SEND_EXPLICIT},
     {  "fixcolors", "Fixpt colors for special tasks", FIXCOLORS, 0, 'N', 0, SEND_NEVER},
     {  "usenewdirs", "Try different targe location rules", USENEWDIRS, 0, 'N', 0, SEND_NEVER},
-    {  "choicedur", "Choice target pseristance", CHOICE_TARGET_DURATION, 0, 'N', 2, SEND_NEVER},
+    {  "choicedur", "Choice target persistance", CHOICE_TARGET_DURATION, 0, 'N', 2, SEND_NEVER},
+    {  "cha", "Choice target Angle", FORCE_CHOICE_ANGLE, 0, 'N', 2, SEND_EXPT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

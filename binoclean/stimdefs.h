@@ -637,6 +637,7 @@ float pix2degy(float val);
 #define ShiftMask 1
 #define ControlMask 2
 #define AltMask 4
+#define InExptChar  ((expt.st->mode & EXPTPENDING) ? '@' : ' ')
 
 #ifndef WindowEventdefined 
 
