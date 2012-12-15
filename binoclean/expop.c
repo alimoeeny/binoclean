@@ -12204,6 +12204,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         if(!(expt.st->mode & EXPTPENDING)){ //if not in expt make sure verg knows 
             notify("\nEXPTOVER\n");
         }
+        else
+            notify("\nEXPTSTART\n");
         return(0);
     }
     else if(!strncmp(line,"monkeyshake",10)){

@@ -552,6 +552,29 @@ float getframetime()
     
 }
 
+int DrawBox(vcoord bx, vcoord by, vcoord w, vcoord h, float color)
+{
+    vcoord x[2];
+    glLineWidth(expt.linw);
+    SetGrey(color);
+    /* first draw the stimulus region*/
+    glBegin(GL_LINE_LOOP);
+    x[0] = deg2pix(bx-w/2);
+    x[1] = deg2pix(by-h/2);
+    myvx(x);
+    x[0] += deg2pix(w);
+    myvx(x);
+    x[1] += deg2pix(h);
+    myvx(x);
+    x[0] = deg2pix(bx-w/2);
+    myvx(x);
+    x[1] = deg2pix(by-h/2);
+    myvx(x);
+    glEnd();
+    return(0);
+}
+
+
 int CheckStrings()
 {
 	int i,j,err = 0;
@@ -2260,6 +2283,22 @@ void win2stim(vcoord *wp, vcoord *sp, float angle, vcoord *result)
     result[1] = (vcoord)cy;
 }
 
+int DrawLine(vcoord a, vcoord b, vcoord c, vcoord d, float color)
+{
+    vcoord pt[2];
+    /*  glDrawBuffer(GL_FRONT_AND_BACK);*/
+    setmask(OVERLAY);
+    SetGrey(color);
+    glBegin(GL_LINE_STRIP);
+    pt[0] = deg2pix(a);
+    pt[1] = deg2pix(b);
+    myvx(pt);
+    pt[0] = deg2pix(c);
+    pt[1] = deg2pix(d);
+    myvx(pt);
+    glEnd();
+}
+
 int MyLine(int a, int b, int c, int d, float color)
 {
     vcoord pt[2];
@@ -2627,6 +2666,7 @@ int EndOverlay()
 	return(0);
 }
 
+
 int ShowBox(Expstim *ps, float color)
 {
     vcoord x[2],cp[2];
@@ -2670,49 +2710,6 @@ int ShowBox(Expstim *ps, float color)
     }
     /* then add a psth */
     
-    
-    if(ps->flag & PSTH_ON && ps->nreps[1][0] > 0 && ps->nbins > 0 && ps->nbins < 500)
-    {
-        glBegin(GL_LINE_STRIP);
-        x[0] = ps->size[0]/2;
-        x[1] = -ps->size[1]/2;
-        myvx(x);
-        step = ps->size[1]/ps->nbins;
-        if(ps->flag & PSTH2_ON)
-        {
-            step = (ps->size[1] * 2)/ps->nbins;
-            if(!(ps->nbins & 1) && step * ps->nbins/2 < ps->size[0])
-                step++;
-        }
-        for(i = 0; i < ps->nbins; i++)
-        {
-            if(step > 0)
-                x[0] = ps->size[0]/2 + expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-            else
-                x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-            myvx(x);
-            x[1] += step;
-            if(x[1] >= ps->size[1]/2 && ps->flag & PSTH2_ON)
-            {
-                if(ps->nbins & 1)
-                {
-                    x[1] -= step/2;
-                    myvx(x);
-                    x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-                    myvx(x);
-                    x[1] -= step/2;
-                }
-                else
-                    myvx(x);
-                x[0] = ps->size[0]/2 - expt.spikegain * (ps->binvals[i]*2)/ps->nreps[1][0];
-                step = -step;
-            }
-            myvx(x);
-        }
-        x[0] = ps->size[0]/2;
-        myvx(x);
-        glEnd();
-    }
     else if(ps->flag & CENTERMARK_ON) 
     {
         glBegin(GL_LINES);
@@ -5718,6 +5715,7 @@ void wipescreen(float color)
 void paint_frame(int type, int showfix)
 {
     struct timeval atime,btime,ctime;
+    float r = 0;
     
     gettimeofday(&atime, NULL);
     // mode |= NEED_REPAINT;
@@ -5775,7 +5773,14 @@ void paint_frame(int type, int showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
     draw_conjpos(cmarker_size,PLOT_COLOR);
-
+    if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0){
+        setmask(OVERLAY);
+        DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],2,2,RF_COLOR);
+        r = fabs(afc_s.sacval[0])+fabs(afc_s.sacval[1]);
+        DrawLine(fixpos[0]+r-0.5,fixpos[1]+r,fixpos[0]+r+0.5,fixpos[1]+r,RF_COLOR);
+        if (afc_s.jstairval> 0)
+        DrawLine(fixpos[0]+r,fixpos[1]+r-0.5,fixpos[0]+r,fixpos[1]+r+0.5,RF_COLOR);
+    }
     if(debug)
         
         glFlushRenderAPPLE();
@@ -9756,7 +9761,6 @@ void SerialSignal(char flag)
 }
 
 
-
 void paint_target(float color, int flag)
 {
     float lcolor = color,contrast;
@@ -9820,12 +9824,11 @@ void paint_target(float color, int flag)
             draw_fix(fixpos[0]-deg2pix(afc_s.abssac[0]-afc_s.abssac[2]),fixpos[1]-deg2pix(afc_s.abssac[1]-afc_s.abssac[3]), afc_s.targsize, 0.0);
         }
     }
+
     if(flag)
         glDrawBuffer(GL_BACK);
     optionflag = oldoption;
 }
-
-
 
 void afc_statusline(char *s, int line)
 {
