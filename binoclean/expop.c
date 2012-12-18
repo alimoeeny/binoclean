@@ -706,7 +706,7 @@ int NewSeed(Stimulus *st)
 
 int PrintInfo(FILE *fd)
 {
-    fprintf(fd,"%p\n",&expplots[72]);
+ //   fprintf(fd,"%p\n",&expplots[72]);
 }
 
 int SetTargets()
@@ -7774,7 +7774,6 @@ int PrepareExptStim(int show, int caller)
 #ifdef MONITOR_CLOSE
     if(seroutfile){
         fprintf(seroutfile,"PrEx %d\n",caller);
-        PrintInfo(seroutfile);
     }
 #endif
     fakestim = 0;
@@ -8587,7 +8586,6 @@ int PrepareExptStim(int show, int caller)
                         fprintf(seroutfile," %d",unrepeated[expt.stimid][i]);
                     fprintf(seroutfile,"\n");
                     fprintf(seroutfile,"stimid%d: %d/%d, Unrep %d\n",expt.stimid,id, unrepeatn[expt.stimid],unrepeated[expt.stimid][0]);
-                    PrintInfo(seroutfile);
                     
                 }
                 fprintf(seroutfile,"Repeat exval %d, %d (#%d, id%d)\n",expt.stimid,dorpt,stimno,id);
@@ -8685,7 +8683,7 @@ int PrepareExptStim(int show, int caller)
         for(i = 0; i < expt.st->nframes+1; i++){
             rval = mydrand();
             //use EXP_SPCYHVAL to determine whehter to add interleaves.  In case mean not zero
-            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[EXP_PSYCHVAL]) < expt.vals[INITIAL_APPLY_MAX]){
+            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[SIGNAL_STRENGTH]) < expt.vals[INITIAL_APPLY_MAX]){
                 lrnd = rnd_i();
                 frameseq[i] = 1; // full contrast for grating 1
                 frameseqb[i] = minval + (lrnd%nv) * inc;
@@ -8715,7 +8713,7 @@ int PrepareExptStim(int show, int caller)
         expt.fastctype = expt.type2;
         for(i = 0; i < expt.st->nframes+1; i++){
             rval = mydrand();
-            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[EXP_PSYCHVAL]) < expt.vals[INITIAL_APPLY_MAX]){
+            if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[SIGNAL_STRENGTH]) < expt.vals[INITIAL_APPLY_MAX]){
                 lrnd = rnd_i();
                 frameseq[i] = 0; // same ori in each eye
                 frameseqb[i] = minval + (lrnd%nv) * inc;

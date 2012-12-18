@@ -5980,7 +5980,6 @@ int next_frame(Stimulus *st)
 #ifdef MONITOR_CLOSE
     if(seroutfile && laststate != stimstate){
         fprintf(seroutfile,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
-        PrintInfo(seroutfile);
         fflush(seroutfile);
     }
 #endif
