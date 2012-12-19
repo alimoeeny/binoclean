@@ -33,11 +33,16 @@ void acknowledge(char * a ,int b)
     NSLog(@"Acknowledge! %s", a);
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updatecommandhistory" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
-//    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
-//    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
-//    [acknowledgeAlert addButtonWithTitle:@"I know!"];
-//    [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
-//    [acknowledgeAlert beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+    if([NSApplication sharedApplication])
+        if ([[NSApplication sharedApplication] windows])
+            if([[[NSApplication sharedApplication] windows] count]>0)
+            {
+                NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
+                [acknowledgeAlert setMessageText:@"Acknowledge it!"];
+                [acknowledgeAlert addButtonWithTitle:@"I know!"];
+                [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
+                [acknowledgeAlert beginSheetModalForWindow:[[[NSApplication sharedApplication] windows] objectAtIndex:0] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+            }
 }
 
 void displayOnMonkeyView(char *s, int x, int y)
