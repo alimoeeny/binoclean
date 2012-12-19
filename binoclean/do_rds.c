@@ -163,15 +163,15 @@ int init_rds(Stimulus *st,  Substim *sst, float density)
     printf("New RDS %d dots %.2f %.1fx%.1f %.2fx%.2f\n",ndots,sst->density,
 	   sst->pos.radius[0],sst->pos.radius[1],sst->dotsiz[0] ,sst->dotsiz[1]);
     
-  if(ndots > sst->imlen || sst->im == NULL) /* need new memory */
+  if(ndots > sst->iimlen || sst->im == NULL) /* need new memory */
     {
 #ifdef DEBUG
-      printf("%d dots %d %d\n",ndots,sst->im,sst->xpos);
+      printf("%d dots %d %d\n",ndots,sst->iim,sst->xpos);
 #endif
-      sst->imlen = ndots +2;
-      if(sst->im != NULL)
-	free(sst->im);
-      sst->im = (int *)malloc(sst->imlen * sizeof(int));
+      sst->iimlen = ndots +2;
+      if(sst->iim != NULL)
+	free(sst->iim);
+      sst->iim = (int *)malloc(sst->iimlen * sizeof(int));
     }
   if(ndots > sst->xpl || sst->xpos == NULL) /* need new memory */
     {
@@ -224,7 +224,7 @@ int init_rds(Stimulus *st,  Substim *sst, float density)
     sst->corrdots = sst->ndots * fabsf(st->correlation);
   else
     sst->corrdots = sst->ndots * 2;
-  p = sst->im;
+  p = sst->iim;
   sst->seed = sst->baseseed;
   myseed(sst->baseseed);
   for(i = 0; i < sst->ndots; i++)
@@ -567,7 +567,7 @@ int calc_rds(Stimulus *st, Substim *sst)
 	  dsq = fabsf(st->prev->pos.radius[1]+sst->dotsiz[0]/2);
         }
     }
-  p = sst->im;
+  p = sst->iim;
   x = sst->xpos;
   pdisp = sst->imb;
   y = sst->ypos;
@@ -929,7 +929,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
   sst->nw = ceil(2*pos->radius[0]/sst->dotsiz[0]);
   sst->nh = ceil(2*pos->radius[1]/sst->dotsiz[1]);
   sst->ndots = sst->nw * sst->nh;
-  if((sst->nw+1) * (sst->nh+1) > sst->imlen)
+  if((sst->nw+1) * (sst->nh+1) > sst->iimlen)
     init_rds(st, sst, 0);
     
   rnd_init(sst->baseseed);
@@ -942,7 +942,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
       bsq = pos->radius[1] * pos->radius[1];
     }
     
-  p = sst->im;
+  p = sst->iim;
   if(st->left->ptr->sx > 0.01){
     xsd = deg2pix(sst->ptr->sx)/sst->dotsiz[0];
     xsd = 2 * xsd * xsd;
@@ -957,7 +957,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
     ysd = 0;
     
   q = sst->imb;
-  p = sst->im;
+  p = sst->iim;
   xm = sst->nw/2;
   if(twod){
     bit = 1;
@@ -1020,7 +1020,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
       }
       rnd = rnd_u();
     }
-    p = sst->im;
+    p = sst->iim;
     if(bsq > 0){
       for(i = 0; i < sst->nw; i++){
 	for(j = 0; j < sst->nh; j++){
@@ -1260,7 +1260,7 @@ void testcalc_rds(Stimulus *st, Substim *sst, int mode)
 	  dsq = fabsf(st->prev->pos.radius[1]+sst->dotsiz[0]/2);
         }
     }
-  p = sst->im;
+  p = sst->iim;
   x = sst->xpos;
   y = sst->ypos;
     
@@ -1425,8 +1425,8 @@ void paint_rds(Stimulus *st, int mode)
   crect[2] = h * sina;
   crect[3] = h * cosa;
   h = h+0.5;
-  p = sst->im;
-  end = (sst->im+sst->ndots);
+  p = sst->iim;
+  end = (sst->iim+sst->ndots);
   x = sst->xpos;
   y = sst->ypos;
   i = 0;
@@ -1483,7 +1483,7 @@ void paint_rds(Stimulus *st, int mode)
             glEnd();
         }
 #endif
-      p = sst->im;
+      p = sst->iim;
       x = sst->xpos;
       y = sst->ypos;
       glDisable(GL_BLEND);
@@ -1570,7 +1570,7 @@ void paint_rds(Stimulus *st, int mode)
     glRotatef(angle,0.0,0.0,1.0);
         
         
-    p = sst->im;
+    p = sst->iim;
     fw = (sst->nw * sst->dotsiz[1])/2;
     fh = (sst->nh * sst->dotsiz[0])/2;
     if(twod){
@@ -1613,7 +1613,7 @@ void paint_rds(Stimulus *st, int mode)
     }
     else{
             
-      p = sst->im;
+      p = sst->iim;
       fw = (sst->nw * sst->dotsiz[1])/2;
       fh = (sst->nh * sst->dotsiz[0])/2;
       for(i = 0; i < sst->nw; i++){
@@ -1691,11 +1691,11 @@ void paint_rds(Stimulus *st, int mode)
         
     offset[0] = pos->xy[0] + st->disp;
     offset[1] = pos->xy[1] + st->vdisp;
-    p = sst->im;
+    p = sst->iim;
     x = sst->xpos;
     y = sst->ypos;
     pdisp = sst->imb;
-    end = (sst->im+sst->ndots);
+    end = (sst->iim+sst->ndots);
     i = 0;
         
     /*
@@ -1764,10 +1764,10 @@ void paint_rds(Stimulus *st, int mode)
     offset[0] = pos->xy[0] - st->disp;
     offset[1] = pos->xy[1] - st->vdisp;
     sst = st->right;
-    p = sst->im;
+    p = sst->iim;
     x = sst->xpos;
     y = sst->ypos;
-    end = (sst->im+sst->ndots);
+    end = (sst->iim+sst->ndots);
     i = 0;
     for(;p < end; p++,x++,y++)
       {

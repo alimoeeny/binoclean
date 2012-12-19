@@ -169,8 +169,8 @@ typedef struct SQCORRUG{
 }Sqcorrug;
 
 typedef struct ONESTIM{
-    int *im;
-    float *imb;
+    int *iim;
+    float *im,*imb;
     int ndots,corrdots;
     float dotsiz[2];
     float disp,depth_mod,disp_grad,lum[2];
@@ -221,9 +221,9 @@ typedef struct SUBSTIM{
     vcoord *xpos, *ypos, *xposa, *yposa;
     int xpl,ypl,xpla,ypla;
     int seed,baseseed,seedloop,seedctr;
-    int *im;
-    int imlen,imblen,imclen;
-    float *imb,*imc;
+    int *iim;
+    int iimlen,imlen,imblen,imclen;
+    float *im,*imb,*imc;
     int calculated;
     int nfreqs;
     int stimmode;

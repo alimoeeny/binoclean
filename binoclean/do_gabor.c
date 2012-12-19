@@ -118,8 +118,8 @@ void calc_gabor(Stimulus *st, Substim *sst,  float disp)
 	OneStim *gb = (OneStim *)sst->ptr;
 	int i,j;
 	float cval,y,f,sy,cm,deg,iscale[2],pixdisp[2],x,sx,ratio,of,ophase;
-	float *p,*q,*cend, vx,vy,vfy,*xv,*yv,*end,back,rowval,rowprime,lastvx;
-	float *parray = NULL,ov,op,ostep,xprime,cosa,sina,ycos;
+	float *p,*q,*cend, vx=0,vy,vfy,*xv,*yv,*end,back,rowval,rowprime,lastvx;
+	float *parray = NULL,ov,op,ostep,xprime,cosa =1,sina=0,ycos;
 	vcoord *vpx,*vpy,h,ih;
 	int xval;
 	double xtest,ytest,yval,val,cprime;
@@ -442,7 +442,7 @@ void paint_gabor(Stimulus *st, Substim *sst, int mode, int shift)
 	Locator *pos = &sst->pos;
 	OneStim *gb = (OneStim *)sst->ptr;
 	int i,ci,offset;
-	float *p,*q;
+	float *p=NULL,*q;
 	vcoord vx,vy,*vpx,*vpy,*vpoy,*vpox,*yc,*xc;
 	float vcolor[3],*cc,*rc,*end;
 	vcoord x[2],z[2],ih;
@@ -454,14 +454,11 @@ void paint_gabor(Stimulus *st, Substim *sst, int mode, int shift)
 	angle = (float) (pos->angle * 180.0/M_PI);
 	glRotatef(angle,0.0,0.0,1.0);
     
+    cc = &vcolor[1];
+    rc = &vcolor[2];
 	if(mode == LEFTMODE)
 	{
 		rc = cc = &vcolor[0];
-	}
-	else if(mode == RIGHTMODE)
-	{
-		cc = &vcolor[1];
-		rc = &vcolor[2];
 	}
 	for(i = 1; i < pos->size[1]; i++)
 	{

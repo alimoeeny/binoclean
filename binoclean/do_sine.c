@@ -627,38 +627,6 @@ calc_gratingN(Stimulus *st, Substim *sst, float disp)
     
     
 }
-
-void paint_lines(Locator *pos, short *p, int ci)
-{
-    int i;
-    float xtest,vy;
-    float vcolor[3];
-    vcoord x[2],z[2];
-    
-    glDisable(GL_DITHER);
-    for(i = 0; i < pos->size[1]; i++)
-    {
-        vy = (i - pos->size[1]/2) * pos->ss[1];
-        xtest = pos->radius[0]*pos->radius[0] * (1 - (vy*vy)/(pos->radius[1] * pos->radius[1]));
-        if(xtest > 0)
-        {
-            xtest = sqrt(xtest);
-            x[1] = (i - pos->size[1]/2) * pos->ss[1]; 
-            z[1] = x[1];
-            x[0] = -xtest;
-            z[0] = -x[0];
-            vcolor[ci] = *p;
-            vcolor[2] = vcolor[1];
-            mycolor(vcolor);
-            glBegin(GL_LINE);
-            myvx(x);
-            myvx(z);
-            glEnd();
-        }
-        p++;
-    }
-}
-
 void paint_grating(Substim *sst, int mode, int shift)
 {
     int i,ci =0,j,oi =0;

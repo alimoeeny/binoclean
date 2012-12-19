@@ -31,12 +31,12 @@ void init_radial(Stimulus *st, Substim *sst)
     
 	if(st->lasttype != STIM_GRATING && st->lasttype != STIM_GRATING2)
         gb->plaid_angle = 0;
-	if(w * h > sst->imlen || sst->im == NULL) 
+	if(w * h > sst->iimlen || sst->iim == NULL) 
 	{
-        sst->imlen = w * h + 2;
-        if(sst->im != NULL)
-            free(sst->im);
-        sst->im = (int *)malloc(sst->imlen * sizeof(int));
+        sst->iimlen = w * h + 2;
+        if(sst->iim != NULL)
+            free(sst->iim);
+        sst->iim = (int *)malloc(sst->iimlen * sizeof(int));
 	}
 	if(w * h > sst->imblen || sst->imb == NULL || sst->imc == NULL) 
 	{
@@ -107,7 +107,7 @@ float SetRadial(int ix, int iy, int w, int h, Substim *sst, int type)
         return(*ip);
     }
     
-    im = &sst->im[ix + iy*w];
+    im = &sst->iim[ix + iy*w];
     *im = 1;
     env = (float)exp(-(sqr(dr))/sqr(sst->ptr->rsigma));
     theta = atan2(iy-h/2,ix-w/2);
@@ -179,7 +179,7 @@ void precalc_radial(Stimulus *st, Substim *sst, float disp)
     memset(sst->imb,0,w * h * sizeof(float));
     ip = sst->imb;
     im = sst->imc;
-    iim = sst->im;
+    iim = sst->iim;
     for(ix = 0; ix < w * h; ix++,ip++,im++,iim++){
         *ip = -10;
         *im = 0.5;
@@ -246,7 +246,7 @@ void calc_radial(Stimulus *st, Substim *sst, float disp)
     
     ip = sst->imb;
     im = sst->imc;
-    iim = sst->im;
+    iim = sst->iim;
     /*
      *  calculate the actual image by multiplying the precalculated image * contrast.
      * allows counterphase modulation without having to recalculated the whole thing

@@ -93,12 +93,12 @@ int init_corrug(Stimulus *st,  Substim *sst, float density)
         ndots = gb->density * M_PI * pos->radius[0] * pos->radius[1]/(100 * gb->dotsiz[0] * gb->dotsiz[1]);
     
     cndots = 1 + (ndots * CIRC2SQU);
-	if(cndots > sst->imlen || gb->im == NULL) /* need new memory */
+	if(cndots > sst->iimlen || gb->iim == NULL) /* need new memory */
 	{
-        if(gb->im != NULL)
-            free(gb->im);
-        gb->im = (int *)malloc(cndots * sizeof(int));
-        sst->imlen = cndots;
+        if(gb->iim != NULL)
+            free(gb->iim);
+        gb->iim = (int *)malloc(cndots * sizeof(int));
+        sst->iimlen = cndots;
 	}
 	if(cndots > sst->xpl || gb->xpos == NULL) /* need new memory */
 	{
@@ -115,7 +115,7 @@ int init_corrug(Stimulus *st,  Substim *sst, float density)
 	}
 	if(ndots > 0)
         gb->ndots = ndots;
-	p = gb->im;
+	p = gb->iim;
 	for(i = 0; i < gb->ndots; i++)
         *p++ = random();
 	for(i = 0; i < 2; i++)
@@ -261,7 +261,7 @@ void calc_corrug(Stimulus *st, Substim *sst)
         csq = fabsf(st->prev->pos.radius[0]);
         dsq = fabsf(st->prev->pos.radius[1]);
     }
-    p = gb->im;
+    p = gb->iim;
     x = gb->xpos;
     y = gb->ypos;
     iw = w;
@@ -501,7 +501,7 @@ void calc_plane(Stimulus *st, Substim *sst)
         csq = fabsf(st->prev->pos.radius[0]);
         dsq = fabsf(st->prev->pos.radius[1]);
     }
-    p = gb->im;
+    p = gb->iim;
     x = gb->xpos;
     y = gb->ypos;
     iw = w;
@@ -691,8 +691,8 @@ void paint_corrug(Stimulus *st, int mode)
     crect[3] = h * cosa;
     
     
-    p = gb->im;
-    end = (gb->im+gb->ndots);
+    p = gb->iim;
+    end = (gb->iim+gb->ndots);
     x = gb->xpos;
     y = gb->ypos;
     i = 0;
@@ -723,7 +723,7 @@ void paint_corrug(Stimulus *st, int mode)
                     aarotrect(rect, *x,*y);
             }
             glEnd();
-            p = gb->im;
+            p = gb->iim;
             x = gb->xpos;
             y = gb->ypos;
         }

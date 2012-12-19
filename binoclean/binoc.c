@@ -5944,9 +5944,9 @@ float SetFixColor(Expt expt)
 int next_frame(Stimulus *st)
 {
     
-    static float lastval;
+    static float lastval=0;
     static int laststate,fctr = 0;
-    float val,t2;
+    float val=0,t2;
     Locator *pos = &st->pos;
     int i,oldstimstate = stimstate;
     vcoord x[2];
@@ -9881,6 +9881,7 @@ void PaintGammaCheck(int iw, int ih)
         }
     }
     glDrawPixels(iw, ih, GL_LUMINANCE, GL_UNSIGNED_BYTE, im1);
+    free(im1);
 }
 
 

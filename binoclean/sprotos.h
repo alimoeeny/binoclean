@@ -11,7 +11,7 @@ void calc_grating(Stimulus *st, Substim *sst, float disp);
 int SetGratingFrequencies(Stimulus *st);
 double SetFreqOnOff433(Substim *sst, int nc);
 double SetFreqOnOff(Substim *sst, int nc);
-void paint_lines(Locator *pos, short *p, int ci);
+
 void paint_grating(Substim *sst, int mode, int shift);
 int SaveNSines(Stimulus *st, FILE *fd);
 Substim *NewRds(Stimulus *st, Substim *sst, Substim  *copy);
