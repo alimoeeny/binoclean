@@ -264,11 +264,11 @@ float pix2degy(float val);
 
 #define NULL_BIT 0
 #define GORAUD_BIT 1
-#define DITHERMODE (1L<<5)
+#define DITHERMODE (1L<<1)
 #define FRAME_ONLY_BIT (1L<<2)
 #define GO_BIT (1L<<3)
 #define ANTIALIAS_BIT (1<<4)
-#define SQUARE_RDS (1L<<1)
+#define SQUARE_RDS (1L<<5)
 #define HZ72_BIT (1L<<6)
 #define CONTRAST_REVERSE_BIT (1L<<7)
 #define SE_BIT (1L<<8)
@@ -331,7 +331,7 @@ float pix2degy(float val);
 #define MAXOPTIONBITS 49
 #define FEEDBACK 0
 #define FLIP_FEEDBACK 1
-// keep 2 free for SQUARE_RDS
+#define PAINT_BACKGROUND 2
 #define FIXED_BARSEP 3
 #define RANDOM_EXPT2 4
 #define REVERSE_EXPT2 5
@@ -392,12 +392,10 @@ float pix2degy(float val);
 #define RANDOM_CORRELATION 58
 #define SHOW_REWARD_BIAS 59
 #define COLLAPSE_EXPT3 60
-#define ODD_MAN_OUT_TASK 61
+#define ODD_MAN_OU_TASK 61
 #define CHOICE_BY_ICON 62
 #define JUMP_IMAGE 63
-#define PAINT_BACKGROUND 64
-
-#define LAST_CODED_OPTION 64
+#define LAST_CODED_OPTION 63
 
 
 #define AUTO_COPY_ONLINE_FILES (LAST_CODED_OPTION+1)
@@ -416,8 +414,7 @@ float pix2degy(float val);
 #define CHECK_FRAMECOUNTS (LAST_CODED_OPTION+14)
 #define SHOWSTIMBOXES (LAST_CODED_OPTION+15)
 #define CUSTOM_EXPVALC (LAST_CODED_OPTION+16)
-#define EXPTMEAN_FOR_PSYCH (LAST_CODED_OPTION+17)
-#define MAXALLFLAGS (LAST_CODED_OPTION+18)
+#define MAXALLFLAGS (LAST_CODED_OPTION+17)
 
 #define MAXTOGGLES (MAXALLFLAGS + MAXOPTIONBITS)
 
@@ -543,8 +540,6 @@ float pix2degy(float val);
 #define isadotstim(x) (x != NULL && x->type == STIM_RDS || x->type == STIM_RLS || x->type == STIM_CORRUG || x->type == STIM_SQCORRUG)
 #define isanumber(c) (isdigit(c) || c == '-' || c =='+' || c == '*' || c == '.')
 
-// Need something else for 64 bit version.  drand48? 
-#define mydrand rnd_01d
 
 #define sinf(x) sin(x)
 #define cosf(x) cos(x)
@@ -637,7 +632,6 @@ float pix2degy(float val);
 #define ShiftMask 1
 #define ControlMask 2
 #define AltMask 4
-#define InExptChar  ((expt.st->mode & EXPTPENDING) ? '@' : ' ')
 
 #ifndef WindowEventdefined 
 

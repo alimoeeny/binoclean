@@ -165,6 +165,7 @@
 		C969F91F150D233B00D7A5A7 /* rdssineor in Resources */ = {isa = PBXBuildFile; fileRef = C969F888150D233B00D7A5A7 /* rdssineor */; };
 		C969F920150D233B00D7A5A7 /* rdsopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F889150D233B00D7A5A7 /* rdsopos */; };
 		C969F921150D233B00D7A5A7 /* rdssine in Resources */ = {isa = PBXBuildFile; fileRef = C969F88A150D233B00D7A5A7 /* rdssine */; };
+		C96A1726155A982F005DE480 /* liblabjackusb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A1725155A982F005DE480 /* liblabjackusb.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -378,6 +379,7 @@
 		C969F888150D233B00D7A5A7 /* rdssineor */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssineor; sourceTree = "<group>"; };
 		C969F889150D233B00D7A5A7 /* rdsopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsopos; sourceTree = "<group>"; };
 		C969F88A150D233B00D7A5A7 /* rdssine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssine; sourceTree = "<group>"; };
+		C96A1725155A982F005DE480 /* liblabjackusb.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblabjackusb.dylib; path = usr/local/lib/liblabjackusb.dylib; sourceTree = SDKROOT; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -386,6 +388,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C96A1726155A982F005DE480 /* liblabjackusb.dylib in Frameworks */,
 				41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */,
 				419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */,
 				419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */,
@@ -527,6 +530,7 @@
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
+				C96A1725155A982F005DE480 /* liblabjackusb.dylib */,
 				C969F830150D233A00D7A5A7 /* stims */,
 				C94CF80313C8B69E00985271 /* filetypes.c */,
 				C9308B7D14F82EF50054C963 /* TODO.txt */,
@@ -785,7 +789,7 @@
 		419DCDFB13A133B2004E8464 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = "LSR-NEI";
 			};
 			buildConfigurationList = 419DCDFE13A133B2004E8464 /* Build configuration list for PBXProject "binoclean" */;
@@ -1090,11 +1094,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-llabjackusb",
-					"-lusb-1.0",
-				);
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -1121,7 +1121,7 @@
 					"-llabjackusb",
 					"-lusb-1.0",
 				);
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -1130,6 +1130,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -1151,6 +1152,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
+				SYMROOT = /local/bin;
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1161,6 +1163,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -1190,6 +1193,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/binoclean.app/Contents/MacOS/binoclean";
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
@@ -1204,6 +1208,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/binoclean.app/Contents/MacOS/binoclean";
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";

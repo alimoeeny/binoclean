@@ -110,7 +110,7 @@ void init_grating(Stimulus *st, Substim *sst)
 	int i,j,w,h;
 	float val,xval,yval,x,y,cval,cm,deg,sx,sy;
 	Locator *pos = &sst->pos;
-	OneStim *gb = (OneStim *)sst->ptr;
+	OneStim *gb = sst->ptr;
     
 	w = st->pos.size[0];
 	h = st->pos.size[1];
@@ -897,7 +897,7 @@ int SaveNSines(Stimulus *st, FILE *fd)
     
     if(fd == NULL){
         fprintf(stderr,"Can't append nsines %s\n",name);
-        return;
+        return(0);
     }
     
     if(optionflags[RANDOM_PHASE] == 0){ // must be  a test

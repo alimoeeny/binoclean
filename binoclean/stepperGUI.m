@@ -91,7 +91,8 @@ extern char stepperport[256];
 - (void) alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
     if (returnCode==0) {
-        NewPosition(electrodeDepth + [contextInfo intValue]);
+        NSInteger i =  [contextInfo intValue];
+        NewPosition(electrodeDepth + i);
     } else {
         //Nothing!
     }

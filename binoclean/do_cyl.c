@@ -279,7 +279,7 @@ int paint_balls(Stimulus *st, int mode, OneStim *cyl,float *vcolor, float *bcolo
 {
     ball_s *balls = cyl->balls;
     Locator *pos = &st->pos;
-    int i,j,r;
+    int i=0,j,r;
     
     if((st->flag & (FRONT_ONLY | BACK_ONLY | FRONT_SURFACE_OCCLUDES)) == 0){
         for (i = 0; i <cyl->numdots; i++) { 

@@ -676,8 +676,6 @@ void NewPosition(int pos)
         sprintf(buf,"Thats a big step (%d) Proceed?",diff);
         if(!confirm_yes(buf,NULL))
             return;
-        if(pos < -1000) // leaving brain
-            SetWaterAlarm(300);
         
     }
     
@@ -853,99 +851,6 @@ int shutdown_stepper(void)
 	restore_setup(motorPort);
 	close(motorPort);
     return(0);
-}
-
-
-int plottrack(struct plotdata *plot)
-{
-    vcoord x[2];
-    int i,j,cw,n,y,h,nlin = 0,k,sw,bw;
-    double duration, maxdepth = -2000, mindepth = 1000;
-    char s[BUFSIZ],*ps;
-    int step = 0, first = -1;
-    time_t difftime = 0;
-    
-    gettimeofday(&now,NULL);
-    times[totalsteps] = timediff(&now,&progstarttime) + timeoffset;
-    depths[totalsteps] = electrodeDepth;
-    
-    cw = 10;
-    x[0] = plot->pos[0] - cw *9;
-    x[1] = plot->pos[1];
-    h = plot->size[1];
-    x[1] += (h/2);
-    
-    
-    SetColor(0.0, 0);
-    y = plot->pos[1] + plot->size[1];
-    for(i = 0; i < totalsteps; i++){
-        {
-            if(expt.vals[STEPPER_PLOTLEN] == 0 || (times[totalsteps-1] - times[i]) < expt.vals[STEPPER_PLOTLEN]){
-                if(first < 0)
-                    first = i;
-                if(depths[i] > maxdepth)
-                    maxdepth= depths[i];
-                if(depths[i] < mindepth)
-                    mindepth= depths[i];
-            }
-        }
-    }
-    duration = times[totalsteps-1] - times[first];
-    duration = times[totalsteps] - times[first];
-    
-    for(i = first; i <= totalsteps; i++)
-    {
-        x[0] = plot->offset + (plot->w * (times[i]-times[first]))/duration;
-        x[1] = y - plot->size[1] * (depths[i]-mindepth)/(maxdepth-mindepth);
-        plotsymbol(x[0],x[1], 5, 0);
-    }
-    glBegin(GL_LINE_STRIP);
-    for(i = first; i < totalsteps; i++)
-    {
-        x[0] = plot->offset + (plot->w * (times[i] - times[first]))/duration;
-        x[1] = y - plot->size[1] * (depths[i]-mindepth)/(maxdepth-mindepth);
-        myvx(x);
-    }
-    glEnd();
-    x[1] = plot->pos[1]-2.5*cw;
-    x[0] = plot->pos[0];
-    sprintf(s,"%.0f",times[first]);
-    difftime = progstarttime.tv_sec + (int)(times[first] - timeoffset);
-    ps = ctime(&difftime);
-    ps[16] = 0;
-    sprintf(s,"%5s",&ps[10]);
-    mycmv(x);
-    printString(s,0);
-    x[0] = plot->offset+plot->w;
-    sprintf(s,"%.0f",times[totalsteps]);
-    ps = ctime(&now.tv_sec);
-    ps[16] = 0;
-    sprintf(s,"%5s",&ps[10]);
-    mycmv(x);
-    printString(s,0);
-    x[0] = plot->pos[0]-2*cw;
-    x[1] = plot->pos[1]+h;
-    sprintf(s,"%.0f",mindepth);
-    mycmv(x);
-    printString(s,0);
-    x[1] = plot->pos[1];
-    sprintf(s,"%.0f",maxdepth);
-    mycmv(x);
-    printString(s,0);
-    if(maxdepth - mindepth > 4000)
-        step = 500;
-    else if(maxdepth - mindepth > 1000)
-        step = 200;
-    else
-        step = 100;
-    for(i = ((int)((mindepth + step/2)/step) + 1) * step; i < (maxdepth - step/2); i+= step)
-    {
-        x[1] = y- (h * (i - mindepth))/(maxdepth - mindepth);
-        sprintf(s,"%d",i);
-        mycmv(x);
-        printString(s,0);
-    }
-    return(i);
 }
 
 

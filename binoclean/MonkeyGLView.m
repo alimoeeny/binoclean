@@ -40,17 +40,6 @@ float gErrorTime;
 GLCaps * gDisplayCaps = NULL; // array of GLCaps
 CGDisplayCount gNumDisplays = 0;
 
-double GetCurrentFrameRate(int displayIndex)
-{
-    if (gDisplayCaps)
-    {
-        return gDisplayCaps[displayIndex].deviceRefresh;
-    }
-    else
-    {
-        return 0.0;
-    }
-}
 
 static void getCurrentCaps (void)
 {
@@ -69,6 +58,20 @@ static void getCurrentCaps (void)
 		initCapsTexture (gDisplayCaps, gNumDisplays); // (re)init the texture for printing caps
 	}
 }
+
+double GetCurrentFrameRate(int displayIndex)
+{
+    getCurrentCaps();
+    if (gDisplayCaps)
+    {
+        return gDisplayCaps[displayIndex].deviceRefresh;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
 
 #pragma mark ---- Utilities ----
 
@@ -289,6 +292,7 @@ GLenum glReportError (void)
     NSString *characters = [theEvent characters];
     if ([characters length]) {
         unichar character = [characters characterAtIndex:0];
+        KeyPressed(character);
 		switch (character) {
 			case 'h':
 				// toggle help

@@ -1,4 +1,5 @@
-#import <OpenGL/OpenGL.h>#import <OpenGL/gl.h>
+#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 
 #define MAXFREQS 80
 #define MAXCHANS 20
@@ -174,7 +175,7 @@ typedef struct ONESTIM{
     float dotsiz[2];
     float disp,depth_mod,disp_grad,lum[2];
     int mode;
-    vcoord *xpos, *ypos;
+    vcoord *xpos, *ypos, *zpos;
     int seed,baseseed,seedloop,seedctr;
     float density, xshift,correlation;
     float sf2,incr,phase2,ori2,phaseoff,sy,plaid_angle;
@@ -217,8 +218,8 @@ typedef struct SUBSTIM{
     int ndots,corrdots,mixdots;
     float dotsiz[2];
     float disp,lum[4],pdisp,disprem;
-    vcoord *xpos, *ypos;
-    int xpl,ypl;
+    vcoord *xpos, *ypos, *xposa, *yposa;
+    int xpl,ypl,xpla,ypla;
     int seed,baseseed,seedloop,seedctr;
     int *im;
     int imlen,imblen,imclen;
@@ -241,7 +242,7 @@ typedef struct SUBSTIM{
     double size;
     double orbw;  // Orientation Bandwidth
     unsigned long bits[10]; //for recording 1-D noise pattern
-    int npaint,nh,nw,nbars;
+    int npaint,nh,nw,nbars,npainta;
     float tf;
 } Substim;
 
@@ -282,7 +283,7 @@ struct STIMULUS{
     float ucgap;
     double rolldisp;
     char *imprefix, *imname;
-    int immode,preload,preloaded,nimseed,nimplaces;
+    int immode,preload,preloaded,nimseed,nimplaces,forceseed;
     float stimid;
     int mixdots;
     int dotdist;
@@ -429,6 +430,9 @@ struct EXPERIMENT{
     char *showflags;
     char *monkey;
     int verbose;
+    int laststimcode,lastserialcode,totalcodes,lastsavecode;
+    int maxcode; //largest value of any code = length of serial_strings
+    char cwd[BUFSIZ*2];
 };
 
 typedef struct EXPERIMENT Expt;

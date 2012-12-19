@@ -35,6 +35,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst);
 void paint_rls(Stimulus *st, int mode);
 void paint_rls_polygons(Stimulus *st, int mode);
 void paint_rls_lines(Stimulus *st, int mode);
+void paint_rls_plaid(Stimulus *st, int mode);
+
 int SaveRls(Stimulus *st, FILE *fd);
 OneStim *NewBar(Stimulus *st,Substim *sst);
 void free_bar(Substim *st);
@@ -93,42 +95,36 @@ int FindCode(char *s);
 int NewSeed(Stimulus *st);
 int PrintInfo(FILE *fd);
 int SetTargets();
-void RunWaterAlarm();
+
 void SetExpVals();
 //int *AdjustEyePos(int len);
 int CheckEyeDrift();
-void write_windowpos(FILE *ofd);
+
 void write_expvals(FILE *ofd, int flag);
 int ResetCustomVals(int imode);
 char *StairPerfString();
 int mygreg_setstair(int result, AFCstructure *afc, double *expvals);
 int SetMonkeyStaircase(int jonresult, AFCstructure *afc);
 int SetAltStair(int up, int revise);
-void write_sliders(FILE *ofd);
+
 void write_menus(FILE *ofd);
-void text_set_expvals();
 unsigned int ufftime(struct timeval *thetime);
 void PrintCodes(int mode);
 void PrintPenLog(int scroll);
 int InitRndArray(long seed, int len);
 void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon);
-void SetPlotSizes(struct plotdata *plot);
-void SetPenPanel();
-void SetAllPanel(Expt *ex);
-void setcomitem(char *text);
+
+
+
 int ReadHelpDir(char *dir);
 void SelectExp(int menuid, int code, int select);
-struct plotdata *ReadPlot(char *s);
+
 void SetExpPanel(Expt *ex);
 int GetTotal(struct plotdata *plot, int cluster, int type);
-void PrintPlot(FILE *ofd, struct plotdata *plot, int cluster, int type);
-int SavePlot(struct plotdata *plot);
-void PlotClear(struct plotdata *plot);
 void psychclear(struct plotdata *plot, int allflag);
-void PlotAlloc(Expt *exp);
 int i2expi(int flag, int *nstim, int ival, int type);
 double i2expval(int ival, int extras, int type, int skipx);
-int PlotSet(Expt *exp, struct plotdata *plot);
+
 int OpenPsychLog(char *name);
 int OpenLogfile(char *name);
 void InterpretChannelLine(char *line, int chan);
@@ -145,23 +141,15 @@ void CheckExpts();
 GLubyte *GetStimImage(int x, int y, int w, int h, char eye);
 int SaveImage(Stimulus *st, int type);
 int ReadCommand(char *s);
-char *ShowTextVal(int i, char *s);
-void DoCommand(char *s);
+
 void AddElectrodeString(char *s);
 void AddUserString(char *s);
 double pos2phase(Stimulus *st);
-void CheckPlots(Expt *exp);
-void PrintCounts(struct plotdata *plot, int type, int cluster);
-float MaxTrialRate(struct plotdata *plot);
-void MinMaxCounts(struct plotdata *plot, int type, int cluster);
-void plotsymbol(vcoord x, vcoord y, vcoord w, int type);
-int PlotLine(struct plotdata *plot, int cluster, int plotnum, int nstims);
-int PlotSymbols(struct plotdata *plot, int cluster, int plotnum, int symbol, int nstims);
-int PlotSequence(struct plotdata *plot, int cluster);
-int PlotRow(struct plotdata *plot, int cluster, int plotnum, int nstims);
-int PlotSpinSdf(int e2, int sign, struct plotdata *plot,int id);
-void PlotCounts(struct plotdata *plot, int plotnum, int symbol, float color, int cluster);
-void plotpsychdata(struct plotdata *plot);
+
+
+
+
+
 void record_setup(int index, int store);
 void ResetExpt();
 void checkstimbuffers(int nstim, int nreps);
@@ -198,8 +186,8 @@ int ReadExptFile(char *name, int new, int show, int reset);
 void SetPlotLabels(struct plotdata *plot);
 int FindStimId(Expt *ex, AFCstructure *afc);
 void inc_psychdata(int response_direction, Expt *ex, int jstimno);
-void UnReadSpikes(Expt *ex);
-int ReadSpikes(char *s, Expt *ex);
+
+
 int ShowFlag(char *s, int flag);
 int CheckOption(int i);
 int ChangeFlag(char *s);
@@ -283,7 +271,8 @@ float getframetime();
 int CheckStrings();
 void initial_setup();
 void SetPriority(int priority);
-float GetFrameRate(void);
+double GetFrameRate(void);
+double GetCurrentFrameRate(int displayIndex);
 void SendAll();
 void MakeConnection();
 void SetPanelColor(float color);
@@ -303,7 +292,7 @@ void TurnBackStim(Stimulus *st);
 void StartRunning();
 char DummySerial();
 void one_event_loop();
-void event_loop();
+int event_loop(float delay);
 void SetDelay(Locator *pos);
 void CheckRect(Stimulus *st);
 int StartOverlay();
@@ -311,7 +300,7 @@ int EndOverlay();
 int ShowBox(Expstim *ps, float color);
 void RotateStimulus(int x, int y);
 void LocateStimulus(Stimulus *st, vcoord x, vcoord y);
-void ShowDataPos(struct plotdata *plot, int x, int y);
+
 void ShowPos(int x, int y);
 void monocwipe();
 void clear_display(int flag);
@@ -381,7 +370,7 @@ int GotChar(char c);
 void SerialSignal(char flag);
 void CloseLog(void);
 void paint_target(float color, int flag);
-void ShowPerformanceString(int force);
+
 void afc_statusline(char *s, int line);
 void PaintGammaCheck(int iw, int ih);
 void chessboard(float w, float h);

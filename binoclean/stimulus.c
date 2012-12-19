@@ -205,12 +205,16 @@ Stimulus *NewStimulus(Stimulus *st)
     new->last->ptr = 0;
     new->type = -1;
     new->corrmix = -1;
-    new->left->im = new->left->xpos = new->left->ypos = NULL;
-    new->right->im = new->right->xpos = new->right->ypos = NULL;
+    new->left->im = new->left->xpos = new->left->ypos = new->left->xposa = NULL;
+    new->right->im = new->right->xpos = new->right->ypos = new->right->xposa = NULL;
+    new->left->yposa = NULL;
+    new->right->yposa = NULL;
     new->right->imb = new->left->imb = NULL;
     new->right->imc = new->left->imc = NULL;
     new->left->ypl = new->right->ypl = 0;
     new->left->xpl = new->right->xpl = 0;
+    new->left->xpla = new->right->xpla = 0;
+    new->left->ypla = new->right->ypla = 0;
     new->right->imclen = new->left->imclen = 0;
     new->right->imblen = new->left->imblen = 0;
     new->right->uimage = new->left->uimage = NULL;
@@ -327,7 +331,7 @@ void draw_conjpos(vcoord fixw, float color)
     
     
     
-    if(fixw <= 0)
+    if(fixw <= 0 || !(optionflag & SHOW_CONJUG_BIT))
         return;
     linw = 1.0;
     glLineWidth(2.0);
@@ -566,8 +570,7 @@ void draw_fix(vcoord px, vcoord py, vcoord fixw, float color)
         setmask(BOTHMODE);
     }
     glPopMatrix();
-    if(optionflag & SHOW_CONJUG_BIT)
-        draw_conjpos(cmarker_size, 1.0);
+    draw_conjpos(cmarker_size, 1.0);
     
 }
 
@@ -1690,6 +1693,9 @@ void calc_stimulus(Stimulus *st)
             st->left->pos.phase = st->phasedisp[0];
             st->right->pos.phase = -st->phasedisp[0];
             rds->newdots = rdsr->newdots = 1;
+            st->left->pos.phase2 = st->phasedisp[1];
+            st->right->pos.phase2 = -st->phasedisp[1];
+
             if(rds->seedloop == 1)
             {
                 if(realframecount > 0)

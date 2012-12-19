@@ -113,7 +113,7 @@ void nullify(char *s, int length)
 /********************************************************************************/
 int find_direction(float expval)
 {
-    int direction;
+    int direction =0;
     if(expval < 0.00001 && expval > -0.00001)
         direction = AMBIGUOUS;
     else if(expval < 0.0){
@@ -174,11 +174,11 @@ int monkey_direction(int response, AFCstructure afc_s)
 /********************************************************************************/
 int loopstate_counters(int direction, int response)
 {
-    int loopstate, count = afc_s.correction_leave+afc_s.correction_entry;
+    int loopstate =0, count = afc_s.correction_leave+afc_s.correction_entry;
     char buf[BUFSIZ];
     
     switch (direction){
-        case JONLEFT:
+        case JONLEFT:  //Right/Up on binoc screen!  if afc_s.sign > 0
             if (afc_s.sign < 0){  // tagets reversed
             switch(response){
                 case CORRECT:
@@ -224,7 +224,7 @@ int loopstate_counters(int direction, int response)
                     ranleft++;
             }
             break;
-        case JONRIGHT:
+        case JONRIGHT: //Left/Down on binoc screen!  if afc_s.sign > 0
             if (afc_s.sign < 0){  // tagets reversed
                 switch(response){
                     case WRONG:
@@ -280,12 +280,22 @@ int loopstate_counters(int direction, int response)
     statusline(buf);
     }
 
+#define MONITOR_CORRECTION_LOOP 1
+#ifdef MONITOR_CORRECTION_LOOP
+    if(seroutfile)
+        fprintf(seroutfile,"#CL%dR%d %d,%d  %.1f,%.1f",afc_s.loopstate,response,missed_positive,missed_negative,afc_s.jstairval,afc_s.jlaststairval);
+#endif
+
     
     afc_s.laststate = afc_s.loopstate;
     if(afc_s.type == ONEUP)
         loopstate = set_loop_state();
     if(afc_s.type == MAGONE_SIGNTWO)
         loopstate = set_loop_state();
+#ifdef MONITOR_CORRECTION_LOOP
+    if(seroutfile)
+        fprintf(seroutfile,"-> %d\n",loopstate);
+#endif
     return (loopstate);
     
 }
@@ -558,7 +568,7 @@ stair_hist_s setup_stairstruct(float *startvalue, float stairfactor, float maxva
     float binvalue;
     stair_hist_s stair_structure;
     float upval;
-    int startbin;   
+    int startbin=0;
     
     if(*startvalue > maxvalue)
         *startvalue = maxvalue;

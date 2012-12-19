@@ -33,11 +33,16 @@ void acknowledge(char * a ,int b)
     NSLog(@"Acknowledge! %s", a);
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updatecommandhistory" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
-//    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
-//    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
-//    [acknowledgeAlert addButtonWithTitle:@"I know!"];
-//    [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
-//    [acknowledgeAlert beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+    if([NSApplication sharedApplication])
+        if ([[NSApplication sharedApplication] windows])
+            if([[[NSApplication sharedApplication] windows] count]>0)
+            {
+                NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
+                [acknowledgeAlert setMessageText:@"Acknowledge it!"];
+                [acknowledgeAlert addButtonWithTitle:@"I know!"];
+                [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
+                [acknowledgeAlert beginSheetModalForWindow:[[[NSApplication sharedApplication] windows] objectAtIndex:0] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+            }
 }
 
 void displayOnMonkeyView(char *s, int x, int y)
@@ -53,6 +58,7 @@ void displayOnMonkeyView(char *s, int x, int y)
     else
         [messageTexture drawAtPoint:NSMakePoint(-500, -450)];
 }
+
 
 void updateInfoText(char *s)
 {
@@ -230,7 +236,7 @@ void notify(char * s)
     //    NSLog(@"%@",screenFrame);
     }
         
-    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
+    mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.0100 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
     
     StartRunning();
     WriteToOutputPipe(@"SENDINGstart1\n");
@@ -260,12 +266,26 @@ void notify(char * s)
 
 - (void) mainTimerFire:(NSTimer *)timer
 {
-    ReadInputPipe();
+    static struct timeval atime, btime;
+    float val,aval,bval;
+    int stimstate = 0;
+    gettimeofday(&btime,NULL);
+    aval = timediff(&btime,&atime);
+
+  ReadInputPipe();
+    gettimeofday(&atime,NULL);
+    bval = timediff(&atime,&btime);
     if (freeToGo) {
-        event_loop();
+       stimstate = event_loop(bval);
     }
     else
-    {    
+    {
+//        fprintf(stderr,"waiting for freetogo\n");       
+    }    
+    gettimeofday(&atime,NULL);
+    val = timediff(&atime,&btime);
+    if (aval > 0.03 || bval > 0.001){
+        fprintf(stderr,"#############Long delay (%.8f,%.4f,%.6f) in Timer\n",val,aval,bval);
     }
 }
 
