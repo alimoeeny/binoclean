@@ -23,6 +23,11 @@ static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
 
+
+MTRandom * randEngine;
+MTRandom * drandEngine;
+
+
 void quit_binoc()
 {
     [[NSApplication sharedApplication] terminate:nil];
@@ -139,6 +144,35 @@ void notify(char * s)
     outputPipeBuffer = [[NSString stringWithFormat:@"%@%s", outputPipeBuffer, s] retain];
 }
 
+
+#pragma mark random
+void randinit(int seed) // that sets the seed
+{
+    randEngine = [[MTRandom alloc] initWithSeed:seed];
+}
+
+long random()  //that returns  random int
+{
+    if (!randEngine) {
+        randEngine = [[MTRandom alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
+    }
+    uint32_t q = [randEngine randomUInt32];
+    return q;
+}
+
+double drand()  //that returns a float between 0 and 1
+{
+    if (!drandEngine) {
+        drandEngine = [[MTRandom alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
+    }
+    double   t = [drandEngine randomDouble0To1Exclusive];
+    return t;
+}
+
+void drandinit(int seed ) //that sets the state for the drand generator.
+{
+    drandEngine = [[MTRandom alloc] initWithSeed:seed];
+}
 
 
 @implementation binocleanAppDelegate
