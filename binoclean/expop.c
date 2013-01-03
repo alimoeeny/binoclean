@@ -1208,7 +1208,7 @@ int SetPsychStair(int up, int revise){
         for(i = 0; i < 2 * nstairs * nexps; i++)
             reverses[i] = laps[i] = 0;
         for(i = 2; i < nstairs * nexps; i += 2){
-            rnd = rnd_i(); 
+            rnd = myrnd_i(); 
             if(optionflags[STAIR_CENTER]){
                 stimorder[i] = expt.nstim[0]/2 - 5 + rnd%11;
                 stimorder[i + 1] = expt.nstim[0]/2 - 5 + (rnd >> 4) %11;
@@ -1340,7 +1340,7 @@ int SetPsychStair(int up, int revise){
     if(seroutfile)
         fprintf(seroutfile,"ID %d next %d\n",stairid,next);
     if(stimctr > 4){
-        rnd = rnd_i();
+        rnd = myrnd_i();
         stairid = (rnd % (nstairs * nexps));
     }
     else{
@@ -4907,7 +4907,7 @@ void setstimulusorder(int warnings)
     
     
     srandom(expseed++);
-    rnd_init(expseed);
+    myrnd_init(expseed);
     if(expt.blksize > 0 && expt.blksize <= nreps)
         blksize = expt.blksize;
     else
@@ -4990,7 +4990,7 @@ void setstimulusorder(int warnings)
                 for(tw = 0; tw < (expt.nstim[1]) * expt.nstim[4]; tw++){
                     maxcnt = 0;
                     do{
-                        rnd = rnd_i();
+                        rnd = myrnd_i();
                         n = twoseq[tw] = rnd % expt.nstim[1];
                         if((tw+i)%expt.stimpertrial == 0)
                             tm = threeseq[tw] = (rnd >> 8) % expt.nstim[4];
@@ -5005,7 +5005,7 @@ void setstimulusorder(int warnings)
                 for(tw = 0; tw < (expt.nstim[1]) * expt.nstim[4]; tw++){
                     maxcnt = 0;
                     do{
-                        rnd = rnd_i();
+                        rnd = myrnd_i();
                         n = twoseq[tw] = rnd % expt.nstim[1];
                         m = threeseq[tw] = (rnd >> 8) % expt.nstim[4];
                         j = m * expt.nstim[1] + n;
@@ -5056,7 +5056,7 @@ void setstimulusorder(int warnings)
                      * on later passes
                      */
                     if(nneed){
-                        rnd = rnd_i();
+                        rnd = myrnd_i();
                         j = rnd % nneed;
                         stim3order[i] = tx;
                         ni = stimorder[i] = stillneed[j];
@@ -5070,7 +5070,7 @@ void setstimulusorder(int warnings)
                     /*
                      do
                      {
-                     rnd = rnd_i();
+                     rnd = myrnd_i();
                      if(tw == 0){
                      j = rnd % (expt.nstim[0] + expt.nstim[2]);
                      exoff = 0;
@@ -5118,7 +5118,7 @@ void setstimulusorder(int warnings)
             
             do{
                 last = j;
-                rnd = rnd_i();
+                rnd = myrnd_i();
                 /*
                  * The comparison stimulus is stimulus 0. 
                  *      j = (rnd %(nstim-1)) + 1; 
@@ -5128,7 +5128,7 @@ void setstimulusorder(int warnings)
                  *	      j = (rnd %(nstim-1));
                  */
                 j = (rnd %(nstim-1))+1;
-                rnd = rnd_i();
+                rnd = myrnd_i();
                 if(rnd & 1)
                     oddrnd++;
                 else
@@ -5188,15 +5188,15 @@ void setstimulusorder(int warnings)
                             txsum[k/nstim] += isset[k];
                         }
                         do{
-                            tx = rnd_i() % expt.nstim[4];
+                            tx = myrnd_i() % expt.nstim[4];
                         }while(txsum[tx] >= ((thisblk-nblk) * nstim));
                     }
                     else
                         tx = 0;
                     
                 }
-                //	      j = stimorder[i] = (rnd_i() % (nstim * expt.nstim[4]));
-                j = stimorder[i] = (rnd_i() % nstim)+ nstim * tx;
+                //	      j = stimorder[i] = (myrnd_i() % (nstim * expt.nstim[4]));
+                j = stimorder[i] = (myrnd_i() % nstim)+ nstim * tx;
                 twoseq[i] = j/expt.nstim[0];
                 /*
                  * if the value of j picked above is already set, then so will its partner be
@@ -5206,7 +5206,7 @@ void setstimulusorder(int warnings)
                     tw = j/expt.nstim[0];
                     tw = (expt.nstim[1]-1) - tw; // reverse sign
                     do{
-                        jt = rnd_i() %expt.nstim[0];
+                        jt = myrnd_i() %expt.nstim[0];
                         jt = expt.nstim[0] * tw + jt;
                         if(jt < 0) // can happen with single interleaves
                             stimorder[i+1] = 0;
@@ -5365,7 +5365,7 @@ void setstimulusorder(int warnings)
      */
     
     if(option2flag & PSYCHOPHYSICS_BIT && option2flag & STAIRCASE){
-        rnd = rnd_i();
+        rnd = myrnd_i();
         if(afc_s.type == MAGONE_SIGNTWO){
             stimorder[0] = SetFirstStairVal();
             afc_s.magid = stimorder[0];
@@ -5404,7 +5404,7 @@ int permute(int *in, int n)
     for(i = 0; i < n; i++)
         in[i] = i;
     while(j < n){
-        i = rnd_i() % (n-j);
+        i = myrnd_i() % (n-j);
         if(i > 0){
             k = in[j];
             in[j] = in[j+i];
@@ -6529,7 +6529,7 @@ void InitExpt()
     rcrpt = expt.vals[RC_REPEATS];
     
     if(fabs(afc_s.sign) < 0.9){
-        afc_s.sign = (rnd_i() & 2)-1;
+        afc_s.sign = (myrnd_i() & 2)-1;
     }
     j = 1;
     afc_s.jstairval = INTERLEAVE_EXPT_ZERO;
@@ -6996,7 +6996,7 @@ Thisstim *getexpval(int stimi)
         stimret.vals[1] = expval[j+expt.nstim[2]+expt.nstim[0]];
         
         if(optionflags[RANDOM_EXPT2] && expt.type2 == CONTRAST_RATIO
-           && (rnd = rnd_i()) & 1 && stimret.vals[1] > 0)
+           && (rnd = myrnd_i()) & 1 && stimret.vals[1] > 0)
             stimret.vals[1] = 1/stimret.vals[1];
         
         stimret.vals[EXP_PSYCHVAL] = 0;
@@ -7822,7 +7822,7 @@ int PrepareExptStim(int show, int caller)
          * non-rds stimulist
          */
         expt.st->right->baseseed = ++(expt.st->left->baseseed);
-        rnd_init(expt.st->left->baseseed);
+        myrnd_init(expt.st->left->baseseed);
     }
     
     
@@ -7980,7 +7980,7 @@ int PrepareExptStim(int show, int caller)
                 else{
                     depth_mod = expval[ifcstim] * expt.vals[IFCSCALE];
                     if(option2flag & RANDOM){
-                        rnd = rnd_i();
+                        rnd = myrnd_i();
                         if(option2flag & ALT_PROBE_BIT){
                             if(rnd & 1)
                                 depth_mod = expval[ifcstim];
@@ -8138,7 +8138,7 @@ int PrepareExptStim(int show, int caller)
     else if(expt.type3 == SET_SEED){ //sets seed tgat deternmines sequence for trial 
         SetProperty(&expt,expt.st,expt.type3,  expt.exp3vals[stim3order[stimno]]);
         sprintf(ebuf,"%2s=%.2f",serial_strings[expt.type3],GetProperty(&expt,expt.st,expt.type3));
-        rnd_init(expt.st->left->baseseed);
+        myrnd_init(expt.st->left->baseseed);
     }
     else if(expt.type3 != EXPTYPE_NONE){
         SetProperty(&expt,expt.st,expt.type3,  expt.exp3vals[stim3order[stimno]]);
@@ -8147,7 +8147,8 @@ int PrepareExptStim(int show, int caller)
 
     else
         sprintf(ebuf,"");
-    
+    printStringOnMonkeyView(ebuf, 0);
+
     if(expt.vals[ONETARGET_P] > 0){
         if ((drnd = mydrand()) < expt.vals[ONETARGET_P])
             expt.vals[TARGET_RATIO] = 0;
@@ -8422,22 +8423,22 @@ int PrepareExptStim(int show, int caller)
      */
     if(optionflags[RANDOM_RELPHASE]){
         if(expt.st->type == STIM_GRATING2){
-            rnd = rnd_i() % 4;
+            rnd = myrnd_i() % 4;
             rnd = rnd * 90;
             SetStimulus(expt.st,(float)rnd,SETPHASE,NULL);
-            rnd = rnd_i() % 6;
+            rnd = myrnd_i() % 6;
             rnd = rnd * 30;
             SetStimulus(expt.st,(float)rnd,PHASEREL,NULL);
         }
         else{
-            rnd = rnd_i() % 4;
+            rnd = myrnd_i() % 4;
             rnd = rnd * 90;
             SetStimulus(expt.st,(float)rnd,SETPHASE,NULL);
             /*
              * for psychophysiccs with 2 gabors, use 360 different phase values.
              */
             if(expt.st->next != NULL && expt.st->next->type == STIM_GABOR){
-                rnd = rnd_i() % 360;
+                rnd = myrnd_i() % 360;
                 SetStimulus(expt.st,(float)rnd,SETPHASE,NULL);
             }
         }
@@ -8482,7 +8483,7 @@ int PrepareExptStim(int show, int caller)
     
     
     if(optionflags[TILE_XY] && !optionflags[FAST_SEQUENCE]){
-        rnd = rnd_i();
+        rnd = myrnd_i();
         xrnd = rnd &3;
         yrnd = (rnd >4) & 3;
         val = (xrnd-1.5) * expt.stimvals[STIM_WIDTH];
@@ -8570,7 +8571,7 @@ int PrepareExptStim(int show, int caller)
         printf("Stim %d not done %d, unrep %d, val %.3f (%d)",expt.stimid,uncompleted[expt.stimid],unrepeatn[expt.stimid],val,stimno);
 #endif
         if(mydrand() < val){
-            id = rnd_i() %  unrepeatn[expt.stimid];
+            id = myrnd_i() %  unrepeatn[expt.stimid];
             dorpt = unrepeated[expt.stimid][id];
             lastid = unrepeated[expt.stimid][unrepeatn[expt.stimid]-1];
             /*
@@ -8627,7 +8628,7 @@ int PrepareExptStim(int show, int caller)
             maxseed = expt.st->left->baseseed;
         }
         fprintf(seroutfile,"se%d*\n",expt.st->left->baseseed);
-        rnd_init(expt.st->left->baseseed);
+        myrnd_init(expt.st->left->baseseed);
         srand48(expt.st->left->baseseed);
         currentstim.seqseed = expt.st->left->baseseed;
     }
@@ -8684,7 +8685,7 @@ int PrepareExptStim(int show, int caller)
             rval = mydrand();
             //use EXP_SPCYHVAL to determine whehter to add interleaves.  In case mean not zero
             if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[SIGNAL_STRENGTH]) < expt.vals[INITIAL_APPLY_MAX]){
-                lrnd = rnd_i();
+                lrnd = myrnd_i();
                 frameseq[i] = 1; // full contrast for grating 1
                 frameseqb[i] = minval + (lrnd%nv) * inc;
                 frameiseq[i] = 1+(lrnd%nv);
@@ -8714,7 +8715,7 @@ int PrepareExptStim(int show, int caller)
         for(i = 0; i < expt.st->nframes+1; i++){
             rval = mydrand();
             if(rval > expt.vals[DISTRIBUTION_CONC] && fabs(stp->vals[SIGNAL_STRENGTH]) < expt.vals[INITIAL_APPLY_MAX]){
-                lrnd = rnd_i();
+                lrnd = myrnd_i();
                 frameseq[i] = 0; // same ori in each eye
                 frameseqb[i] = minval + (lrnd%nv) * inc;
                 frameseqc[i] = 0; //same contrast in each eye
@@ -8810,7 +8811,7 @@ int PrepareExptStim(int show, int caller)
             iperiod = rint(mon.framerate/expt.st->tf);
             ncycles = expt.st->nframes/iperiod;
             
-            drop = ncycles/2 + rnd_i() % (ncycles/2);
+            drop = ncycles/2 + myrnd_i() % (ncycles/2);
             for(i = 0; i < expt.st->nframes; i++)
             {
                 lrnd = i%iperiod <= frpt-1 ? 1 : 0;
@@ -8834,7 +8835,7 @@ int PrepareExptStim(int show, int caller)
             id = 0;
             for(i = 0; i < expt.st->nframes+1; i+= frpt){
                 //	    lrnd = rnd_ri((long)(nv + expt.fastextras));
-                lrnd = rnd_i();
+                lrnd = myrnd_i();
                 SetFrameStim(i, lrnd, inc, stp, nstim);
                 ivals[id] = frameiseq[i];
                 bvals[id++] = frameseqb[i];
@@ -9030,7 +9031,7 @@ int PrepareExptStim(int show, int caller)
             if (expt.st->jumps > 0){
                 nv = expt.st->jumps/2;
                 if(optionflags[TILE_XY]){
-                    rnd = rnd_i();
+                    rnd = myrnd_i();
                     rcstimxy[0][i] = (rnd & 0xffff) % expt.st->jumps;
                     rcstimxy[0][i] = (rnd) % expt.st->jumps;
                     rcstimxy[1][i] = (rnd>>16) % expt.st->jumps;
@@ -10997,7 +10998,7 @@ int CheckBW(int signal, char *msg)
                 mode |= BW_ERROR;
                 StopGo(STOP);
             }
-            if(confirmer_state && *confirmer_state == 0) /* has been acknowleged */
+//            if(confirmer_state && *confirmer_state == 0) /* has been acknowleged */
                 ok = 1;
             if(ok)
             {

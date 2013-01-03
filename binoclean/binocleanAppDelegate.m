@@ -45,11 +45,16 @@ void acknowledge(char * a ,int b)
         if ([[NSApplication sharedApplication] windows])
             if([[[NSApplication sharedApplication] windows] count]>0)
             {
+                [NSApp activateIgnoringOtherApps:YES];
+                NSSound * snd = [NSSound soundNamed:@"Ping.aiff"];
+                [snd play];
                 NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
                 [acknowledgeAlert setMessageText:@"Acknowledge it!"];
                 [acknowledgeAlert addButtonWithTitle:@"I know!"];
                 [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
-                [acknowledgeAlert beginSheetModalForWindow:[[[NSApplication sharedApplication] windows] objectAtIndex:0] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+                NSWindow * topwin = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
+                NSLog(@"topwin:%@, wincount:%d", [topwin title], [[[NSApplication sharedApplication] windows] count]);
+                [acknowledgeAlert beginSheetModalForWindow:topwin modalDelegate:nil didEndSelector:nil contextInfo:nil];
             }
 }
 
@@ -168,7 +173,7 @@ void randinit(int seed) // that sets the seed
     randEngine = [[MTRandom alloc] initWithSeed:seed];
 }
 
-long random()  //that returns  random int
+unsigned int random_l()  //that returns  random int
 {
     if (!randEngine) {
         randEngine = [[MTRandom alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
@@ -177,7 +182,7 @@ long random()  //that returns  random int
     return q;
 }
 
-double drand()  //that returns a float between 0 and 1
+double drand64()  //that returns a float between 0 and 1
 {
     if (!drandEngine) {
         drandEngine = [[MTRandom alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];

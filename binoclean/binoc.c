@@ -479,6 +479,7 @@ void ShowTime()
     
     if(issfrc(expt.stimmode))
         return;
+    return;  //prefer to have status line printed
     px = (int)(ExptProperty(&expt, PANEL_XPOS));
     py = (int)(ExptProperty(&expt, PANEL_YPOS));
     
@@ -1501,8 +1502,6 @@ void glstatusline(char *s, int line)
     
     if(!(mode & RUNNING) || (optionflags[HIDE_STATUS]))
         return;
-    x[0] = -winsiz[0];
-    x[1] = -winsiz[1] + (25 * line);
     if(line < 10 && s != NULL)
         lines[line] = myscopy(lines[line],s);
     if(s != NULL) /* new string */
@@ -1516,9 +1515,9 @@ void glstatusline(char *s, int line)
 	SetGrey(1.0);
 	mycmv(x);
 	if(s != NULL)
-        printString(s,1);
+        printStringOnMonkeyView(s, strlen(s));
 	else if(lines[line] != NULL)
-        printString(lines[line],1);
+        printStringOnMonkeyView(lines[line], strlen(lines[line]));
 	if(states[EXPT_PAUSED]){
         x[1] = -winsiz[1] + 150;
         mycmv(x);
@@ -2992,6 +2991,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 	if(st == NULL)
         st = TheStim;
     icode = valstringindex[code];
+//    if setblank is set, val may be -1009, so don't set anything to this. Consider same for setuc
+    if (setblank == 0){
 	switch(code)
 	{
         case SEEDOFFSET:
@@ -4522,6 +4523,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         default:
             return(-1);
 	}
+    }
     
 	if(st->type == STIM_CYLINDER){/*j*/
 		if (code != JDEATH && code != DISP_X && code != JVELOCITY && code != JF_INTENSITY && code != JB_INTENSITY && code != STANDING_DISP) {
@@ -4636,7 +4638,7 @@ void nsine_background()
     tempstim->background  = 0.5;  
     if(optionflags[RANDOM_PHASE]){
         for(i = 0; i < tempstim->nfreqs; i++)
-            tempstim->phases[i] = (rnd_i() %360) * M_PI/180;
+            tempstim->phases[i] = (myrnd_i() %360) * M_PI/180;
     }
     calc_stimulus(tempstim);
     paint_stimulus(tempstim);
@@ -5112,7 +5114,7 @@ int SetRandomPhase( Stimulus *st,     Locator *pos)
     int iphase,i;
     
     if(expt.stimmode == FOUR_PHASES){
-        iphase = rnd_i() %4;
+        iphase = myrnd_i() %4;
         /* 
          * tests for stimtype must use expt.stimtype, not st->
          * an interleaved blank changes st->. This is called before
@@ -5139,21 +5141,21 @@ int SetRandomPhase( Stimulus *st,     Locator *pos)
         }
         else{
             pos->phase = iphase * M_PI/2;
-            pos->phase2 = (rnd_i() %4) * M_PI/2;
+            pos->phase2 = (myrnd_i() %4) * M_PI/2;
         }
     }
     else if(expt.stimmode == TWO_PHASES){
-        iphase = rnd_i() %2;
+        iphase = myrnd_i() %2;
         pos->phase = iphase  * M_PI;
-        pos->phase2 = (rnd_i() %2) * M_PI;
+        pos->phase2 = (myrnd_i() %2) * M_PI;
     }
     else{
-        iphase = (rnd_i() %360);
+        iphase = (myrnd_i() %360);
         pos->phase = (iphase * M_PI)/180;
-        pos->phase2 = (rnd_i() %360);
+        pos->phase2 = (myrnd_i() %360);
         pos->phase2 *= (M_PI/180);
         for(i = 0; i < st->nfreqs; i++)
-            st->phases[i] = (rnd_i() %360) * M_PI/180;
+            st->phases[i] = (myrnd_i() %360) * M_PI/180;
     }
     frameiseqp[expt.framesdone] = iphase;
     if(pos->phase != 0)
@@ -5515,7 +5517,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 		pos->phase += st->incr;
 		if(optionflags[RANDOM_PHASE]){
             /* make sure these phases come from this seed so can be reconstructed*/
-            rnd_init(st->left->baseseed);
+            myrnd_init(st->left->baseseed);
             SetRandomPhase(st, pos);
 		}
 		pos->locn[0] += st->posinc;
@@ -5595,7 +5597,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if(optionflags[RANDOM_DEPTH_PHASE]){
                 
                 period = (int)rint(1000/mon.framerate);
-                rphase = rnd_i() % period;
+                rphase = myrnd_i() % period;
                 rphase = rphase * 2 * M_PI/period;
                 st->phasedisp[0] = cos(rphase) * deg_rad(st->depth_mod);
             }
@@ -5819,7 +5821,7 @@ int RunBetweenTrials(Stimulus *st, Locator *pos)
 {
     if(!(optionflag & STIM_IN_WURTZ_BIT)){
         if(expt.st->type == STIM_IMAGE && expt.st->preload && expt.st->preloaded)
-            expt.st->framectr = rnd_i() % expt.st->nframes;
+            expt.st->framectr = myrnd_i() % expt.st->nframes;
         paint_frame(WHOLESTIM, !(mode & FIXATION_OFF_BIT));
         increment_stimulus(st, pos);
         loopframes++;
@@ -5851,7 +5853,7 @@ int StartTrial()
     
     SerialSignal(GOOD_FIXATION);
     if(optionflags[ALWAYS_CHANGE_STIM] && optionflag & SEARCH_MODE_BIT){
-        rnd = rnd_i();
+        rnd = myrnd_i();
         if(rnd & 1 && stimno > 2){
             lastnudge = ! lastnudge;
             stimno += ((lastnudge - 0.5) * 2);  // + or - 1
@@ -5976,7 +5978,7 @@ int next_frame(Stimulus *st)
         exptchr = ' ';
     
     markercolor = 1.0;
-//    glstatusline(NULL,2);
+    glstatusline(NULL,1);
 #ifdef MONITOR_CLOSE
     if(seroutfile && laststate != stimstate){
         fprintf(seroutfile,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
@@ -6160,11 +6162,11 @@ int next_frame(Stimulus *st)
                 /*
                  * only put up the warning once
                  */
-                if(confirmer_state == NULL || *confirmer_state == 0){
+
                     sprintf(buf,"Error Setting Stimulus %d %d",stimno,stimorder[stimno]);
                     if(seroutfile)
                         fprintf(seroutfile,"%s\n",buf);
-                }
+   
                 stimstate = INTERTRIAL;
             }
             
@@ -6221,9 +6223,9 @@ int next_frame(Stimulus *st)
             {
                 memcpy(&fixontime, &now, sizeof(struct timeval));
                 if(ExptIsRunning() && (i = PrepareExptStim(1,13)) < 0){
-                    if(confirmer_state == NULL || *confirmer_state == 0){
+
                         printf("Prepare returns %d\n",i);
-                    }
+
                     stimstate = INTERTRIAL;
                 }
                 SetFixColor(expt);

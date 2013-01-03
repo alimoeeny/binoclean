@@ -253,7 +253,7 @@ void calc_image(Stimulus *st, Substim *sst)
             if(sst->mode == LEFTMODE){
                 if(optionflags[RANDOM_PHASE]){
                     if(expt.mode == ORIENTATION){
-                        id = rnd_i()%(expt.nstim[0]+expt.nstim[2]);
+                        id = myrnd_i()%(expt.nstim[0]+expt.nstim[2]);
                         if(id < expt.nstim[2])
                             st->xstate = INTERLEAVE_EXPT_BLANK;
                         else{
@@ -262,11 +262,11 @@ void calc_image(Stimulus *st, Substim *sst)
                         }
                     }
                     else{
-                        ori = (rnd_i()%18) * 10;
+                        ori = (myrnd_i()%18) * 10;
                         id = ori;
                     }
                 }
-                seed = sst->seed = 1 + (rnd_i() % st->nimseed);
+                seed = sst->seed = 1 + (myrnd_i() % st->nimseed);
             }
             else{
                 if(st->flag & UNCORRELATE)

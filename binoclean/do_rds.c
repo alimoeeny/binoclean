@@ -276,7 +276,7 @@ int precalc_rds_disps(Stimulus *st)
   else
     dscale = 1;
     
-  rnd_init(sst->baseseed);
+  myrnd_init(sst->baseseed);
   if(st->ndisps < 2)
     return(0);
   if(expt.stimmode <= DOTDIST_RANDOM)
@@ -932,7 +932,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
   if((sst->nw+1) * (sst->nh+1) > sst->imlen)
     init_rds(st, sst, 0);
     
-  rnd_init(sst->baseseed);
+  myrnd_init(sst->baseseed);
   rnd = rnd_u();
     
     

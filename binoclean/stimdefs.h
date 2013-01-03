@@ -544,16 +544,19 @@ float pix2degy(float val);
 #define isanumber(c) (isdigit(c) || c == '-' || c =='+' || c == '*' || c == '.')
 
 // Need something else for 64 bit version.  drand48? 
-#define mydrand rnd_01d
 
-#if 1
+#if 0
+#define mydrand rnd_01d
 #define myrnd_init rnd_init
 #define myrnd_i rnd_i
 long rnd_i(void);
 #else
-#define myrnd_init srandom
-#define myrnd_i random
-
+#define mydrand drand64
+#define srand48 drandinit
+#define myrnd_init randinit
+#define myrnd_i random_l
+unsigned int random_l(void);
+double drand64(void);
 #endif
 
 

@@ -1933,9 +1933,9 @@ int SaveRls(Stimulus *st, FILE *fd)
 //	  sst->corrdots = sst->ndots * 2;
 //	p = sst->im;
 //	sst->seed = sst->baseseed;
-//	rnd_init(sst->baseseed);
+//	myrnd_init(sst->baseseed);
 //	for(i = 0; i < sst->ndots; i++)
-//           *p++ = rnd_i();
+//           *p++ = myrnd_i();
 //	for(i = 0; i < 2; i++)
 //	{
 //	  if(pos->imsize[i] == 0)
@@ -2142,7 +2142,7 @@ int SaveRls(Stimulus *st, FILE *fd)
 //     rndarraylen = 2 * sst->ndots;
 //   }
 //   rp = rndarray;
-//   rnd_init(sst->seed);
+//   myrnd_init(sst->seed);
 //   for(i = 0; i < 10; i++){
 //     sst->bits[i] = 0;
 //   }
@@ -2170,8 +2170,8 @@ int SaveRls(Stimulus *st, FILE *fd)
 // * i.e. its because these are painted in order, unlike rds....
 // */
 //     if(sst->corrdots == 0 && sst->mode == RIGHTMODE && !seedcall)
-//       rnd_init(sst->seed+200),seedcall++;
-//     *rp = rnd_i();
+//       myrnd_init(sst->seed+200),seedcall++;
+//     *rp = myrnd_i();
 //     if(i == sst->ndots -2)
 //       j = *rp & 1;
 ///*
@@ -2483,7 +2483,7 @@ int SaveRls(Stimulus *st, FILE *fd)
 //     rndarraylen = 2 * sst->ndots;
 //   }
 //   rp = rndarray;
-//   rnd_init(sst->seed);
+//   myrnd_init(sst->seed);
 //   for(i = 0; i < 10; i++){
 //     sst->bits[i] = 0;
 //   }
@@ -2506,8 +2506,8 @@ int SaveRls(Stimulus *st, FILE *fd)
 //     ey = exp(-(ysq/ysd));
 //
 //     if(sst->corrdots == 0 && sst->mode == RIGHTMODE && !seedcall)
-//       rnd_init(sst->seed+200),seedcall++;
-//     *rp = rnd_i();
+//       myrnd_init(sst->seed+200),seedcall++;
+//     *rp = myrnd_i();
 //     if(i == sst->ndots -2)
 //       j = *rp & 1;
 ///*
