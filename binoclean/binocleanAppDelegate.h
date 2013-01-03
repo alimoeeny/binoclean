@@ -18,6 +18,7 @@
 #import <sys/termios.h>
 #import "mainGUI.h"
 #import "MonkeyWindow.h"
+#import "MTRandom.h"
 
 #define OUT_PIPE "/tmp/binocoutputpipe"
 #define IN_PIPE "/tmp/binocinputpipe"

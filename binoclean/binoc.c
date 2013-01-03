@@ -508,7 +508,7 @@ void ShowTime()
             sprintf(buf,"Shake %.1f",val);
         }
         
-//        printStringOnMonkeyView(buf, 0);
+        printStringOnMonkeyView(buf, 0);
     }
 }
 
