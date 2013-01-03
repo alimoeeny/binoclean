@@ -153,9 +153,9 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
         sst->corrdots = sst->ndots * 2;
 	p = sst->im;
 	sst->seed = sst->baseseed;
-	rnd_init(sst->baseseed);
+	myrnd_init(sst->baseseed);
 	for(i = 0; i < sst->ndots; i++)
-        *p++ = rnd_i();
+        *p++ = myrnd_i();
 	for(i = 0; i < 2; i++)
 	{
         if(pos->imsize[i] == 0)
@@ -195,7 +195,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     vcoord yp,diff;
     double drnd,aval;
     int bit, nbit;
-    long *rp,rnd,rnd_i(),*rq;
+    long *rp,rnd,*rq;
     
     
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
@@ -376,7 +376,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     }
     rp = rndarray;
     rq = &rndarray[sst->ndots];
-    rnd_init(sst->seed);
+    myrnd_init(sst->seed);
     for(i = 0; i < 10; i++){
         sst->bits[i] = 0;
     }
@@ -407,8 +407,8 @@ void calc_rls(Stimulus *st, Substim *sst)
          * i.e. its because these are painted in order, unlike rds....
          */
         if(sst->corrdots == 0 && sst->mode == RIGHTMODE && !seedcall)
-            rnd_init(sst->seed+200),seedcall++;
-        *rp = rnd_i();
+            myrnd_init(sst->seed+200),seedcall++;
+        *rp = myrnd_i();
         if(i == sst->ndots -2)
             j = *rp & 1;
         /*
@@ -790,7 +790,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
         rndarraylen = 2 * sst->ndots;
     }
     rp = rndarray;
-    rnd_init(sst->seed);
+    myrnd_init(sst->seed);
     for(i = 0; i < 10; i++){
         sst->bits[i] = 0;
     }
@@ -813,8 +813,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
         ey = exp(-(ysq/ysd));
         
         if(sst->corrdots == 0 && sst->mode == RIGHTMODE && !seedcall)
-            rnd_init(sst->seed+200),seedcall++;
-        *rp = rnd_i();
+            myrnd_init(sst->seed+200),seedcall++;
+        *rp = myrnd_i();
         if(i == sst->ndots -2)
             j = *rp & 1;
         /*

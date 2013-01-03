@@ -546,6 +546,20 @@ float pix2degy(float val);
 // Need something else for 64 bit version.  drand48? 
 #define mydrand rnd_01d
 
+#if 1
+#define myrnd_init rnd_init
+#define myrnd_i rnd_i
+long rnd_i(void);
+#else
+#define myrnd_init srandom
+#define myrnd_i random
+
+#endif
+
+
+//#define rnd_i arc4random
+
+
 #define sinf(x) sin(x)
 #define cosf(x) cos(x)
 #define powf(x,y) pow(x,y)
