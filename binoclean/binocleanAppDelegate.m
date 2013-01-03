@@ -18,6 +18,9 @@ int fullscreenmode;
 extern int useDIO;
 int freeToGo = 1;
 
+static NSColor * textColor;
+static NSColor * textBGColor;
+
 int outPipe = 0;
 static NSMutableArray * inputPipeBuffer;
 NSString * outputPipeBuffer;
@@ -38,21 +41,35 @@ void acknowledge(char * a ,int b)
     NSLog(@"Acknowledge! %s", a);
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateinfotext" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updatecommandhistory" object:nil userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:a] forKey:@"text"]];
-//    NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
-//    [acknowledgeAlert setMessageText:@"Acknowledge it!"];
-//    [acknowledgeAlert addButtonWithTitle:@"I know!"];
-//    [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
-//    [acknowledgeAlert beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+    if([NSApplication sharedApplication])
+        if ([[NSApplication sharedApplication] windows])
+            if([[[NSApplication sharedApplication] windows] count]>0)
+            {
+                NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
+                [acknowledgeAlert setMessageText:@"Acknowledge it!"];
+                [acknowledgeAlert addButtonWithTitle:@"I know!"];
+                [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
+                [acknowledgeAlert beginSheetModalForWindow:[[[NSApplication sharedApplication] windows] objectAtIndex:0] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+            }
 }
 
 void displayOnMonkeyView(char *s, int x, int y)
 {
+    if(!textColor)
+        textColor = [NSColor colorWithCalibratedRed:0.5f green:1.0f blue:0.5f alpha:1.0f];
+    if(!textBGColor)
+        textBGColor = [NSColor colorWithCalibratedRed:0.5f green:0.0f blue:0.5f alpha:1.0f];
+
     if (!bold12Attribs) {
         bold12Attribs = [[NSMutableDictionary dictionary] retain];
         [bold12Attribs setObject: [NSFont fontWithName: @"Helvetica" size: 20.0f] forKey: NSFontAttributeName];
-        [bold12Attribs setObject: [NSColor whiteColor] forKey: NSForegroundColorAttributeName];
+        [bold12Attribs setObject:textColor  forKey: NSForegroundColorAttributeName];
     }
-    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithUTF8String:s] withAttributes:bold12Attribs withTextColor:[NSColor redColor] withBoxColor:[NSColor blackColor] withBorderColor:[NSColor whiteColor]];
+    GLString * messageTexture = [[GLString alloc] initWithString:[NSString stringWithUTF8String:s]
+                                                  withAttributes:bold12Attribs
+                                                   withTextColor:textColor
+                                                    withBoxColor:textBGColor
+                                                 withBorderColor:textColor];
     if (x && y)
         [messageTexture drawAtPoint:NSMakePoint(x, y)];        
     else
