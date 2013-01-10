@@ -2148,7 +2148,7 @@ void paint_stimulus(Stimulus *st)
     glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
     if(debug)
         glDrawBuffer(GL_FRONT_AND_BACK);
-    if(st->next != NULL && optionflags[PAINT_BACKGROUND])
+    if(st->next != NULL && optionflags[PAINT_BACKGROUND] && st->next->type != STIM_NONE)
         paint_stimulus(st->next);
     else if(!st->noclear)
         clearstim(st,st->gammaback, optionflag & DRAW_FIX_BIT);

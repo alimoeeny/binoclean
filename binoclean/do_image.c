@@ -91,9 +91,11 @@ int PreloadPGM(char *name, Stimulus *st, Substim *sst, int frame){
             if(seroutfile)
                 fprintf(seroutfile,"Can't Read Image %s\n",name);
             if(psychlog)
-                fprintf(psychlog,"Can't Read Image %s\n",name);
+//                fprintf(psychlog,"Can't Read Image %s\n",name);
             strcpy(lastname,name);
         }
+        else
+            fprintf(stderr,"Can't Read Image %s\n",name);
         return(NULL);
     }
     fgets(buf, BUFSIZ, imfd);

@@ -2995,8 +2995,13 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
     if (setblank == 0){
 	switch(code)
 	{
-        case SEEDOFFSET:
+        case BACKGROUND_MOVIE:  //need this in setstimulus for Expt sequence modes
+        case BACKGROUND_IMAGE:
+            SetExptProperty(&expt, expt.st, code,  val);
+            break;
+      case SEEDOFFSET:
             stimptr->seedoffset = val;
+            expt.vals[code] = val;
             break;
         case DOTREPEAT:
             stimptr->dotrpt = val;
@@ -5681,7 +5686,7 @@ void PaintBackIm(PGM im)
 void wipescreen(float color)
 {
     setmask(bothmask);
-    if(expt.backim.name && optionflags[PAINT_BACKGROUND]){
+    if(expt.backim.name && optionflags[PAINT_BACKGROUND] && expt.stimmode == BUTTSEXPT){
         PaintBackIm(expt.backim);
     }
     else{
@@ -5770,8 +5775,11 @@ void paint_frame(int type, int showfix)
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
             paint_stimulus(TheStim->next);
-        else
+        else{
+            if (optionflags[PAINT_BACKGROUND] && expt.backim.ptr != NULL)
+                TheStim->noclear = 0;
             paint_stimulus(TheStim);
+        }
     }
     else
         wipescreen(clearcolor);
@@ -5934,6 +5942,8 @@ float SetFixColor(Expt expt)
         expt.st->fixcolor = expt.st->fix.fixcolors[0];
         optionflag &= (~SQUARE_FIXATION);
     }
+    else if (stimstate == INTERTRIAL)
+        expt.st->fixcolor = expt.st->fixcolor;
     else
         expt.st->fixcolor = expt.st->fix.fixcolor;
 }
@@ -5999,8 +6009,12 @@ int next_frame(Stimulus *st)
     }
     if(timeout_type == SHAKE_TIMEOUT)
         start_timeout(SHAKE_TIMEOUT);
-    if (stimno > 1 && ~ExptIsRunning())
+    if (stimno > 1 && !ExptIsRunning()){
         fprintf(seroutfile,"#Not in Expt S%d\n",stimstate);
+        i = TheStim->mode & EXPTPENDING;
+        i = states[EXPT_PAUSED];
+        i = ExptIsRunning();
+    }
     switch(stimstate)
     {
         case STIMSTOPPED:

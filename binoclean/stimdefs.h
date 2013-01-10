@@ -249,6 +249,7 @@ float pix2degy(float val);
 #define TWOCYL_ANDIDISP 24
 #define RDSRLSSETSL 25
 #define BUTTSEXPT 26
+#define IMAGETRIALMIX 27
 
 #define issfrc(x) (x == RANDOM_ONOFF || x == RANDOM_ONOFF_LOG || x == INDEP_ONOFF || x == INDEP_ONOFF_LOG || x == BINOC_INDEP_ONOFF_LOG || x== THREE_CONTRAST_LEVEL || x == BINOC_INDEP_ONOFF)
 
