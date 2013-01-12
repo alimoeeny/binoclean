@@ -249,6 +249,7 @@ float pix2degy(float val);
 #define TWOCYL_ANDIDISP 24
 #define RDSRLSSETSL 25
 #define BUTTSEXPT 26
+#define IMAGETRIALMIX 27
 
 #define issfrc(x) (x == RANDOM_ONOFF || x == RANDOM_ONOFF_LOG || x == INDEP_ONOFF || x == INDEP_ONOFF_LOG || x == BINOC_INDEP_ONOFF_LOG || x== THREE_CONTRAST_LEVEL || x == BINOC_INDEP_ONOFF)
 
@@ -544,7 +545,24 @@ float pix2degy(float val);
 #define isanumber(c) (isdigit(c) || c == '-' || c =='+' || c == '*' || c == '.')
 
 // Need something else for 64 bit version.  drand48? 
+
+#if 0
 #define mydrand rnd_01d
+#define myrnd_init rnd_init
+#define myrnd_i rnd_i
+long rnd_i(void);
+#else
+#define mydrand drand64
+#define srand48 drandinit
+#define myrnd_init randinit
+#define myrnd_i random_l
+unsigned int random_l(void);
+double drand64(void);
+#endif
+
+
+//#define rnd_i arc4random
+
 
 #define sinf(x) sin(x)
 #define cosf(x) cos(x)

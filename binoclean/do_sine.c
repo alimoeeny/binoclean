@@ -528,7 +528,7 @@ calc_gratingN(Stimulus *st, Substim *sst, float disp)
     rescale = 1;
     
     if(onlineversion > 444)
-        rnd_init(sst->seed);
+        myrnd_init(sst->seed);
     srand48(sst->seed);
     sy = deg_rad(gb->sy);
     if(sy > pos->radius[1] * 2)

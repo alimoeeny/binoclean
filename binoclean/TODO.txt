@@ -62,4 +62,9 @@ Things that need fixing:
 -allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?    
 -could binoc write to pipe when started so that verg automatically reopens pipes? 
 -when verg connects to a running binoc which is mid expt, get vert to know and set Run button
-
+-stausline only on alternate frames in expt/ 
+-when rpt is on, make expts separte for the psych plot (currently all lumped into one)
+-expt labels in verg when expt type not in list.
+-check Buts expts expt2 setups
+-fixation off color no longer works....
+-if a code is not recognized, verg should not echo its local value?

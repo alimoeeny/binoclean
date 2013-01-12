@@ -23,6 +23,7 @@
 		417AEA8713DE21BB006F7A77 /* playsweet.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8313DE21BB006F7A77 /* playsweet.png */; };
 		417AEA8813DE21BB006F7A77 /* playsweeti.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8413DE21BB006F7A77 /* playsweeti.png */; };
 		417AEA8C13DE225F006F7A77 /* pauseButtonSilver.png in Resources */ = {isa = PBXBuildFile; fileRef = 417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */; };
+		417FC01B1695AACB00B3CFFF /* MTRandom.m in Sources */ = {isa = PBXBuildFile; fileRef = 417FC01A1695AACB00B3CFFF /* MTRandom.m */; };
 		419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419DCE0813A133B3004E8464 /* Cocoa.framework */; };
 		419DCE1313A133B3004E8464 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419DCE1113A133B3004E8464 /* InfoPlist.strings */; };
 		419DCE1513A133B3004E8464 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 419DCE1413A133B3004E8464 /* main.m */; };
@@ -75,6 +76,7 @@
 		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
 		41DD53031521ED51004D28A0 /* binoclean.icns in Resources */ = {isa = PBXBuildFile; fileRef = 41DD53021521ED51004D28A0 /* binoclean.icns */; };
 		C90350CC150D279800DFD9D3 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C90350CB150D279800DFD9D3 /* ali */; };
+		C91697131695DF6000D740F7 /* Ping.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C91697121695DF6000D740F7 /* Ping.aiff */; };
 		C9308B7E14F82EF50054C963 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = C9308B7D14F82EF50054C963 /* TODO.txt */; };
 		C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */ = {isa = PBXBuildFile; fileRef = C969F832150D233A00D7A5A7 /* lempsy110 */; };
 		C969F8CA150D233B00D7A5A7 /* bwlatest in Resources */ = {isa = PBXBuildFile; fileRef = C969F833150D233A00D7A5A7 /* bwlatest */; };
@@ -205,6 +207,8 @@
 		417AEA8313DE21BB006F7A77 /* playsweet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweet.png; sourceTree = "<group>"; };
 		417AEA8413DE21BB006F7A77 /* playsweeti.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweeti.png; sourceTree = "<group>"; };
 		417AEA8B13DE225F006F7A77 /* pauseButtonSilver.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pauseButtonSilver.png; sourceTree = "<group>"; };
+		417FC0191695AACB00B3CFFF /* MTRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTRandom.h; sourceTree = "<group>"; };
+		417FC01A1695AACB00B3CFFF /* MTRandom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTRandom.m; sourceTree = "<group>"; };
 		41934E1715223E19001D9E5C /* u6.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = u6.c; sourceTree = "<group>"; };
 		41934E1815223E19001D9E5C /* u6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = u6.h; sourceTree = "<group>"; };
 		41934E1B15223E61001D9E5C /* labjack_dio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = labjack_dio.c; sourceTree = "<group>"; };
@@ -245,8 +249,8 @@
 		41BF8DF313A174FE00C8B6BA /* do_sqcorrug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_sqcorrug.c; sourceTree = "<group>"; };
 		41BF8DF413A174FE00C8B6BA /* do_sq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_sq.c; sourceTree = "<group>"; };
 		41BF8DF513A174FE00C8B6BA /* do_sine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_sine.c; sourceTree = "<group>"; };
-		41BF8DF613A174FE00C8B6BA /* do_rls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_rls.c; sourceTree = "<group>"; };
-		41BF8DF713A174FE00C8B6BA /* do_rds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_rds.c; sourceTree = "<group>"; };
+		41BF8DF613A174FE00C8B6BA /* do_rls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = do_rls.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		41BF8DF713A174FE00C8B6BA /* do_rds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = do_rds.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8DF813A174FE00C8B6BA /* do_radial.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_radial.c; sourceTree = "<group>"; };
 		41BF8DF913A174FE00C8B6BA /* do_probe.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_probe.c; sourceTree = "<group>"; };
 		41BF8DFA13A174FE00C8B6BA /* do_gabor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_gabor.c; sourceTree = "<group>"; };
@@ -255,7 +259,7 @@
 		41BF8DFD13A174FE00C8B6BA /* do_bar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_bar.c; sourceTree = "<group>"; };
 		41BF8DFE13A174FE00C8B6BA /* bw_io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bw_io.c; sourceTree = "<group>"; };
 		41BF8DFF13A174FE00C8B6BA /* do_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_test.c; sourceTree = "<group>"; };
-		41BF8E0013A174FE00C8B6BA /* do_image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = do_image.c; sourceTree = "<group>"; };
+		41BF8E0013A174FE00C8B6BA /* do_image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = do_image.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		41BF8E0113A174FE00C8B6BA /* cyber.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cyber.c; sourceTree = "<group>"; };
 		41BF8E0313A174FE00C8B6BA /* sprotos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = sprotos.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		41BF8E0413A174FE00C8B6BA /* confirm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = confirm.c; sourceTree = "<group>"; };
@@ -288,6 +292,7 @@
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		41DD53021521ED51004D28A0 /* binoclean.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = binoclean.icns; sourceTree = "<group>"; };
 		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
+		C91697121695DF6000D740F7 /* Ping.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = Ping.aiff; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
 		C969F832150D233A00D7A5A7 /* lempsy110 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy110; sourceTree = "<group>"; };
@@ -527,6 +532,15 @@
 			name = Graphics;
 			sourceTree = "<group>";
 		};
+		417FC0171695AAB600B3CFFF /* Random */ = {
+			isa = PBXGroup;
+			children = (
+				417FC0191695AACB00B3CFFF /* MTRandom.h */,
+				417FC01A1695AACB00B3CFFF /* MTRandom.m */,
+			);
+			name = Random;
+			sourceTree = "<group>";
+		};
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
@@ -574,6 +588,8 @@
 		419DCE0E13A133B3004E8464 /* binoclean */ = {
 			isa = PBXGroup;
 			children = (
+				C91697111695DF4800D740F7 /* Audio */,
+				417FC0171695AAB600B3CFFF /* Random */,
 				417AEA8A13DE21C1006F7A77 /* Graphics */,
 				4156A61613C5FDDB002DC9AA /* Matlab */,
 				41520B6813A25B79006CE4A7 /* GLUtils */,
@@ -636,6 +652,14 @@
 				C90350CB150D279800DFD9D3 /* ali */,
 			);
 			path = ali;
+			sourceTree = "<group>";
+		};
+		C91697111695DF4800D740F7 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				C91697121695DF6000D740F7 /* Ping.aiff */,
+			);
+			name = Audio;
 			sourceTree = "<group>";
 		};
 		C969F830150D233A00D7A5A7 /* stims */ = {
@@ -922,6 +946,7 @@
 				41DD53031521ED51004D28A0 /* binoclean.icns in Resources */,
 				41D5A3B015264900004431C1 /* crosscursor20.png in Resources */,
 				41D5A3B315265341004431C1 /* crosscursorPG20.png in Resources */,
+				C91697131695DF6000D740F7 /* Ping.aiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1013,6 +1038,7 @@
 				41A1D5AA152A06C30050852F /* MonkeyWindow.m in Sources */,
 				3F2B7490152DFB1100458902 /* labjack_dio.c in Sources */,
 				41536F8815349D41002D0F9D /* u3.c in Sources */,
+				417FC01B1695AACB00B3CFFF /* MTRandom.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1129,7 +1155,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
@@ -1162,7 +1188,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";

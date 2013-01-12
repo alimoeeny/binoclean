@@ -219,12 +219,12 @@ for j = 1:length(strs{1})
             DATA.exptstoppedbyuser = 0;
         elseif DATA.exptnextline > 0
             DATA = ReadExptLines(DATA);
-            RunButton(DATA,[],1);
+            DATA = RunButton(DATA,[],1);
         elseif DATA.rptexpts > 0
             DATA.rptexpts = DATA.rptexpts-1;
             it = findobj(DATA.toplevel,'Tag','RptExpts');
             set(it,'string',num2str(DATA.rptexpts));
-            RunButton(DATA,[],1);
+            DATA = RunButton(DATA,[],1);
         end
     elseif strncmp(s,'Expts1',6)
         DATA.extypes{1} = sscanf(s(8:end),'%d');
@@ -2168,7 +2168,7 @@ function Expt = ExptSummary(DATA)
     Expt.Start = now;
 
         
-function RunButton(a,b, type)
+function DATA = RunButton(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
         if type == 1

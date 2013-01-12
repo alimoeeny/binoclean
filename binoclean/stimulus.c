@@ -15,8 +15,6 @@
 #import "sprotos.h"
 #import "protos.h"
 
-#define myseed rnd_init
-#define myrand rnd_i
 
 
 
@@ -1226,7 +1224,7 @@ void calc_stimulus(Stimulus *st)
             st->right->pos.xy[0] -= disp;
             break;
         case STIM_GRATINGN:
-            rnd_init(st->left->baseseed+1000);
+            myrnd_init(st->left->baseseed+1000);
             if(flag & UNCORRELATE){
                 st->right->seed = st->right->baseseed = st->left->baseseed+1;
                 st->left->seed = st->left->baseseed;
@@ -1256,12 +1254,12 @@ void calc_stimulus(Stimulus *st)
                      * the two eyes. This allows monoc tuning curves, and binoc ones (from the trials where both are present).
                      */
                     if(issfrc(expt.stimmode) && expt.nstim[0] > 1 && expt.mode == DISP_P){
-                        dps[i] = (myrand()  % expt.nstim[0]);
+                        dps[i] = (myrnd_i()  % expt.nstim[0]);
                         rnd =  dps[i] *  M_PI/expt.nstim[0]; 
                         st->right->seed = st->left->seed;
                     }
                     else{
-                        rnd = (myrand()  % 180) * M_PI/180; 
+                        rnd = (myrnd_i()  % 180) * M_PI/180; 
                         st->right->seed = st->left->seed +1;
                     }
                     st->left->phases[i] = st->phases[i] + rnd;
@@ -1312,10 +1310,10 @@ void calc_stimulus(Stimulus *st)
             break;
         case STIM_GRATING:
             if(flag & UNCORRELATE){
-                rnd = (myrand()  % 360) * M_PI/180; 
+                rnd = (myrnd_i()  % 360) * M_PI/180; 
                 st->left->pos.phase = st->pos.phase + rnd;
                 st->right->pos.phase = st->pos.phase - rnd;
-                rnd = (myrand()  % 360) * M_PI/180; 
+                rnd = (myrnd_i()  % 360) * M_PI/180; 
                 st->left->pos.phase2 = st->pos.phase2 + rnd;
                 st->right->pos.phase2 = st->pos.phase2 - rnd;
             }
@@ -2152,7 +2150,7 @@ void paint_stimulus(Stimulus *st)
     glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
     if(debug)
         glDrawBuffer(GL_FRONT_AND_BACK);
-    if(st->next != NULL && optionflags[PAINT_BACKGROUND])
+    if(st->next != NULL && optionflags[PAINT_BACKGROUND] && st->next->type != STIM_NONE)
         paint_stimulus(st->next);
     else if(!st->noclear)
         clearstim(st,st->gammaback, optionflag & DRAW_FIX_BIT);
