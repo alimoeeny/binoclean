@@ -209,12 +209,14 @@ Stimulus *NewStimulus(Stimulus *st)
     new->right->im = new->right->xpos = new->right->ypos = new->right->xposa = NULL;
     new->left->yposa = NULL;
     new->right->yposa = NULL;
+    new->right->iim = new->left->iim = NULL;
     new->right->imb = new->left->imb = NULL;
     new->right->imc = new->left->imc = NULL;
     new->left->ypl = new->right->ypl = 0;
     new->left->xpl = new->right->xpl = 0;
     new->left->xpla = new->right->xpla = 0;
     new->left->ypla = new->right->ypla = 0;
+    new->right->iimlen = new->left->iimlen = 0;
     new->right->imclen = new->left->imclen = 0;
     new->right->imblen = new->left->imblen = 0;
     new->right->uimage = new->left->uimage = NULL;
