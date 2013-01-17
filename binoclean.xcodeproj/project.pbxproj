@@ -1209,7 +1209,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
-				SYMROOT = /bgc/bgc/c/binoclean/Release;
+				SYMROOT = /local/bin;
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = app;
 			};

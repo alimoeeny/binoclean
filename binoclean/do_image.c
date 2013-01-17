@@ -78,7 +78,7 @@ int PreloadPGM(char *name, Stimulus *st, Substim *sst, int frame){
     FILE *imfd;
     char buf[BUFSIZ];
     static char lastname[BUFSIZ];
-    int w,h,imax,x,y;
+    int w,h,imax,x,y,silly = 0;
     
     static int *astate = NULL;
     
@@ -117,7 +117,7 @@ int PreloadPGM(char *name, Stimulus *st, Substim *sst, int frame){
             rightimages[frame] = (GLubyte *)malloc(w * h);
             imagelengths[frame] = w * h;
         }
-        else{
+        else if(silly){
             if(rightimages[frame] != NULL)
                 free(rightimages[frame]);
             rightimages[frame] = (GLubyte *)malloc(w * h);
@@ -133,7 +133,7 @@ int PreloadPGM(char *name, Stimulus *st, Substim *sst, int frame){
             images[frame] = (GLubyte *)malloc(w * h);
             imagelengths[frame] = w * h;
         }
-        else{
+        else if (silly){
             if(images[frame] != NULL)
                 free(images[frame]);
             images[frame] = (GLubyte *)malloc(w * h);

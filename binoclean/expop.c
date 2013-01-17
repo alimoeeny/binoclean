@@ -10144,6 +10144,11 @@ int RunHarrisStim(Stimulus *st, int n, /*Ali Display */ int D, /*Ali Window */ i
     }
     return(framecount);
 }
+
+
+static float frametimes[MAXFRAMES],fframecounts[MAXFRAMES];
+static int framecounts[MAXFRAMES];
+
 int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win)
 {
     int finished = 0,j,i = 0, nreps, ntotal, retval =0;
@@ -10154,8 +10159,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
 //    Expstim *stim;
     struct plotdata *plot;
 //    Expstim *es,*exs;
-    int framecounts[MAXFRAMES],lastframesdone;
-    float frametimes[MAXFRAMES],fframecounts[MAXFRAMES],tval;
+    int lastframesdone;
+    float tval;
     float swapwaits[MAXFRAMES],calctimes[MAXFRAMES],painttimes[MAXFRAMES];
     float forcewaits[MAXFRAMES];
     struct timeval lastframetime,pretime,forcetime;
@@ -10754,7 +10759,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             }
         }
         strcat(buf,"\n");
-        SerialString(buf,0);
+        SerialString(buf,-1);
         if(seroutfile){
             fprintf(seroutfile,"%s",buf);
             fprintf(seroutfile,"#Frames:");
@@ -10778,96 +10783,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         }
     }
     
-    /*
-     * record durations seen. Try to find outliers in idisp expts
-     */
-    if(seroutfile)
-        fprintf(seroutfile,"#du%.3f(%.3f)",frametimes[framesdone],(n-0.5)/expt.mon->framerate);
-    if (optionflags[FIXNUM_PAINTED_FRAMES]){
-        if(frametimes[framesdone]  > (framesdone-0.5)/expt.mon->framerate){ 
-            fprintf(stderr,"%d frames took %.3f\n",framesdone,frametimes[framesdone]);
-            sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
-            for( i = 1; i < framesdone-1; i++){
-                val = frametimes[i]-frametimes[i-1];
-                sprintf(tmp,"%d ",(int)(round(val*1000)));	
-                strcat(buf,tmp);
-            }
-            strcat(buf,"\n");
-            if(seroutfile)
-                fprintf(seroutfile,"%s",buf);
-            SerialString(buf,0);
-            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
-                j=0;
-                for(i = 0; i < framesdone; i++){
-                    sprintf(tmp,"%.1f ",fframecounts[i]);
-                    if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
-                        strcat(buf,tmp);
-                    if (i > 1 && fframecounts[i]-fframecounts[i-1] > 1.5)
-                        fprintf(stderr,"Skip at %d:%.1f\n",i,fframecounts[i]);
-                }
-                strcat(buf,"\n");
-                SerialString(buf,0);
-        }
-    }
-    else if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){ 
-        if (seroutfile)
-            fprintf(seroutfile," #long(%d)",n);
-        if (retval != BAD_TRIAL){
-            sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
-            for( i = 1; i < framesdone-1; i++){
-                val = frametimes[i]-frametimes[i-1];
-                sprintf(tmp,"%d ",(int)(round(val*1000)));	
-                strcat(buf,tmp);
-            }
-            strcat(buf,"\n");
-            if(seroutfile)
-                fprintf(seroutfile,"%s",buf);
-            if(frametimes[framesdone]  > (n+1.5)/expt.mon->framerate){ 
-                printf("V long %.3f",frametimes[framesdone]);
-            }
-            if(optionflags[FIXNUM_PAINTED_FRAMES] ==0){
-            for(i = 1; i < framesdone; i++){
-                if (framecounts[i]-framecounts[i-1] > 1){
-                    printf("skip at %d\n",i);
-                }
-            }
-            }
-            
-            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
-            if(optionflags[FIXNUM_PAINTED_FRAMES]){
-                j=0;
-                for(i = 0; i < framesdone; i++){
-                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
-                            strcat(buf,tmp);
-                }
-                strcat(buf,"\n");
-                SerialString(buf,0);
-            }
-            else{
-                j=0;
-                for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
-                    while(framecounts[i] > j * rpt){ //skipped frames
-                        sprintf(tmp,"%d ",framecounts[i]);	
-                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
-                            strcat(buf,tmp);
-                        j++;
-                    }
-                }
-                strcat(buf,"\n");                
-                SerialString(buf,0);
-            }
-                    
-        }
-//        if(seroutfile)
-//            fprintf(seroutfile,"%s",buf);
-        
-        if(seroutfile){
-            if(retval == BAD_TRIAL)
-                fprintf(seroutfile,"BAD");
-            fprintf(seroutfile,"\n");
-        }
-    }
-    
+//    CheckStimDuration(retval);
     /*
      * also check if frames all done, but took too long (in case forcing all frames
      */
@@ -10966,6 +10882,118 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         acknowledge(buf,"/bgc/bgc/c/binoc/help/overflow.1");
     }
     return(framecount);
+}
+
+
+int CheckStimDuration(int retval)
+{
+    int i = 0,j =0, n = 0, rpt =0,nrpt = 0,nf=0,k=0;
+    char buf[BUFSIZ * 10],tmp[BUFSIZ*10];
+    float val;
+    float framevals[MAXFRAMES], diffmax, diffmin;
+    
+    rpt = (expt.st->framerepeat < 1) ? 1 : expt.st->framerepeat;
+
+    sprintf(buf,"#du%.3f(%d:%.3f)",frametimes[framesdone],framesdone,(framesdone-0.5)/expt.mon->framerate);
+    SerialString(buf,0);
+    if (optionflags[FIXNUM_PAINTED_FRAMES]){
+        if(frametimes[framesdone]  > (framesdone-0.5)/expt.mon->framerate){
+            fprintf(stderr,"%d frames took %.3f\n",framesdone,frametimes[framesdone]);
+            sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
+            for( i = 1; i < framesdone-1; i++){
+                val = frametimes[i]-frametimes[i-1];
+                framevals[i] = val;
+                sprintf(tmp,"%d ",(int)(round(val*1000)));
+                strcat(buf,tmp);
+            }
+            strcat(buf,"\n");
+            SerialString(buf,-1);
+            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
+            j=0;
+            for(i = 0; i < framesdone; i++){
+                sprintf(tmp,"%.1f ",fframecounts[i]);
+                if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                    strcat(buf,tmp);
+                if (i > 1 && fframecounts[i]-fframecounts[i-1] > 1.5)
+                    fprintf(stderr,"Skip at %d:%.1f\n",i,fframecounts[i]);
+            }
+            strcat(buf,"\n");
+            SerialString(buf,-1);
+            nrpt = 0;
+            diffmax = 1.2/mon.framerate;
+            diffmin = 0.5/mon.framerate;
+            sprintf(buf,"%sFl=",serial_strings[MANUAL_TDR]);
+            for( i = 1; i < framesdone-1; i++){
+                if (framevals[i] > diffmax && framevals[i+1]+framevals[i] > diffmax *2){
+                    nf = round((framevals[i+1]+framevals[i])*mon.framerate) -2;
+                    for (k = 0; k < nf; k++){
+                        sprintf(tmp,"%d ",i+nrpt++);
+                        strcat(buf,tmp);
+                    }
+                }
+            }
+            strcat(buf,"\n");
+            SerialString(buf,0);
+        }
+    }
+    else if(frametimes[framesdone]  > (n-0.5)/expt.mon->framerate){
+        if (seroutfile)
+            fprintf(seroutfile," #long(%d)",n);
+        if (retval != BAD_TRIAL){
+            sprintf(buf,"%sFi=",serial_strings[MANUAL_TDR]);
+            for( i = 1; i < framesdone-1; i++){
+                val = frametimes[i]-frametimes[i-1];
+                sprintf(tmp,"%d ",(int)(round(val*1000)));
+                strcat(buf,tmp);
+            }
+            strcat(buf,"\n");
+            if(seroutfile)
+                fprintf(seroutfile,"%s",buf);
+            if(frametimes[framesdone]  > (n+1.5)/expt.mon->framerate){
+                printf("V long %.3f",frametimes[framesdone]);
+            }
+            if(optionflags[FIXNUM_PAINTED_FRAMES] ==0){
+                for(i = 1; i < framesdone; i++){
+                    if (framecounts[i]-framecounts[i-1] > 1){
+                        printf("skip at %d\n",i);
+                    }
+                }
+            }
+            
+            sprintf(buf,"%sFn=",serial_strings[MANUAL_TDR]);
+            if(optionflags[FIXNUM_PAINTED_FRAMES]){
+                j=0;
+                for(i = 0; i < framesdone; i++){
+                    sprintf(tmp,"%.1f ",fframecounts[i]);                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                        strcat(buf,tmp);
+                }
+                strcat(buf,"\n");
+                SerialString(buf,0);
+            }
+            else{
+                j=0;
+                for(i = 0; i < framesdone && framecounts[i] < n * 2; i++,j++){
+                    while(framecounts[i] > j * rpt){ //skipped frames
+                        sprintf(tmp,"%d ",framecounts[i]);
+                        if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                            strcat(buf,tmp);
+                        j++;
+                    }
+                }
+                strcat(buf,"\n");
+                SerialString(buf,0);
+            }
+            
+        }
+        //        if(seroutfile)
+        //            fprintf(seroutfile,"%s",buf);
+        
+        if(seroutfile){
+            if(retval == BAD_TRIAL)
+                fprintf(seroutfile,"BAD");
+            fprintf(seroutfile,"\n");
+        }
+    }
 }
 
 int ExptTrialOver(int type)

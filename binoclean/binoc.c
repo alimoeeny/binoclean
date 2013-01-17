@@ -5,7 +5,7 @@
  * background when expt is stopped
  */
 
-#import <stdio.h> 
+#import <stdio.h>
 #import <stdlib.h> 
 #import <sys/types.h> 
 #import <sys/stat.h> 
@@ -135,7 +135,7 @@ double pmatrix[16];
 
 static int sliderflag = ORIENTATION, ntrialstim;
 static float zoom = 1.0, wsum = 0.0;
-float cleardelay = 0.3;
+float cleardelay = 0.3,okdelay = 0;
 static float tempxy[2],zll[2];
 char ImageOutDir[BUFSIZ] = ".";
 FILE *imidxfd;
@@ -6594,14 +6594,16 @@ int next_frame(Stimulus *st)
                     stimstate = i;
             }
             break;
-        case POSTPOSTSTIMULUS: /* clear both buffers with overlay */
+        case POSTPOSTSTIMULUS: /* after postperiod clear both buffers with overlay */
             if(rdspair(expt.st))
                 i = 0;
             setmask(ALLMODE);
             if(debug) glstatusline("PostPostStim",3);
+            gettimeofday(&now, NULL);
+            okdelay = timediff(&now,&endstimtime);
 #ifdef MONITOR_CLOSE
             if(seroutfile)
-                fprintf(seroutfile,"#PostPoststim%c\n",exptchr);
+                fprintf(seroutfile,"#PostPoststim%.3f%c\n",okdelay,exptchr);
 #endif
             if (expt.mode != BACKGROUND_IMAGE){
                 glClearColor(clearcolor,clearcolor,clearcolor,clearcolor);
@@ -6634,6 +6636,7 @@ int next_frame(Stimulus *st)
             
             change_frame();
             SerialSignal(WURTZ_OK);
+            CheckStimDuration(stimstate);
             glDrawBuffer(GL_BACK);
             glFinishRenderAPPLE();
             stimstate = WAIT_FOR_RESPONSE;
@@ -6710,7 +6713,7 @@ int next_frame(Stimulus *st)
             else if(val > TheStim->fix.rt)
             {
                 if(seroutfile)
-                    fprintf(seroutfile,"#LATE stimno %d%c\n",stimno,exptchr);
+                    fprintf(seroutfile,"#LATE (%.3f) stimno %d%c\n",okdelay,stimno,exptchr);
                 stimstate = POSTTRIAL;
                 fctr = 0;
                 TheStim->fixcolor = TheStim->fix.offcolor;
@@ -6897,6 +6900,9 @@ int next_frame(Stimulus *st)
              afc_s.sacval[0] =  afc_s.abssac[0];
              afc_s.sacval[1] =  afc_s.abssac[1];
              */
+            if (fixstate == BADFIX_STATE)
+                CheckStimDuration(fixstate);
+
             if(fixstate == BADFIX_STATE && TheStim->fix.timeout > 0)
                 stimstate = IN_TIMEOUT;
             else if(monkeypress == WURTZ_OK_W)
