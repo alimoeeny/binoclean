@@ -2572,6 +2572,8 @@ function MonkeyLogPopup(a,b, type, channel)
       DATA.Coil.phase(channel) = value;
   elseif strncmp(type,'Gain',4)
       DATA.Coil.gain(channel) = value;
+  elseif strncmp(type,'offset',6)
+      DATA.Coil.offset(channel) = value;
   elseif strncmp(type,'soft',4)
       DATA.Coil.so(channel) = value;
   elseif strmatch(type,'savelog')
