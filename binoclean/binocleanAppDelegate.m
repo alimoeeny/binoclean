@@ -79,6 +79,7 @@ void displayOnMonkeyView(char *s, int x, int y)
         [messageTexture drawAtPoint:NSMakePoint(x, y)];        
     else
         [messageTexture drawAtPoint:NSMakePoint(-500, -450)];
+    [messageTexture release];
 }
 
 
