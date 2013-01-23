@@ -2709,9 +2709,7 @@ int ShowBox(Expstim *ps, float color)
         myvx(x);
         glEnd();
     }
-    /* then add a psth */
-    
-    else if(ps->flag & CENTERMARK_ON) 
+   else if(ps->flag & CENTERMARK_ON) 
     {
         glBegin(GL_LINES);
         x[0] = -5;
@@ -4852,7 +4850,7 @@ void end_timeout()
     
     
     
-    if(timeout_type == SHAKE_TIMEOUT_PART2 || timeout_type == SHAKE_TIMEOUT){
+    if(timeout_type == SHAKE_TIMEOUT_PART2 || timeout_type == SHAKE_TIMEOUT || timeout_type == SHAKE_TIMEOUT_PART1){
         SetStimulus(expt.st,0.5, SETBACKCOLOR,NULL);
         SetStimulus(expt.st,1.0, BLANKCOLOR_CODE,NULL);
         glDrawBuffer(GL_FRONT_AND_BACK);

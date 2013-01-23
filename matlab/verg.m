@@ -113,6 +113,8 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
         DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+    elseif strncmp(s,'read',4) %read a set of instructions
+        fid = fopen(value,'r');
     elseif strncmp(s,'user',4)
         estr = s(eid(1)+1:end);
         DATA.userstrings = {DATA.userstrings{:} estr};
@@ -217,6 +219,8 @@ for j = 1:length(strs{1})
         if DATA.exptstoppedbyuser  
         %if user hist cancal/stop, dont repeat or move on to automatic next expt
             DATA.exptstoppedbyuser = 0;
+        elseif DATA.seqline > 0
+            DATA = ContinueSequence(DATA);
         elseif DATA.exptnextline > 0
             DATA = ReadExptLines(DATA);
             DATA = RunButton(DATA,[],1);
@@ -238,6 +242,8 @@ for j = 1:length(strs{1})
         DATA.extypes{3} = sscanf(s(8:end),'%d');
         DATA.extypes{3} = DATA.extypes{3}+1;
         DATA = SetExptMenus(DATA);
+    elseif strncmp(s,'expt',4)
+        DATA = ReadStimFile(DATA, value);
     elseif strncmp(s,'TRES',4)
         if s(6) == 'G' || s(6) == 'W'
             a = sscanf(s(7:end),'%d');
@@ -630,8 +636,11 @@ if fid > 0
     a = textscan(fid,'%s','delimiter','\n');
     DATA.exptlines = a{1};
     fclose(fid);
-    
-    DATA = ReadExptLines(DATA);
+    if strcmp(DATA.exptlines{1},'sequence')
+        SequencePopup(DATA,DATA.exptlines(2:end),'popup');
+    else
+        DATA = ReadExptLines(DATA);
+    end
 else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
 end
@@ -915,6 +924,7 @@ DATA.Coil.CriticalWeight = 0;
 DATA.layoutfile = '/local/verg.layout';
 DATA.exptnextline = 0;
 DATA.exptstoppedbyuser = 0;
+DATA.seqline = 0;
 DATA.listmodified = [0 0 0];
 DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
@@ -977,7 +987,7 @@ DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
-DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow'};
+DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
 DATA.winpos{3} = [600 scrsz(4)-100 400 100];
@@ -985,6 +995,7 @@ DATA.winpos{4} = [600 scrsz(4)-600 400 500];
 DATA.winpos{5} = [600 scrsz(4)-100 400 100];
 DATA.winpos{6} = [600 scrsz(4)-100 400 100];
 DATA.winpos{7} = [600 scrsz(4)-100 400 100];
+DATA.winpos{8} = [600 scrsz(4)-100 400 100];
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.incr = [0 0 0];
@@ -1102,7 +1113,7 @@ end
 
 function ShowStatus(DATA)
 
-    if DATA.inexpt
+    if DATA.inexpt  && DATA.nexpts > 0
         str = datestr(DATA.Expts{DATA.nexpts}.Start);
         str = ['Started ' str(13:17)];
     elseif DATA.nexpts > 0
@@ -1418,7 +1429,7 @@ function DATA = InitInterface(DATA)
 %currently can do everything in binoc. Stick with this til need something
 %new....
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
-    uimenu(hm,'Label','&Options','Callback',{@OptionPopup});
+    uimenu(hm,'Label','&Options','Callback',{@OptionPopup},'accelerator','O');
     uimenu(hm,'Label','Test','Callback',{@TestIO});
     uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
@@ -1442,6 +1453,10 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
     uimenu(hm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     uimenu(hm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
+    uimenu(hm,'Label','BlackScreen (shake)','Callback',{@MenuHit, 'setshake'},'accelerator','B');
+    uimenu(hm,'Label','pipelog','Callback',{@MenuHit, 'pipelog'});
+    uimenu(hm,'Label','freereward','Callback',{@MenuHit, 'freereward'},'accelerator','R');
+    uimenu(hm,'Label','Run Sequence of expts','Callback',{@SequencePopup, 'popup'});
     hm = uimenu(cntrl_box,'Label','Help','Tag','QuickMenu');
     BuildHelpMenu(DATA, hm);
 
@@ -1533,6 +1548,11 @@ function MenuHit(a,b, arg)
         fn = uisetfont;
         DATA.font = fn;
         set(DATA.toplevel,'UserData',DATA);
+    elseif strcmp(arg,'pipelog')
+        system(['/bgc/bgc/per/pipelog ' DATA.binocstr.monkey ' &']);
+    elseif strcmp(arg,'setshake')
+        fprintf(DATA.outid,'usershake\n');
+        
     elseif strcmp(arg,'showpsych')
         DATA.psych.blockmode = 'Current';
         PlotPsych(DATA);
@@ -1958,6 +1978,23 @@ function MenuGui(a,b)
      end
         CheckTimer(DATA);
 
+ function DATA = CheckExptMenus(DATA)
+     new = 0;
+     for j = 1:3
+         it = findobj(DATA.toplevel,'Tag',['Expt' num2str(j) 'List']);
+         id = strmatch(DATA.exptype{j},DATA.expmenucodes{j},'exact');
+         if isempty(id)
+             DATA.expmenucodes{j} = {DATA.expmenucodes{j}{:} DATA.exptype{j}};
+             a = strcmp(DATA.exptype{j},{DATA.comcodes.code});
+             DATA.expstrs{j} = {DATA.expstrs{j}{:} DATA.comcodes(a).label};
+             set(it,'string',DATA.expstrs{j});
+             new = new+1;             
+         end
+     end
+if new
+    set(DATA.toplevel,'UserData',DATA);
+end
+        
  function SetGui(DATA,varargin)
      if ~isfield(DATA,'toplevel')
          return;
@@ -1969,6 +2006,7 @@ function MenuGui(a,b)
          end
          j = j+1;
      end
+    DATA= CheckExptMenus(DATA);
     SetTextItem(DATA.toplevel,'Expt1Nstim',DATA.nstim(1));
     SetTextItem(DATA.toplevel,'Expt2Nstim',DATA.nstim(2));
     SetTextItem(DATA.toplevel,'Expt3Nstim',DATA.nstim(3));
@@ -2172,30 +2210,31 @@ function DATA = RunButton(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
         if type == 1
-
             if DATA.inexpt == 0 %sarting a new one. Increment counter
-            if DATA.listmodified(1)
-                SendManualVals(DATA,'Expt1StimList');
-            end
-            if DATA.listmodified(2)
-                SendManualVals(DATA,'Expt2StimList');
-            end
-            if DATA.listmodified(3)
-                SendManualVals(DATA,'Expt3StimList');
-            end
-            DATA.listmodified = [0 0 0];
-            fprintf(DATA.outid,'\\expt\n');
-            DATA.nexpts = DATA.nexpts+1;
-            DATA.Expts{DATA.nexpts} = ExptSummary(DATA);
-            DATA.optionflags.do = 1;
-            DATA.exptstoppedbyuser = 0;
+                if DATA.listmodified(1)
+                    SendManualVals(DATA,'Expt1StimList');
+                end
+                if DATA.listmodified(2)
+                    SendManualVals(DATA,'Expt2StimList');
+                end
+                if DATA.listmodified(3)
+                    SendManualVals(DATA,'Expt3StimList');
+                end
+                DATA.listmodified = [0 0 0];
+                fprintf(DATA.outid,'\\expt\n');
+                DATA.nexpts = DATA.nexpts+1;
+                DATA.Expts{DATA.nexpts} = ExptSummary(DATA);
+                DATA.optionflags.do = 1;
+                DATA.exptstoppedbyuser = 0;
                 DATA = ReadFromBinoc(DATA);
-            %            DATA = GetState(DATA);
+                %            DATA = GetState(DATA);
             else
                 DATA.rptexpts = 0;
                 fprintf(DATA.outid,'\\ecancel\n');
+                if DATA.nexpts > 0
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
+                end
                 DATA.optionflags.do = 0;
                 DATA.exptstoppedbyuser = 1;
             end
@@ -2465,7 +2504,77 @@ function StatusPopup(a,b, type)
 set(lst,'string',DATA.Statuslines);
 DATA.statusitem = lst;
 set(DATA.toplevel,'UserData',DATA);
-    
+
+function DATA = RunExptSequence(DATA, str, line)
+
+    nread = 0;
+    if line > length(str)
+        if DATA.rptexpts > 0
+            DATA.rptexpts = DATA.rptexpts-1;
+            line = 1;
+        else
+            DATA.seqline = 0;
+            return;
+        end
+    end
+for j = line:length(str)
+    nread = 1+j-line;
+    InterpretLine(DATA,str{j});
+    if DATA.outid > 0
+         fprintf(DATA.outid,'%s\n',str{j});
+    end
+    if strcmp(str{j},'!expt')
+        DATA.seqline = j;
+        set(DATA.toplevel,'UserData',DATA);
+        return;
+    end
+end
+
+function DATA = ContinueSequence(DATA)
+  cntrl_box = findobj('Tag',DATA.windownames{8},'type','figure');
+  lst = findobj(cntrl_box,'Tag','SequenceList');
+  DATA = RunExptSequence(DATA,get(lst,'string'),DATA.seqline+1);
+
+
+function SequencePopup(a,exptlines,type)
+
+  DATA = GetDataFromFig(a);
+  cntrl_box = findobj('Tag',DATA.windownames{8},'type','figure');
+  if ~strcmp(type,'popup')
+      if strcmp(type,'run')
+          lst = findobj(cntrl_box,'Tag','SequenceList');
+          RunExptSequence(DATA,get(lst,'string'),1);
+      end
+      return;
+  end
+  if ~isempty(cntrl_box)
+      figure(cntrl_box);
+      return;
+  end
+  
+  nr=10; nc=4;
+  cntrl_box = figure('Position', DATA.winpos{8},...
+        'NumberTitle', 'off', 'Tag',DATA.windownames{8},'Name','Expt Sequence','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+        set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+
+        bp(1) = 0.01;
+bp(2) = 1-1./nr;
+bp(3) = 1./nc;
+bp(4) = 1./nr;
+uicontrol(gcf,'style','pushbutton','string','Run', ...
+    'Callback', {@SequencePopup, 'run'} ,...
+    'units', 'norm', 'position',bp,'value',1);
+
+lst = uicontrol(gcf, 'Style','edit','String', 'sequence',...
+        'HorizontalAlignment','left',...
+        'Max',10,'Min',0,...
+         'Tag','SequenceList',...
+'units','norm', 'Position',[0.01 0.01 0.99 0.99-1./nr]);
+set(lst,'string',exptlines);
+DATA.statusitem = lst;
+set(DATA.toplevel,'UserData',DATA);
+
 
 function CodeListMenu(a,b,c)
     lst = get(get(a,'parent'),'userdata');
@@ -3188,6 +3297,8 @@ if txt(end) == '='
        id = strmatch(code,{DATA.comcodes.code},'exact');
        if length(id) == 1 && DATA.comcodes(id).type == 'C'
            txt = ['?' txt '?' DATA.binoc{DATA.currentstim}.(code)];
+       elseif isempty(id)
+           txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)') '(Unrecognized code)'];
        else
            txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
        end

@@ -12286,7 +12286,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         }
         *t = 0;
     }
-    else if(line[0] == '\\'){
+    else if(line[0] == '\\' || line[0] == '\!'){
         ReadCommand(&line[1]);
     }
     else if(line[0] == '\$'){
@@ -12304,6 +12304,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
         return(0);
+    }
+    else if(!strncmp(line,"freerwd",7)){
+        SerialSignal(FREE_REWARD);
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
@@ -12354,6 +12357,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         else
             notify("\nEXPTSTART\n");
         return(0);
+    }
+    else if(!strncmp(line,"usershake",9)){
+        if(seroutfile)
+            fprintf(seroutfile,"usershake %.2f\n",ufftime(&now));
+        if(timeout_type == 0){
+            start_timeout(SHAKE_TIMEOUT);
+        }
+        else{
+            end_timeout();
+        }
     }
     else if(!strncmp(line,"monkeyshake",10)){
         if(expt.vals[SHAKE_TIMEOUT_DURATION] > 0){
