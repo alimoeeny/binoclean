@@ -546,7 +546,7 @@ float pix2degy(float val);
 
 // Need something else for 64 bit version.  drand48? 
 
-#if 0
+#ifdef __i386__
 #define mydrand rnd_01d
 #define myrnd_init rnd_init
 #define myrnd_i rnd_i

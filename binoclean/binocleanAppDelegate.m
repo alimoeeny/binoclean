@@ -27,9 +27,10 @@ NSString * outputPipeBuffer;
 NSMutableDictionary *bold12Attribs;
 
 
+#ifndef __i386__
 MTRandom * randEngine;
 MTRandom * drandEngine;
-
+#endif
 
 void quit_binoc()
 {

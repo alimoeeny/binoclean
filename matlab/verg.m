@@ -46,12 +46,18 @@ if isempty(it)
     DATA = InitInterface(DATA);
     DATA = SetExptMenus(DATA);
     SetGui(DATA);
+    cmdfile = ['/local/' DATA.binocstr.monkey '/cmdhistory'];
+    DATA.cmdfid = fopen(cmdfile,'a');
+    fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
 end
 end
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{1},'close',5)
+        if DATA.pipelog
+            system('/bgc/bgc/perl/pipelog end');
+        end
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
         end
@@ -127,6 +133,10 @@ for j = 1:length(strs{1})
             DATA.optionflags.(cc) = 0;
         end
         DATA.optionstrings.(cc) = s(id(2)+1:end);
+    elseif strncmp(s,'pause',5)
+%        DATA.readpause = str2num(value);
+        pause(DATA.readpause);
+%       DATA.pausetime = now;
     elseif strncmp(s,'rptexpts',6)
         DATA.rptexpts = sscanf(value,'%d');
     elseif strncmp(s,'STIMTYPE',6)
@@ -913,6 +923,8 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
+DATA.pausetime = 0;
+DATA.readpause = 0;
 DATA.rptexpts = 0;
 DATA.font.FontSize = 14;
 DATA.font.FontName = 'Arial';
@@ -924,6 +936,7 @@ DATA.Coil.CriticalWeight = 0;
 DATA.layoutfile = '/local/verg.layout';
 DATA.exptnextline = 0;
 DATA.exptstoppedbyuser = 0;
+DATA.pipelog = 0;
 DATA.seqline = 0;
 DATA.listmodified = [0 0 0];
 DATA.Trial.Trial = 1;
@@ -998,6 +1011,7 @@ DATA.winpos{7} = [600 scrsz(4)-100 400 100];
 DATA.winpos{8} = [600 scrsz(4)-100 400 100];
 DATA.outid = 0;
 DATA.inid = 0;
+DATA.cmdfid = 0;
 DATA.incr = [0 0 0];
 DATA.nstim = [0 0 0];
 DATA.quickexpts = [];
@@ -1537,6 +1551,9 @@ function MenuHit(a,b, arg)
     DATA = GetDataFromFig(a);
     if strcmp(arg,'bothclose')
         fprintf(DATA.outid,'\\quit\n');
+        if DATA.pipelog
+            system('/bgc/bgc/perl/pipelog end');
+        end
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
         end
@@ -1548,8 +1565,11 @@ function MenuHit(a,b, arg)
         fn = uisetfont;
         DATA.font = fn;
         set(DATA.toplevel,'UserData',DATA);
+    elseif strcmp(arg,'freereward')
+        fprintf(DATA.outid,'freerwd\n');
     elseif strcmp(arg,'pipelog')
-        system(['/bgc/bgc/per/pipelog ' DATA.binocstr.monkey ' &']);
+        system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' &']);
+        DATA.pipelog = 1;
     elseif strcmp(arg,'setshake')
         fprintf(DATA.outid,'usershake\n');
         
@@ -2519,7 +2539,10 @@ function DATA = RunExptSequence(DATA, str, line)
     end
 for j = line:length(str)
     nread = 1+j-line;
-    InterpretLine(DATA,str{j});
+    DATA = InterpretLine(DATA,str{j});
+    while((now - DATA.pausetime) < DATA.readpause/(24 * 60 * 60))
+        dt = (now - DATA.pausetime) - DATA.readpause/(24 * 60 * 60)
+    end
     if DATA.outid > 0
          fprintf(DATA.outid,'%s\n',str{j});
     end
@@ -3257,7 +3280,9 @@ end
 if DATA.outid > 0
     fprintf(DATA.outid,'%s\n',txt);
 end
-
+if DATA.cmdfid > 0
+    fprintf(DATA.cmdfid,'%s\n',txt);
+end    
 
 str = [];
 if id
@@ -3321,6 +3346,9 @@ a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
 set(DATA.toplevel,'UserData',DATA);
+if DATA.cmdfid > 0
+    fprintf(DATA.cmdfid,'%s\n',txt);
+end
 SetGui(DATA);
 
 
