@@ -1537,8 +1537,10 @@ void glstatusline(char *s, int line)
     myrect(x[0],x[1]-5,x[0]+400,x[1]+15);
 	SetGrey(1.0);
 	mycmv(x);
-	if(s != NULL)
+	if(s != NULL){
         printStringOnMonkeyView(s, strlen(s));
+        printString(s, strlen(s));
+    }
 	else if(lines[line] != NULL)
         printStringOnMonkeyView(lines[line], strlen(lines[line]));
 	if(states[EXPT_PAUSED]){
