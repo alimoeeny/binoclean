@@ -2503,7 +2503,9 @@ int event_loop(float delay)
     }
     gettimeofday(&now,NULL);
     val = timediff(&now,&then); //time since next frame exited
-
+    if(!window_is_mapped) //first call
+        mon.framerate = GetFrameRate();
+    window_is_mapped = 1;
  //   ReadInputPipe();
     if(cleartime.tv_sec != 0){
         gettimeofday(&now,NULL);
