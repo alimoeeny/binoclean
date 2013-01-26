@@ -46,7 +46,7 @@ if isempty(it)
     DATA = InitInterface(DATA);
     DATA = SetExptMenus(DATA);
     SetGui(DATA);
-    cmdfile = ['/local/' DATA.binocstr.monkey '/cmdhistory'];
+    cmdfile = ['/local/' DATA.binocstr.monkey '/binoccmdhistory'];
     DATA.cmdfid = fopen(cmdfile,'a');
     fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
@@ -2546,6 +2546,7 @@ for j = line:length(str)
     if DATA.outid > 0
          fprintf(DATA.outid,'%s\n',str{j});
     end
+    LogCommand(DATA, str{j});
     if strcmp(str{j},'!expt')
         DATA.seqline = j;
         set(DATA.toplevel,'UserData',DATA);
@@ -2558,6 +2559,19 @@ function DATA = ContinueSequence(DATA)
   lst = findobj(cntrl_box,'Tag','SequenceList');
   DATA = RunExptSequence(DATA,get(lst,'string'),DATA.seqline+1);
 
+function LogCommand(DATA, str, varargin)
+    j = 1;
+    d = [' #' datestr(now,'HH:MM')];
+    while  j <= length(varargin)
+        if strcmp(varargin{j},'notime')
+            d = '';
+        end
+        j = j+1;
+    end
+    
+    if DATA.cmdfid > 0
+        fprintf(DATA.cmdfid,'%s%s\n',str,d);
+    end
 
 function SequencePopup(a,exptlines,type)
 
@@ -3280,9 +3294,7 @@ end
 if DATA.outid > 0
     fprintf(DATA.outid,'%s\n',txt);
 end
-if DATA.cmdfid > 0
-    fprintf(DATA.cmdfid,'%s\n',txt);
-end    
+LogCommand(DATA, txt);
 
 str = [];
 if id
@@ -3340,21 +3352,21 @@ if txt(end) == '='
 
 end
 if length(str)
-    txt = [txt '(' str ')'];
+    txt = [txt '(' str ')  ' datestr(now,'HH:MM')];
 end
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
 set(DATA.toplevel,'UserData',DATA);
-if DATA.cmdfid > 0
-    fprintf(DATA.cmdfid,'%s\n',txt);
-end
+LogCommand(DATA, txt);
 SetGui(DATA);
 
 
 function AddTextToGui(DATA, txt)
 a =  get(DATA.txtrec,'string');
 n = size(a,1);
+LogCommand(DATA, txt);
+txt  = [txt ' ' datestr(now,'HH:MM')];
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);

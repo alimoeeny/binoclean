@@ -425,7 +425,8 @@
 #define HIGHXTYPE MAXSERIALCODES+161
 #define MONKEYNAME MAXSERIALCODES+162
 #define SIGNALFRAME_P MAXSERIALCODES+163
-#define MAXSAVECODES MAXSERIALCODES+164 //364
+#define COMMAND_FILE MAXSERIALCODES+164
+#define MAXSAVECODES MAXSERIALCODES+165 //364
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -786,10 +787,11 @@ StringCode commstrings[] = {
     {"lo", "Log File", LOGFILE_CODE, NULL},
     {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
     {"monkey", "Monkey name", MONKEYNAME, NULL},
-    {"impref", "prefix for image files", 0, NULL},
-    {"immode", "image mode", 0, NULL},
-    {"imload", "image load type", 0, NULL},
-    {"psychfile", "Psych results file", 0, NULL},
+    {"impref", "prefix for image files", -1, NULL},
+    {"immode", "image mode", -1, NULL},
+    {"imload", "image load type", -1, NULL},
+    {"psychfile", "Psych results file", -1, NULL},
+    {"cmdfile", "File for remote commands", COMMAND_FILE, NULL},
     {NULL, NULL, 0, NULL}
 };
 

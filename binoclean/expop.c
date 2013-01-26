@@ -676,11 +676,19 @@ int FindCode(char *s)
 {
     int i=0,j,code;
     
+    
     while((j=longnames[i++]) > 0){
         
         if(strncmp(s, serial_strings[j], strlen(serial_strings[j])) ==0)
             return(j);    
     }
+    i = 0;
+    while(commstrings[i].label != NULL){
+        if(strncmp(s, commstrings[i].code, strlen(commstrings[i].code)) ==0)
+            return(commstrings[i].icode);
+        i++;
+    }
+    i = 0;
     for(i = 0; i < expt.totalcodes; i++)
     {
         if(strncmp(s, valstrings[i].code, strlen(valstrings[i].code)) ==0)
@@ -1847,7 +1855,7 @@ int ReadCommandFile(char *file)
                 ReadCommand(&mssg[1]);
             }
             else 
-                InterpretLine(mssg, &expt,0);
+                InterpretLine(mssg, &expt,3);
         }
         fclose(fin);
         lastcmdread = time(NULL);
@@ -12244,6 +12252,7 @@ int ReadConjPos(Expt*ex, char *line)
  * Interpretline pases text strings from files, the serial line, and the GUI input pipe;
  * frompc = 1 mean it came form the serial line
  * frompc = 2 means it came from the GUI input line
+ * frompc = 3 means generated within binoclean, eg in ReadCommandLine
  */
 
 
@@ -12409,11 +12418,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         sscanf(++s,"%d %d",&x,&y);
         winposns[OPTIONS_WIN].x = x;
         winposns[OPTIONS_WIN].y = y;
-        return(0);
-    }
-    else if(!strncmp(line,"cmdfile",6)  && (s = strchr(line,'=')) != 0){
-        expt.cmdinfile = myscopy(expt.cmdinfile,++s);
-        nonewline(expt.cmdinfile);
         return(0);
     }
     else if(!strncmp(line,"psychfile",6)  && (s = strchr(line,'=')) != 0){
@@ -12767,6 +12771,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
+        case COMMAND_FILE:
+            expt.cmdinfile = myscopy(expt.cmdinfile,++s);
+            nonewline(expt.cmdinfile);
+            break;
         case USENEWDIRS:
             sscanf(++s,"%d",&usenewdirs);
             break;
@@ -12969,6 +12977,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 SendToGui(SOFTOFF_CODE);
             else
                 SerialSend(code);
+            if (frompc == 3) //read from file
+                notify(line);
             return(code);
         case UKA_VALS:
             i = sscanf(s,"%f %f %f %f %f",&in[0],&in[1],&in[2],&in[3],&in[4]);
@@ -13385,7 +13395,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 break;
         }
     }
-    if (frompc < 2 && code >= 0){  // send to verg if it came from Spike2 or binoc GUI
+    if (frompc != 2 && code >= 0){  // send to verg if it came from Spike2 or binoc GUI
         notify(line);
         notify("\n");
     }

@@ -6927,6 +6927,8 @@ int next_frame(Stimulus *st)
             if(stairfd){
                 fprintf(stairfd,"Post%d(%d) ",stimno,stimorder[stimno]);
             }
+            if (stimstate != POSTTRIAL)
+                ReadCommandFile(expt.cmdinfile);
             break;
         case IN_TIMEOUT:
         case IN_TIMEOUT_W:
