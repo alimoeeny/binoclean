@@ -12772,7 +12772,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else switch(code)
     {
         case COMMAND_FILE:
-            expt.cmdinfile = myscopy(expt.cmdinfile,++s);
+            s = strchr(line,'=');
+            if(s)
+                expt.cmdinfile = myscopy(expt.cmdinfile,++s);
             nonewline(expt.cmdinfile);
             break;
         case USENEWDIRS:
