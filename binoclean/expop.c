@@ -13611,6 +13611,7 @@ int PrintPsychData(char *filename)
     
     if(expt.laststim == -1) /* no trials run  */
         return(0);
+    return(0); //shouldn't need this any more
     
     if(filename && *filename)
     {

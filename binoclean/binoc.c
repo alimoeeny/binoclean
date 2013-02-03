@@ -1840,10 +1840,11 @@ void ButtonReleased(vcoord *start, vcoord *end, WindowEvent e)
 void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
 {
     vcoord mpos[2];
-    char s[256];
+    char s[256],buf[BUFSIZ];
     Locator *pos = &TheStim->pos;
     int next,up,id;
     float pause = 0;
+    static int lastbutton = 0;
     
     mpos[0] = e.mouseX;
     mpos[1] = e.mouseY;
@@ -1892,10 +1893,15 @@ void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
                     SetPsychStair(up,0);
                 }
                 stimno++;
+                sprintf(buf,"TRES G%d 1\n",2-e.mouseButton); //L=1,R=-1
+                notify(buf);
+
             }
+            lastbutton = e.mouseButton;
             break;
         case INTERTRIAL:
-            if(e.mouseButton == Button2){
+//            if(e.mouseButton == Button2){
+            if(e.mouseButton == lastbutton){
                 stimstate = PREFIXATION;
                 gettimeofday(&now, NULL);
                 if(seroutfile)
@@ -1913,6 +1919,7 @@ void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
                     }
                 }
             }
+            lastbutton = e.mouseButton;
             break;
     }
     else if(fixstate != WAIT_FOR_MOUSE)
