@@ -111,7 +111,7 @@ extern int imageseed[],stimflag;
 extern int DIOval;
 extern int rewardall,check_for_monkey;
 extern int freeToGo;
-
+extern int lastbutton;
 
 double fakestim =0;
 
@@ -6713,6 +6713,7 @@ void InitExpt()
     }
     /* clear input buffer first */
     expt.nextstim = stimorder[0];
+    lastbutton = -1000;
     if(option2flag & INTERLEAVE_ONE_MONOCULAR)
     {
         optionflag &= (~MONOCULAR_MODE);
@@ -13416,7 +13417,9 @@ int ButtonResponse(int button, int revise, vcoord *locn)
     static int laststim = -1;
     int stimid = expt.stimid;
     int ifcfirst = 0;
+    int correct = 0;
     float rt;
+    int sign = 0, aid = 0;
     
     stim = expt.stimid;
     
@@ -13426,6 +13429,16 @@ int ButtonResponse(int button, int revise, vcoord *locn)
      * this count is divided by nreps at plotting time, so each
      * button press scores 100% here
      */
+    if (psychfile){
+        fprintf(psychfile,"R%d\n",correct);
+    }
+    sign = afc_s.stimsign;
+    if(2-button == sign)
+        res = 1;
+    else
+        res = 0;
+
+    PrintPsychLine(res, sign);
     if(expt.stimid >= 0){
         if(option2flag & IFC)
             res = ifcanswer;

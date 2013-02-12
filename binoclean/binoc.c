@@ -64,6 +64,8 @@ static int rndbonus = 10;
 static int forcestart = 0;
 static int nostore = 0;
 static float pursued = 0;
+int lastbutton = -1000;
+
 int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
@@ -1844,7 +1846,6 @@ void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
     Locator *pos = &TheStim->pos;
     int next,up,id;
     float pause = 0;
-    static int lastbutton = 0;
     
     mpos[0] = e.mouseX;
     mpos[1] = e.mouseY;
@@ -1901,7 +1902,7 @@ void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
             break;
         case INTERTRIAL:
 //            if(e.mouseButton == Button2){
-            if(e.mouseButton == lastbutton){
+            if(e.mouseButton == lastbutton || lastbutton == -1000){
                 stimstate = PREFIXATION;
                 gettimeofday(&now, NULL);
                 if(seroutfile)
@@ -9118,6 +9119,55 @@ double  RunTime(void )
     return(t);
     
 }
+
+int PrintPsychLine(int presult, int sign)
+{
+    char str[BUFSIZ];
+    double start, down;
+    
+    start = timediff(&now,&progstarttime);
+    down = timediff(&now,&wurtzframetime);
+    
+    if(psychfile != NULL){
+        if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
+            presult += 100;
+        if(!SACCREQD(afc_s))
+            presult +=50;
+        if(abs(afc_s.ccvar) > 0.01 && expt.type2 == EXPTYPE_NONE)
+            fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                    presult,serial_strings[expt.mode],expt.currentval[0],
+                    serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
+        else if(expt.type3 == FAKESTIM_EXPT && expt.type2 == EXPTYPE_NONE)
+            fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                    presult,serial_strings[expt.mode],expt.currentval[0],
+                    serial_strings[FAKESTIM_SIGNAL],fakestim);
+        else if(expt.currentval[0] == INTERLEAVE_EXPT_FLIP)
+            fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                    presult,serial_strings[expt.mode],expt.currentval[0],
+                    serial_strings[expt.type2],expt.currentval[3]);
+        else
+            fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
+                    presult,serial_strings[expt.mode],expt.currentval[0],
+                    serial_strings[expt.type2],expt.currentval[1]);
+        fprintf(psychfile," sn=%d %.2f %.2f %.2f",sign,start,down,expt.vals[REWARD_SIZE]);
+        if(microsaccade >0)
+            sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade);
+        else
+            sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
+        sprintf(str,"%s %s",str,EyePosString());
+        if(expt.type3 != EXPTYPE_NONE)
+            fprintf(psychfile," %s=%.2f %s\n",serial_strings[expt.type3],expt.currentval[2],str);
+        else if(expt.mode == TWOCYL_DISP)
+            fprintf(psychfile," %s=%.2f %s\n",serial_strings[DISP_X],expt.currentval[2],str);
+        else if(expt.vals[ONETARGET_P] > 0)
+            fprintf(psychfile," %s=%.2f %s\n",serial_strings[TARGET_RATIO],expt.vals[TARGET_RATIO],str);
+        else
+            
+            fprintf(psychfile," %s %s=%d\n",str,serial_strings[STIMID],expt.allstimid);
+        fflush(psychfile);
+    }
+}
+
 #define MBUFLEN 512
 int GotChar(char c)
 {
@@ -9463,44 +9513,7 @@ int GotChar(char c)
                     sign = 1;
                 else
                     sign = 0;
-                if(psychfile != NULL){
-                    if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
-                        presult += 100;
-                    if(!SACCREQD(afc_s))
-                        presult +=50;
-                    if(abs(afc_s.ccvar) > 0.01 && expt.type2 == EXPTYPE_NONE)
-                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-                                presult,serial_strings[expt.mode],expt.currentval[0], 
-                                serial_strings[covaryprop],GetProperty(&expt,expt.st,covaryprop));
-                    else if(expt.type3 == FAKESTIM_EXPT && expt.type2 == EXPTYPE_NONE)
-                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-                                presult,serial_strings[expt.mode],expt.currentval[0], 
-                                serial_strings[FAKESTIM_SIGNAL],fakestim);
-                    else if(expt.currentval[0] == INTERLEAVE_EXPT_FLIP)
-                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-                                presult,serial_strings[expt.mode],expt.currentval[0], 
-                                serial_strings[expt.type2],expt.currentval[3]);
-                    else
-                        fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
-                                presult,serial_strings[expt.mode],expt.currentval[0], 
-                                serial_strings[expt.type2],expt.currentval[1]);
-                    fprintf(psychfile," sn=%d %.2f %.2f %.2f",sign,start,down,expt.vals[REWARD_SIZE]);
-                    if(microsaccade >0)
-                        sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade); 
-                    else
-                        sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
-                    sprintf(str,"%s %s",str,EyePosString());
-                    if(expt.type3 != EXPTYPE_NONE)
-                        fprintf(psychfile," %s=%.2f %s\n",serial_strings[expt.type3],expt.currentval[2],str);
-                    else if(expt.mode == TWOCYL_DISP)
-                        fprintf(psychfile," %s=%.2f %s\n",serial_strings[DISP_X],expt.currentval[2],str);
-                    else if(expt.vals[ONETARGET_P] > 0)
-                        fprintf(psychfile," %s=%.2f %s\n",serial_strings[TARGET_RATIO],expt.vals[TARGET_RATIO],str);
-                    else
-                        
-                        fprintf(psychfile," %s %s=%d\n",str,serial_strings[STIMID],expt.allstimid);
-                    fflush(psychfile);
-                }
+                PrintPsychLine(presult, sign);
                 if(seroutfile != NULL) 
                 {
                     if(c == WURTZ_OK || c == WURTZ_OK_W){
