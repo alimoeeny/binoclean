@@ -647,6 +647,7 @@ double drand64(void);
 #define ButtonRelease 1
 #define ButtonPress 2
 #define MotionNotify 3
+#define ScrollNotify 4
 
 #define Button1 1
 #define Button2 2
@@ -667,6 +668,7 @@ typedef struct windowevent{
     int mouseY; 
     int mouseButton;
     int modifierKey;
+    float scrolldelta;
 } WindowEvent;
 
 #define WindowEventdefined 1

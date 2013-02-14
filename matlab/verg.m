@@ -452,6 +452,7 @@ for j = 1:length(strs{1})
         end
     elseif strncmp(s, 'Bs', 2)
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
+             DATA.binoc{1}.Bs = DATA.stimulusnames(DATA.stimtype(2));
     elseif strncmp(s, 'EDONE', 5) %finished listing expt stims
         if isfield(DATA,'toplevel')
             it = findobj(DATA.toplevel,'Tag','Expt3StimList','style','edit');
@@ -1567,8 +1568,10 @@ function MenuHit(a,b, arg)
         set(DATA.toplevel,'UserData',DATA);
     elseif strcmp(arg,'freereward')
         fprintf(DATA.outid,'freerwd\n');
-    elseif strcmp(arg,'pipelog')
-        system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' &']);
+    elseif strcmp(arg,'pipelog')       
+        [a, prefix] = fileparts(DATA.binocstr.psychfile);
+        prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');
+        system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
     elseif strcmp(arg,'setshake')
         fprintf(DATA.outid,'usershake\n');
@@ -2223,6 +2226,7 @@ function Expt = ExptSummary(DATA)
     Expt.Stimvals.i2 = DATA.incr(2);
     Expt.Stimvals.i3 = DATA.incr(3);
     Expt.Stimvals.st = DATA.stimulusnames{DATA.stimtype(1)};
+    Expt.Stimvals.Bs = DATA.stimulusnames{DATA.stimtype(2)};
     Expt.Start = now;
 
         

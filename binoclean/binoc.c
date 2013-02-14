@@ -1901,8 +1901,8 @@ void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
             lastbutton = e.mouseButton;
             break;
         case INTERTRIAL:
-//            if(e.mouseButton == Button2){
-            if(e.mouseButton == lastbutton || lastbutton == -1000){
+            if(e.mouseButton == Button2 ||
+             e.mouseButton == lastbutton || lastbutton == -1000){
                 stimstate = PREFIXATION;
                 gettimeofday(&now, NULL);
                 if(seroutfile)
@@ -2112,6 +2112,12 @@ int HandleMouse(WindowEvent e)
             else 
                 ButtonReleased(start, endpt, e);
             eventstate = 0;
+            break;
+        case ScrollNotify:
+            if(e.mouseButton == Button2){
+                eventstate |= MBUTTON;
+                ButtonDown(start, endpt, e);
+            }
             break;
         case ButtonPress:
             eventstate = 0;

@@ -449,18 +449,17 @@ GLenum glReportError (void)
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-    //	float wheelDelta = [theEvent deltaX] +[theEvent deltaY] + [theEvent deltaZ];
-    //	if (wheelDelta)
-    //	{
-    ////		GLfloat deltaAperture = wheelDelta * -camera.aperture / 200.0f;
-    ////		camera.aperture += deltaAperture;
-    ////		if (camera.aperture < 0.1) // do not let aperture <= 0.1
-    ////			camera.aperture = 0.1;
-    ////		if (camera.aperture > 179.9) // do not let aperture >= 180
-    ////			camera.aperture = 179.9;
-    //		[self updateProjection]; // update projection matrix
-    //		[self setNeedsDisplay: YES];
-    //	}
+    	float wheelDelta = [theEvent deltaX] +[theEvent deltaY] + [theEvent deltaZ];
+        WindowEvent e;
+    	if (wheelDelta)
+    	{
+            e.eventType = ScrollNotify;
+            e.scrolldelta = wheelDelta;
+            NSLog(@"wheelDelta %f",wheelDelta);
+            e.mouseButton = Button2;
+            if (fabs(wheelDelta) > 3)
+                HandleMouse(e);
+    	}
 }
 
 // ---------------------------------
