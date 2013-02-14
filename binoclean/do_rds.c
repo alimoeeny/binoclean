@@ -259,7 +259,7 @@ int precalc_rds_disps(Stimulus *st)
 {
   int i,j,balenced = 1;
   float *pf,*rpf,xpixdisps[MAXDISPS],ratio,pixdisp[2],phase;
-  unsigned long rnd, rnd_u(),q;
+  unsigned int rnd, myrnd_u(),q;
   Locator *pos = &st->left->pos;
   Substim *sst = st->left;
   int pixmul;
@@ -309,7 +309,7 @@ int precalc_rds_disps(Stimulus *st)
       j = i % st->ndisps;
     }
     else if(i%dotrpt == 0){
-      rnd = rnd_u();
+      rnd = myrnd_u();
       j = (rnd & 0xffff) % st->ndisps;
     }
     if(st->dotdist != DOTDIST_RANDOM)
@@ -350,7 +350,7 @@ int calc_rds(Stimulus *st, Substim *sst)
   int eyemode,induced = 0,hpixmul,wpixmul;
   float *pf,wscale,hiscale,dw,laps,partlap,ftmp;
   int wrapped = 0,sumwrap = 0,nowrap = 1;
-  unsigned long q,rnds[10],rnd_u();
+  unsigned int q,rnds[10],myrnd_u();
   int overlap = 1,k =0, checkoverlap = 0;
   int nwrap = 5;
     
@@ -711,10 +711,10 @@ int calc_rds(Stimulus *st, Substim *sst)
 	srandom(sst->seed+200),seedcall++;
 	myseed(sst->seed+200);
       }
-      *p = rnd_u();
-      q = rnd_u();
+      *p = myrnd_u();
+      q = myrnd_u();
       if (nwrap > 15){
-	rnds[0] = rnd_u();
+	rnds[0] = myrnd_u();
       }
         
       //	   *p = rndbuf[ncalls++];
@@ -933,7 +933,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
     init_rds(st, sst, 0);
     
   myrnd_init(sst->baseseed);
-  rnd = rnd_u();
+  rnd = myrnd_u();
     
     
   if(!(optionflag & SQUARE_RDS))
@@ -991,7 +991,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
 	else
 	  xv[j] = sst->lum[1];
       }
-      rnd = rnd_u();
+      rnd = myrnd_u();
     }
     bit = 1;
     xm = sst->nh/2;
@@ -1018,7 +1018,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
 	else
 	  yv[i] = sst->lum[2];
       }
-      rnd = rnd_u();
+      rnd = myrnd_u();
     }
     p = sst->iim;
     if(bsq > 0){
@@ -1051,7 +1051,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
       for(j = 0; j < sst->nh; j++){
 	if(bit++ > 30){
 	  bit = 0;
-	  rnd = rnd_u();
+	  rnd = myrnd_u();
 	}
 	if(rnd & (1L<<bit))
 	  *p = WHITEMODE;

@@ -418,7 +418,7 @@ void ControlsetNewPosition(int pos, int diff);
 int shutdown_stepper(void);
 int plottrack(struct plotdata *plot);
 int ReadPenSteps(char *penfile);
-unsigned long rnd_u ();
+unsigned int myrnd_u();
 long rnd_ri (long rng);
 double rnd_01d ();
 double rnd_ned (double lam);

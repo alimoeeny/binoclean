@@ -412,7 +412,7 @@ double SetFreqOnOff(Substim *sst, int nc)
     
     
     if(expt.stimmode == RANDOM_ONOFF || expt.stimmode == RANDOM_ONOFF_LOG){
-        iseed = rnd_u();
+        iseed = myrnd_u();
         srand48(iseed);
         nset = 0;
         for(j = 0; j < nc; j++){
@@ -429,7 +429,7 @@ double SetFreqOnOff(Substim *sst, int nc)
     }
     else if(expt.stimmode == INDEP_ONOFF || expt.stimmode == INDEP_ONOFF_LOG 
             || expt.stimmode == BINOC_INDEP_ONOFF_LOG || expt.stimmode == BINOC_INDEP_ONOFF){
-        rnd = rnd_u();
+        rnd = myrnd_u();
         bit = 0;
         for(j = 0; j < nc; j++){
             if(rnd & (1L<<bit))
@@ -438,13 +438,13 @@ double SetFreqOnOff(Substim *sst, int nc)
                 sst->powers[j] = 0.0;
             if(++bit > 31){
                 bit = 0;
-                rnd = rnd_u();
+                rnd = myrnd_u();
             }
         }
         tpower = (double)(nc)/2;
     }
     else if(expt.stimmode == THREE_CONTRAST_LEVEL){
-        rnd = rnd_u();
+        rnd = myrnd_u();
         bit = 0;
         for(j = 0; j < nc; j++){
             rem = (rnd >> bit) % 3;
@@ -457,7 +457,7 @@ double SetFreqOnOff(Substim *sst, int nc)
             bit = bit+8;
             if(bit > 31){
                 bit = 0;
-                rnd = rnd_u();
+                rnd = myrnd_u();
             }
         }
         tpower = (double)(nc)/2;
@@ -488,7 +488,7 @@ double SetFreqOnOff(Substim *sst, int nc)
          */
         dc = 0;
         for(j = 0; j < nc; j++){
-            rnd = rnd_u();
+            rnd = myrnd_u();
             if(rnd & (1L<<12))
                 dc = dc + sin((rnd & 0xff) * M_PI/128);
         }

@@ -6917,6 +6917,8 @@ void InitExpt()
     }
     else
         onlinedat = 0;
+    gettimeofday(&zeroframetime, NULL);
+
     /*
      * force saving of an image of the last frame in the last stim of the 
      * experiment, for cross checking.
