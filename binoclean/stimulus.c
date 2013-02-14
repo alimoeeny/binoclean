@@ -220,7 +220,9 @@ Stimulus *NewStimulus(Stimulus *st)
     new->right->uimage = new->left->uimage = NULL;
     new->right->uimlen = new->left->uimlen = 0;
     new->colormode = COLORRGB;
+    new->imname = NULL;
     new->imprefix = NULL;
+    new->builddate = NULL;
     new->contrast_disp = 0;
     new->dwidth = 0;
     new->dlength = 0;

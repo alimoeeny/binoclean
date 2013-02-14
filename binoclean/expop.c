@@ -6689,7 +6689,7 @@ void InitExpt()
         SerialSend(ELECTRODE_DEPTH);
         SerialSend(USENEWDIRS);
         if(expt.st->imprefix != NULL){
-            sprintf(cbuf,"%s\n",expt.st->imprefix);
+            sprintf(cbuf,"imprefix=%s\n",expt.st->imprefix);
             SerialString(cbuf,0);
         }
         
@@ -9203,7 +9203,7 @@ int PrepareExptStim(int show, int caller)
         if(seroutfile)
             fprintf(seroutfile,"preload took %.4f\n",timediff(&now,&then));
         //Ali #ifdef macosx
-        sprintf(cbuf,"imve %.4f,%d %.4f %.4f\n",st->stimversion,st->seedoffset,st->pix2deg,timediff(&now,&then));
+        sprintf(cbuf,"imve %.4f,%d %.4f %.4f %s %d\n",st->stimversion,st->seedoffset,st->pix2deg,timediff(&now,&then),st->builddate, st->envelopetype);
         SerialString(cbuf,0);
         seedoffsets[expt.stimid] = st->seedoffset;
         expt.st->forceseed = 0;

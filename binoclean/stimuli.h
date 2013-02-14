@@ -282,7 +282,7 @@ struct STIMULUS{
     double freqs[MAXFREQS];
     float ucgap;
     double rolldisp;
-    char *imprefix, *imname;
+    char *imprefix, *imname,*builddate;
     int immode,preload,preloaded,nimseed,nimplaces,forceseed;
     float stimid;
     int mixdots;
@@ -299,6 +299,8 @@ struct STIMULUS{
     int calculated, painted;
     float xyshift[2];
     int jumps;
+    int envelopetype;
+    float envelope;
 };
 
 typedef struct STIMULUS Stimulus;

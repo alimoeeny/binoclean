@@ -341,6 +341,15 @@ void calc_image(Stimulus *st, Substim *sst)
                         sscanf(buf,"Version %lf",&val);
                         st->stimversion = val;
                     }
+                    else if(!strncmp(buf,"Build",5)){
+                        st->builddate = myscopy(st->builddate,&buf[9]);
+                        st->builddate = nonewline(st->builddate);
+                    }
+                    else if(!strncmp(buf,"envelope",5)){
+                        sscanf(buf,"envelope %d %lf",&i,&val);
+                        st->envelope = val;
+                        st->envelopetype = i;
+                    }
                 }
                 fclose(fd);
                 /*
