@@ -594,6 +594,7 @@ Exptmenu secondmenu[] = {
     {"Seed Offset", SEEDOFFSET},
     {"Jump Direction", FP_MOVE_DIR},
     {"Jump Size", FP_MOVE_SIZE},
+    {"Plaid Ori", PLAID_ANGLE},
     {NULL, -1}
 };
 
@@ -638,6 +639,7 @@ Exptmenu thirdmenu[] = {
     {"Tone Time",TONETIME},
     {"Seed",SET_SEED},
     {"Seed Offset",SEEDOFFSET},
+    {"Plaid Ori",PLAID_ANGLE},
     {NULL, -1}
 };
 #define NEXPTS3 36
@@ -4799,9 +4801,10 @@ int setexp3stim()
             case RANDOM_CONTRAST_EXPT:
             case FAST_SEQUENCE_RPT:
             case DISP_X:
-            case STIM_SIZE: // This group the user sets ranges
+            case STIM_SIZE: // This group the user sets ranges. See also setstimuli()
             case SET_SEED:
             case SEEDOFFSET:
+            case PLAID_ANGLE:
                 if(optionflags[CUSTOM_EXPVALC] == 0){
                     for(i = 0; i < expt.nstim[4]; i++){
                         val = (expt.incr3 * i);
@@ -5507,6 +5510,7 @@ void setstimuli(int flag)
         case TONETIME:
         case SET_SEED:
         case SEEDOFFSET:
+        case PLAID_ANGLE:
             break;
         default:
             expt.nstim[4] = 1;
