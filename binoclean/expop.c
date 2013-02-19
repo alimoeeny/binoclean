@@ -595,10 +595,11 @@ Exptmenu secondmenu[] = {
     {"Jump Direction", FP_MOVE_DIR},
     {"Jump Size", FP_MOVE_SIZE},
     {"Plaid Ori", PLAID_ANGLE},
+    {"Dot Dens",DOT_DENSITY},
     {NULL, -1}
 };
 
-#define NEXPTS2 67
+#define NEXPTS2 69
 /*
  *  N.B. Expts added to second menu must also have entry in setsecondexp()
  */
@@ -640,9 +641,11 @@ Exptmenu thirdmenu[] = {
     {"Seed",SET_SEED},
     {"Seed Offset",SEEDOFFSET},
     {"Plaid Ori",PLAID_ANGLE},
+    {"%AC mixture",MIXAC},
+    {"Dot Density",DOT_DENSITY},
     {NULL, -1}
 };
-#define NEXPTS3 36
+#define NEXPTS3 39
 
 int nexptypes[3] = {NEXPTS1, NEXPTS2,NEXPTS3};
 #define NPLOTDATA (nexptypes[0]+3)
@@ -4713,7 +4716,7 @@ int SetFirstStairVal()
 int setexp3stim()
 {
     double val;
-    int i;
+    int i,j,ok=0;
     
     if(expt.type3 != EXPTYPE_NONE)
         switch(expt.type3){
@@ -4805,17 +4808,22 @@ int setexp3stim()
             case SET_SEED:
             case SEEDOFFSET:
             case PLAID_ANGLE:
-                if(optionflags[CUSTOM_EXPVALC] == 0){
+            default:
+                ok = 0;
+                for(j = 0; j < NEXPTS3; j++)
+                    if (thirdmenu[j].val == expt.type3)
+                        ok = 1;
+                if(ok ==0){
+                    expt.nstim[4] = 1;
+                    expt.type3 = EXPTYPE_NONE;
+                }
+                else if(optionflags[CUSTOM_EXPVALC] == 0){
                     for(i = 0; i < expt.nstim[4]; i++){
                         val = (expt.incr3 * i);
                         val =  expt.mean3-(expt.incr3 * (expt.nstim[4]-1))/2;
                         expt.exp3vals[i] = (expt.incr3 * i) +expt.mean3-(expt.incr3 * (expt.nstim[4]-1))/2;
                     }
                 }
-                break;
-            default:
-                expt.nstim[4] = 1;
-                expt.type3 = EXPTYPE_NONE;
                 break;
         }
     return(expt.nstim[4]);
@@ -5459,7 +5467,7 @@ int CountReps(int start)
 
 void setstimuli(int flag)
 {
-    int i,j,offset,ns,ni;
+    int i,j,offset,ns,ni,ok;
     double val,loginc,val2,ratio;
     char c = 'v',cbuf[BUFSIZ];
     
@@ -5513,7 +5521,12 @@ void setstimuli(int flag)
         case PLAID_ANGLE:
             break;
         default:
-            expt.nstim[4] = 1;
+            ok  = 0;
+            for (j = 1; j < NEXPTS3; j++)
+                if (thirdmenu[j].val == expt.type3)
+                    ok = 1;
+            if (ok == 0)
+                expt.nstim[4] = 1;
             break;
     }
     
