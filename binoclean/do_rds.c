@@ -9,8 +9,8 @@
 #include <stdlib.h>
 
 
-#define myseed rnd_init
-#define myrand rnd_i
+#define myseed myrnd_init
+#define myrand myrnd_i
 
 //Ali
 char * VERSION_NUMBER;

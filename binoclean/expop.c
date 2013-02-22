@@ -2608,9 +2608,6 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case EXPT_LINW:
             expt.linw  = (int)val;
             break;
-        case PLOT_CLUSTER:
-            expt.plotcluster  = (int)val;
-            break;
         case FP_MOVE_FRAME:
         case CHANGE_SEED:
         case FIX_LINW:
@@ -2672,6 +2669,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case FAKESTIM_SIGNAL:
         case TONETIME:
         case SEEDRANGE:
+        case INTERTRIAL_MIN:
             expt.vals[flag] = val;
             break;
         case NIMPLACES:
@@ -3131,8 +3129,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     
     switch(flag)
     {
-        case PLOT_CLUSTER:
-            break;
+
         case STIMULUS_MODE:
             SerialSend(flag);
             SerialSend(STIMULUS_FLAG);
@@ -3394,6 +3391,7 @@ float ExptProperty(Expt *exp, int flag)
         case FAKESTIM_SIGNAL:
         case TONETIME:
         case SEEDRANGE:
+        case INTERTRIAL_MIN:
             val = expt.vals[flag];
             break;	
         case NIMPLACES:
@@ -6597,7 +6595,7 @@ void InitExpt()
     HideCursor();
 
     if(!(mode & SERIAL_OK))
-        MakeConnection();
+        MakeConnection(4);
     expt.cramp = expt.ramp;
     expt.expseed = 1;
     

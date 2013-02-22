@@ -1571,6 +1571,7 @@ function MenuHit(a,b, arg)
     elseif strcmp(arg,'pipelog')       
         [a, prefix] = fileparts(DATA.binocstr.psychfile);
         prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');
+        prefix = regexprep(prefix,'DATE$','');
         system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
     elseif strcmp(arg,'setshake')
@@ -3592,6 +3593,7 @@ function DATA = PlotPsych(DATA)
     end
     end
     end
+    DATA.Expt = Expt;
     
     
 function DATA = CheckTimer(DATA)

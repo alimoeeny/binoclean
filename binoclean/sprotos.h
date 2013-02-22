@@ -275,7 +275,7 @@ void SetPriority(int priority);
 double GetFrameRate(void);
 double GetCurrentFrameRate(int displayIndex);
 void SendAll();
-void MakeConnection();
+void MakeConnection(int flag);
 void SetPanelColor(float color);
 void glstatusline(char *s, int line);
 void statusline(char *s);

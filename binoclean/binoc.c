@@ -70,6 +70,8 @@ int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
 float totalreward = 0;
+static float timeoutadjust = 0;
+
 
 int useDIO = 1;
 int fullscreenmode = 0;
@@ -163,7 +165,7 @@ static Rectangle imrect;
 static int stepsize = 8;
 struct timeval firstframetime,now, wurtzstart, timeb, timec, lastframetime,sessiontime,trialend,endstimtime,signaltime,wurtzframetime,alarmstart;
 static int loopframes = 0;
-struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime;
+struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime,starttrialtime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
 struct timeval lastcleartime,lastsertime;
 struct timeval progstarttime,calctime,paintframetime;
@@ -1496,9 +1498,10 @@ void SendAll()
         fprintf(seroutfile,"#SendAll at %s",ctime(&tval));
 }
 
-void MakeConnection()
+void MakeConnection(int flag)
 {
 	int i;
+    char buf[BUFSIZ];
     
 	if(!(mode & SERIAL_OK))
 	{
@@ -1508,7 +1511,8 @@ void MakeConnection()
 	}
 	if(mode & SERIAL_OK)
 	{
-        SerialString("NewConnection\n",0);
+        sprintf(buf,"NewConnection%d\n",flag);
+        SerialString(buf,0);
         SendAll();
         SerialSend(ELECTRODE_DEPTH);
         SerialSend(PEN_START_DEPTH);
@@ -2418,6 +2422,7 @@ void StartRunning()
     gettimeofday(&now, NULL);
     memcpy(&endtrialtime,&now,sizeof(struct timeval));
     memcpy(&goodfixtime,&now,sizeof(struct timeval));
+    memcpy(&starttrialtime,&now,sizeof(struct timeval));
     if(forcestart){
         if(replay_expt){
         }
@@ -3011,6 +3016,9 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case BACKGROUND_MOVIE:  //need this in setstimulus for Expt sequence modes
         case BACKGROUND_IMAGE:
             SetExptProperty(&expt, expt.st, code,  val);
+            break;
+        case MIXAC:
+            st->corrmix = val;
             break;
       case SEEDOFFSET:
             stimptr->seedoffset = val;
@@ -4805,6 +4813,9 @@ void start_timeout(int mode)
     }
 	gettimeofday(&starttimeout,NULL);
 	gettimeofday(&lastsertime,NULL);
+    timeoutadjust = expt.vals[INTERTRIAL_MIN] - timediff(&now,&goodfixtime);
+    if (timeoutadjust < 0)
+        timeoutadjust = 0;
     
     switch (mode){   /*j monkey needs to know what he has done wrong */   
 	    default:
@@ -6180,7 +6191,8 @@ int next_frame(Stimulus *st)
             if(option2flag & PSYCHOPHYSICS_BIT){ /* wait for button press */
                 ShowInfo();
             }
-            else if((val = timediff(&now, &endtrialtime)) > expt.isi && 
+            else if((val = timediff(&now, &endtrialtime)) > expt.isi &&
+                    (t2 = timediff(&now, &goodfixtime)) > expt.vals[INTERTRIAL_MIN] &&
                     (demomode == 0 || (TheStim->mode & EXPTPENDING)))
             {
                 stimstate=PREFIXATION;
@@ -6949,7 +6961,7 @@ int next_frame(Stimulus *st)
             if(rdspair(expt.st))
                 i = 0;
             if(debug) glstatusline("Timeout",3);
-            duration = TheStim->fix.timeout; 
+            duration = TheStim->fix.timeout+timeoutadjust;
             if(stimstate == IN_TIMEOUT_W)
                 duration = afc_s.wrongtimeout; 
             else if (timeout_type == SHAKE_TIMEOUT_PART1)
@@ -9264,7 +9276,7 @@ int GotChar(char c)
         DIOWriteBit(2,0);
 //   	    DIOval = 0;  DIOWrite(0);
 #endif
-		MakeConnection();
+		MakeConnection(1);
 	}
     
 	else if(c == CONJUG_OUT){
@@ -9792,7 +9804,7 @@ int GotChar(char c)
                     SendTrialCount();
                 break;
             case START_EXPT: /* this is sent when BW starts up send everything */
-                MakeConnection();
+                MakeConnection(2);
                 break;
             case BW_IS_READY:
                 charctr = 0;
@@ -10285,7 +10297,7 @@ void ReopenSerial(void)
         printf("Reopened %s (%d)\n",theport,i);
         fsleep(0.15);
         if(!(mode & SERIAL_OK))
-            MakeConnection();
+            MakeConnection(3);
         else{
             SerialSignal(BW_IS_READY);
             if(!CheckBW(BW_IS_READY,"Reopen"))

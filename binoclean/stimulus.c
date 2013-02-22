@@ -1968,6 +1968,7 @@ void calc_stimulus(Stimulus *st)
             st->next->pos.lastxy[0] = st->pos.lastxy[0];
             st->next->pos.lastxy[1] = st->pos.lastxy[1];
             st->next->flag = st->flag;
+            st->next->corrmix = st->corrmix;
         }
         if(backdone == 0)
             calc_stimulus(st->next);

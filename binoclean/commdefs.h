@@ -450,7 +450,9 @@
 #define USENEWDIRS (MAXSAVECODES+19)
 #define CHOICE_TARGET_DURATION (MAXSAVECODES+20)
 #define FORCE_CHOICE_ANGLE (MAXSAVECODES+21)
-#define MAXTOTALCODES (MAXSAVECODES+22)  //372
+#define INTERTRIAL_MIN (MAXSAVECODES+22)
+
+#define MAXTOTALCODES (MAXSAVECODES+23)  //372
 
 
 /*
@@ -463,9 +465,6 @@
  * some redefinitions to use some spare variables for things only
  * adjusted in psychophysics
  */
-
-#define PSYCH_EXPNO PLOT_CLUSTER
-#define PSYCH_EXPOFFSET TRIGGER_LEVEL
 
 #define OLDFIXEDLORI 173
 #define OLDFIXEDRORI 174
@@ -887,14 +886,15 @@ ValueCode valstrings[] = {
   {"ch",     "channel Set code",CHANNEL_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
   {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N' ,2, SEND_NON_ZERO},
   {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"bt",     "Replay End",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"bt",     "Replay End",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
   {"Bc",     "Background Contrast",BACK_CONTRAST, 64 , 'N' ,4, SEND_EXPT},
   {"ei",     "Expt incr", EXPT_INCR, 16 , 'N' ,5, SEND_EXPT},
   {"em",     "Expt Mean", EXPT_MEAN, 16 , 'N' ,5, SEND_EXPT},
   {"is",     "ISI", ISI_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"it",     "InterTrial Duration", INTERTRIAL_MIN, 16 , 'N' ,2, SEND_EXPLICIT},
   {"bw",     "bin width", UNIT_BINWIDTH, 0 , 'N' ,2, SEND_EXPLICIT},
   {"ub",     "binned unit data",BINNED_SPIKE_DATA, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"ut",     "unit times",SPIKE_TIMES, 0 , 'N' ,2, SEND_EXPLICIT},
+// {"ut",     "unit times",SPIKE_TIMES, 0 , 'N' ,2, SEND_EXPLICIT},
   {"nf",     "N Frames",NFRAMES_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"bd",     "backgound disparity", DISP_BACK, 64 , 'N' ,4, SEND_EXPT},
   {"rk",     "ramp coefficient", RAMP_COEFFICIENT, 0 , 'N' ,2, SEND_EXPLICIT},
@@ -1040,8 +1040,8 @@ ValueCode valstrings[] = {
   {"RP", "RF PARALELL ",RF_PARA, 256 , 'N' ,2, SEND_EXPLICIT},
   {"pl", "Size of Proximal Luminance Covariace ",PLC_MAG, 1 , 'N' ,2, SEND_EXPLICIT},
   {"To", "Target offset ",TARGET_OFFSET, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"di", "DIRECTIONALIGY, +20 ",DIRECTION_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
-  {"ct", "CELL_TYPE, +21 ",CELLTYPE_TEXT , 128 , 'N' ,2, SEND_EXPLICIT},
+//  {"di", "DIRECTIONALIGY, +20 ",DIRECTION_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
+//  {"ct", "CELL_TYPE, +21 ",CELLTYPE_TEXT , 128 , 'N' ,2, SEND_EXPLICIT},
   {"fl", "Stimulus Flag +22",STIMULUS_FLAG , 1 , 'C' ,2, SEND_EXPLICIT},
   {"si", "swap interval +23 ",SWAPINTERVAL , 32 , 'N' ,2, SEND_EXPLICIT},
   {"Tz", "rapezoidal scaling for projectors ",TRAPEZOIDAL_SCALING , 32 , 'N' ,2, SEND_EXPLICIT},
@@ -1061,10 +1061,10 @@ ValueCode valstrings[] = {
   {"dc", "disp X as cycle of sinewave ", DISP_AS_CYCLES, 1 , 'N' ,2, SEND_EXPLICIT},
   {"qe", "quickexp code ", QUICKEXPT_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
   {"ga", "gamma correction val ", GAMMAVAL_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"lc", "CorLoop Exit crti ", CORRECTION_LEAVE_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"ec", "CorLoop Enter crti ", CORRECTION_ENTRY_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"lc", "CorLoop Exit crit", CORRECTION_LEAVE_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"ec", "CorLoop Enter crit", CORRECTION_ENTRY_CRIT, 8 , 'N' ,2, SEND_EXPLICIT},
   {"pb", "p(Blank)", BLANK_P, 16, 'N' ,2, SEND_EXPLICIT},
-  {"cc", "Covary Coefficient", COVARY_XPOS, 24, 'N' ,2, SEND_EXPLICIT}, 
+  {"cc", "Covary Coefficient", COVARY_XPOS, 24, 'N' ,2, SEND_EXPLICIT},
   {"bl",     "BONUS_CRITERION", BONUS_CRITERION, 8, 'N' ,2, SEND_EXPLICIT},
   {"b2",     "BONUS2_CRITERION", BONUS2_CRITERION, 8, 'N' ,2, SEND_EXPLICIT},
   {"bs",     "EXPT_BLKSIZ", EXPT_BLKSIZ, 8, 'N' ,2, SEND_EXPLICIT}, 
@@ -1133,7 +1133,7 @@ ValueCode valstrings[] = {
   {"cz",     "Contrast Pairs",CONTRAST_PAIRS, 528 , 'N' ,2, SEND_EXPLICIT},
   {"sL",     "Stepper Plot Length",STEPPER_PLOTLEN, 32 , 'N' ,2, SEND_EXPLICIT},
   {"Nf",     "True Nframes",NFRAMES_DONE, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"pC",     "Plot Cluster/Exp No.",PLOT_CLUSTER, 32 , 'N' ,2, SEND_EXPLICIT},
+ // {"pC",     "Plot Cluster/Exp No.",PLOT_CLUSTER, 32 , 'N' ,2, SEND_EXPLICIT},
   {"r1",     "Reward 1",REWARD_SIZE1, 8 , 'N' ,2, SEND_EXPLICIT},
   {"r2",     "Reward 2",REWARD_SIZE2, 8 , 'N' ,2, SEND_EXPLICIT},
   {"r3",     "Reward 3",REWARD_SIZE3, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1237,7 +1237,7 @@ char *mode_names[] = {
     NULL
 };
 
-char codesend[NCODES] = {
+int codesend[MAXTOTALCODES] = {
 	SEND_EXPLICIT};
 
 char *serial_names[] = {
@@ -1697,7 +1697,7 @@ extern ToggleCode togglestrings[];
 extern ValueCode valstrings[];
 extern char *mode_names[];
 extern int nfplaces[MAXTOTALCODES];
-extern char codesend[];
+extern int codesend[];
 extern char *serial_names[];
 extern char *jumpnames[];
 #endif
