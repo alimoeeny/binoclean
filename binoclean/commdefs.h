@@ -466,6 +466,8 @@
  * adjusted in psychophysics
  */
 
+#define PSYCH_EXPOFFSET TRIGGER_LEVEL
+
 #define OLDFIXEDLORI 173
 #define OLDFIXEDRORI 174
 #define STIM_PERIOD MAXTOTALCODES+20
