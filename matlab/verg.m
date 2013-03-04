@@ -3582,7 +3582,11 @@ function DATA = PlotPsych(DATA)
             end
             eargs = {eargs{:} 'legendlabels' legendlabels};
         end
+        try
         [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown',eargs{:});
+        catch ME
+            fprintf('Error In ExptPsych %s\n',ME.message);
+        end
         id = find(strcmp(Expt.Stimvals.et,{DATA.comcodes.code}));
         if length(id) == 1
             set(get(gca,'xlabel'),'string',DATA.comcodes(id).label);

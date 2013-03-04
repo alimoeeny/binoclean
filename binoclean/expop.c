@@ -596,10 +596,11 @@ Exptmenu secondmenu[] = {
     {"Jump Size", FP_MOVE_SIZE},
     {"Plaid Ori", PLAID_ANGLE},
     {"Dot Dens",DOT_DENSITY},
+    {"Contrast Difference (L-R)", CONTRAST_DIFF},
     {NULL, -1}
 };
 
-#define NEXPTS2 69
+#define NEXPTS2 70
 /*
  *  N.B. Expts added to second menu must also have entry in setsecondexp()
  */
