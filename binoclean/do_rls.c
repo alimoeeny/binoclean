@@ -196,6 +196,11 @@ void calc_rls(Stimulus *st, Substim *sst)
     double drnd,aval;
     int bit, nbit;
     long *rp,rnd,*rq;
+    int orthoguc = 0;
+
+    
+    if (expt.stimmode == ORTHOG_UC || (st->left->ptr->plaid_angle) > M_2_PI)
+        orthoguc = 1;
     
     
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
@@ -345,7 +350,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     if(st->prev != NULL && optionflags[PAINT_BACKGROUND])
         csq = dsq = 0;
     p = sst->iim;
-    q = sst->imb;
+    q = sst->imb; //for second component. E.G. plaid
     x = sst->xpos;
     y = sst->ypos;
     zy = sst->yposa;
@@ -422,10 +427,19 @@ void calc_rls(Stimulus *st, Substim *sst)
         else
             *p = BLACKMODE;
         
-        if(*rp & (1<<3))
-            *q = WHITEMODE;
-        else
-            *q = BLACKMODE;
+        if (sst->mode == RIGHTMODE && orthoguc)
+        {
+            if(*rp & (1<<4))
+                *q = WHITEMODE;
+            else
+                *q = BLACKMODE;
+        }
+            else{
+                if(*rp & (1<<3))
+                    *q = WHITEMODE;
+                else
+                    *q = BLACKMODE;
+            }
         
         
         if(sst->corrdots > 0 && sst->corrdots < sst->ndots && sst->mode == RIGHTMODE){

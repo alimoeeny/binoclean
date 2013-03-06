@@ -109,7 +109,7 @@ int SetMonkeyStaircase(int jonresult, AFCstructure *afc);
 int SetAltStair(int up, int revise);
 
 void write_menus(FILE *ofd);
-unsigned int ufftime(struct timeval *thetime);
+float ufftime(struct timeval *thetime);
 void PrintCodes(int mode);
 void PrintPenLog(int scroll);
 int InitRndArray(long seed, int len);
@@ -143,7 +143,7 @@ GLubyte *GetStimImage(int x, int y, int w, int h, char eye);
 int SaveImage(Stimulus *st, int type);
 int ReadCommand(char *s);
 
-void AddElectrodeString(char *s);
+int AddElectrodeString(char *s);
 void AddUserString(char *s);
 double pos2phase(Stimulus *st);
 

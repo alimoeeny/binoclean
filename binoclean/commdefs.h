@@ -632,6 +632,7 @@ typedef struct valuecode {
 } ValueCode;
 
 #define MONITOR_FILE 0
+#define EXPT_NOT_ALLOWED 2048
 
 
 #ifdef CHARCODES_DEFINE
@@ -817,7 +818,10 @@ char *bwtoggle_codes[] = {
  *         256 RF properties
  *         512 Indirect properties
  *         1024 Internal commands (sb+)
+ *         2048 can't be an expt type. (Checked in setsecondexpt)
  */
+
+
 ValueCode valstrings[] = {
   {"xo","X offset",  XPOS, 1, 'N' ,2, SEND_EXPT},
     {"yo","Y offset",  YPOS, 1, 'N' ,2, SEND_EXPT},
@@ -888,7 +892,7 @@ ValueCode valstrings[] = {
   {"ch",     "channel Set code",CHANNEL_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
   {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N' ,2, SEND_NON_ZERO},
   {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
-//  {"bt",     "Replay End",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
+  {"bt",     "BW Time",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
   {"Bc",     "Background Contrast",BACK_CONTRAST, 64 , 'N' ,4, SEND_EXPT},
   {"ei",     "Expt incr", EXPT_INCR, 16 , 'N' ,5, SEND_EXPT},
   {"em",     "Expt Mean", EXPT_MEAN, 16 , 'N' ,5, SEND_EXPT},

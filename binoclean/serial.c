@@ -193,7 +193,7 @@ char ReadSerial(int tty)
 #ifdef MONITOR_CLOSE
         if(seroutfile && (c == END_STIM || c == BAD_FIXATION || c == START_STIM)){
             gettimeofday(&moment,NULL);
-            fprintf(seroutfile,"I %d %u\n",(int)(c),ufftime(&moment));
+            fprintf(seroutfile,"I %d %.2f\n",(int)(c),ufftime(&moment));
             fflush(seroutfile);
         }
 #endif

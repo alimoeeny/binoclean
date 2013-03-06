@@ -166,6 +166,7 @@ static int stepsize = 8;
 struct timeval firstframetime,now, wurtzstart, timeb, timec, lastframetime,sessiontime,trialend,endstimtime,signaltime,wurtzframetime,alarmstart;
 static int loopframes = 0;
 struct timeval endtrialtime, starttimeout, goodfixtime,fixontime,cjtime,starttrialtime;
+struct timeval lastconnecttime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
 struct timeval lastcleartime,lastsertime;
 struct timeval progstarttime,calctime,paintframetime;
@@ -541,7 +542,7 @@ int getframecount()
             gotzerr++;
         }
         if(seroutfile && gotzerr % 1000000 == 1)
-            fprintf(seroutfile,"Negative frames at %u %u (%u) %s state %d,%d,%d\n",ufftime(&frametime),ufftime(&zeroframetime),ufftime(&prevframetime),binocTimeString(),stimstate,fixstate,mode&FRAME_BITS);
+            fprintf(seroutfile,"Negative frames at %.1f %.1f (%.1f) %s state %d,%d,%d\n",ufftime(&frametime),ufftime(&zeroframetime),ufftime(&prevframetime),binocTimeString(),stimstate,fixstate,mode&FRAME_BITS);
         return(1000);
     }
     return(frames);
@@ -717,6 +718,8 @@ void initial_setup()
 	srand48(mtype);
     
 	gettimeofday(&sessiontime,NULL);
+    gettimeofday(&lastconnecttime,NULL);
+
     gettimeofday(&now,NULL);
     ExptInit(&expt, TheStim, &mon);
 //ExptInit now sets up codesend and nfplaces from valstrings
@@ -1910,7 +1913,7 @@ void ButtonDown(vcoord *start, vcoord *end, WindowEvent e)
                 stimstate = PREFIXATION;
                 gettimeofday(&now, NULL);
                 if(seroutfile)
-                    fprintf(seroutfile,"Trial Start %u\n",ufftime(&now));
+                    fprintf(seroutfile,"Trial Start %.1f\n",ufftime(&now));
             }
             else if(!optionflags[FEEDBACK])
             /*
@@ -4966,7 +4969,7 @@ void WriteSignal()
         framectr = 0;
 
         if(seroutfile)
-            fprintf(seroutfile,"O 5 %u\n",ufftime(&firstframetime));
+            fprintf(seroutfile,"O 5 %.2f\n",ufftime(&firstframetime));
 	}
 	if(mode & STIM_FRAME_BIT)
     {
@@ -4985,7 +4988,7 @@ void WriteSignal()
         gettimeofday(&endstimtime,NULL);
  	    c = END_STIM;
         if(seroutfile)
-            fprintf(seroutfile,"O %d %u %u %.3f%c\n",(int)(c),ufftime(&endstimtime),
+            fprintf(seroutfile,"O %d %.2f %.2f %.3f%c\n",(int)(c),ufftime(&endstimtime),
                     ufftime(&endstimtime)-ufftime(&zeroframetime),timediff(&endstimtime,&firstframetime),InExptChar);
 
         expstate = END_STIM;
@@ -5005,10 +5008,10 @@ void WriteSignal()
 #endif
 	    if(!optionflags[REDUCE_SERIAL_OUTPUT]){
             if(seroutfile)
-                fprintf(seroutfile,"ds+ %u\n",ufftime(&frametime));
+                fprintf(seroutfile,"ds+ %.2f\n",ufftime(&frametime));
 	    }
 	    if(rcfd){
-            fprintf(rcfd,"ds+ %u\n",ufftime(&frametime));
+            fprintf(rcfd,"ds+ %.2f\n",ufftime(&frametime));
 	    }
     }
     
@@ -6250,7 +6253,7 @@ int next_frame(Stimulus *st)
             if(!ExptIsRunning())
                 stimctr = 0;
             if(seroutfile && optionflags[DEBUG_OUTPUT])
-                fprintf(seroutfile,"#Trial at %u (%d)%c\n",ufftime(&now),fixstate,exptchr);
+                fprintf(seroutfile,"#Trial at %.2f (%d)%c\n",ufftime(&now),fixstate,exptchr);
             if(testflags[PLAYING_EXPT])
                 fixstate = GOOD_FIXATION;
             if (optionflags[SHOW_REWARD_BIAS])
@@ -9055,7 +9058,7 @@ int ShowTrialCount(float down, float sum)
     if (val < 0)
         val = timediff(&now, &firstframetime);
 	if(debug)
-        sprintf(mssg,"%s(%d) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
+        sprintf(mssg,"%s(%.2f) Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %0f/%d",binocTimeString(),ufftime(&now),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
                 totaltrials-(goodtrials+fixtrials),fixtrials,down,sum,avglen);
 	else
         sprintf(mssg,"%s Frames: %d/%d (%.3f sec) %d/%d %d late %d bad (%.2f), %.0f/%d",binocTimeString(),framesdone,TheStim->nframes,val,goodtrials,totaltrials,
@@ -9276,7 +9279,18 @@ int GotChar(char c)
         DIOWriteBit(2,0);
 //   	    DIOval = 0;  DIOWrite(0);
 #endif
-		MakeConnection(1);
+        gettimeofday(&now,NULL);
+        if(seroutfile)
+            fprintf(seroutfile,"#StartExpt from Spike2 at %.4f\n",ufftime(&now));
+        if (timediff(&now,&lastconnecttime) < 1){
+            acknowledge("Very Short interval between Serial Connect",NULL);
+            if(seroutfile){
+                fprintf(seroutfile,"#Double Connection attempted\n");
+            }
+        }
+        else
+            MakeConnection(1);
+        gettimeofday(&lastconnecttime,NULL);
 	}
     
 	else if(c == CONJUG_OUT){
@@ -9295,7 +9309,7 @@ int GotChar(char c)
         if(c == CONJUG_OUT){
             if(seroutfile){
                 gettimeofday(&now,NULL);
-                fprintf(seroutfile,"#Double Sj at %d",ufftime(&now));
+                fprintf(seroutfile,"#Double Sj at %.2f\n",ufftime(&now));
             }
             conjbufctr = 0;
         }
@@ -10129,7 +10143,7 @@ void expt_over(int flag)
     if(flag == CANCEL_EXPT){
         if(seroutfile != NULL){
             tval = time(NULL);
-            fprintf(seroutfile,"Cancelled at %u\n",ufftime(&now));
+            fprintf(seroutfile,"Cancelled at %.2f\n",ufftime(&now));
             fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
         }
     }
@@ -10137,7 +10151,7 @@ void expt_over(int flag)
         gettimeofday(&now,NULL);
         if(seroutfile != NULL){
             tval = time(NULL);
-            fprintf(seroutfile,"et at %u\n",ufftime(&now));
+            fprintf(seroutfile,"et at %.2f\n",ufftime(&now));
             fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
             fflush(seroutfile);
         }

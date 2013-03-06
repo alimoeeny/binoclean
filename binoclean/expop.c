@@ -280,7 +280,7 @@ static time_t lastcmdread;
 static char mssg[BUFSIZ];
 static short *linedata = NULL;
 struct timeval endsigtime,bwtime;
-unsigned long bwticks =0;
+float bwticks =0;
 #define NALLSLIDERS 3
 static int allstartcode[NALLSLIDERS] = {ORIENTATION, STIM_WIDTH, STIM_HEIGHT};
 static int sliderflag = POSTPERIOD_CODE;
@@ -1425,10 +1425,10 @@ void write_menus(FILE *ofd)
 }
 
 
-unsigned int ufftime(struct timeval *thetime)
+float ufftime(struct timeval *thetime)
 {
-    unsigned int ticks;
-    ticks = bwticks + timediff(thetime,&bwtime) * 10000;
+    float ticks;
+    ticks = bwticks + timediff(thetime,&bwtime);
     return(ticks);
 }
 
@@ -2380,11 +2380,15 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         case ELECTRODE_TYPE:
             i = 0;
             nonewline(s);
-            while(userstrings[i] && strcmp(s,userstrings[i]))
+            while(electrodestrings[i] && strcmp(s,electrodestrings[i]))
                 i++;
             if(electrodestrings[i]){
                 electrodeid = i;
             }
+            else if (strncmp(s,"Utah",4) == NULL){
+                electrodeid = AddElectrodeString(s);
+            }
+                
             SendPenInfo();
             break;
         case LOGFILE_CODE:
@@ -3950,7 +3954,7 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"track",2)){
         optionflags[PLOT_ELECTRODE_TRACK] = !optionflags[PLOT_ELECTRODE_TRACK];
-        sprintf(command_result,"PlotTracj %s",optionflags[PLOT_ELECTRODE_TRACK] ? "On":"Off");
+        sprintf(command_result,"PlotTrack %s",optionflags[PLOT_ELECTRODE_TRACK] ? "On":"Off");
     }
     else
         retval = -1;
@@ -3959,7 +3963,7 @@ int ReadCommand(char *s)
 }
 
 
-void AddElectrodeString(char *s)
+int AddElectrodeString(char *s)
 {
     int i = 0;
     while(electrodestrings[i] != NULL && i < 100)
@@ -3967,6 +3971,7 @@ void AddElectrodeString(char *s)
     electrodestrings[i] = (char *)malloc(strlen(s)+2);
     strcpy(electrodestrings[i],s);
     electrodestrings[i+1] = NULL;
+    return(i);
 }
 
 void AddUserString(char *s)
@@ -4225,7 +4230,7 @@ void setexp(int w, int id, int val)
 void setsecondexp(int w, int id, int val)
 {
     
-    int i,type;
+    int i,type,code;
     struct plotdata *plot;
     float fval;
     
@@ -4572,13 +4577,20 @@ void setsecondexp(int w, int id, int val)
             break;
         default:
             i = 0;
-            expt.type2 = EXPTYPE_NONE;
-            optionflags[PLOTFLIP] = 0;
-            while((type = secondmenu[i++].val) >= 0){
-                if(type == val){
-                    expt.type2 = type;
-                    expt.flag |= (TIMES_EXPT2); //Default is times
+            code = valstringindex[val];
+            if (valstrings[code].group & EXPT_NOT_ALLOWED){
+                expt.type2 = EXPTYPE_NONE;
+                optionflags[PLOTFLIP] = 0;
+                while((type = secondmenu[i++].val) >= 0){
+                    if(type == val){
+                        expt.type2 = type;
+                        expt.flag |= (TIMES_EXPT2); //Default is times
+                    }
                 }
+            }
+            else{
+                expt.type2 = val;
+                expt.flag |= (TIMES_EXPT2);
             }
             if(expt.type2 == EXPTYPE_NONE){ /* Not found*/
                 expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
@@ -6406,7 +6418,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
         framebuf = NULL;
     }
     if(seroutfile)
-        fprintf(seroutfile,"#Start Expt at %d %sx%s %d%c%d (%d)\n",
+        fprintf(seroutfile,"#Start Expt at %.2f %sx%s %d%c%d (%d)\n",
                 ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
                 expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
     InitExpt();
@@ -11111,7 +11123,7 @@ int CheckBW(int signal, char *msg)
             if(c == MYEOF) /* nothing coming in */
                 fsleep(0.01), timeout++;
             else if(c == CONJUG_OUT){
-                fprintf(stderr,"CONJUG in Check at %d\n",ufftime(&now));
+                fprintf(stderr,"CONJUG in Check at %.3f\n",ufftime(&now));
                 GotChar(c);
             }
             else 
@@ -11135,7 +11147,7 @@ int CheckBW(int signal, char *msg)
          */
         if(signal == END_STIM && c == BAD_FIXATION){
             if (seroutfile){
-            fprintf(seroutfile,"End/Bad combination %d %u %d",trialcnt,ufftime(&now),stimstate);
+            fprintf(seroutfile,"End/Bad combination %d %.2f %d",trialcnt,ufftime(&now),stimstate);
             }
             endbadctr++;
             glstatusline("End/Bad",3);
@@ -11185,7 +11197,7 @@ int CheckBW(int signal, char *msg)
                 sprintf(s,"Trial %d %s Serial Line Not Responding",stimno,signame);
                 if(seroutfile != NULL){
                     val = timediff(&now,&bwtime);
-                    fprintf(seroutfile,"Endstim Error %d %u",trialcnt,ufftime(&now));
+                    fprintf(seroutfile,"Endstim Error %d %.2f",trialcnt,ufftime(&now));
                     ShowLastCodes();
                 }
                 //Ali w = 
@@ -12282,7 +12294,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ],outbuf[BUFSIZ];
     float val,fval, addval = 0,in[10],aval,bval;
     Stimulus *TheStim = expt.st;
-    static int lineflag = 0,lastticks = 0;
+    static int lineflag = 0;
+    static float lastticks = 0;
     MenuItem *new_menu = NULL;
     char *newnames = NULL;
     char *stimname = NULL;
@@ -12332,6 +12345,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         sprintf(buf,"%s\n",line);
         SerialString(buf,0);
         return(0);
+    }
+    else if(!strncmp(line,"electrode",7)){
+        SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
     }
     else if(!strncmp(line,"freerwd",7)){
         SerialSignal(FREE_REWARD);
@@ -12815,15 +12831,15 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             
         case UFF_TIME:
         {
-            sscanf(s,"%lu",&bwticks);
+            sscanf(s,"%f",&bwticks);
             gettimeofday(&bwtime,NULL);
-            if(penlog && (bwticks - lastticks > 6000000 || bwticks < lastticks)){
-                fprintf(penlog,"%lu bwticks = %s\n",bwticks,binocTimeString());
+            if(penlog && (bwticks - lastticks > 600 || bwticks < lastticks)){
+                fprintf(penlog,"%.4f bwticks = %s\n",bwticks,binocTimeString());
                 lastticks = bwticks;
             }
             if(seroutfile){
                 fprintf(seroutfile,"#%s\n",s);
-                fprintf(seroutfile,"#%lu bwticks = %s\n",bwticks,binocTimeString());
+                fprintf(seroutfile,"#%.4f bwticks = %s\n",bwticks,binocTimeString());
             }
         }
             break;
@@ -13180,7 +13196,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case QUERY_STATE:
             gettimeofday(&now,NULL);
-            sprintf(buf,"%s\nfs%d\nss%d\nes%d tc%d %u",&line[2],fixstate,stimstate,expstate,trialcnt,ufftime(&now));
+            sprintf(buf,"%s\nfs%d\nss%d\nes%d tc%d %.2f",&line[2],fixstate,stimstate,expstate,trialcnt,ufftime(&now));
             acknowledge(buf,NULL);
             if(seroutfile)
                 fprintf(seroutfile,"%2s%s\n",valstrings[icode].code,buf);
@@ -13384,7 +13400,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             else if(line[0] != '\n')
             {
-                fprintf(stderr,"At %u Don't recognize (%d):%s\n",ufftime(&now),(int)line[0],line);
+                fprintf(stderr,"At %.2f Don't recognize (%d):%s\n",ufftime(&now),(int)line[0],line);
                 i = 0;
                 while(line[i])
                     if(line[i++] == CONJUG_OUT)
