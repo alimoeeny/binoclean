@@ -1517,6 +1517,7 @@ void MakeConnection(int flag)
         sprintf(buf,"NewConnection%d\n",flag);
         SerialString(buf,0);
         SendAll();
+        SendPenInfo();
         SerialSend(ELECTRODE_DEPTH);
         SerialSend(PEN_START_DEPTH);
         gettimeofday(&sessiontime,NULL);

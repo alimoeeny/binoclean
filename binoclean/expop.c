@@ -5489,7 +5489,9 @@ void setstimuli(int flag)
     if(expt.nstim[4] < 1)
         expt.nstim[4] = 1;
     
-        
+    
+    if(expt.flag & TIMES_EXPT2 && expt.nstim[1] < 1)
+        expt.nstim[1] = 1;
     if(expt.type2 != EXPTYPE_NONE && (expt.flag & ADD_EXPT2))
         expt.nstim[3] = expt.nstim[0]+ expt.nstim[2]+expt.nstim[1];
     else if(expt.type2 != EXPTYPE_NONE && (expt.flag & TIMES_EXPT2))
@@ -5685,6 +5687,8 @@ void setstimuli(int flag)
      */
     SetExpVals();
     setexp3stim();
+    if(expt.nstim[3] < 1)
+        expt.nstim[3] = 1;
     if(flag)
         return;
     setstimulusorder(0);

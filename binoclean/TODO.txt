@@ -57,9 +57,9 @@ Things that need fixing:
 * acknokege to print to command history pane in red
 * stop filtering messages for status line
 -total reward given in verg or binoc window
--fix color scheme for lines printed to monkey view
+*fix color scheme for lines printed to monkey view
 -make sure setup file saving works.
--allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?    
+*allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?
 -could binoc write to pipe when started so that verg automatically reopens pipes? 
 *when verg connects to a running binoc which is mid expt, get vert to know and set Run button
 -stausline only on alternate frames in expt/ But thats ok

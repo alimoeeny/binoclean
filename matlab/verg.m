@@ -715,6 +715,17 @@ function SendState(DATA, varargin)
         end
     end
     fprintf(DATA.outid,'uf=%s\n',DATA.datafile);
+    
+    if DATA.showxy(2)
+        fprintf(DATA.outid,'ch12+\n');
+    end
+    if DATA.showxy(3)
+        fprintf(DATA.outid,'ch11+\n');
+    end
+    if DATA.showxy(1)
+        fprintf(DATA.outid,'ch10+\n');
+    end
+
     if length(DATA.binoc) > 1 && isstruct(DATA.binoc{2})
     f = fields(DATA.binoc{2});
     fprintf(DATA.outid,'mo=back\n');

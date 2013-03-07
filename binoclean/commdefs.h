@@ -919,7 +919,7 @@ ValueCode valstrings[] = {
 //  {"ul",     "UpLoad Directory*", UPLOAD_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"vw",     "Vergence Window",VERGENCE_WINDOW, 8 , 'N' ,2, SEND_EXPLICIT},
   {"sp",     "Short Prem Trial Length",SHORT_PREM_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"ed",     "electrode depth", ELECTRODE_DEPTH, 32 , 'N' ,2, SEND_USER_ONLY},
+  {"ed",     "electrode depth", ELECTRODE_DEPTH, 32 | EXPT_NOT_ALLOWED, 'N' ,2, SEND_USER_ONLY},
   {"cm",     "Comment", UFF_COMMENT, 128 , 'N' ,2, SEND_USER_ONLY},
   {"ss",     "Seed Shift/UC gap", SEED_SHIFT, 7 , 'N' ,0, SEND_EXPLICIT},
   {"cp",     "Conjugate Position",CONJUGATE_POSITION, 8 , 'N' ,2, SEND_EXPLICIT},
