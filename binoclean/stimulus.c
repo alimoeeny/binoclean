@@ -194,9 +194,11 @@ Stimulus *NewStimulus(Stimulus *st)
     new->left->id[0] = 'L';
     
     new->left->ptr = 0;
+    new->left->ptr = (OneStim *) (malloc(sizeof(OneStim)));
+
     new->left->pos.perimeter = 0;
     new->right = (Substim *)malloc(sizeof(Substim));
-    new->right->ptr = 0;
+    new->right->ptr = (OneStim *) (malloc(sizeof(OneStim)));
     new->right->pos.perimeter = 0;
     new->right->id[0] = 'R';
     new->last = (Substim *)malloc(sizeof(Substim));
@@ -707,7 +709,7 @@ int clear_screen(Stimulus *st, int flag)
         h = st->rect.ry - st->rect.ly;
         
         calc_stimulus(st->next);
-        paint_stimulus(st->next);
+        paint_stimulus(st->next, 1);
     }
     if(st->mode & DRAW_FIX_BIT){
         draw_fix(fixpos[0],fixpos[1],st->fix.size, st->fixcolor);
@@ -2127,7 +2129,7 @@ void paint_stereo_stimulus(Stimulus *st)
     }
 }
 
-void paint_stimulus(Stimulus *st)
+void paint_stimulus(Stimulus *st, int follow)
 {
     
     float delta;
@@ -2153,8 +2155,16 @@ void paint_stimulus(Stimulus *st)
     glGetDoublev(GL_PROJECTION_MATRIX,pmatrix);
     if(debug)
         glDrawBuffer(GL_FRONT_AND_BACK);
-    if(st->next != NULL && optionflags[PAINT_BACKGROUND] && st->next->type != STIM_NONE)
-        paint_stimulus(st->next);
+    if(st->next != NULL && st->next->next != NULL && st->next->next->type != STIM_NONE && optionflags[PAINT_BACKGROUND] && follow){
+        paint_stimulus(st->next,0);
+        st->next->next->noclear = 1;
+//        paint_stimulus(st->next->next, 0);
+        st->noclear = 1;
+        paint_stimulus(st, 0);
+        return;
+    }
+    if(st->next != NULL && optionflags[PAINT_BACKGROUND] && st->next->type != STIM_NONE && follow)
+        paint_stimulus(st->next,1);
     else if(!st->noclear)
         clearstim(st,st->gammaback, optionflag & DRAW_FIX_BIT);
     st->noclear = 0;
@@ -2454,7 +2464,7 @@ void paint_stimulus(Stimulus *st)
             break;
         case STIM_TWOBAR:
             if(st->next != NULL && st->next->type != STIM_NONE)
-                paint_stimulus(st->next);
+                paint_stimulus(st->next,1);
             setmask(LEFTMODE);
             if(optionflags[SPLITSCREEN])
                 glTranslatef(-psychoff[0]/2,0,0);
@@ -2570,19 +2580,19 @@ void paint_stimulus(Stimulus *st)
     st->pos.lastangle = st->pos.angle;
     st->pos.lastxy[0] = st->pos.xy[0];
     st->pos.lastxy[1] = st->pos.xy[1];
-    if(optionflags[PAINT_THIRD_LAST] && st->next != NULL && st->next->next != NULL){
+    if(optionflags[PAINT_THIRD_LAST] && st->next != NULL && st->next->next != NULL && follow){
         st->next->next->noclear = 1;
         if(st->next->next->type != STIM_NONE)
-            paint_stimulus(st->next->next);
+            paint_stimulus(st->next->next,1);
     }
-    if(optionflags[PAINT_THIRD_LAST] && st->next != NULL && st->next->type != STIM_NONE){
+    if(optionflags[PAINT_THIRD_LAST] && st->next != NULL && st->next->type != STIM_NONE &&follow){
         st->next->noclear = 1;
-        paint_stimulus(st->next);
+        paint_stimulus(st->next,0);
     }
     if(debug)
         glFlushRenderAPPLE();
-    if(st->next != NULL && st->next->type == STIM_PROBE)
-        paint_stimulus(st->next);
+    if(st->next != NULL && st->next->type == STIM_PROBE && follow)
+        paint_stimulus(st->next,0);
     
     st->calculated = 0;
     st->painted = 1;

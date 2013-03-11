@@ -231,7 +231,7 @@ void calc_stimulus(Stimulus *st);
 void clear_stimulus(Stimulus *st);
 void paint_half(Stimulus *st, int mode, int noback);
 void paint_stereo_stimulus(Stimulus *st);
-void paint_stimulus(Stimulus *st);
+void paint_stimulus(Stimulus *st, int follow);
 void optimize_stimulus(Stimulus *st);
 void mycirc(vcoord x, vcoord y, vcoord r);
 void mycircle(vcoord x, vcoord y, vcoord r, int npts);

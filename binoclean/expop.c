@@ -2679,6 +2679,8 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
             break;
         case NIMPLACES:
             expt.st->nimplaces = val;
+            if (expt.st->next != NULL)
+                expt.st->next->nimplaces = val;
             break;
         case HIGHXTYPE:
             expt.hightype = val;
@@ -9153,7 +9155,7 @@ int PrepareExptStim(int show, int caller)
                 expt.st->next->flag &= (~UNCORRELATE);
         }
     }
-    if(expt.st->type == STIM_IMAGE  && expt.st->preload){
+    if((expt.st->type == STIM_IMAGE || expt.st->next->type == STIM_IMAGE) && expt.st->preload){
         gettimeofday(&then,NULL);
         expt.st->preloaded = 0;
 
@@ -9201,11 +9203,11 @@ int PrepareExptStim(int show, int caller)
             expt.st->forceseed = 0; 
             st->framectr = i;
             st->left->calculated = st->right->calculated = 0;
-            calc_image(expt.st,expt.st->left);
-            if(expt.st->flag & UNCORRELATE)
-                calc_image(expt.st,expt.st->right);
-
-            for (j = 1; j < frpt; j++){
+            if (expt.st->type == STIM_IMAGE){
+                calc_image(expt.st,expt.st->left);
+                if(expt.st->flag & UNCORRELATE)
+                    calc_image(expt.st,expt.st->right);
+                for (j = 1; j < frpt; j++){
                 st->framectr = i+j;
                 st->left->calculated = st->right->calculated = 0;
                 if (expt.st->immode == IMAGEMODE_ORBW)
@@ -9215,8 +9217,11 @@ int PrepareExptStim(int show, int caller)
                 rcstimxy[0][i+j] = rcstimxy[0][i];
                 rcstimxy[1][i+j] = rcstimxy[1][i];
             }
+            }
             if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE){
                 st->next->preloaded = 0;
+                st->next->left->baseseed = st->left->baseseed;
+                st->next->seedoffset = st->seedoffset;
                 st->next->imprefix = st->imprefix;
                 st->next->preload = st->preload;
                 st->next->imprefix = st->imprefix;

@@ -27,8 +27,8 @@ void test_proc(Stimulus *st)
     
     for(i = 0; i < 30; i++)
     {
-        calc_stimulus(st);
-        paint_stimulus(st);
+        calc_stimulus(st,1);
+        paint_stimulus(st,1);
         glRotatef(angle,0.0,0.0,1.0);
         paint_stimulus(st);
         glRotatef(-angle,0.0,0.0,1.0);

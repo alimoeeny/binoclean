@@ -2584,7 +2584,7 @@ int event_loop(float delay)
         }
         //                  run_general_test_loop();
         else if (testmode == 5){
-            paint_stimulus(TheStim);
+            paint_stimulus(TheStim, 1);
             TheStim->pos.phase += TheStim->incr;
             calc_stimulus(TheStim);
             glFinishRenderAPPLE();
@@ -4671,9 +4671,9 @@ void nsine_background()
             tempstim->phases[i] = (myrnd_i() %360) * M_PI/180;
     }
     calc_stimulus(tempstim);
-    paint_stimulus(tempstim);
+    paint_stimulus(tempstim,1);
     //AliGLX  mySwapBuffers();
-    paint_stimulus(tempstim);
+    paint_stimulus(tempstim,1);
 }
 
 void search_background()
@@ -4770,7 +4770,7 @@ void search_background()
         glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
         glClear(GL_COLOR_BUFFER_BIT);
         ShowTime();
-        paint_stimulus(tempstim);
+        paint_stimulus(tempstim,1);
         optionflag = oldoption;
         srandom(TheStim->left->baseseed);
         setmask(bothmask);
@@ -5803,11 +5803,11 @@ void paint_frame(int type, int showfix)
     }
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
-            paint_stimulus(TheStim->next);
+            paint_stimulus(TheStim->next,1);
         else{
             if (optionflags[PAINT_BACKGROUND] && expt.backim.ptr != NULL)
                 TheStim->noclear = 0;
-            paint_stimulus(TheStim);
+            paint_stimulus(TheStim,1);
         }
     }
     else
@@ -7184,7 +7184,7 @@ void run_rds_test_loop()
             glDrawBuffer(GL_BACK);
             glClearColor(0.5, 0.5, 0.5,1.0);
             glClear(GL_COLOR_BUFFER_BIT);
-            paint_stimulus(st);
+            paint_stimulus(st,1);
             //AliGLX	mySwapBuffers();
         }
         return;
@@ -7354,7 +7354,7 @@ void run_rds_test_loop()
         testcalc_rds(st->next,st->next->right, testmode);
         testcalc_rds(st,st->right, testmode);
         if(testmode == 3)
-            paint_stimulus(st);
+            paint_stimulus(st,1);
         //AliGLX	mySwapBuffers();
     }
     gettimeofday(&now,NULL);
@@ -7639,7 +7639,7 @@ void run_general_test_loop()
     gettimeofday(&zeroframetime, NULL);
     for(i = 0; i < TheStim->nframes; i++)
     {
-        paint_stimulus(TheStim);
+        paint_stimulus(TheStim,1);
         pos->phase += TheStim->incr;
         calc_stimulus(TheStim);
         change_frame();
@@ -7653,7 +7653,7 @@ void run_general_test_loop()
     for(i = 0; i < TheStim->nframes; i++)
     {
         glClear(GL_COLOR_BUFFER_BIT);
-        paint_stimulus(TheStim);
+        paint_stimulus(TheStim,1);
         pos->phase += TheStim->incr;
         calc_stimulus(TheStim);
         //AliGLX      mySwapBuffers();
@@ -9888,7 +9888,7 @@ void paint_target(float color, int flag)
 //        if (ChoiceStima->left->seedloop == 0)
  //           ChoiceStima->left->baseseed+=2;
         calc_stimulus(ChoiceStima);
-        paint_stimulus(ChoiceStima);
+        paint_stimulus(ChoiceStima,0);
         ChoiceStima->pos.contrast = contrast;
     }
     if(ChoiceStimb->type != STIM_NONE && showb){
@@ -9900,7 +9900,7 @@ void paint_target(float color, int flag)
 //        if (ChoiceStimb->left->seedloop == 0)
 //            ChoiceStimb->left->baseseed+=2;
         calc_stimulus(ChoiceStimb);
-        paint_stimulus(ChoiceStimb);
+        paint_stimulus(ChoiceStimb,0);
         ChoiceStimb->pos.contrast = contrast;
     }
     draw_fix(fixpos[0]+deg2pix(afc_s.sacval[0]+afc_s.sacval[2]),fixpos[1]+deg2pix(afc_s.sacval[1]+afc_s.sacval[3]), afc_s.targsize, color);
