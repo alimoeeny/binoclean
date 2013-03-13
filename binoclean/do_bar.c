@@ -75,6 +75,7 @@ void init_bar(Stimulus *st, Substim *sst)
         sst->imblen = sst->nbars;
         sst->imb = (float *)malloc(sst->imblen * sizeof(float));
     }
+    sst->nbars = 0;
 }
 
 void calc_bar(Stimulus *st)
@@ -126,10 +127,13 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
         cc = &vcolor[1];
         rc = &vcolor[2];
     }
+    if (st->type == STIM_RECT)
+        val = M_PI;
+    else{
     val = pos->phase;
     while(val > (2 * M_PI))
         val -= (M_PI * 2);
-    
+    }
     /*
      * for bars, pos->f determines the width of the bar, while
      * pos->radius[1] determines the field over which the bar moves
@@ -142,7 +146,11 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
      * is so that direction matches sines/rds
      */
     
-    if(st->flag & STIMULUS_IS_SQUARE)
+    if(st->type == STIM_RECT){
+        z[1] = -(w/2);
+        sst->nbars = 0;
+    }
+    else if(st->flag & STIMULUS_IS_SQUARE)
         z[1] = -w/2 - ((pos->radius[1]) * (val/M_PI -1));
     else
         z[1] = ((pos->radius[1]) * cos(val)) - w/2;

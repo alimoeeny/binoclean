@@ -232,7 +232,7 @@ for j = 1:length(strs{1})
         elseif DATA.seqline > 0
             DATA = ContinueSequence(DATA);
         elseif DATA.exptnextline > 0
-            DATA = ReadExptLines(DATA);
+            DATA = ReadExptLines(DATA,{});
             DATA = RunButton(DATA,[],1);
         elseif DATA.rptexpts > 0
             DATA.rptexpts = DATA.rptexpts-1;
@@ -253,7 +253,7 @@ for j = 1:length(strs{1})
         DATA.extypes{3} = DATA.extypes{3}+1;
         DATA = SetExptMenus(DATA);
     elseif strncmp(s,'expt',4)
-        DATA = ReadStimFile(DATA, value);
+        DATA = ReadStimFile(DATA, value, 'inread');
     elseif strncmp(s,'TRES',4)
         if s(6) == 'G' || s(6) == 'W'
             a = sscanf(s(7:end),'%d');
@@ -578,12 +578,17 @@ function [code, codeid] = FindCode(DATA, s)
     end
         
 
-function DATA = ReadExptLines(DATA)
+function DATA = ReadExptLines(DATA, strs)
 
-firstline = 1+DATA.exptnextline;
+    if isempty(strs)
+        strs = DATA.explines
+        firstline = 1;
+    else
+        firstline = 1+DATA.exptnextline;
+    end
 
-    for j = firstline:length(DATA.exptlines)
-        tline = DATA.exptlines{j};
+    for j = firstline:length(strs)
+        tline = strs{j};
         if strncmp(tline,'next',4)
             DATA.exptnextline = j;
             break;
@@ -624,9 +629,12 @@ firstline = 1+DATA.exptnextline;
 function DATA = ReadStimFile(DATA, name, varargin)
    
     setall = 0;
+    inread = 0;
     j = 1;
     while j <= length(varargin)
-        if strncmpi(varargin{j},'init',4)
+        if strncmpi(varargin{j},'inread',4)
+            inread = 1;
+        elseif strncmpi(varargin{j},'init',4)
             setall = 1;
         end
         j = j+1;
@@ -635,8 +643,8 @@ function DATA = ReadStimFile(DATA, name, varargin)
 fid = fopen(name,'r');
 if fid > 0
             
-    if DATA.outid > 0
-    fprintf(DATA.outid,'\neventpause\nnewexpt\n');
+    if DATA.outid > 0 && inread == 0
+        fprintf(DATA.outid,'\neventpause\nnewexpt\n');
     end
     for j = 2:length(DATA.overcmds) %commands to execute at and
             fprintf(DATA.outid,[DATA.overcmds{j} '\n']);
@@ -650,7 +658,7 @@ if fid > 0
     if strcmp(DATA.exptlines{1},'sequence')
         SequencePopup(DATA,DATA.exptlines(2:end),'popup');
     else
-        DATA = ReadExptLines(DATA);
+        DATA = ReadExptLines(DATA,a{1});
     end
 else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
@@ -1179,7 +1187,8 @@ function DATA = InitInterface(DATA)
     end
     f = fields(DATA.showflags);
     nc = 5;
-    nr = 19 + ceil(length(f)./nc);
+    tagc = 6;%# of columns for toggles
+    nr = 19 + ceil(length(f)./tagc);
     cw = 0.99/nc;
     DATA.toplevel = cntrl_box;
     lst = uicontrol(gcf, 'Style','edit','String', '',...
@@ -1398,7 +1407,7 @@ function DATA = InitInterface(DATA)
         'units', 'norm', 'position',bp,'value',DATA.stimtype(2),'Tag','BackgroundType','callback',{@SetExpt, 'bs'});
 
     
-    tagc = 6;%# of columns for toggles
+
     bp(1) = 0.01;
     bp(2) = 1-1/nr;
     bp(4) = 1./nr;
@@ -1408,8 +1417,9 @@ function DATA = InitInterface(DATA)
     f = fields(DATA.showflags);
     allf = fields(DATA.optionflags);
     f = DATA.showflagseq;
-    nrows = ceil(length(f)./tagc)./nr;
+    nrows = ceil(length(f)./tagc)./nr; %fraction of window height needed for tags
     ymin = 1-1./nr - nrows;
+    ymin = 1 - nrows;
     for j = 2:length(f)
         id = strmatch(f{j},allf);
         if length(id) == 1
@@ -1585,6 +1595,7 @@ function MenuHit(a,b, arg)
         prefix = regexprep(prefix,'DATE$','');
         system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
+        AddTextToGui(DATA,['Pipelog ' prefix]);
     elseif strcmp(arg,'setshake')
         fprintf(DATA.outid,'usershake\n');
         
@@ -2267,6 +2278,7 @@ function DATA = RunButton(a,b, type)
             else
                 DATA.rptexpts = 0;
                 fprintf(DATA.outid,'\\ecancel\n');
+                AddTextToGui(DATA,'Cancelled');
                 if DATA.nexpts > 0
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
@@ -2279,7 +2291,9 @@ function DATA = RunButton(a,b, type)
             DATA.rptexpts = 0;
             DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
             DATA.Expts{DATA.nexpts}.End = now;
+            ti = 1 + DATA.Trial.Trial-DATA.Expts{DATA.nexpts}.first;
             DATA.optionflags.do = 0;
+            AddTextToGui(DATA,['Stopped after ' num2str(ti) ' Trials']);
             DATA.exptstoppedbyuser = 1;
         end
 %if expt is over, EXPTOVER should be received. - query state then

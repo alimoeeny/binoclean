@@ -3017,6 +3017,14 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
     if (setblank == 0){
 	switch(code)
 	{
+        case IMAGEINDEX:
+            stimptr->left->imagei = val;
+            stimptr->right->imagei = val;
+            if (stimptr->next != NULL){
+            stimptr->next->left->imagei = val;
+            stimptr->next->right->imagei = val;
+            }
+            break;
         case BACKGROUND_MOVIE:  //need this in setstimulus for Expt sequence modes
         case BACKGROUND_IMAGE:
             SetExptProperty(&expt, expt.st, code,  val);
@@ -5230,7 +5238,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
     Thisstim *stp;
     static double dispphase = 0,idisp = 0;
     double rphase,rnd,arnd,brnd;
-    int period,asmode,newseed=0,ival,iphase;
+    int period,asmode,newseed=0,ival,iphase,frame;
     char buf[BUFSIZ];
     static int dispchanged = 0;
     
@@ -5248,12 +5256,13 @@ void increment_stimulus(Stimulus *st, Locator *pos)
      * stimulus. N.B. this only needs to be done once, don't repeat it if 
      * incrementing the background stimulus. Hence only do it if st->prev == NULL
      */
+    frame = expt.st->framectr;
     if(st->prev == NULL){
         if((i = (int)rint(expt.vals[FP_MOVE_FRAME])) > 0
            && i != seedframe){
-            if(realframecount%i == (i-1)){
+            if(frame%i == (i-1)){
                 gettimeofday(&now,NULL);
-                if((realframecount/i) &1) // Odd number
+                if((frame/i) &1) // Odd number
                 {
                     newx = oldfixpos[0];
                     newy = oldfixpos[1];
@@ -5291,9 +5300,13 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                     
                 }
                 if(optionflags[SIMULATE_FP_MOVE]){
-                    SetStimulus(stimptr,expt.stimvals[XPOS]+dx, XPOS,NULL);
-                    SetStimulus(stimptr,expt.stimvals[YPOS]+dy, YPOS,NULL);
-                    mode |= STIMCHANGE_FRAME;
+                    SetStimulus(stimptr,expt.vals[XPOS]+dx, XPOS,NULL);
+                    SetStimulus(stimptr,expt.vals[YPOS]+dy, YPOS,NULL);
+                    if(stimptr->next->next !=NULL){
+                        SetStimulus(stimptr->next->next,expt.vals[XPOS]+dx, XPOS,NULL);
+                        SetStimulus(stimptr->next->next,expt.vals[YPOS]+dy, YPOS,NULL);
+                    }
+                        mode |= STIMCHANGE_FRAME;
                 }
                 else{
                     NewFixPos(newx, newy);
@@ -6091,8 +6104,8 @@ int next_frame(Stimulus *st)
                     i = (int)(expt.st->pos.contrast_phase) % 21;
                     expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/10.0)-1;
                     if((int)(expt.vals[ALTERNATE_STIM_MODE]) == QUICK_CAL){
-                        i = (int)(expt.st->pos.contrast_phase) % 5;
-                        expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/2)-1;
+                        i = (int)(expt.st->pos.contrast_phase) % expt.nstim[0];
+                        expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/(floor(expt.nstim[0]/2)))-1;
                     }
                 }
                 setmask(ALLMODE);
@@ -7715,6 +7728,9 @@ float StimulusProperty(Stimulus *st, int code)
 	rds = st->left;
 	switch(code)
 	{
+        case IMAGEINDEX:
+            value = st->left->imagei;
+            break;
         case SEEDOFFSET:
             value = st->seedoffset;
             break;
@@ -9284,10 +9300,11 @@ int GotChar(char c)
         if(seroutfile)
             fprintf(seroutfile,"#StartExpt from Spike2 at %.4f\n",ufftime(&now));
         if (timediff(&now,&lastconnecttime) < 1){
-            acknowledge("Very Short interval between Serial Connect",NULL);
             if(seroutfile){
                 fprintf(seroutfile,"#Double Connection attempted\n");
+                fflush(seroutfile);
             }
+            acknowledge("Very Short interval between Serial Connect",NULL);
         }
         else
             MakeConnection(1);
@@ -10222,7 +10239,9 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile," %s=%.2f %s=%.2f %s=%.2f x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS),
+                serial_strings[DOT_DENSITY],GetProperty(&expt,expt.st,DOT_DENSITY)
+                );
         
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
                 serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION), 

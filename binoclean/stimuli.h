@@ -242,7 +242,7 @@ typedef struct SUBSTIM{
     double size;
     double orbw;  // Orientation Bandwidth
     unsigned long bits[10]; //for recording 1-D noise pattern
-    int npaint,nh,nw,nbars,npainta;
+    int npaint,nh,nw,nbars,npainta,imagei;
     float tf;
 } Substim;
 

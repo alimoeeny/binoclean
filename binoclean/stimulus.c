@@ -740,6 +740,7 @@ void FreeStimulus(Substim *st)
         case STIM_SQUARE:
             free_square(st);
             break;
+        case STIM_RECT:
         case STIM_BAR:
             free_bar(st);
             break;
@@ -1094,6 +1095,7 @@ void init_stimulus(Stimulus *st)
             init_radial(st,st->right);
             break;
         case STIM_BAR:
+        case STIM_RECT:
             init_bar(st,st->left);
             init_bar(st,st->right);
             break;
@@ -1208,6 +1210,7 @@ void calc_stimulus(Stimulus *st)
         case STIM_ANNULUSPLUS:
         case STIM_TWOBAR:
         case STIM_BAR:
+        case STIM_RECT:
             st->left->pos.xy[0] += disp;
             st->right->pos.xy[0] -= disp;
             break;
@@ -2035,6 +2038,7 @@ void paint_half(Stimulus *st, int mode, int noback)
         case STIM_SQUARE:    
             paint_square(st, st->left, mode);
             break;
+        case STIM_RECT:
         case STIM_BAR:
             if(mode == LEFTMODE)
                 paint_bar(st, st->left, mode);
@@ -2158,7 +2162,7 @@ void paint_stimulus(Stimulus *st, int follow)
     if(st->next != NULL && st->next->next != NULL && st->next->next->type != STIM_NONE && optionflags[PAINT_BACKGROUND] && follow){
         paint_stimulus(st->next,0);
         st->next->next->noclear = 1;
-//        paint_stimulus(st->next->next, 0);
+        paint_stimulus(st->next->next, 0);
         st->noclear = 1;
         paint_stimulus(st, 0);
         return;
@@ -2451,6 +2455,7 @@ void paint_stimulus(Stimulus *st, int follow)
                 glTranslatef(psychoff[0],psychoff[1],0);
             paint_square(st, st->right, st->right->mode);
             break;
+        case STIM_RECT:
         case STIM_BAR:
             setmask(LEFTMODE);
             if(optionflags[SPLITSCREEN])

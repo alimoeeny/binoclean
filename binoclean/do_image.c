@@ -277,7 +277,7 @@ void calc_image(Stimulus *st, Substim *sst)
                     seed =  st->left->seed;
             }
             else
-                seed = 1+ (sst->baseseed % st->nimseed);
+                seed = 1+ (sst->imagei % st->nimseed);
         /*    gettimeofday(&then,NULL);*/
         
         if(sst->mode == LEFTMODE){
@@ -362,7 +362,7 @@ void calc_image(Stimulus *st, Substim *sst)
         sprintf(imname,"%s/se%d.pgm",impref,seed);
     }
     else if(st->immode == BINOCULAR_PLAIN_IMAGES){
-        seed = sst->baseseed;
+        seed = sst->imagei;
         if (st->seedoffset > 0)
             seed += st->seedoffset;
         sprintf(imname,"%s%.*d.pgm",st->imprefix,st->nimplaces,seed);
@@ -371,8 +371,8 @@ void calc_image(Stimulus *st, Substim *sst)
             return;
         }
     }
-    else if(sst->baseseed > 0)
-        sprintf(imname,"%s%.0f.%d%c.pgm",st->imprefix,sst->xshift,sst->baseseed,eye);
+    else if(sst->imagei > 0)
+        sprintf(imname,"%s%.0f.%d%c.pgm",st->imprefix,sst->xshift,sst->imagei,eye);
     else
         sprintf(imname,"%s%.0f%c.pgm",st->imprefix,sst->xshift,eye);
     
@@ -388,6 +388,9 @@ void calc_image(Stimulus *st, Substim *sst)
         
         if(st->xstate > INTERLEAVE_EXPT_BLANK){
             PreloadPGM(imname,st,sst,fo);
+        }
+        else{
+            imageseed[fo] = INTERLEAVE_EXPT_BLANK;
         }
         nf = st->nframes;
     }

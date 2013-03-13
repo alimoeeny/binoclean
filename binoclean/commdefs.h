@@ -257,10 +257,11 @@
 #define MIXAC (LAST_STIMULUS_CODE+156)
 #define TONETIME (LAST_STIMULUS_CODE+157)
 #define IMAGEJUMPS (LAST_STIMULUS_CODE+158)
-#define SACCADE_PUNISH_DIRECTION (LAST_STIMULUS_CODE+159)
+#define IMAGEINDEX (LAST_STIMULUS_CODE+159)
+#define SACCADE_PUNISH_DIRECTION (LAST_STIMULUS_CODE+160)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+160) /* 200 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+161) /* 201 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -1208,6 +1209,7 @@ ValueCode valstrings[] = {
     {  "usenewdirs", "Try different targe location rules", USENEWDIRS, 0, 'N', 0, SEND_NEVER},
     {  "choicedur", "Choice target persistance", CHOICE_TARGET_DURATION, 0, 'N', 2, SEND_NEVER},
     {  "cha", "Choice target Angle", FORCE_CHOICE_ANGLE, 0, 'N', 2, SEND_EXPT},
+    {  "imi", "Image Index", IMAGEINDEX, 0, 'N', 0, SEND_EXPT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

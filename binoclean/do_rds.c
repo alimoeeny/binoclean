@@ -352,7 +352,7 @@ int calc_rds(Stimulus *st, Substim *sst)
   int wrapped = 0,sumwrap = 0,nowrap = 1;
   unsigned int q,rnds[10],myrnd_u();
   int overlap = 1,k =0, checkoverlap = 0;
-  int nwrap = 5;
+  int nwrap = 5,nac=0,npaint,flipac;
     
   if(st->corrmix > 0)
     checkoverlap = 0.5;
@@ -694,6 +694,9 @@ int calc_rds(Stimulus *st, Substim *sst)
     
   if(sst->seedloop == 1 && pos->radius[0] > pos->radius[1] * 4)
     nwrap = 32;
+    nac = 0;
+    npaint = 0;
+    flipac = 0;
   for(i = 0; i < sst->ndots; )
     {
         
@@ -781,24 +784,31 @@ int calc_rds(Stimulus *st, Substim *sst)
       }
         
       /*
-       * if mixing correlations, then color of R eye dot depends set
+       * if mixing correlations, then color of R eye dot set
        * dot by dot. corrmix 1 = all AC, 0 = all corr
+       * contrast is reversed, so using same rule for L,R produces AC. 
        */
         
-      if(st->corrmix > 0 && sst->mode == RIGHTMODE && (q & 255) < st->corrmix * 255){
-	if((q >> 25) & 1){
-	  *p = BLACKMODE;
-	}
-	else{
-	  *p = WHITEMODE;
-	}
-	*p |= ACORRMODE;
+        flipac = 0;
+      if(st->corrmix > 0 && sst->mode == RIGHTMODE)
+      {
+          if (npaint == 0 && (q & 255) < st->corrmix * 255)
+              flipac= 1;
+          else if ((float)(nac)/npaint <= st->corrmix)
+              flipac = 1;
       }
-      else if((q >> 25) & 1){
-	*p = WHITEMODE;
-      }
-      else{
-	*p = BLACKMODE;
+      
+    if((q >> 25) & 1){
+        if (flipac)
+            *p = BLACKMODE;
+        else
+          *p = WHITEMODE;
+    }
+    else{
+        if (flipac)
+            *p = WHITEMODE;
+        else
+          *p = BLACKMODE;
       }
         
 #ifdef TESTRDS
@@ -821,20 +831,30 @@ int calc_rds(Stimulus *st, Substim *sst)
             {
 	      xsq = (*x + eshift[0]) * (*x +eshift[0]);
 	      ysq = (*y + eshift[1]) * (*y +eshift[1]);
-	      if((xsq/csq + ysq/dsq) > 1)
-		*p |= eyemode;
+                if((xsq/csq + ysq/dsq) > 1){
+                    *p |= eyemode;
+                    npaint++;
+                    if(flipac)
+                        nac++;
+                }
             }
 	  else
             {
 	      xsq = fabsf((float)(*x + eshift[0]));
 	      ysq = fabsf((float)(*y + eshift[1]));
 	      if(xsq > csq || ysq > dsq)
-		*p |= (eyemode);
+              *p |= (eyemode);
+                npaint++;
+                if(flipac)
+                    nac++;
             }
         }
       else /*always paint the dot */
         {
 	  *p |= (RIGHTMODE | LEFTMODE);
+            npaint++;
+        if(flipac)
+                nac++;
         }
         
         
@@ -846,8 +866,12 @@ int calc_rds(Stimulus *st, Substim *sst)
         { 
 	  xsq = *x * *x;
 	  ysq = *y * *y;
-	  if((xsq/asq + ysq/bsq) > 1)
+            if((xsq/asq + ysq/bsq) > 1){
+          if (flipac)
+              nac--;
 	    *p &= (~(sst->mode));
+            npaint--;
+            }
         }
       /*
        * July 2005. Counter is increamented anyway, its just that the

@@ -4823,19 +4823,19 @@ int setexp3stim()
             case PLAID_ANGLE:
             default:
                 ok = 0;
-                for(j = 0; j < NEXPTS3; j++)
-                    if (thirdmenu[j].val == expt.type3)
-                        ok = 1;
-                if(ok ==0){
+                if (expt.type3 >= 0 && expt.type3 < MAXTOTALCODES){
+                    ok = 1;
+                    if(optionflags[CUSTOM_EXPVALC] == 0){
+                        for(i = 0; i < expt.nstim[4]; i++){
+                            val = (expt.incr3 * i);
+                            val =  expt.mean3-(expt.incr3 * (expt.nstim[4]-1))/2;
+                            expt.exp3vals[i] = (expt.incr3 * i) +expt.mean3-(expt.incr3 * (expt.nstim[4]-1))/2;
+                        }
+                    }
+                }
+                else{
                     expt.nstim[4] = 1;
                     expt.type3 = EXPTYPE_NONE;
-                }
-                else if(optionflags[CUSTOM_EXPVALC] == 0){
-                    for(i = 0; i < expt.nstim[4]; i++){
-                        val = (expt.incr3 * i);
-                        val =  expt.mean3-(expt.incr3 * (expt.nstim[4]-1))/2;
-                        expt.exp3vals[i] = (expt.incr3 * i) +expt.mean3-(expt.incr3 * (expt.nstim[4]-1))/2;
-                    }
                 }
                 break;
         }
@@ -5534,14 +5534,13 @@ void setstimuli(int flag)
         case SET_SEED:
         case SEEDOFFSET:
         case PLAID_ANGLE:
-            break;
         default:
-            ok  = 0;
-            for (j = 1; j < NEXPTS3; j++)
-                if (thirdmenu[j].val == expt.type3)
-                    ok = 1;
-            if (ok == 0)
+            if (expt.type3 < MAXTOTALCODES && expt.type3 >= 0)
+                ok = 1;
+            else{
+                expt.type3 = EXPTYPE_NONE;
                 expt.nstim[4] = 1;
+            }
             break;
     }
     
@@ -9187,9 +9186,15 @@ int PrepareExptStim(int show, int caller)
                     expt.st->xyshift[1] = ((rnd>>16) % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
                 }
                 else{
-                    laps = floor(i / expt.st->jumps );
+                    laps = floor((i) / expt.st->jumps );
+                    if(optionflags[SIMULATE_FP_MOVE])
+                        laps = laps & 1;
                     expt.st->xyshift[0] = laps * expt.vals[FP_MOVE_SIZE] * cos(expt.vals[FP_MOVE_DIR]);
                     expt.st->xyshift[1] = laps * expt.vals[FP_MOVE_SIZE] * sin(expt.vals[FP_MOVE_DIR]);
+                    expt.st->next->xyshift[0] = expt.st->xyshift[0];
+                    expt.st->next->xyshift[1] = expt.st->xyshift[1];
+                    
+                    if(optionflags[SIMULATE_FP_MOVE] == 0){
                     if ((i-expt.vals[FAST_SEQUENCE_RPT] > laps * expt.st->jumps) && expt.vals[FAST_SEQUENCE_RPT] > 0){
                         expt.st->xstate = INTERLEAVE_EXPT_BLANK; 
                         frameseq[i] = INTERLEAVE_EXPT_BLANK;
@@ -9198,6 +9203,7 @@ int PrepareExptStim(int show, int caller)
                         expt.st->xstate = 0;
                         frameseq[i] = 0;
                     }
+                }
                 }
             }
             expt.st->forceseed = 0; 
@@ -9226,7 +9232,9 @@ int PrepareExptStim(int show, int caller)
                 st->next->preload = st->preload;
                 st->next->imprefix = st->imprefix;
                 st->next->immode = st->immode;
+                st->next->jumps = st->jumps;
                 st->next->left->calculated = st->next->right->calculated = 0;
+                imageseed[i] = 0; //backgr seed sets frame
                 calc_image(expt.st->next,expt.st->next->left);
             }
         }
@@ -9236,6 +9244,7 @@ int PrepareExptStim(int show, int caller)
             expt.st->next->preloaded = expt.st->nframes;
         
         expt.st->framectr = 0;
+        expt.st->next->framectr = 0;
         gettimeofday(&now, NULL);
         if(seroutfile)
             fprintf(seroutfile,"preload took %.4f\n",timediff(&now,&then));
@@ -10936,7 +10945,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
 int CheckStimDuration(int retval)
 {
     int i = 0,j =0, n = 0, rpt =0,nrpt = 0,nf=0,k=0;
-    char buf[BUFSIZ * 10],tmp[BUFSIZ*10];
+    char buf[BUFSIZ * 100],tmp[BUFSIZ*10];
     float val;
     float framevals[MAXFRAMES], diffmax, diffmin;
     
@@ -10974,6 +10983,8 @@ int CheckStimDuration(int retval)
             for( i = 1; i < framesdone-1; i++){
                 if (framevals[i] > diffmax && framevals[i+1]+framevals[i] > diffmax *2){
                     nf = round((framevals[i+1]+framevals[i])*mon.framerate) -2;
+                    if (nf > MAXFRAMES)
+                        nf = MAXFRAMES;
                     for (k = 0; k < nf; k++){
                         sprintf(tmp,"%d ",i+nrpt++);
                         strcat(buf,tmp);
