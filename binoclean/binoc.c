@@ -4150,6 +4150,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 i = 0;
             if(optionflag & CONTRAST_REVERSE_BIT && expt.mode != TF && st->incr > 0)
                 pos->contrast_phase = M_PI_2;
+            else if (expt.vals[ALTERNATE_STIM_MODE] == QUICK_CAL)
+                pos->contrast_phase = pos->phase;
             else
                 pos->contrast_phase = 0;
             if(fabsf(val) < 10)
@@ -9999,7 +10001,8 @@ void chessboard(float w, float h)
         printf("Lum %.3f %.3f gamma %.3f\n",a,b,gammaval);
     }
     lastc = c;
-    
+    if (option2flag & PSYCHOPHYSICS_BIT) //set this to get full screen
+        b = a;
     
     for (i = -x; i < x; i++) {
         for (j = -y; j < y; j++) {
@@ -10239,8 +10242,9 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.2f %s=%.2f %s=%.2f x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS),
-                serial_strings[DOT_DENSITY],GetProperty(&expt,expt.st,DOT_DENSITY)
+        fprintf(psychfile," %s=%.2f %s=%.2f %s=%.2f %s=%.3f x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS),
+                serial_strings[DOT_DENSITY],GetProperty(&expt,expt.st,DOT_DENSITY),
+                serial_strings[CONTRAST2],GetProperty(&expt,expt.st,CONTRAST2)
                 );
         
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
