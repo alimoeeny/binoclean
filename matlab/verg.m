@@ -406,7 +406,13 @@ for j = 1:length(strs{1})
             if length(code) == 1
                 code = strmatch(DATA.badreplacenames{code},f);
             else
-            code = strmatch(s(id(k)+1:id(k+1)-1),f);
+                code = find(strncmp(s(id(k)+1:id(k+1)-1),f,id(k+1)-id(k)-1));
+                for j = 1:length(code)
+                    if length(f{code(j)}) == id(k+1)-id(k)-1
+                        code = code(j);
+                        break;
+                    end
+                end
             end
             
             if isempty(code)

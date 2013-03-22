@@ -10291,7 +10291,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(!(optionflag & FIXATION_CHECK))
         fixstate = GOOD_FIXATION;
     sframetimes[0] = -10000;
-    if(optionflags[RANDOM_PHASE])
+    if(optionflags[RANDOM_PHASE] || optionflags[RANDOM_INITIAL_PHASE])
         SetRandomPhase(expt.st, &(expt.st->pos));
     
     rc = 0;
@@ -11985,15 +11985,22 @@ int CheckOption(int i)
 
 int ChangeFlag(char *s)
 {
-    char c = *s;
-    int bit = 0, bit2 = 0,i = 0;
+    char c = *s,*a;
+    int bit = 0, bit2 = 0,i = 0,slen=0;
     
     s++;
-    
+    if (a = strchr(s,'+'))
+        slen = a-s;
+    else if (a=strchr(s,'-'))
+            slen = a-s;
+    else
+        slen = strlen(s);
+
+
     i = 0;
     while(togglestrings[i].code!= NULL)
     {
-        if(!strncmp(s,togglestrings[i].code,strlen(togglestrings[i].code)))
+        if(!strncmp(s,togglestrings[i].code,strlen(togglestrings[i].code)) && slen == strlen(togglestrings[i].code))
             break;
         i++;
     }

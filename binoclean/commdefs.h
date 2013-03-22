@@ -736,6 +736,7 @@ ToggleCode togglestrings[] = {
     //  {"Sequence",    "to",  0, PLOT_SEQUENCE, 3},
     {"Counterphase",    "cp", 0, COUNTERPHASE, 3},
     {"Rand Phase",    "rp",  0, RANDOM_PHASE, 3},
+    {"Rand Init Phase",    "rIp",  0, RANDOM_INITIAL_PHASE, 3},
     {"Rand RelPhase",    "rr",  0, RANDOM_RELPHASE, 3},
     {"Random dPhase",    "rP",  0, RANDOM_DEPTH_PHASE, 3},
 //    {"Track",    "pt",  0, PLOT_ELECTRODE_TRACK, 3},
