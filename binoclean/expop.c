@@ -10224,7 +10224,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int lastframesdone;
     float tval;
     float swapwaits[MAXFRAMES],calctimes[MAXFRAMES],painttimes[MAXFRAMES];
-    float forcewaits[MAXFRAMES];
+    float forcewaits[MAXFRAMES],phase;
     struct timeval lastframetime,pretime,forcetime;
     int nframes = n,rpt = 1;
     int noverflow = expt.noverflow;
@@ -10291,8 +10291,11 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(!(optionflag & FIXATION_CHECK))
         fixstate = GOOD_FIXATION;
     sframetimes[0] = -10000;
-    if(optionflags[RANDOM_PHASE] || optionflags[RANDOM_INITIAL_PHASE])
-        SetRandomPhase(expt.st, &(expt.st->pos));
+    if(optionflags[RANDOM_PHASE] || optionflags[RANDOM_INITIAL_PHASE]){
+        phase = SetRandomPhase(expt.st, &(expt.st->pos));
+        expt.vals[START_PHASE] = val;
+        SerialSend(SETPHASE);
+    }
     
     rc = 0;
     rpt = (st->framerepeat < 1) ? 1 : st->framerepeat;

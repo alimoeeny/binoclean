@@ -5158,9 +5158,10 @@ int change_frame()
 }
 
 
-int SetRandomPhase( Stimulus *st,     Locator *pos)
+float SetRandomPhase( Stimulus *st,     Locator *pos)
 {
     int iphase,i;
+    float phase;
     
     if(expt.stimmode == FOUR_PHASES){
         iphase = myrnd_i() %4;
@@ -5209,6 +5210,7 @@ int SetRandomPhase( Stimulus *st,     Locator *pos)
     frameiseqp[expt.framesdone] = iphase;
     if(pos->phase != 0)
         iphase = 0;
+    phase = pos->phase;
 }
 void SetRandomCorrelation(Stimulus *st)
 {
@@ -6057,8 +6059,12 @@ int next_frame(Stimulus *st)
     {
         time(&t);
         ltime = localtime(&t);
+        if(seroutfile)
+            fprintf(seroutfile,"#No Stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
         if(ltime->tm_hour > 19){
             printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
+            if(seroutfile)
+                fprintf(seroutfile,"#Calling monkeywarn\n");
             system("/bgc/bgc/etc/monkeywarn `hostname`");
             memcpy(&endstimtime,&now,sizeof(struct timeval));
         }

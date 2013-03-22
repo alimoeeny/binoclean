@@ -315,7 +315,7 @@ void end_timeout();
 void SendMovements();
 void WriteSignal();
 int change_frame();
-int SetRandomPhase( Stimulus *st,     Locator *pos);
+float SetRandomPhase( Stimulus *st,     Locator *pos);
 void increment_stimulus(Stimulus *st, Locator *pos);
 void PaintBackIm(PGM im);
 void wipescreen(float color);
