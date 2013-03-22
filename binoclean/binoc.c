@@ -3455,8 +3455,14 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case PLAID_ANGLE:
             if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR || st->type == STIM_RLS)
             {
+                if(val == INTERLEAVE_PLAID_ONE){
+                    st->left->ptr->plaid_angle =  val;
+                    st->right->ptr->plaid_angle =  val;
+                }
+                else{
                 st->left->ptr->plaid_angle =  deg_rad(val);
                 st->right->ptr->plaid_angle =  deg_rad(val);
+                }
             }
             break;
         case ORI2:
@@ -4150,8 +4156,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 i = 0;
             if(optionflag & CONTRAST_REVERSE_BIT && expt.mode != TF && st->incr > 0)
                 pos->contrast_phase = M_PI_2;
-            else if (expt.vals[ALTERNATE_STIM_MODE] == QUICK_CAL)
-                pos->contrast_phase = pos->phase;
+            else if (optionflag & CONTRAST_REVERSE_BIT && expt.vals[ALTERNATE_STIM_MODE] == QUICK_CAL)
+                pos->contrast_phase = val; //Not really phase. this %nstims = greylevel
             else
                 pos->contrast_phase = 0;
             if(fabsf(val) < 10)
@@ -8081,7 +8087,10 @@ float StimulusProperty(Stimulus *st, int code)
         case PLAID_ANGLE:
             if(st->type == STIM_GRATING2 || st->type == STIM_GRATING || st->type == STIM_SQUARE || st->type == STIM_GABOR || st->type == STIM_RLS)
             {
-                value = rad_deg(st->left->ptr->plaid_angle);
+                if(st->left->ptr->plaid_angle > -1000)
+                    value = rad_deg(st->left->ptr->plaid_angle);
+                else
+                    value = st->left->ptr->plaid_angle;
             }
             else
                 value = 0.0;

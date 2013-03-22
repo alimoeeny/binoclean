@@ -15,6 +15,7 @@
 #define INTERLEAVE_EXPT_BLANK -1009
 #define INTERLEAVE_SIGNAL_FRAME -1010
 #define INTERLEAVE_EXPT_FLIP -1011
+#define INTERLEAVE_PLAID_ONE -1012
 #define DEG2INT (2048.0/10.0)
 /*
  * Stimulus Types. But should be defined in commdefs.h, hence removed, bgc 6/14/2004

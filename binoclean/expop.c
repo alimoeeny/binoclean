@@ -9365,6 +9365,11 @@ void ResetExpStim(int offset)
         expt.st->disp = olddisp;
         expt.st->flag = stimflag;
     } /* do this before resetting correlation */
+    if (expt.st->left->ptr->plaid_angle == INTERLEAVE_PLAID_ONE){
+        expt.st->left->pos.contrast2 = expt.stimvals[CONTRAST2];
+        expt.st->right->pos.contrast2 = expt.stimvals[CONTRAST2];
+    }
+        
     
     if((option2flag & INTERLEAVE_UNCORRELATED || optionflags[INTERLEAVE_UNCORR_ALL]) && (expt.st->flag & UNCORRELATE) || expt.mode == CORRELATION)
     {

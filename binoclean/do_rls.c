@@ -196,11 +196,13 @@ void calc_rls(Stimulus *st, Substim *sst)
     double drnd,aval;
     int bit, nbit;
     long *rp,rnd,*rq;
-    int orthoguc = 0;
+    int orthoguc = 0,orthogac = 0;
 
     
     if (expt.stimmode == ORTHOG_UC || (st->left->ptr->plaid_angle) > M_2_PI)
         orthoguc = 1;
+    if (expt.stimmode == ORTHOG_AC || (st->left->ptr->plaid_angle) > 2 * M_2_PI)
+        orthogac = 1;
     
     
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
@@ -434,7 +436,14 @@ void calc_rls(Stimulus *st, Substim *sst)
             else
                 *q = BLACKMODE;
         }
-            else{
+        if (sst->mode == RIGHTMODE && orthogac)
+        {
+            if(*rp & (1<<3))
+                *q = BLACKMODE;
+            else
+                *q = WHITEMODE;
+        }
+        else{
                 if(*rp & (1<<3))
                     *q = WHITEMODE;
                 else
@@ -1016,7 +1025,7 @@ void paint_rls(Stimulus *st, int mode)
     vcoord rect[8],crect[8];
     
     
-    if (fabs(st->left->ptr->plaid_angle) > 0){
+    if (fabs(st->left->ptr->plaid_angle) > 0 && st->left->ptr->plaid_angle > -1000){
         paint_rls_plaid(st, mode);
         return;
     }
