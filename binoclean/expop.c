@@ -5859,6 +5859,11 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                         mode &= (~SAVE_UNITLOG);
                     }	
                 }
+                if(flag == TO_GUI){
+                    sprintf(temp,"\ncwd=%s",expt.cwd);
+                    strcat(cbuf,temp);
+                }
+                
             }
             else 
                 ret = -1;

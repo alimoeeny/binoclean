@@ -2637,7 +2637,7 @@ void mycirc(vcoord x, vcoord y, vcoord r)
     int i;
     
     glBegin(GL_POLYGON);
-    for(i = 0; i < 10; i++)
+    for(i = 0; i < 40; i++)
     {
         angle = (i * M_PI * 2)/10;
         pt[0] = x + r * sin(angle);

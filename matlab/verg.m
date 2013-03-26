@@ -185,6 +185,8 @@ for j = 1:length(strs{1})
         DATA.codeids.xx = code; %index of codes
         DATA.comcodes(code).code = 'xx';
         end
+    elseif strncmp(s,'cwd=',4)
+        DATA.cwd = value;
     elseif strncmp(s,'status',5)
         DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
         if ishandle(DATA.statusitem)
@@ -260,6 +262,14 @@ for j = 1:length(strs{1})
         else
             a = 0;
         end
+        if(s(6) == 'G')
+            DATA.Trial.good = 1;
+        elseif(s(6) == 'W')
+            DATA.Trial.good = -1;
+        else
+            DATA.Trial.good = 0;
+        end
+        DATA.Trial.rw = DATA.binoc{1}.rw;
         DATA.Trial.RespDir = a(1);
         if length(a) > 1
             DATA.Trial.tr = a(2);
@@ -361,25 +371,34 @@ for j = 1:length(strs{1})
         end
     elseif strncmp(s,'et',2)
         DATA.exptype{1} = sscanf(s,'et=%s');
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'e2',2)
         DATA.exptype{2} = sscanf(s,'e2=%s');
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'e3',2)
         DATA.exptype{3} = sscanf(s,'e3=%s');
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'nt',2)
         DATA.nstim(1) = sscanf(s,'nt=%d');
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'n2',2)
         DATA.nstim(2) = sscanf(s,'n2=%d');
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'n3',2)
         DATA.nstim(3) = sscanf(s,'n3=%d');
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'ei',2)
         DATA.incr(1) = sscanf(s,'ei=%f');
         DATA.binoc{1}.ei = DATA.incr(1);
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'i2',2)
         DATA.incr(2) = sscanf(s,'i2=%f');
         DATA.binoc{1}.i2 = DATA.incr(2);
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'i3',2)
         DATA.incr(3) = sscanf(s,'i3=%f');
         DATA.binoc{1}.i3 = DATA.incr(3);
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'em',2)
         DATA.mean(1) = ReadVal(s,DATA);
         DATA.binoc{1}.em = DATA.mean(1);
@@ -391,6 +410,7 @@ for j = 1:length(strs{1})
         DATA.binoc{1}.m3 = DATA.mean(3);
     elseif strncmp(s,'uf=',3)
         DATA.datafile = s(4:end);
+        DATA.binocstr.uf = DATA.datafile;
     elseif strncmp(s,'op',2)
         f = fields(DATA.optionflags);
         if strncmp(s,'op=0',4) %everything else off
@@ -1422,8 +1442,12 @@ function DATA = InitInterface(DATA)
         'units', 'norm', 'position',bp,'value',1,'Tag','do','callback',@GoToggle);
     f = fields(DATA.showflags);
     allf = fields(DATA.optionflags);
-    f = DATA.showflagseq;
-    nrows = ceil(length(f)./tagc)./nr; %fraction of window height needed for tags
+    if isfield(DATA,'showflagseq')
+        f = DATA.showflagseq;
+        nrows = ceil(length(f)./tagc)./nr; %fraction of window height needed for tags
+    else
+        nrows = 2;
+    end
     ymin = 1-1./nr - nrows;
     ymin = 1 - nrows;
     for j = 2:length(f)
@@ -3356,16 +3380,18 @@ if txt(end) ~= '='
     DATA = InterpretLine(DATA,txt);
 end
 DATA = ReadFromBinoc(DATA,'from TextEntered ');
-a =  get(DATA.txtrec,'string');
-n = size(a,1);
 if txt(end) == '='
     code = txt(1:end-1);
+    if sum(strcmp(code,{'uf' 'monkey'}))
+       AddTextToGui(DATA,['cwd=' DATA.cwd]);
+    end
+    if sum(strcmp(code,{'rw'})) %show total reward
+       rwsum = sum([DATA.Trials([DATA.Trials.good] ==1).rw]);
+       AddTextToGui(DATA,['totalreward=' sprintf('%.1f',rwsum)]);
+    end
     if strcmp(code,'op')
        txt = ['?' CodeText(DATA, 'optionflag')]; 
        str = 'Optionflag';
-    elseif strmatch(code,{'nr' 'nt' 'n2' 'n3' 'et' 'e2' 'e3' })
-       txt = ['?' CodeText(DATA, code)];       
-       str = 'Nstim';
     elseif isfield(DATA.binoc{DATA.currentstim},code)
        id = strmatch(code,{DATA.comcodes.code},'exact');
        if length(id) == 1 && DATA.comcodes(id).type == 'C'
@@ -3378,6 +3404,9 @@ if txt(end) == '='
        if length(id)
         str = DATA.comcodes(id(1)).label;
        end
+    elseif strmatch(code,{'nr' 'nt' 'n2' 'n3' 'et' 'e2' 'e3' })
+       txt = ['?' CodeText(DATA, code)];       
+       str = 'Nstim';
     elseif isfield(DATA.binocstr,code)
         txt = ['?' txt '?' DATA.binocstr.(code)];
        id =  strmatch(code,{DATA.strcodes.code},'exact');
@@ -3385,8 +3414,9 @@ if txt(end) == '='
            str = DATA.strcodes(id(1)).label;
        end
     end
-
 end
+a =  get(DATA.txtrec,'string');
+n = size(a,1);
 if length(str)
     txt = [txt '(' str ')  ' datestr(now,'HH:MM')];
 end

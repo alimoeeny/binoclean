@@ -170,7 +170,7 @@ struct timeval lastconnecttime;
 struct timeval zeroframetime, prevframetime, frametime, cleartime;
 struct timeval lastcleartime,lastsertime;
 struct timeval progstarttime,calctime,paintframetime;
-struct timeval endexptime, changeframetime,lastcalltime,nftime;
+struct timeval endexptime, changeframetime,lastcalltime,lastmonkeycheck,nftime;
 int wurtzctr = 0, wurtzbufferlen = 512,lasteyecheck;
 float clearcolor = 0;
 float lasttf = -1, lastsz = -1, lastsf = -1,lastor=0;
@@ -1000,7 +1000,8 @@ char **argv;
      * first pass through argv leave any stimfiles named in argv
      */
     printf("VERSION %s\n",VERSION_NUMBER);
-	
+    gettimeofday(&lastmonkeycheck,NULL);
+
     while(i < argc) //Ali: for some reason xcode passes these additional arguments that messes up things.
     {
 		if(argv[i][0] == '-'){
@@ -6059,9 +6060,12 @@ int next_frame(Stimulus *st)
     {
         time(&t);
         ltime = localtime(&t);
-        if(seroutfile)
+        if(seroutfile && timediff(&now,&lastmonkeycheck) > 3600){
             fprintf(seroutfile,"#No Stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
-        if(ltime->tm_hour > 19){
+            gettimeofday(&lastmonkeycheck,NULL);
+            fflush(seroutfile);
+        }
+        if(ltime->tm_hour > 18 || ltime->tm_hour < 1){ //between 8pm and 1am
             printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
             if(seroutfile)
                 fprintf(seroutfile,"#Calling monkeywarn\n");
@@ -6116,6 +6120,7 @@ int next_frame(Stimulus *st)
                 if(optionflag & CONTRAST_REVERSE_BIT){
                     expt.st->pos.contrast_phase += expt.st->incr;
                     i = (int)(expt.st->pos.contrast_phase) % 21;
+                    val = expt.vals[TIMEOUT_CONTRAST];
                     expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/10.0)-1;
                     if((int)(expt.vals[ALTERNATE_STIM_MODE]) == QUICK_CAL){
                         i = (int)(expt.st->pos.contrast_phase) % expt.nstim[0];
@@ -10014,6 +10019,10 @@ void chessboard(float w, float h)
     y = 1 + (winsiz[1]-1)/h;
     if(lastc != c){
         printf("Lum %.3f %.3f gamma %.3f\n",a,b,gammaval);
+        if (seroutfile){
+            fprintf(seroutfile,"#Lum%.3f at %s",expt.vals[TIMEOUT_CONTRAST],ctime(&now));
+        }
+
     }
     lastc = c;
     if (option2flag & PSYCHOPHYSICS_BIT) //set this to get full screen

@@ -52,7 +52,6 @@ Things that need fixing:
 * increase the font size in verg window
 * in the PsychMon window add a list (history) of experiments to the Expt menu
 * cd paint_targ Add a vertical line at 0 and a horizontal line at 0.5 on psychmon plot that verg displays
-- need to make cursor invisible in Red and Blue
 * subroutine that allows text display in opengl window for bgc to call [it is printStringOnMonkeyView in binoc.c]
 * acknokege to print to command history pane in red
 * stop filtering messages for status line
@@ -68,3 +67,5 @@ Things that need fixing:
 *check Buts expts expt2 setups
 *fixation off color no longer works....
 *if a code is not recognized, verg should not echo its local value?
+
+- need to make cursor invisible in Red and Blue  !!!NB IMPORTANT FOR HUMAN PSYCH
