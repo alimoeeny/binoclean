@@ -2742,8 +2742,10 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
             break;
         case GRIDSIZE:
             expt.vals[flag] = val;
-            if(val > 0.1)
-                printf("Grid is %.1f pixels\n",deg2pix(expt.vals[GRIDSIZE]));
+            if(val > 0.1){
+                sprintf(cbuf,"Grid is %.1f pixels\n",deg2pix(expt.vals[GRIDSIZE]));
+                statusline(cbuf);
+            }
             if(val > 10){
                 ReadGridVals();
             }

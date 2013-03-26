@@ -2634,12 +2634,14 @@ void mycirc(vcoord x, vcoord y, vcoord r)
 {
     vcoord pt[2];
     float angle;
-    int i;
+    int i,npts=20;
     
+    if (r > 10)
+        npts = (int)(2*r);
     glBegin(GL_POLYGON);
-    for(i = 0; i < 40; i++)
+    for(i = 0; i < npts; i++)
     {
-        angle = (i * M_PI * 2)/10;
+        angle = (i * M_PI * 2)/npts;
         pt[0] = x + r * sin(angle);
         pt[1] = y + r * cos(angle);
         myvx(pt);
