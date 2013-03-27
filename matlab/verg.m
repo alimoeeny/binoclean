@@ -116,6 +116,8 @@ for j = 1:length(strs{1})
         DATA.font.FontSize = str2double(value);
     elseif strncmp(s,'fontname',6)
         DATA.font.FontName = value;
+    elseif strncmp(s,'layout',6)
+        DATA.layoutfile = value;
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
         DATA.electrodestrings = {DATA.electrodestrings{:} estr};
@@ -194,6 +196,9 @@ for j = 1:length(strs{1})
         end
         if DATA.inexpt == 0 && isfield(DATA,'toplevel')
             set(DATA.toplevel,'Name',s(8:end));
+        end
+        if strncmp(s,'status=Grid is',14)
+            AddTextToGui(DATA,s(8:end));
         end
 %        fprintf(s);
     elseif strncmp(s,'exps',4)
