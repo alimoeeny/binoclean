@@ -67,5 +67,6 @@ Things that need fixing:
 *check Buts expts expt2 setups
 *fixation off color no longer works....
 *if a code is not recognized, verg should not echo its local value?
-
-- need to make cursor invisible in Red and Blue  !!!NB IMPORTANT FOR HUMAN PSYCH
+* need to make cursor invisible in Red and Blue  !!!NB IMPORTANT FOR HUMAN PSYCH
+- allow polling to see if mouse events are in queue for human pshychophysics
+- find cocoa command to get current monitor icc info
