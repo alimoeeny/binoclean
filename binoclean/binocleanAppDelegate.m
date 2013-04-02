@@ -197,6 +197,12 @@ void drandinit(int seed ) //that sets the state for the drand generator.
 }
 
 
+void  processUIEvents()
+{
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
+}
+
+
 @implementation binocleanAppDelegate
 
 @synthesize window = _window;
