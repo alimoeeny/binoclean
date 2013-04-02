@@ -1761,7 +1761,8 @@ void calc_stimulus(Stimulus *st)
             rdsr->seed = rds->seed;
             if(rlspair(st)){
                 rdsnext =  st->next->left;
-                rdsnext->baseseed = rds->baseseed;
+// normally don't force rls background to have same seed
+                rdsnext->baseseed = rds->baseseed+200;
             }
             if(st->prev == NULL){
                 ndots = (st->left->ndots > MAXFREQS) ? MAXFREQS : st->left->ndots;

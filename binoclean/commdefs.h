@@ -691,7 +691,7 @@ ToggleCode togglestrings[] = {
     {"FastSeq",    "fS",  0, FAST_SEQUENCE, 3},
     {"Xexp2",    "x2",  0, TIMES_EXPT, 3},
     {"+Blank",    "ic", 0, INTERLEAVE_BLANK, 2},
-    {"+monoc",    "im", 0, INTERLEAVE_MONOCULAR, 2},
+    {"+monoc",    "im", 0, INTERLEAVE_ONE_MONOCULAR, 2},
     {"xMonoc",    "Im", 0, INTERLEAVE_MONOC_ALL, 3},
     {"+uncorr",    "iu", 0, INTERLEAVE_UNCORRELATED, 2},
     {"xUncorr",    "Iu",  0, INTERLEAVE_UNCORR_ALL, 3},
