@@ -618,6 +618,11 @@ void initial_setup()
         optionflags[i] = defaultflags[i];
 	TheStim = NewStimulus(NULL);
 	StimulusType(TheStim, STIM_GRATING);
+    NewStimulus(TheStim);
+    StimulusType(TheStim->next, STIM_NONE);
+    TheStim->next->prev = TheStim;
+    TheStim->next->splane = 0x2;
+    
 	tempstim = NewStimulus(NULL);
 	StimulusType(tempstim, STIM_BAR);
     
