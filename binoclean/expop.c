@@ -10419,7 +10419,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 framecounts[framesdone] = rc;
                 if(rc >= n && n < MAXFRAMES) 
                     finished = 2;
-    //            processUIEvents();
+                processUIEvents();
 
                 //Ali	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){	    }
                 //	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))
