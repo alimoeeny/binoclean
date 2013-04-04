@@ -2608,15 +2608,22 @@ for j = line:length(str)
     while((now - DATA.pausetime) < DATA.readpause/(24 * 60 * 60))
         dt = (now - DATA.pausetime) - DATA.readpause/(24 * 60 * 60)
     end
+    if strcmp(str{j},'!expt')
+%need to do this before sending !expt to binoc, so that UserData is set
+% before binoc calls back with settings
+        DATA.nexpts = DATA.nexpts+1;
+        DATA.Expts{DATA.nexpts} = ExptSummary(DATA);
+        DATA.seqline = j;
+        set(DATA.toplevel,'UserData',DATA);
+        if DATA.outid > 0
+            fprintf(DATA.outid,'%s\n',str{j});
+        end
+        return;
+    end
     if DATA.outid > 0
          fprintf(DATA.outid,'%s\n',str{j});
     end
     LogCommand(DATA, str{j});
-    if strcmp(str{j},'!expt')
-        DATA.seqline = j;
-        set(DATA.toplevel,'UserData',DATA);
-        return;
-    end
 end
 
 function DATA = ContinueSequence(DATA)

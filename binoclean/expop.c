@@ -11205,6 +11205,9 @@ int CheckBW(int signal, char *msg)
         {
             if(signal == END_STIM)
             {
+                if (seroutfile){
+                    fprintf(seroutfile,"EndStim Error %.2f %d\n",ufftime(&now),stimstate);
+                }
                 mode |= BW_ERROR;
                 StopGo(STOP);
             }

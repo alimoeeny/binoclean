@@ -560,6 +560,16 @@ float getframetime()
     
 }
 
+void PrintStates(void)
+{
+    fprintf("STIMSTOPPED is %d\n",STIMSTOPPED);
+    fprintf("POSTTRIAL is %d\n",POSTTRIAL);
+    fprintf("INSTIMULUS is %d\n",INSTIMULUS);
+    fprintf("WAIT_FOR_RESPONSE is %d\n",WAIT_FOR_RESPONSE);
+    fprintf("GOOD_FIXATION is %d\n",GOOD_FIXATION);
+}
+
+
 int DrawBox(vcoord bx, vcoord by, vcoord w, vcoord h, float color)
 {
     vcoord x[2];
@@ -945,7 +955,7 @@ char **argv;
     printf("Using DIO\n");
 #endif
     
-    
+    PrintStates();
     /*
      * read in setup parameters for this machine
      * serial port names, screen size and location
@@ -1658,6 +1668,8 @@ void StopGo(int go)
         monkeypress = WURTZ_STOPPED;
         sprintf(buf,"%2s+\n",valstrings[valstringindex[STOP_BUTTON]].code);
         SerialString(buf,0);
+        if(seroutfile)
+            fprintf(seroutfile,"#Stop Button Called (%d,%d)\n",stimstate,fixstate);
         if(stimstate == INSTIMULUS)
             TrialOver();
         start_timeout(SEARCH);
@@ -4807,6 +4819,11 @@ void start_timeout(int mode)
     struct timeval estart;
     
     
+    
+#ifdef MONITOR_CLOSE
+    if(seroutfile)
+        fprintf(seroutfile,"#Ti %d\n",mode);
+#endif
     newtimeout = 1;
     if(optionflags[INITIAL_TRAINING])
         optionflags[INITIAL_TRAINING] = 2;
@@ -6082,7 +6099,7 @@ int next_frame(Stimulus *st)
     if(timeout_type == SHAKE_TIMEOUT)
         start_timeout(SHAKE_TIMEOUT);
     if (stimno > 1 && !ExptIsRunning()){
-        fprintf(seroutfile,"#Not in Expt S%d\n",stimstate);
+        fprintf(seroutfile,"#Not in Expt S%d,%d\n",stimstate,states[EXPT_PAUSED]);
         i = TheStim->mode & EXPTPENDING;
         i = states[EXPT_PAUSED];
         i = ExptIsRunning();
@@ -9385,6 +9402,8 @@ int GotChar(char c)
 #ifdef DEBUG
         printf("Code %d\n",(int)c);
 #endif
+        if(seroutfile)
+            fprintf(seroutfile,"#Gch%d\n",(int)(c));
 		switch(c)
 		{
             case 10: /* = '\n' -  dont use it */
@@ -9477,8 +9496,6 @@ int GotChar(char c)
             case WURTZ_OK_W:
 #ifdef MONITOR_CLOSE
 #endif		  
-                if(seroutfile)
-                    fprintf(seroutfile,"#Gch%d\n",(int)(c));
                 gettimeofday(&endtrialtime, NULL);
                 
 #ifdef NIDAQ
@@ -10206,7 +10223,7 @@ void expt_over(int flag)
             fflush(seroutfile);
         }
     }
-    if(demomode == 0){
+    if(demomode = 0){
         SetStopButton(STOP);
         clear_display(1);
     }
