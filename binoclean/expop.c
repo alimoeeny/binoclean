@@ -10242,6 +10242,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     char cbuf[20560];
     int cctr = 0;
         int framesperstim = 1;
+    WindowEvent e;
+    
     
     cbuf[0] = 0;
     
@@ -10423,7 +10425,11 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 framecounts[framesdone] = rc;
                 if(rc >= n && n < MAXFRAMES) 
                     finished = 2;
-                processUIEvents();
+                if((e.mouseButton = processUIEvents()) > 0){
+                    e.eventType = ButtonPress;
+                    HandleMouse(e);
+                    finished = 2;
+                }
 
                 //Ali	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){	    }
                 //	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, ButtonPress, &e))
