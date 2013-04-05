@@ -7346,7 +7346,7 @@ void SetSacVal(float stimval, int index)
     double cosa,sina;
     int i,sign;
     
-    if(SACCREQD(afc_s)){
+    if(SACCREQD(afc_s) || option2flag & PSYCHOPHYSICS_BIT){
         if(usenewdirs == 0)
             afc_s.newdirs = 0;
         
@@ -7489,6 +7489,7 @@ void SetSacVal(float stimval, int index)
             afc_s.jsignval = val;
         }
     }
+
     
     covaryprop = expt.vals[COVARIATE];
     if((fabs(afc_s.ccvar) > 0.001 || expt.type2 == COVARY_XPOS) && SACCREQD(afc_s))
@@ -13510,11 +13511,10 @@ int ButtonResponse(int button, int revise, vcoord *locn)
      * this count is divided by nreps at plotting time, so each
      * button press scores 100% here
      */
-    if (psychfile){
-        fprintf(psychfile,"R%d\n",correct);
-    }
     sign = afc_s.stimsign;
-    if(2-button == sign)
+    if (sign == 0)
+        res = button;
+    else if(2-button == sign)
         res = 1;
     else
         res = 0;
@@ -13537,9 +13537,9 @@ int ButtonResponse(int button, int revise, vcoord *locn)
         
         framesum += framesdone;
         realframesum += realframes;
-        fputs(buf,stdout);
-        if(seroutfile)
-            fputs(buf,seroutfile);
+//        fputs(buf,stdout);
+//        if(seroutfile)
+//            fputs(buf,seroutfile);
         if(psychlog){
             if(!revise)
                 PrintRDSDispCounts(psychlog);

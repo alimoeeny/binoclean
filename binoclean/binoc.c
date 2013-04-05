@@ -562,11 +562,11 @@ float getframetime()
 
 void PrintStates(void)
 {
-    fprintf("STIMSTOPPED is %d\n",STIMSTOPPED);
-    fprintf("POSTTRIAL is %d\n",POSTTRIAL);
-    fprintf("INSTIMULUS is %d\n",INSTIMULUS);
-    fprintf("WAIT_FOR_RESPONSE is %d\n",WAIT_FOR_RESPONSE);
-    fprintf("GOOD_FIXATION is %d\n",GOOD_FIXATION);
+    fprintf(stdout,"STIMSTOPPED is %d\n",STIMSTOPPED);
+    fprintf(stdout,"POSTTRIAL is %d\n",POSTTRIAL);
+    fprintf(stdout,"INSTIMULUS is %d\n",INSTIMULUS);
+    fprintf(stdout,"WAIT_FOR_RESPONSE is %d\n",WAIT_FOR_RESPONSE);
+    fprintf(stdout,"GOOD_FIXATION is %d\n",GOOD_FIXATION);
 }
 
 
@@ -6740,7 +6740,7 @@ int next_frame(Stimulus *st)
                 waitcount = 0;
             val = timediff(&now, &endtrialtime);
 #ifdef MONITOR_CLOSE
-            if(seroutfile)
+            if(seroutfile && !(option2flag & PSYCHOPHYSICS_BIT))
                 fprintf(seroutfile,"#WaitFor %.2f VS%.1f%c\n",val,afc_s.sacval[1],exptchr);
 #endif
 #if defined(WIN32) 
@@ -9213,7 +9213,7 @@ int PrintPsychLine(int presult, int sign)
     if(psychfile != NULL){
         if(afc_s.loopstate == CORRECTION_LOOP && (option2flag & AFC))
             presult += 100;
-        if(!SACCREQD(afc_s))
+        if(!SACCREQD(afc_s) && !(option2flag & PSYCHOPHYSICS_BIT))
             presult +=50;
         if(abs(afc_s.ccvar) > 0.01 && expt.type2 == EXPTYPE_NONE)
             fprintf(psychfile,"R%d %s=%.5f %s=%.5f",
