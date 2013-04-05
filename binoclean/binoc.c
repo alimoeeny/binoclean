@@ -955,7 +955,6 @@ char **argv;
     printf("Using DIO\n");
 #endif
     
-    PrintStates();
     /*
      * read in setup parameters for this machine
      * serial port names, screen size and location
@@ -1005,6 +1004,10 @@ char **argv;
                 sscanf(++s,"%s",estring);
                 AddUserString(estring);
             }
+            else if(!strncmp(buf,"printcodes",9)){
+                PrintStates();
+            }
+
 	    }
     }
     expt.mon = &mon;
@@ -10146,7 +10149,7 @@ void expt_over(int flag)
         fflush(penlog);
         PrintPenLog(1);
     }
-    Stim2PsychFile();
+    Stim2PsychFile(flag);
     
     /*
      * Set things back to how they were befre the experiment
@@ -10270,7 +10273,7 @@ void expt_over(int flag)
     notify("\nEXPTOVER\n");
 }
 
-void Stim2PsychFile()
+void Stim2PsychFile(int state)
 {
     float t,val,version;
 
@@ -10288,9 +10291,10 @@ void Stim2PsychFile()
         fprintf(psychfile," %.2lf %.2f %.2f",t,
                 GetProperty(&expt,expt.st,XPOS),
                 GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile," %s=%.2f %s=%.2f %s=%.2f %s=%.3f x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS),
+        fprintf(psychfile," %s=%.2f %s=%.2f %s=%.2f %s=%.3f expt=%d x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS),
                 serial_strings[DOT_DENSITY],GetProperty(&expt,expt.st,DOT_DENSITY),
-                serial_strings[CONTRAST2],GetProperty(&expt,expt.st,CONTRAST2)
+                serial_strings[CONTRAST2],GetProperty(&expt,expt.st,CONTRAST2),
+                state,
                 );
         
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",

@@ -6792,7 +6792,10 @@ void InitExpt()
         fprintf(seroutfile,"\nStimulus %s\n",DescribeStim(expt.st));
     }
     if(psychfile){
-        Stim2PsychFile();
+        if(option2flag & PSYCHOPHYSICS_BIT)
+            Stim2PsychFile(START_EXPT);
+        else
+            Stim2PsychFile(START_EXPT+100);
         gettimeofday(&now,NULL);
         fprintf(psychfile,"R4 %s=%.2f %s=%.2f sn=0",
                 serial_strings[COVARY_XPOS],afc_s.ccvar, 
