@@ -10294,8 +10294,7 @@ void Stim2PsychFile(int state)
         fprintf(psychfile," %s=%.2f %s=%.2f %s=%.2f %s=%.3f expt=%d x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS),
                 serial_strings[DOT_DENSITY],GetProperty(&expt,expt.st,DOT_DENSITY),
                 serial_strings[CONTRAST2],GetProperty(&expt,expt.st,CONTRAST2),
-                state,
-                );
+                state);
         
         fprintf(psychfile,"R5 %s=%.2f %s=%.2f %s=%.2f",
                 serial_strings[ORIENTATION],GetProperty(&expt,expt.st,ORIENTATION), 
