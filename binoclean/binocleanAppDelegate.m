@@ -199,9 +199,32 @@ void drandinit(int seed ) //that sets the state for the drand generator.
 }
 
 
-void  processUIEvents()
+int  processUIEvents()
 {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
+    // returns 0 if nothing has happened that is not processed yet
+    // returns 1 for left and 2 for right mouse button events
+    // should not return 3 but if it does it means some other event!
+    //in future versions we may want to keep the time everytime it is called and return only the new events
+    int result = 0; // 0 for nothing new happend
+    NSEvent * e = [[NSApplication sharedApplication] nextEventMatchingMask:NSLeftMouseDownMask | NSLeftMouseUpMask | NSRightMouseDownMask | NSRightMouseUpMask
+                                                                 untilDate:[NSDate date]
+                                                                    inMode:NSEventTrackingRunLoopMode
+                                                                   dequeue:YES];
+    if (e)
+        if ([e type]==NSLeftMouseUp | [e type]==NSLeftMouseDown) {
+            result = 1; // left mouse event (up or down)
+        } else if ([e type]==NSRightMouseUp | [e type]==NSRightMouseDown){
+            result = 2; // right mouse event (up or down)
+        }
+        else
+            result = 3; // something else happend
+
+    return result;
+
+    //    [[[NSApplication sharedApplication] delegate] performSelectorOnMainThread:@selector(testselector) // no trailing :
+    //                                                        withObject:nil
+    //                                                     waitUntilDone:YES
+    //                                                             modes:@[NSEventTrackingRunLoopMode]];
 }
 
 
