@@ -421,7 +421,14 @@ GLenum glReportError (void)
 
 - (void)rightMouseUp:(NSEvent *)theEvent
 {
-	[self mouseUp:theEvent];
+	NSPoint location = [theEvent locationInWindow];
+    WindowEvent e;
+    e.eventType = ButtonRelease;
+    e.mouseX = location.x;
+    e.mouseY = location.y;
+    e.modifierKey = 0;
+    e.mouseButton = Button3;
+    HandleMouse(e);
 }
 
 // ---------------------------------

@@ -118,6 +118,10 @@ for j = 1:length(strs{1})
         DATA.font.FontName = value;
     elseif strncmp(s,'layout',6)
         DATA.layoutfile = value;
+    elseif strncmp(s,'localmatdir',6)
+        DATA.localmatdir=value;
+    elseif strncmp(s,'netmatdir',6)
+        DATA.netmatdir=value;
     elseif strncmp(s,'electrdode',6)
         estr = s(eid(1)+1:end);
         DATA.electrodestrings = {DATA.electrodestrings{:} estr};
@@ -483,7 +487,7 @@ for j = 1:length(strs{1})
         end
     elseif strncmp(s, 'Bs', 2)
              DATA.stimtype(2) = strmatch(s(4:end),DATA.stimulusnames,'exact');
-             DATA.binoc{1}.Bs = DATA.stimulusnames(DATA.stimtype(2));
+             DATA.binoc{1}.Bs = DATA.stimulusnames{DATA.stimtype(2)};
     elseif strncmp(s, 'EDONE', 5) %finished listing expt stims
         if isfield(DATA,'toplevel')
             it = findobj(DATA.toplevel,'Tag','Expt3StimList','style','edit');
@@ -974,6 +978,8 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
+DATA.netmatdir='/bgc/bgc/c/binoclean/matlab';
+DATA.localmatdir='/local/matlab';
 DATA.pausetime = 0;
 DATA.readpause = 0;
 DATA.rptexpts = 0;
@@ -1481,6 +1487,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
     uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
     uimenu(hm,'Label','Save Layout','Callback',{@SaveFile, 'layout'});
+    uimenu(hm,'Label','Update local Verg.m','Callback',{@SaveFile, 'update'});
     sm = uimenu(hm,'Label','Today Slots');
     for j = 1:8
     uimenu(sm,'Label',['Expt' num2str(j)],'Callback',{@SaveSlot, j});
@@ -1501,19 +1508,20 @@ function DATA = InitInterface(DATA)
 %new....
 %    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
     uimenu(hm,'Label','&Options','Callback',{@OptionPopup},'accelerator','O');
-    uimenu(hm,'Label','Test','Callback',{@TestIO});
-    uimenu(hm,'Label','Read','Callback',{@ReadIO, 1});
-    uimenu(hm,'Label','GetState','Callback',{@ReadIO, 2});
-    uimenu(hm,'Label','NewStart','Callback',{@ReadIO, 3});
-    uimenu(hm,'Label','Stop Timer','Callback',{@ReadIO, 4});
-    sm = uimenu(hm,'Label','Start Timer','Callback',{@ReadIO, 5},'foregroundcolor',[0 0 0.5]);
-    uimenu(hm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
-    sm = uimenu(hm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
+    subm = uimenu(hm,'Label','Pipes');
+    uimenu(subm,'Label','Test','Callback',{@TestIO});
+    uimenu(subm,'Label','Read','Callback',{@ReadIO, 1});
+    uimenu(subm,'Label','GetState','Callback',{@ReadIO, 2});
+    uimenu(subm,'Label','NewStart','Callback',{@ReadIO, 3});
+    uimenu(subm,'Label','Stop Timer','Callback',{@ReadIO, 4});
+    sm = uimenu(subm,'Label','Start Timer','Callback',{@ReadIO, 5},'foregroundcolor',[0 0 0.5]);
+    uimenu(subm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
+    sm = uimenu(subm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
     if DATA.verbose == 0
         set(sm,'Label','verbose pipes');
     end
-    sm = uimenu(hm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
-    uimenu(hm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
+    sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
+    uimenu(subm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(hm,'Label','&Null Softoff','Callback',{@SendStr, 'sonull'});
     uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
     uimenu(hm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
@@ -1756,7 +1764,9 @@ function SaveFile(a,b,type)
                 fprintf('Couldnt save backup %s\n',bakfile)
             end
         end
-        SaveExpt(DATA, filename)
+        SaveExpt(DATA, filename);
+    elseif strcmp(type,'update')
+        copyfile([DATA.netmatdir '/verg.m'],[DATA.localmatdir '/verg.m']);
     elseif strcmp(type,'layout')
         SaveLayout(DATA, DATA.layoutfile);
     elseif strcmp(type,'saveas')
@@ -2125,6 +2135,11 @@ end
         set(it,'string','Store');
     else
         set(it,'string','Run');
+        if ~DATA.optionflags.py
+            set(it,'backgroundcolor','r');
+        else
+            set(it,'backgroundcolor', DATA.windowcolor);
+        end
     end
     
     ot = findobj('tag',DATA.windownames{2},'type','figure');

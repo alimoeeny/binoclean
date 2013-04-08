@@ -2132,6 +2132,10 @@ int HandleMouse(WindowEvent e)
     handle = 0;
     
     
+#ifdef MONITOR_CLOSE
+    fprintf(stdout,"%s M%d E%d\n",binocTimeString(),e.mouseButton,e.eventType);
+#endif
+    
     switch (e.eventType) {
         case ButtonRelease:
             if(eventstate & SHIFTKEY)
@@ -2722,7 +2726,8 @@ int ShowBox(Expstim *ps, float color)
     int i,step;
     
     
-    
+    if (ps->size[0] == 0)
+        return(0);
     glPushMatrix();
     if(optionflags[MOVE_RF] && optionflag & SHOW_CONJUG_BIT && ps->type == RF_BOX){
         glTranslatef(ps->pos[0]+oldpos[0],ps->pos[1]+oldpos[1],0);
