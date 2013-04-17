@@ -660,7 +660,24 @@ function DATA = ReadExptLines(DATA, strs)
         DATA = SetExptMenus(DATA);
     end
 
-    
+function DATA = ReadSetupFile(DATA, name, varargin)
+fid = fopen(name,'r');
+if fid > 0
+    tline = fgets(fid);
+    while ischar(tline)
+        id = strfind(tline,'=');
+        value = '';
+        if ~isempty(id)
+            value = tline(id+1:end);
+        end
+        if strncmp(tline,'electrode=',8) && ~isempty(value)
+            DATA.electrodestrings{1+length(DATA.electrodestrings)} = value;
+        end
+        tline = fgets(fid);
+    end
+    fclose(fid);
+end
+
 function DATA = ReadStimFile(DATA, name, varargin)
    
     setall = 0;
@@ -813,6 +830,9 @@ function SendState(DATA, varargin)
     end
     SendCode(DATA,'optionflag');
     SendCode(DATA,'expts');
+    if DATA.electrodeid > 0
+        fprintf(DATA.outid,'electrode=%s\n',DATA.electrodes{DATA.electrodeid});
+    end
     
     fprintf(DATA.outid,'\neventcontinue\n');
 
@@ -1029,7 +1049,7 @@ DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
-DATA.userstrings = {};
+DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.electrodestring = 'default';
 DATA.binocstr.monkey = 'none';
 DATA.binocstr.lo = '';
@@ -1052,6 +1072,7 @@ DATA.stimulusnames{15} = 'twobar';
 DATA.stimulusnames{16} = 'rls';
 DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp' 'O2' 'lf' 'rf'};
 DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
+DATA.pen.impedance = 0;
 
 DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
@@ -1108,8 +1129,11 @@ DATA.exptype{2} = 'e0';
 DATA.exptype{3} = 'e0';
 DATA.stimtype(1) = 1;
 DATA.stimtype(2) = 1;
+DATA.electrodes = {};
+DATA.electrodeid = 0;
 DATA.mean = [0 0 0];
 DATA.incr = [0 0 0];
+DATA = ReadSetupFile(DATA, '/local/binoc.setup');
 DATA = ReadStimFile(DATA, '/local/verg.setup');
 
 for j = 1:3 
@@ -1502,12 +1526,17 @@ function DATA = InitInterface(DATA)
             RecoverFile(x,[],'list');    
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     BuildQuickMenu(DATA, hm);
-        hm = uimenu(cntrl_box,'Label','&Pop','Tag','QuickMenu');
+        hm = uimenu(cntrl_box,'Label','&Pop','Tag','PopMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
 %currently can do everything in binoc. Stick with this til need something
 %new....
-%    uimenu(hm,'Label','Penetration Log','Callback',{@PenLogPopup});
-    uimenu(hm,'Label','&Options','Callback',{@OptionPopup},'accelerator','O');
+    subm = uimenu(hm,'Label','&Windows');
+    uimenu(subm,'Label','&Options','Callback',{@OptionPopup},'accelerator','O');
+    uimenu(subm,'Label','Penetration Log','Callback',{@PenLogPopup});
+    uimenu(subm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
+    uimenu(subm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
+    uimenu(subm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
+    uimenu(subm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     subm = uimenu(hm,'Label','Pipes');
     uimenu(subm,'Label','Test','Callback',{@TestIO});
     uimenu(subm,'Label','Read','Callback',{@ReadIO, 1});
@@ -1522,15 +1551,12 @@ function DATA = InitInterface(DATA)
     end
     sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     uimenu(subm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
-    uimenu(hm,'Label','&Null Softoff','Callback',{@SendStr, 'sonull'});
-    uimenu(hm,'Label','Edit Softoff','Callback',{@SoftoffPopup, 'popup'});
-    uimenu(hm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
-    uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
-    uimenu(hm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
-    uimenu(hm,'Label','Clear Softoff','Callback',{@SendStr, '\clearsoftoff'});
+    subm = uimenu(hm,'Label','&Software Offset');
+    uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'});
+    uimenu(subm,'Label','Edit','Callback',{@SoftoffPopup, 'popup'});
+    uimenu(subm,'Label','Clear','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, 'centerstim'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
-    uimenu(hm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     uimenu(hm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
     uimenu(hm,'Label','BlackScreen (shake)','Callback',{@MenuHit, 'setshake'},'accelerator','B');
     uimenu(hm,'Label','pipelog','Callback',{@MenuHit, 'pipelog'});
@@ -1610,6 +1636,12 @@ function AddQuickMenu(a,b)
         hm = get(a,'parent');
         uimenu(hm,'Label',DATA.quickexpts(j).name,'Callback',{@verg, 'quick', DATA.quickexpts(j).filename});
     end
+    
+function SetElectrode(a,b, ei)
+    DATA = GetDataFromFig(a);
+    DATA.electrodeid = ei;
+    SetMenuCheck(a,[], ei);
+    SendCode(DATA, 'electrode');
     
     
 function MenuHit(a,b, arg)
@@ -1939,7 +1971,7 @@ function MenuGui(a,b)
      DATA = GetDataFromFig(a);
      strs = get(a,'string');
      val = get(a,'value');
-     if iscellsr(strs)
+     if iscellstr(strs)
      str = strs{val};
      else
      str = strs(val,:);
@@ -2090,6 +2122,7 @@ end
      if ~isfield(DATA,'toplevel')
          return;
      end
+     return;
      j = 1;
      while j <= length(varargin)
          if strncmpi(varargin{j},'set',3)
@@ -2391,10 +2424,46 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
 
     nr = 4;
-    nc = 6;
-    bp = [0.01 0.99-1/nr 1./nc 1./nr];
-    uicontrol(gcf,'style','pushbutton','string','Apply', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Penset','callback',@OpenPenLog);
+    nc = 7;
+    bp = [0.01 0.99-1/nr 1./nc 0.98./nr];
+
+    
+
+    
+    bp(1) = 0.01;
+    bp(3) = 0.3;
+    uicontrol(gcf,'style','text','string','Penetration Number', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
+
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.98./nc;
+    uicontrol(gcf,'style','edit','string','0', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','pe','callback',{@TextGui, 'Pn'});
+
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.1;
+    uicontrol(gcf,'style','text','string','X', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
+
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.98./nc;
+    uicontrol(gcf,'style','edit','string','0', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','px','callback',{@TextGui, 'Xp'});
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.1;
+    uicontrol(gcf,'style','text','string','Y', ...
+        'units', 'norm', 'position',bp,'value',1);
+
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.98./nc;
+    uicontrol(gcf,'style','edit','string','0', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'Yp'});
+
+    bp(1) = 0.01;
+    bp(2) = bp(2)-1./nr;
+    uicontrol(gcf,'style','text','string','Electrode', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 3./nc;
    uicontrol(gcf,'style','pop','string',DATA.electrodestrings, ...
@@ -2402,36 +2471,37 @@ cntrl_box = figure('Position', DATA.winpos{3},...
  
     
     bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.15;
+    uicontrol(gcf,'style','text','string','User', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+    bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 1./nc;
     uicontrol(gcf,'style','pop','string',DATA.userstrings, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+
+    bp(2) = bp(2)-1./nr;
+    bp(1) = 0.01;
+    bp(3) = 0.2;
+    uicontrol(gcf,'style','text','string','Impedance', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 1./nc;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.pen.impedance), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.2;
+    uicontrol(gcf,'style','text','string','Hemisphere', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+    bp(1) = bp(1)+bp(3)+0.01;
+    bp(3) = 0.2;
+    uicontrol(gcf,'style','pop','string','Left|Right|Unknown', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
     
-    bp(1) = 0.01;
     bp(2) = bp(2)-1./nr;
-    uicontrol(gcf,'style','text','string','#', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
-
-    bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','pe','callback',{@TextGui, 'Pn'});
-
-    bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','text','string','X', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
-
-    bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','px','callback',{@TextGui, 'Xp'});
-    bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','text','string','Y', ...
-        'units', 'norm', 'position',bp,'value',1);
-
-    bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'Yp'});
-
     bp(1) = 0.01;
-    bp(2) = bp(2)-1./nr;
+    uicontrol(gcf,'style','pushbutton','string','Apply', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Penset','callback',@OpenPenLog);
     
 
 function OptionPopup(a,b)
@@ -3255,9 +3325,15 @@ function SendCode(DATA, code)
         end
             return;
     end
-    s = CodeText(DATA, code);
-    if length(s)
-    fprintf(DATA.outid,'%s\n',s);
+    if strncmp(code,'electrode',8)
+        if DATA.elecrodedid > 0
+            fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
+        end
+    else
+        s = CodeText(DATA, code);
+        if length(s)
+            fprintf(DATA.outid,'%s\n',s);
+        end
     end
     
 function [s, lbl, type] = CodeText(DATA,code, varargin)

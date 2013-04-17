@@ -4252,6 +4252,9 @@ void setsecondexp(int w, int id, int val)
     expt.flag &= (~EXPT2_BITS);
     expt.flag &= (~LOGINCR2);
     expt.type2 = val;
+    if(expt.flag &TIMES_EXPT2)
+        optionflags[TIMES_EXPT] = 1;
+    
     if(expt.nstim[1] == 0)
         expt.nstim[1] = 1;
     
@@ -11218,8 +11221,10 @@ int CheckBW(int signal, char *msg)
                 if (seroutfile){
                     fprintf(seroutfile,"EndStim Error %.2f %d\n",ufftime(&now),stimstate);
                 }
-                mode |= BW_ERROR;
-                StopGo(STOP);
+//Used to stop expts running if Endstim Error. But now just means spike2 is delayed.
+// will wait for spike2 before next stim anyway
+//                mode |= BW_ERROR;
+//                StopGo(STOP);
             }
 //            if(confirmer_state && *confirmer_state == 0) /* has been acknowleged */
                 ok = 1;

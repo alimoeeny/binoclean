@@ -206,8 +206,9 @@ int  processUIEvents()
     // should not return 3 but if it does it means some other event!
     //in future versions we may want to keep the time everytime it is called and return only the new events
     int result = 0; // 0 for nothing new happend
+    NSDate * now = [NSDate date];
     NSEvent * e = [[NSApplication sharedApplication] nextEventMatchingMask:NSLeftMouseDownMask | NSRightMouseDownMask 
-                                                                 untilDate:[NSDate date]
+                                                                 untilDate:now
                                                                     inMode:NSEventTrackingRunLoopMode
                                                                    dequeue:YES];
     if (e)
@@ -219,6 +220,8 @@ int  processUIEvents()
         else
             result = 4; // something else happend
 
+    [now release];
+    [e release];
     return result;
 
     //    [[[NSApplication sharedApplication] delegate] performSelectorOnMainThread:@selector(testselector) // no trailing :
