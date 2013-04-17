@@ -44,6 +44,7 @@ if isempty(it)
     end
     
     DATA = InitInterface(DATA);
+    CheckForUpdate(DATA);
     DATA = SetExptMenus(DATA);
     SetGui(DATA);
     cmdfile = ['/local/' DATA.binocstr.monkey '/binoccmdhistory'];
@@ -330,6 +331,7 @@ for j = 1:length(strs{1})
         id = regexp(s,'[+-]');
         f = fields(DATA.optionflags);
         nflag = 1;
+        DATA.showflagseq = {};
         for k= 1:length(id)-1
             code = strmatch(s(id(k)+1:id(k+1)-1),f);
             if isempty(code)
@@ -1041,6 +1043,9 @@ DATA.optionstrings.ts = 'Wurtz Task';
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflags.wt = 1;
+DATA.showflagseq{1} = 'ts';
+DATA.showflagseq{2} = 'cf';
+DATA.showflagseq{3} = 'wt';
 DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
 DATA.stimflagnames.nc = 'Black Dots';
@@ -1050,6 +1055,7 @@ DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
+DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
 DATA.electrodestring = 'default';
 DATA.binocstr.monkey = 'none';
 DATA.binocstr.lo = '';
@@ -1073,6 +1079,8 @@ DATA.stimulusnames{16} = 'rls';
 DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp' 'O2' 'lf' 'rf'};
 DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
 DATA.pen.impedance = 0;
+DATA.pen.protrudes = 0;
+DATA.pen.adapter = 'None';
 
 DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
@@ -1081,7 +1089,7 @@ DATA.comcodes = [];
 DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-480 300 450];
-DATA.winpos{3} = [600 scrsz(4)-100 400 100];
+DATA.winpos{3} = [600 scrsz(4)-100 600 150];
 DATA.winpos{4} = [600 scrsz(4)-600 400 500];
 DATA.winpos{5} = [600 scrsz(4)-100 400 100];
 DATA.winpos{6} = [600 scrsz(4)-100 400 100];
@@ -1483,9 +1491,10 @@ function DATA = InitInterface(DATA)
     else
         nrows = 2;
     end
+    f = f(find(~strcmp('do',f)));
     ymin = 1-1./nr - nrows;
     ymin = 1 - nrows;
-    for j = 2:length(f)
+    for j = 1:length(f)
         id = strmatch(f{j},allf);
         if length(id) == 1
             str = DATA.optionstrings.(allf{id});
@@ -1510,8 +1519,10 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Close Verg and Binoc','Callback',{@MenuHit, 'bothclose'});
     uimenu(hm,'Label','Save','Callback',{@SaveFile, 'current'});
     uimenu(hm,'Label','Save As...','Callback',{@SaveFile, 'saveas'});
-    uimenu(hm,'Label','Save Layout','Callback',{@SaveFile, 'layout'});
-    uimenu(hm,'Label','Update local Verg.m','Callback',{@SaveFile, 'update'});
+    sm = uimenu(hm,'Label','Preferences');
+    uimenu(sm,'Label','Save Layout','Callback',{@SaveFile, 'layout'});
+    uimenu(sm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
+    uimenu(sm,'Label','Update local Verg.m','Callback',{@SaveFile, 'update'});
     sm = uimenu(hm,'Label','Today Slots');
     for j = 1:8
     uimenu(sm,'Label',['Expt' num2str(j)],'Callback',{@SaveSlot, j});
@@ -1555,13 +1566,12 @@ function DATA = InitInterface(DATA)
     uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'});
     uimenu(subm,'Label','Edit','Callback',{@SoftoffPopup, 'popup'});
     uimenu(subm,'Label','Clear','Callback',{@SendStr, '\clearsoftoff'});
-    uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, 'centerstim'});
+    uimenu(hm,'Label','Run Sequence of expts','Callback',{@SequencePopup, 'popup'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
-    uimenu(hm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
+    uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, 'centerstim'});
     uimenu(hm,'Label','BlackScreen (shake)','Callback',{@MenuHit, 'setshake'},'accelerator','B');
     uimenu(hm,'Label','pipelog','Callback',{@MenuHit, 'pipelog'});
     uimenu(hm,'Label','freereward','Callback',{@MenuHit, 'freereward'},'accelerator','R');
-    uimenu(hm,'Label','Run Sequence of expts','Callback',{@SequencePopup, 'popup'});
     hm = uimenu(cntrl_box,'Label','Help','Tag','QuickMenu');
     BuildHelpMenu(DATA, hm);
 
@@ -1778,6 +1788,19 @@ function AddTodayMenu(DATA, id,label)
     else
         set(it,'Label',label);
     end
+    
+function CheckForUpdate(DATA)
+    src = [DATA.netmatdir '/verg.m'];
+    tgt = [DATA.localmatdir '/verg.m'];
+    a = dir(src);
+    b = dir(tgt);
+    if ~isempty(a) && ~isempty(b) && a.datenum > b.datenum
+        yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check');
+        if strcmp(yn,'Yes')
+            copyfile(src,tgt);
+        end
+    end
+    
     
 function SaveFile(a,b,type)
 
@@ -2122,7 +2145,6 @@ end
      if ~isfield(DATA,'toplevel')
          return;
      end
-     return;
      j = 1;
      while j <= length(varargin)
          if strncmpi(varargin{j},'set',3)
@@ -2167,11 +2189,9 @@ end
     elseif DATA.optionflags.ts
         set(it,'string','Store');
     else
-        set(it,'string','Run');
+        set(it,'string','Run','backgroundcolor',DATA.windowcolor);
         if ~DATA.optionflags.py
             set(it,'backgroundcolor','r');
-        else
-            set(it,'backgroundcolor', DATA.windowcolor);
         end
     end
     
@@ -2423,7 +2443,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
             set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
     set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
 
-    nr = 4;
+    nr = 5;
     nc = 7;
     bp = [0.01 0.99-1/nr 1./nc 0.98./nr];
 
@@ -2434,8 +2454,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(3) = 0.3;
     uicontrol(gcf,'style','text','string','Penetration Number', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
-
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
     uicontrol(gcf,'style','edit','string','0', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','pe','callback',{@TextGui, 'Pn'});
@@ -2444,17 +2463,16 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(3) = 0.1;
     uicontrol(gcf,'style','text','string','X', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
-
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
     uicontrol(gcf,'style','edit','string','0', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','px','callback',{@TextGui, 'Xp'});
+    
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.1;
     uicontrol(gcf,'style','text','string','Y', ...
         'units', 'norm', 'position',bp,'value',1);
-
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
     uicontrol(gcf,'style','edit','string','0', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'Yp'});
@@ -2469,40 +2487,74 @@ cntrl_box = figure('Position', DATA.winpos{3},...
    uicontrol(gcf,'style','pop','string',DATA.electrodestrings, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','ElectrodeType','callback',{@MenuGui});
  
-    
     bp(1) = bp(1)+bp(3)+0.01;
-    bp(3) = 0.15;
-    uicontrol(gcf,'style','text','string','User', ...
+    bp(3) = 0.2;
+    uicontrol(gcf,'style','text','string','Impedance', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.pen.impedance), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+    
+
+    
+    bp(2) = bp(2)-1./nr;
+    bp(1) = 0.01;
+    bp(3) = 0.9./nc;
+    uicontrol(gcf,'style','text','string','User', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','userlabel');
+    bp(1) = 1./nc;
+    bp(3) = 1.9./nc;
     uicontrol(gcf,'style','pop','string',DATA.userstrings, ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+
+    bp(1) = 3./nc;
+    bp(3) = 0.9./nc;
+    uicontrol(gcf,'style','text','string','Monkey', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 1.9./nc;
+    uicontrol(gcf,'style','pop','string',DATA.monkeystrings, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
 
     bp(2) = bp(2)-1./nr;
     bp(1) = 0.01;
     bp(3) = 0.2;
-    uicontrol(gcf,'style','text','string','Impedance', ...
+    uicontrol(gcf,'style','text','string','Tube Protrusion', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.pen.impedance), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+    uicontrol(gcf,'style','edit','string',num2str(DATA.pen.protrudes), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','protrudes','callback',{@MenuGui});
 
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = 3./nc;
+    bp(3) = 0.2;
+    uicontrol(gcf,'style','text','string','Adapter', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','adapterlabel');
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 1./nc;
+    uicontrol(gcf,'style','edit','string',DATA.pen.adapter, ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','adapter','callback',{@MenuGui});
+
+    bp(2) = bp(2)-1./nr;
+    bp(1) = 0.01;
     bp(3) = 0.2;
     uicontrol(gcf,'style','text','string','Hemisphere', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
-    bp(1) = bp(1)+bp(3)+0.01;
+    bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','pop','string','Left|Right|Unknown', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
     
-    bp(2) = bp(2)-1./nr;
-    bp(1) = 0.01;
+    bp(1) = 0.99-bp(3);
     uicontrol(gcf,'style','pushbutton','string','Apply', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Penset','callback',@OpenPenLog);
+    bp(1) = bp(1)-bp(3)-0.01;
+    uicontrol(gcf,'style','pushbutton','string','Plot', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','PlotPen','callback',@OpenPenLog);
     
+set(gcf,'CloseRequestFcn',{@CloseWindow, 3});
 
 function OptionPopup(a,b)
   DATA = GetDataFromFig(a);
@@ -3255,13 +3307,20 @@ s = get(it(1),'string');
 val = str2num(s(j,:));
 
 
-function OpenPenLog(a,b)
+function OpenPenLog(a,b, varargin)
     DATA = GetDataFromFig(a);
     F = get(a,'parent');
-    DATA.binoc{1}.Xp = Text2Val(findobj(F,'Tag','Xp'));
-    DATA.binoc{1}.Yp = Text2Val(findobj(F,'Tag','Yp'));
-    DATA.binoc{1}.Pn = Text2Val(findobj(F,'Tag','Pn'));
-    SendCode(DATA,{'Pn' 'Xp' 'Yp'});
+    btn = get(a,'tag');
+    if strcmp(btn,'Penset')
+        DATA.binoc{1}.Xp = Text2Val(findobj(F,'Tag','Xp'));
+        DATA.binoc{1}.Yp = Text2Val(findobj(F,'Tag','Yp'));
+        DATA.binoc{1}.Pn = Text2Val(findobj(F,'Tag','Pn'));
+        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'electrode'});
+    elseif strcmp(btn,'PlotPen')
+        name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.pe(1));
+        GetFigure('Pen');
+        PlotOnePen(name);
+    end
     %writing to pen log fone in binoc
     if 0 
     if DATA.penid > 0
@@ -3326,7 +3385,7 @@ function SendCode(DATA, code)
             return;
     end
     if strncmp(code,'electrode',8)
-        if DATA.elecrodedid > 0
+        if DATA.electrodeid > 0
             fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
         end
     else
