@@ -436,6 +436,7 @@ struct EXPERIMENT{
     int maxcode; //largest value of any code = length of serial_strings
     char cwd[BUFSIZ*2];
     int expseed;
+    char *username;
 };
 
 typedef struct EXPERIMENT Expt;

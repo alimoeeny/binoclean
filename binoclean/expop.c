@@ -1654,6 +1654,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->penfile = NULL;
     ex->backprefix = NULL;
     ex->cmdinfile = NULL;
+    ex->username = myscopy(ex->username, "not set");
     for(i = 0; i < MAXBACKIM; i++)
         backims[i].ptr = NULL;
     
@@ -2143,7 +2144,7 @@ int CheckPenetration()
 int SendPenInfo(){
     char buf[BUFSIZ],xbits[BUFSIZ];
     
-    sprintf(buf,"Experimenter %s\n",userstrings[userid]);
+    sprintf(buf,"Experimenter %s\n",expt.username);
     if(expt.driveadapter)
         sprintf(xbits,"AngleAdapter ");
     else
@@ -2212,7 +2213,7 @@ int OpenPenetrationLog(int pen){
         if((penlog = fopen(buf,"a")) != NULL){
             tval = time(NULL);
             fprintf(penlog,"Opened %s pen %d %.1f,%.1f%s\n",nonewline(ctime(&tval)),expt.ipen,expt.vals[PENXPOS],expt.vals[PENYPOS],xbits);
-            fprintf(stdout,"Logfile is %s\n",buf);
+            fprintf(stdout,"PenLogfile is %s\n",buf);
         }
         sprintf(buf,"%d %.1f,%.1f",expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]));
         expt.pnum = myscopy(expt.pnum,buf);
@@ -2223,10 +2224,8 @@ int OpenPenetrationLog(int pen){
         fprintf(penlog,"Opened %s pen %d %.1f,%.1f%s\n",nonewline(ctime(&tval)),expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]),xbits);
     }
     if(penlog){
-        fprintf(penlog,"Experimenter %s\n",userstrings[userid]);
-        
-        //Ali      if(protrudemm == 0 && protitem != NULL)
-        //	protrudemm = texttoi(protitem);
+        fprintf(penlog,"Experimenter %s\n",expt.username);
+        protrudemm = expt.vals[PROTRUSION];
         if(protrudemm){
             fprintf(penlog,"Tube Protrudes %d mm",protrudemm);
             if(coarsemm)
@@ -2371,11 +2370,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         case USERID:
             i = 0;
             nonewline(s);
-            while(userstrings[i] && strcmp(s,userstrings[i]))
-                i++;
-            if(userstrings[i]){
-                userid = i;
-            }
+            expt.username = myscopy(expt.username,s);
             break;
         case ELECTRODE_TYPE:
             i = 0;
@@ -3943,6 +3938,10 @@ int ReadCommand(char *s)
             else
                 imoutfd = fopen(imname,"w"); // First call - start a new file
         }
+    }
+    else if(!strncasecmp(s,"openpen",7))
+    {
+        OpenPenetrationLog(expt.newpen);
     }
     else if(!strncasecmp(s,"btest",4)) /* simulate broken BW */
     {
@@ -5819,7 +5818,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s=%.2f %.2f", scode,expt.vals[EARLY_RWTIME],expt.vals[EARLY_RWSIZE]);
             break;
         case USERID:
-            sprintf(cbuf,"%s=%s", scode,userstrings[userid]);
+            sprintf(cbuf,"%s=%s", scode,expt.username);
             break;
         case BACKGROUND_IMAGE:
             if(flag != TO_BW){
@@ -13443,6 +13442,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case UFF_COMMENT:
             SerialString(line,NULL);
+            if(penlog){
+                fprintf(penlog,"%s %s",binocTimeString(),line);
+                fflush(penlog);
+            }
             break;
         
         case TF:

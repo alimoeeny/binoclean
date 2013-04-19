@@ -259,9 +259,10 @@
 #define IMAGEJUMPS (LAST_STIMULUS_CODE+158)
 #define IMAGEINDEX (LAST_STIMULUS_CODE+159)
 #define SACCADE_PUNISH_DIRECTION (LAST_STIMULUS_CODE+160)
+#define CHAMBER_ADAPTER (LAST_STIMULUS_CODE+161)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+161) /* 201 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+162) /* 201 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -452,8 +453,12 @@
 #define CHOICE_TARGET_DURATION (MAXSAVECODES+20)
 #define FORCE_CHOICE_ANGLE (MAXSAVECODES+21)
 #define INTERTRIAL_MIN (MAXSAVECODES+22)
+#define IMPEDANCE  (MAXSAVECODES+23)
+#define PROTRUSION (MAXSAVECODES+24)
+#define HEMISPHERE (MAXSAVECODES+25)
 
-#define MAXTOTALCODES (MAXSAVECODES+23)  //372
+
+#define MAXTOTALCODES (MAXSAVECODES+26)  //372
 
 
 /*
@@ -506,9 +511,6 @@
 #define SZEM MAXTOTALCODES+59
 #define RF_SET MAXTOTALCODES +60
 #define RESET_STATE MAXTOTALCODES +61
-#define IMPEDANCE  MAXTOTALCODES +62
-#define PROTRUSION  MAXTOTALCODES +63
-#define USERNAME  MAXTOTALCODES +64
 #define EXPTSTRING MAXTOTALCODES +65
 #define OTBW MAXTOTALCODES+66
 #define ODPD MAXTOTALCODES+67
@@ -516,7 +518,7 @@
 #define RESET_TRIALS MAXTOTALCODES +69
 #define ELECTRODE_TYPE MAXTOTALCODES +70
 #define END_TIMEOUT MAXTOTALCODES +71
-#define TOTALCODES MAXTOTALCODES+72
+#define TOTALCODES MAXTOTALCODES+73
 /*
  *  TOTALCODES is the total numer of vals in Expt 
  * anything not needed in Expt is > TOTALCODES
@@ -1174,7 +1176,7 @@ ValueCode valstrings[] = {
   {"by",     "Background Vertical Disp",BACK_VDISP, 64 , 'N' ,2, SEND_EXPLICIT},
   {"PY",     "Panel Y position",PANEL_YPOS, 0 , 'N' ,2, SEND_EXPLICIT},
   {"sC",     "Counterphase",SET_COUNTERPHASE, 1 , 'N' ,2, SEND_EXPLICIT},
-  {"ui",     "User id",USERID, 128 , 'C' ,2, SEND_EXPLICIT},
+  {"ui",     "User id", USERID, 128 , 'C' ,2, SEND_EXPLICIT},
   {"Tw",     "Time Ori BW",TEMPORAL_ORI_BANDWIDTH, 1 , 'N' ,2, SEND_EXPLICIT},
   {"ts",     "Shake Timeout",SHAKE_TIMEOUT_DURATION, 8 , 'N' ,2, SEND_EXPLICIT},
   {"Ol",     "Orthog Pos L",ORTHOG_POSL, 515 , 'N' ,2, SEND_EXPLICIT},
@@ -1211,6 +1213,10 @@ ValueCode valstrings[] = {
     {  "choicedur", "Choice target persistance", CHOICE_TARGET_DURATION, 0, 'N', 2, SEND_NEVER},
     {  "cha", "Choice target Angle", FORCE_CHOICE_ANGLE, 0, 'N', 2, SEND_EXPT},
     {  "imi", "Image Index", IMAGEINDEX, 0, 'N', 0, SEND_EXPT},
+    {  "adapter", "Adapter", CHAMBER_ADAPTER, 0, 'C', 0, SEND_EXPLICIT},
+    {  "eZ", "Electrode Impedance", IMPEDANCE, 0, 'N', 0, SEND_EXPLICIT},
+    {  "ePr", "Guide Tube Protrusion", PROTRUSION, 0, 'N', 0, SEND_EXPLICIT},
+    {  "hemi", "HemiSphere", HEMISPHERE, 0, 'C', 0, SEND_EXPLICIT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

@@ -2457,7 +2457,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
     uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','pe','callback',{@TextGui, 'Pn'});
+        'units', 'norm', 'position',bp,'value',1,'Tag','Pn','callback',{@TextGui, 'Pn'});
 
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.1;
@@ -2466,7 +2466,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
     uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','px','callback',{@TextGui, 'Xp'});
+        'units', 'norm', 'position',bp,'value',1,'Tag','Xp','callback',{@TextGui, 'Xp'});
     
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.1;
@@ -2475,7 +2475,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
     uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','py','callback',{@TextGui, 'Yp'});
+        'units', 'norm', 'position',bp,'value',1,'Tag','Yp','callback',{@TextGui, 'Yp'});
 
     bp(1) = 0.01;
     bp(2) = bp(2)-1./nr;
@@ -2494,7 +2494,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
     uicontrol(gcf,'style','edit','string',num2str(DATA.pen.impedance), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',1,'Tag','IMpedance','callback',{@MenuGui});
     
 
     
@@ -2516,7 +2516,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 1.9./nc;
     uicontrol(gcf,'style','pop','string',DATA.monkeystrings, ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',1,'Tag','Monkey','callback',{@MenuGui});
 
     bp(2) = bp(2)-1./nr;
     bp(1) = 0.01;
@@ -2545,7 +2545,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','pop','string','Left|Right|Unknown', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',1,'Tag','hemisphere','callback',{@MenuGui});
     
     bp(1) = 0.99-bp(3);
     uicontrol(gcf,'style','pushbutton','string','Apply', ...
@@ -3306,6 +3306,18 @@ j = get(it(1),'value');
 s = get(it(1),'string');
 val = str2num(s(j,:));
 
+function val = Menu2Str(it)
+val = '';
+if isempty(it)
+    return;
+end
+j = get(it(1),'value');
+s = get(it(1),'string');
+if iscellstr(s)
+    val = s{j};
+else
+val = s(j,:);
+end
 
 function OpenPenLog(a,b, varargin)
     DATA = GetDataFromFig(a);
@@ -3315,7 +3327,15 @@ function OpenPenLog(a,b, varargin)
         DATA.binoc{1}.Xp = Text2Val(findobj(F,'Tag','Xp'));
         DATA.binoc{1}.Yp = Text2Val(findobj(F,'Tag','Yp'));
         DATA.binoc{1}.Pn = Text2Val(findobj(F,'Tag','Pn'));
-        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'electrode'});
+        DATA.binoc{1}.ePr = Text2Val(findobj(F,'Tag','protrudes'));
+        DATA.binoc{1}.eZ = Text2Val(findobj(F,'Tag','impedance'));
+        DATA.binoc{1}.adapter = get(findobj(F,'Tag','adapter'),'string');
+        DATA.binoc{1}.hemi = Menu2Str(findobj(F,'Tag','hemisphere'));
+        DATA.binoc{1}.ui = Menu2Str(findobj(F,'Tag','Experimenter'));
+        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'electrode' 'adapter' 'eZ' 'ePr'});
+        if DATA.outid
+            fprintf(DATA.outid,'!openpen');
+        end
     elseif strcmp(btn,'PlotPen')
         name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.pe(1));
         GetFigure('Pen');

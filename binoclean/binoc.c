@@ -1511,6 +1511,7 @@ void SendAll()
     
     for(i = 0; i < expt.lastserialcode; i++){
         code = valstrings[i].icode;
+//        printf("%d %d\n",i, code);
         if(codesend[code] != SEND_USER_ONLY)
             SerialSend(code);
     }
