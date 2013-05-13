@@ -1630,7 +1630,7 @@ int TrialOver()
         if(st->left->ptr->velocity < 0.0001 && seroutfile)
             fprintf(seroutfile,"#Cyl velocity %.6f (%.f)\n",st->left->ptr->velocity,oldvelocity);
     }
-    if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001){
+    if(fabs(expt.vals[PURSUIT_INCREMENT]) > 0.001 || expt.vals[PURSUIT_AMPLITUDE] > 0.01){
         SerialSend(FIXPOS_XY);
         //	SerialSend(XPOS);
         //	SerialSend(YPOS);
@@ -5276,7 +5276,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
     Substim *rds,*rdsb;
     OneStim *psine = st->left->ptr;
     int i,seedframe;
-    float fval,newx,newy,dx,dy,x,y;
+    float fval,newx,newy,dx,dy,x,y,pinc;
     Thisstim *stp;
     static double dispphase = 0,idisp = 0;
     double rphase,rnd,arnd,brnd;
@@ -5345,8 +5345,8 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                     SetStimulus(stimptr,expt.vals[XPOS]+dx, XPOS,NULL);
                     SetStimulus(stimptr,expt.vals[YPOS]+dy, YPOS,NULL);
                     if(stimptr->next->next !=NULL){
-                        SetStimulus(stimptr->next->next,expt.vals[XPOS]+dx, XPOS,NULL);
-                        SetStimulus(stimptr->next->next,expt.vals[YPOS]+dy, YPOS,NULL);
+                        SetStimulus(stimptr->next->next,expt.stimvals[XPOS]+dx, XPOS,NULL);
+                        SetStimulus(stimptr->next->next,expt.stimvals[YPOS]+dy, YPOS,NULL);
                     }
                         mode |= STIMCHANGE_FRAME;
                 }
@@ -5730,6 +5730,17 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         TheStim->pos.xy[0] += (deg2pix(dx));
         TheStim->pos.xy[1] += (deg2pix(dy));
         
+    }
+    if (expt.vals[PURSUIT_AMPLITUDE] > 0.1){
+        pinc = 2 * M_PI * expt.vals[PURSUIT_FREQUENCY]/mon.framerate;
+        pursued += pinc;
+        dx = sin(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_AMPLITUDE] * sin(pursued);
+        dy = cos(expt.vals[FP_MOVE_DIR]) * expt.vals[PURSUIT_AMPLITUDE] * sin(pursued);
+        TheStim->pos.xy[0] = deg2pix(dx)+deg2pix(expt.stimvals[XPOS]);
+        TheStim->pos.xy[1] = deg2pix(dy)+deg2pix(expt.stimvals[YPOS]);
+        fixpos[0] = deg2pix(dx);
+        fixpos[1] = deg2pix(dy);
+        SerialSend(FIXPOS_XY);
     }
     st->framectr++;
 }

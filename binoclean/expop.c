@@ -1597,8 +1597,11 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     expt.maxcode = ncodes-1;
 // serial_stings[i] gives the string associated with code i
     serial_strings = (char**)(malloc(sizeof(char *) * ncodes));
-    for (i = 0; i < ncodes; i++)
+    serial_names = (char**)(malloc(sizeof(char *) * ncodes));
+    for (i = 0; i < ncodes; i++){
         serial_strings[i] = NULL;
+        serial_names[i] = NULL;
+    }
     
     i = 0;
     j = 0;
@@ -2479,6 +2482,10 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     
     switch(flag)
     {
+        case PURSUIT_FREQUENCY:
+            expt.vals[flag] = val;
+            expt.vals[MICROSTIM_PERIODIC] = 1/val;
+            break;
         case IMAGEJUMPS:
             expt.st->jumps = (int)val;
             break;
@@ -3396,6 +3403,11 @@ float ExptProperty(Expt *exp, int flag)
         case TONETIME:
         case SEEDRANGE:
         case INTERTRIAL_MIN:
+        case MICROSTIM_PERIODIC:
+        case MICROSTIM_PHASE_ONSET:
+        case MICROSTIM_PHASE_DURATION:
+        case PURSUIT_FREQUENCY:
+        case PURSUIT_AMPLITUDE:
             val = expt.vals[flag];
             break;	
         case NIMPLACES:
@@ -6453,6 +6465,9 @@ char *SerialSend(int code)
         strcat(cbuf,"\n\0");
     switch(code)
     {
+        case PURSUIT_FREQUENCY:
+            SerialSend(MICROSTIM_PERIODIC);
+            break;
         case FIXPOS_XY:
             sprintf(cbuf,"%2s %.4f %.4f %.4f %.4f\n",serial_strings[FIXPOS_XY],
                     GetProperty(&expt,expt.st,FIXPOS_X),GetProperty(&expt,expt.st,FIXPOS_Y),GetProperty(&expt,expt.st,XPOS),GetProperty(&expt,expt.st,YPOS));
@@ -8193,6 +8208,7 @@ int PrepareExptStim(int show, int caller)
                 SetStimulus(expt.st,expt.exp3vals[0] , covaryprop, NULL);
             fakestim = 0;
         }
+        sprintf(ebuf,"%2s=%.2f",serial_strings[expt.type3],GetProperty(&expt,expt.st,expt.type3));
     }
     else if(expt.type3 == TONETIME){
         if(stp->vals[SIGNAL_STRENGTH] <= expt.vals[INITIAL_APPLY_MAX])
@@ -9403,7 +9419,7 @@ void ResetExpStim(int offset)
     
     if(expt.stimid - expt.nstim[2] < 0 && (option2flag & (INTERLEAVE_BLANK | INTERLEAVE_UNCORRELATED)))
         SerialSend(STIMULUS_TYPE_CODE);
-    if(expt.type2 == JUMPTYPE || expt.mode == FP_MOVE_DIR || expt.mode == FP_MOVE_SIZE || fabs(expt.vals[PURSUIT_INCREMENT]) > 0.01){
+    if(expt.type2 == JUMPTYPE || expt.mode == FP_MOVE_DIR || expt.mode == FP_MOVE_SIZE || fabs(expt.vals[PURSUIT_INCREMENT]) > 0.01 || expt.vals[PURSUIT_AMPLITUDE] > 0.1){
         SetStimulus(expt.st, expt.stimvals[XPOS], XPOS, NULL);
         SetStimulus(expt.st, expt.stimvals[YPOS], YPOS, NULL);
     }
