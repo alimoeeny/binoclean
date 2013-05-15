@@ -1569,7 +1569,7 @@ void glstatusline(char *s, int line)
 	mycmv(x);
 	if(s != NULL){
         printStringOnMonkeyView(s, strlen(s));
-        printString(s, strlen(s));
+//        printString(s, strlen(s)); //Need this? removed May 2013
     }
 	else if(lines[line] != NULL)
         printStringOnMonkeyView(lines[line], strlen(lines[line]));
