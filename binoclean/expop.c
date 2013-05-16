@@ -1629,7 +1629,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         }
         i++;
     }
-    
+    expt.strings[CHAMBER_ADAPTER] = myscopy(expt.strings[CHAMBER_ADAPTER], "None");
     i = 0;
     j = 0;
     while(serial_strings[i] != NULL){
@@ -1658,7 +1658,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->penfile = NULL;
     ex->backprefix = NULL;
     ex->cmdinfile = NULL;
-    ex->adapter = NULL;
     ex->username = myscopy(ex->username, "not set");
     for(i = 0; i < MAXBACKIM; i++)
         backims[i].ptr = NULL;
@@ -2257,9 +2256,6 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         return(0);
     switch(flag)
     {
-        case CHAMBER_ADAPTER:
-            expt.adapter = myscopy(expt.adapter,s);
-            break;
         case MONKEYNAME:
             expt.monkey = myscopy(expt.monkey,s);
             sprintf(expt.cwd,"/local/%s",expt.monkey);
@@ -13294,7 +13290,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case USERID:
         case BACKGROUND_IMAGE: 
         case MONKEYNAME:
-        case CHAMBER_ADAPTER:
             SetExptString(ex, TheStim, code, s);
             SerialSend(code);
             break;

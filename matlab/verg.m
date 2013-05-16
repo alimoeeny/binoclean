@@ -3336,7 +3336,7 @@ function OpenPenLog(a,b, varargin)
         DATA.binoc{1}.adapter = get(findobj(F,'Tag','adapter'),'string');
         DATA.binoc{1}.hemi = Menu2Str(findobj(F,'Tag','hemisphere'));
         DATA.binoc{1}.ui = Menu2Str(findobj(F,'Tag','Experimenter'));
-        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'adapter' 'eZ' 'ePr' 'electrode'});
+        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'electrode' 'adapter' 'eZ' 'ePr'});
         if DATA.outid
             fprintf(DATA.outid,'!openpen');
         end
