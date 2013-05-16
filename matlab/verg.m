@@ -1551,19 +1551,19 @@ function DATA = InitInterface(DATA)
     uimenu(subm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(subm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     subm = uimenu(cntrl_box,'Label','Pipes');
+    uimenu(subm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
+    uimenu(subm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     uimenu(subm,'Label','Test','Callback',{@TestIO});
     uimenu(subm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(subm,'Label','GetState','Callback',{@ReadIO, 2});
     uimenu(subm,'Label','NewStart','Callback',{@ReadIO, 3});
     uimenu(subm,'Label','Stop Timer','Callback',{@ReadIO, 4});
     sm = uimenu(subm,'Label','Start Timer','Callback',{@ReadIO, 5},'foregroundcolor',[0 0 0.5]);
-    uimenu(subm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
     sm = uimenu(subm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
     if DATA.verbose == 0
         set(sm,'Label','verbose pipes');
     end
     sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
-    uimenu(subm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
     subm = uimenu(hm,'Label','&Software Offset');
     uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'});
     uimenu(subm,'Label','Edit','Callback',{@SoftoffPopup, 'popup'});
@@ -2528,16 +2528,25 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     uicontrol(gcf,'style','text','string','Tube Protrusion', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
     bp(1) = bp(1)+bp(3);
-    bp(3) = 1./nc;
+    bp(3) = 0.1;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.ePr), ...
         'units', 'norm', 'position',bp,'value',1,'Tag','protrudes','callback',{@MenuGui});
 
-    bp(1) = 3./nc;
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 0.2;
+    uicontrol(gcf,'style','text','string','Coarse mm', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','adapterlabel');
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 0.1;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.coarsemm), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','coarsemm','callback',{@MenuGui});
+
+    bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','text','string','Adapter', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','adapterlabel');
     bp(1) = bp(1)+bp(3);
-    bp(3) = 1./nc;
+    bp(3) = 0.2;
     uicontrol(gcf,'style','edit','string',DATA.binoc{1}.adapter, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','adapter','callback',{@MenuGui});
 
@@ -3336,12 +3345,13 @@ function OpenPenLog(a,b, varargin)
         DATA.binoc{1}.adapter = get(findobj(F,'Tag','adapter'),'string');
         DATA.binoc{1}.hemi = Menu2Str(findobj(F,'Tag','hemisphere'));
         DATA.binoc{1}.ui = Menu2Str(findobj(F,'Tag','Experimenter'));
-        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'electrode' 'adapter' 'eZ' 'ePr'});
+        DATA.binoc{1}.coarsemm = Menu2Str(findobj(F,'Tag','coarsemm'));
+        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'electrode' 'adapter' 'eZ' 'ePr' 'hemi' 'coarsemm'});
         if DATA.outid
             fprintf(DATA.outid,'!openpen');
         end
     elseif strcmp(btn,'PlotPen')
-        name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.pe(1));
+        name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.Pn);
         GetFigure('Pen');
         PlotOnePen(name);
     end

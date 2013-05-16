@@ -461,9 +461,10 @@
 #define IMPEDANCE  (MAXSAVECODES+23)
 #define PROTRUSION (MAXSAVECODES+24)
 #define HEMISPHERE (MAXSAVECODES+25)
+#define COARSEMM (MAXSAVECODES+26)
 
 
-#define MAXTOTALCODES (MAXSAVECODES+26)  //372
+#define MAXTOTALCODES (MAXSAVECODES+27)  //372
 
 
 /*
@@ -525,7 +526,7 @@
 #define END_TIMEOUT MAXTOTALCODES +71
 #define TOTALCODES MAXTOTALCODES+73
 /*
- *  TOTALCODES is the total numer of vals in Expt 
+ *  TOTALCODES is the total numer of CHAMBER_AD in Expt 
  * anything not needed in Expt is > TOTALCODES
  */
 
@@ -1227,6 +1228,7 @@ ValueCode valstrings[] = {
     {  "eZ", "Electrode Impedance", IMPEDANCE, 0, 'N', 0, SEND_EXPLICIT},
     {  "ePr", "Guide Tube Protrusion", PROTRUSION, 0, 'N', 0, SEND_EXPLICIT},
     {  "hemi", "HemiSphere", HEMISPHERE, 0, 'C', 0, SEND_EXPLICIT},
+    {  "coarsemm", "Starting positino on Coarse drive", COARSEMM, 0, 'N', 0, SEND_EXPLICIT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

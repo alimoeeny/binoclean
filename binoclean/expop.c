@@ -118,8 +118,8 @@ double fakestim =0;
 int usenewdirs=0;
 static int pcmode = BRAINWAVE;
 static char **expmenustrings;
-static int protrudemm = 0;
-static int coarsemm = 0;
+
+
 static float lastdir,lastpi;
 static int textcode = 0;
 static int seedoffset = 0;
@@ -2145,35 +2145,46 @@ int CheckPenetration()
     return(0);
 }
 
+char *DescribePen(){
+    static char buf[BUFSIZ*10];
+    char xbits[BUFSIZ*10],cbuf[BUFSIZ];
+    int protrudemm;
+    
+    sprintf(buf,"Experimenter %s\n",expt.username);
+    if(expt.hemisphere == 1)
+        sprintf(xbits,"Hemisphere Right");
+    else if(expt.hemisphere == 2)
+        sprintf(xbits,"Hemisphere Left");
+    else
+        sprintf(xbits,"Hemisphere Not set");
+    if (expt.strings[CHAMBER_ADAPTER] != NULL){
+        strcat(xbits," Adapter ");
+        strcat(xbits,expt.strings[CHAMBER_ADAPTER]);
+    }
+    protrudemm = expt.vals[PROTRUSION];
+    if(protrudemm){
+        sprintf(cbuf," Tube Protrudes %d mm",protrudemm);
+        strcat(xbits,cbuf);
+        if(expt.vals[COARSEMM]){
+            sprintf(cbuf," at %.1f mm.",expt.vals[COARSEMM]);
+            strcat(xbits,cbuf);
+        }
+    }
+    strcat(xbits,"\n");
+    strcat(buf, xbits);
+    if(electrodeid){
+        sprintf(xbits,"Electrode %s\n",electrodestrings[electrodeid]);
+        strcat(buf, xbits);
+    }
+
+    return(buf);
+}
+
 int SendPenInfo(){
     char buf[BUFSIZ],xbits[BUFSIZ];
     
-    sprintf(buf,"Experimenter %s\n",expt.username);
-    if(expt.driveadapter)
-        sprintf(xbits,"AngleAdapter ");
-    else
-        sprintf(xbits,"");
-    if(expt.hemisphere == 1)
-        strcat(xbits,"RightHemisphere ");
-    else
-        strcat(xbits,"LeftHemisphere ");
-    strcat(xbits,"\n");
-    strcat(buf, xbits);
-    SerialString(buf,0);
+    SerialString(DescribePen(),0);
     //Ali  if(protrudemm == 0 && protitem != NULL)
-    protrudemm = expt.vals[PROTRUSION];
-    if(protrudemm){
-        sprintf(buf,"Tube Protrudes %d mm ",protrudemm);
-        if(coarsemm){
-            sprintf(xbits,"at %d mm. ",coarsemm);
-            strcat(buf,xbits);
-        }
-        SerialString(buf,0);
-    }
-    if(electrodeid){
-        sprintf(buf,"Electrode %s\n",electrodestrings[electrodeid]);
-        SerialString(buf,0);
-    }
 }
 
 // this function's job is to make sure all the necessary values for writing a pen log is in sync with the cocoa GUI
@@ -2184,7 +2195,7 @@ int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _he
     expt.driveadapter = _angleAdapter;
     expt.hemisphere = _hemisphere;
     userid = _userid;
-    protrudemm = _protrudemm;
+    expt.vals[PROTRUSION] = _protrudemm;
     electrodeid = _electrodeid;
     expt.vals[IMPEDANCE] = _impedance;
     expt.vals[PENNUMCOUNTER] = _penNumber;
@@ -2198,17 +2209,11 @@ int UpdatePenInfo_Ali(float _penXpos, float _penYpos, int _angleAdapter, int _he
 
 int OpenPenetrationLog(int pen){
     char buf[BUFSIZ],xbits[BUFSIZ];
-    
+    char *s;
     time_t tval;
     
     if(pen < 0) /* == 0 used for default so that ed is never lost */
         pen = GetLastPen();
-    if(expt.driveadapter)
-        sprintf(xbits," AngleAdapter");
-    else
-        sprintf(xbits,"");
-    if(expt.hemisphere == 1)
-        strcat(xbits," RightHemisphere");
     
     if(pen > 0 && pen != expt.ipen){
         if(penlog)
@@ -2218,7 +2223,7 @@ int OpenPenetrationLog(int pen){
         expt.penfile = myscopy(expt.penfile,buf);
         if((penlog = fopen(buf,"a")) != NULL){
             tval = time(NULL);
-            fprintf(penlog,"Opened %s pen %d %.1f,%.1f%s\n",nonewline(ctime(&tval)),expt.ipen,expt.vals[PENXPOS],expt.vals[PENYPOS],xbits);
+            fprintf(penlog,"Opened %s pen %d %.1f,%.1f\n",nonewline(ctime(&tval)),expt.ipen,expt.vals[PENXPOS],expt.vals[PENYPOS]);
             fprintf(stdout,"PenLogfile is %s\n",buf);
         }
         sprintf(buf,"%d %.1f,%.1f",expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]));
@@ -2227,19 +2232,11 @@ int OpenPenetrationLog(int pen){
     }
     else if(penlog){
         tval = time(NULL);
-        fprintf(penlog,"Opened %s pen %d %.1f,%.1f%s\n",nonewline(ctime(&tval)),expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]),xbits);
+        fprintf(penlog,"Opened %s pen %d %.1f,%.1f\n",nonewline(ctime(&tval)),expt.ipen,(expt.vals[PENXPOS]),(expt.vals[PENYPOS]));
     }
+    s = DescribePen();
     if(penlog){
-        fprintf(penlog,"Experimenter %s\n",expt.username);
-        protrudemm = expt.vals[PROTRUSION];
-        if(protrudemm){
-            fprintf(penlog,"Tube Protrudes %d mm",protrudemm);
-            if(coarsemm)
-                fprintf(penlog," at %d mm.",coarsemm);
-            fprintf(penlog,"\n",protrudemm);
-        }
-        if(electrodeid)
-            fprintf(penlog,"Electrode %s\n",electrodestrings[electrodeid]);
+        fprintf(penlog,"%s",s);
     }
     fflush(penlog);
     return(0);
@@ -6376,6 +6373,8 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                 else
                     sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],val);
             }
+            else if (icode > 0) // is recognized
+                sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],expt.vals[code]);
             else
             {
                 sprintf(cbuf,"");
@@ -12488,6 +12487,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         expt.hemisphere = 1;
         return(0);
     }
+    else if(!strncmp(line,"LeftHemisphere",10)){
+        expt.hemisphere = 2;
+        return(0);
+    }
     else if(!strncmp(line,"NewMatlab",9)){
         PrintCodes(0);
         return(0);
@@ -13481,7 +13484,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case UFF_COMMENT:
             SerialString(line,NULL);
             if(penlog){
-                fprintf(penlog,"%s %s",binocTimeString(),line);
+                fprintf(penlog,"%s %s\n",binocTimeString(),line);
                 fflush(penlog);
             }
             break;
