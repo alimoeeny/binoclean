@@ -1654,6 +1654,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->penfile = NULL;
     ex->backprefix = NULL;
     ex->cmdinfile = NULL;
+    ex->adapter = NULL;
     ex->username = myscopy(ex->username, "not set");
     for(i = 0; i < MAXBACKIM; i++)
         backims[i].ptr = NULL;
@@ -2151,11 +2152,13 @@ int SendPenInfo(){
         sprintf(xbits,"");
     if(expt.hemisphere == 1)
         strcat(xbits,"RightHemisphere ");
+    else
+        strcat(xbits,"LeftHemisphere ");
     strcat(xbits,"\n");
     strcat(buf, xbits);
     SerialString(buf,0);
     //Ali  if(protrudemm == 0 && protitem != NULL)
-    //    protrudemm = texttoi(protitem);
+    protrudemm = expt.vals[PROTRUSION];
     if(protrudemm){
         sprintf(buf,"Tube Protrudes %d mm ",protrudemm);
         if(coarsemm){
@@ -2165,7 +2168,7 @@ int SendPenInfo(){
         SerialString(buf,0);
     }
     if(electrodeid){
-        sprintf(buf," Electrode %s\n",electrodestrings[electrodeid]);
+        sprintf(buf,"Electrode %s\n",electrodestrings[electrodeid]);
         SerialString(buf,0);
     }
 }
@@ -2250,6 +2253,9 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         return(0);
     switch(flag)
     {
+        case CHAMBER_ADAPTER:
+            expt.adapter = myscopy(expt.adapter,s);
+            break;
         case MONKEYNAME:
             expt.monkey = myscopy(expt.monkey,s);
             sprintf(expt.cwd,"/local/%s",expt.monkey);
@@ -2383,7 +2389,10 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             else if (strncmp(s,"Utah",4) == NULL){
                 electrodeid = AddElectrodeString(s);
             }
-                
+            else if (strlen(s) > 3){
+                electrodeid = AddElectrodeString(s);
+            }
+            
             SendPenInfo();
             break;
         case LOGFILE_CODE:
@@ -2670,6 +2679,8 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
         case TONETIME:
         case SEEDRANGE:
         case INTERTRIAL_MIN:
+        case PROTRUSION:
+        case IMPEDANCE:
             expt.vals[flag] = val;
             break;
         case NIMPLACES:
@@ -13252,6 +13263,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case USERID:
         case BACKGROUND_IMAGE: 
         case MONKEYNAME:
+        case CHAMBER_ADAPTER:
             SetExptString(ex, TheStim, code, s);
             SerialSend(code);
             break;

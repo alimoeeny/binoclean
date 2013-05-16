@@ -1548,7 +1548,7 @@ function DATA = InitInterface(DATA)
     uimenu(subm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
     uimenu(subm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(subm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
-    subm = uimenu(hm,'Label','Pipes');
+    subm = uimenu(cntrl_box,'Label','Pipes');
     uimenu(subm,'Label','Test','Callback',{@TestIO});
     uimenu(subm,'Label','Read','Callback',{@ReadIO, 1});
     uimenu(subm,'Label','GetState','Callback',{@ReadIO, 2});
@@ -1652,7 +1652,7 @@ function SetElectrode(a,b, ei)
     DATA.electrodeid = ei;
     SetMenuCheck(a,[], ei);
     SendCode(DATA, 'electrode');
-    
+    set(DATA.toplevel,'UserData',DATA);
     
 function MenuHit(a,b, arg)
     DATA = GetDataFromFig(a);
@@ -2003,6 +2003,7 @@ function MenuGui(a,b)
      switch tag
          case 'ElectrodeType'
              DATA.electrodestring = str;
+             DATA.electrodeid = val;
      end
      set(DATA.toplevel,'UserData',DATA);
      
@@ -3332,7 +3333,7 @@ function OpenPenLog(a,b, varargin)
         DATA.binoc{1}.adapter = get(findobj(F,'Tag','adapter'),'string');
         DATA.binoc{1}.hemi = Menu2Str(findobj(F,'Tag','hemisphere'));
         DATA.binoc{1}.ui = Menu2Str(findobj(F,'Tag','Experimenter'));
-        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'electrode' 'adapter' 'eZ' 'ePr'});
+        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'adapter' 'eZ' 'ePr' 'electrode'});
         if DATA.outid
             fprintf(DATA.outid,'!openpen');
         end
@@ -3405,7 +3406,9 @@ function SendCode(DATA, code)
             return;
     end
     if strncmp(code,'electrode',8)
-        if DATA.electrodeid > 0
+        if length(DATA.electrodestring)
+            fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestring);
+        elseif DATA.electrodeid > 0
             fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
         end
     else
