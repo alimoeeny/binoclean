@@ -1597,8 +1597,11 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     expt.maxcode = ncodes-1;
 // serial_stings[i] gives the string associated with code i
     serial_strings = (char**)(malloc(sizeof(char *) * ncodes));
-    for (i = 0; i < ncodes; i++)
+    serial_names = (char**)(malloc(sizeof(char *) * ncodes));
+    for (i = 0; i < ncodes; i++){
         serial_strings[i] = NULL;
+        serial_names[i] = NULL;
+    }
     
     i = 0;
     j = 0;
@@ -1612,6 +1615,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
   //      codes[code] = valstrings[i].code;
         serial_names[code] = valstrings[i].label;
         serial_strings[code] = valstrings[i].code;
+            expt.strings[code] = NULL;
         if(code == LAST_STIMULUS_CODE)
             expt.laststimcode = i;
         if(code == MAXSERIALCODES)
@@ -2426,6 +2430,9 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         case BACKGROUND_IMAGE:
             expt.backprefix = myscopy(expt.backprefix,s);
             break;
+        default:
+            expt.strings[flag] = myscopy(expt.strings[flag],s);
+            break;
     }
     return(0);
 }
@@ -2488,6 +2495,10 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     
     switch(flag)
     {
+        case PURSUIT_FREQUENCY:
+            expt.vals[flag] = val;
+            expt.vals[MICROSTIM_PERIODIC] = 1/val;
+            break;
         case IMAGEJUMPS:
             expt.st->jumps = (int)val;
             break;
@@ -3407,6 +3418,13 @@ float ExptProperty(Expt *exp, int flag)
         case TONETIME:
         case SEEDRANGE:
         case INTERTRIAL_MIN:
+        case MICROSTIM_PERIODIC:
+        case MICROSTIM_PHASE_ONSET:
+        case MICROSTIM_PHASE_DURATION:
+        case PURSUIT_FREQUENCY:
+        case PURSUIT_AMPLITUDE:
+        case IMPEDANCE:
+        case PROTRUSION:
             val = expt.vals[flag];
             break;	
         case NIMPLACES:
@@ -3841,6 +3859,10 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"step",4)){
         sprintf(command_result,"step to %d",step_stimulus());
+    }
+    else if(!strncasecmp(s,"clearlines",8)){
+        expt.nlines = 0;
+        ClearStimLine(0);
     }
     else if(!strncasecmp(s,"lskip",4)){
         i = sscanf(s,"%*s %d %d",&skiplines,&stop);
@@ -5807,6 +5829,10 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             strcat(cbuf,temp);
             strcat(cbuf,"\n\0");
             break;
+        case CHAMBER_ADAPTER:
+            sprintf(cbuf,"%s%s%s", scode,
+                    temp,expt.strings[code]);
+            break;
         case SOFTOFF_CODE:
             sprintf(cbuf,"%s%s%.2f %.2f %.2f %2f", scode,
                     temp,expt.softoff[0],expt.softoff[1],
@@ -6464,6 +6490,10 @@ char *SerialSend(int code)
         strcat(cbuf,"\n\0");
     switch(code)
     {
+        case PURSUIT_FREQUENCY:
+            SerialString(cbuf,0);
+            SerialSend(MICROSTIM_PERIODIC);
+            break;
         case FIXPOS_XY:
             sprintf(cbuf,"%2s %.4f %.4f %.4f %.4f\n",serial_strings[FIXPOS_XY],
                     GetProperty(&expt,expt.st,FIXPOS_X),GetProperty(&expt,expt.st,FIXPOS_Y),GetProperty(&expt,expt.st,XPOS),GetProperty(&expt,expt.st,YPOS));
@@ -8204,6 +8234,7 @@ int PrepareExptStim(int show, int caller)
                 SetStimulus(expt.st,expt.exp3vals[0] , covaryprop, NULL);
             fakestim = 0;
         }
+        sprintf(ebuf,"%2s=%.2f",serial_strings[expt.type3],GetProperty(&expt,expt.st,expt.type3));
     }
     else if(expt.type3 == TONETIME){
         if(stp->vals[SIGNAL_STRENGTH] <= expt.vals[INITIAL_APPLY_MAX])
@@ -9414,7 +9445,7 @@ void ResetExpStim(int offset)
     
     if(expt.stimid - expt.nstim[2] < 0 && (option2flag & (INTERLEAVE_BLANK | INTERLEAVE_UNCORRELATED)))
         SerialSend(STIMULUS_TYPE_CODE);
-    if(expt.type2 == JUMPTYPE || expt.mode == FP_MOVE_DIR || expt.mode == FP_MOVE_SIZE || fabs(expt.vals[PURSUIT_INCREMENT]) > 0.01){
+    if(expt.type2 == JUMPTYPE || expt.mode == FP_MOVE_DIR || expt.mode == FP_MOVE_SIZE || fabs(expt.vals[PURSUIT_INCREMENT]) > 0.01 || expt.vals[PURSUIT_AMPLITUDE] > 0.1){
         SetStimulus(expt.st, expt.stimvals[XPOS], XPOS, NULL);
         SetStimulus(expt.st, expt.stimvals[YPOS], YPOS, NULL);
     }
@@ -13470,7 +13501,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 lasttf = val;
             // otherwise go on to the default...	    
         default:
-            if(code < MAXTOTALCODES)
+            if(code < TOTALCODES && valstrings[icode].ctype == 'C')
+            {
+                SetExptString(&expt,expt.st, code, s);
+            }
+            else if(code < MAXTOTALCODES)
             {
                 sscanf(s,"%f",&val);
                 SetProperty(ex, TheStim,code, val);

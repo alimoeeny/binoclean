@@ -391,6 +391,7 @@ struct EXPERIMENT{
     float postperiod,preperiod,clamp,ramp,cramp;
     float sv,fw,tl,cclamp,clamp_rrate,cj,vw,nextval, jnextval;
     float stimvals[TOTALCODES],currentval[6];
+    char *strings[TOTALCODES];
     Stimulus *st;
     Monitor *mon;
     Thisstim *stp;

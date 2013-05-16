@@ -1078,23 +1078,22 @@ DATA.stimulusnames{15} = 'twobar';
 DATA.stimulusnames{16} = 'rls';
 DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp' 'O2' 'lf' 'rf'};
 DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
-DATA.pen.impedance = 0;
-DATA.pen.protrudes = 0;
-DATA.pen.adapter = 'None';
 
 DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
-DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow'};
+DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
-DATA.winpos{2} = [10 scrsz(4)-480 300 450];
-DATA.winpos{3} = [600 scrsz(4)-100 600 150];
-DATA.winpos{4} = [600 scrsz(4)-600 400 500];
-DATA.winpos{5} = [600 scrsz(4)-100 400 100];
-DATA.winpos{6} = [600 scrsz(4)-100 400 100];
-DATA.winpos{7} = [600 scrsz(4)-100 400 100];
-DATA.winpos{8} = [600 scrsz(4)-100 400 100];
+DATA.winpos{2} = [10 scrsz(4)-680 400 50];  %options popup
+DATA.winpos{3} = [600 scrsz(4)-100 600 150]; %softoff
+DATA.winpos{4} = [600 scrsz(4)-600 400 500]; %code list
+DATA.winpos{5} = [600 scrsz(4)-100 400 100]; %status
+DATA.winpos{6} = [600 scrsz(4)-100 400 100]; %log
+DATA.winpos{7} = [600 scrsz(4)-100 400 100]; %help
+DATA.winpos{8} = [600 scrsz(4)-100 400 100]; %sequence
+DATA.winpos{9} = [600 scrsz(4)-100 400 100]; %Penetraation log
+
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.cmdfid = 0;
@@ -1121,6 +1120,9 @@ DATA.strcodes(1).code = 'monitor';
 DATA.strcodes(1).icode = 0; 
 DATA.binoc{1}.xo = 0;
 DATA.binoc{2}.xo = 0;
+DATA.binoc{1}.ePr = 0;
+DATA.binoc{1}.adapter = 'None';
+
 
 DATA.binocstr.monitor = '/local/monitors/Default';
 DATA.expts{1} = [];
@@ -1569,6 +1571,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','Run Sequence of expts','Callback',{@SequencePopup, 'popup'});
     uimenu(hm,'Label','Pause Expt','Callback',{@SendStr, '\pauseexpt'});
     uimenu(hm,'Label','Center stimulus','Callback',{@SendStr, 'centerstim'});
+    uimenu(hm,'Label','Clear Drawn Lines','Callback',{@SendStr, '!clearlines'});
     uimenu(hm,'Label','BlackScreen (shake)','Callback',{@MenuHit, 'setshake'},'accelerator','B');
     uimenu(hm,'Label','pipelog','Callback',{@MenuHit, 'pipelog'});
     uimenu(hm,'Label','freereward','Callback',{@MenuHit, 'freereward'},'accelerator','R');
@@ -2430,16 +2433,16 @@ function DATA = RunButton(a,b, type)
  
 function PenLogPopup(a,b)
   DATA = GetDataFromFig(a);
-  cntrl_box = findobj('Tag',DATA.windownames{3},'type','figure');
+  cntrl_box = findobj('Tag',DATA.windownames{9},'type','figure');
   if ~isempty(cntrl_box)
       figure(cntrl_box);
       return;
   end
-if length(DATA.winpos{3}) ~= 4
-    DATA.winpos{3} = get(DATA.toplevel,'position');
+if length(DATA.winpos{9}) ~= 4
+    DATA.winpos{9} = get(DATA.toplevel,'position');
 end
-cntrl_box = figure('Position', DATA.winpos{3},...
-        'NumberTitle', 'off', 'Tag',DATA.windownames{3},'Name','Penetration Log','menubar','none');
+cntrl_box = figure('Position', DATA.winpos{9},...
+        'NumberTitle', 'off', 'Tag',DATA.windownames{9},'Name','Penetration Log','menubar','none');
     set(cntrl_box,'UserData',DATA.toplevel);
             set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
     set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
@@ -2494,7 +2497,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
         'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
     bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.pen.impedance), ...
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.eZ), ...
         'units', 'norm', 'position',bp,'value',1,'Tag','IMpedance','callback',{@MenuGui});
     
 
@@ -2526,7 +2529,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
         'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
     bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.pen.protrudes), ...
+    uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.ePr), ...
         'units', 'norm', 'position',bp,'value',1,'Tag','protrudes','callback',{@MenuGui});
 
     bp(1) = 3./nc;
@@ -2535,7 +2538,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
         'units', 'norm', 'position',bp,'value',1,'Tag','adapterlabel');
     bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
-    uicontrol(gcf,'style','edit','string',DATA.pen.adapter, ...
+    uicontrol(gcf,'style','edit','string',DATA.binoc{1}.adapter, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','adapter','callback',{@MenuGui});
 
     bp(2) = bp(2)-1./nr;
@@ -2555,7 +2558,7 @@ cntrl_box = figure('Position', DATA.winpos{3},...
     uicontrol(gcf,'style','pushbutton','string','Plot', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','PlotPen','callback',@OpenPenLog);
     
-set(gcf,'CloseRequestFcn',{@CloseWindow, 3});
+set(gcf,'CloseRequestFcn',{@CloseWindow, 9});
 
 function OptionPopup(a,b)
   DATA = GetDataFromFig(a);

@@ -260,9 +260,14 @@
 #define IMAGEINDEX (LAST_STIMULUS_CODE+159)
 #define SACCADE_PUNISH_DIRECTION (LAST_STIMULUS_CODE+160)
 #define CHAMBER_ADAPTER (LAST_STIMULUS_CODE+161)
+#define PURSUIT_AMPLITUDE (LAST_STIMULUS_CODE+162)
+#define PURSUIT_FREQUENCY (LAST_STIMULUS_CODE+163)
+#define MICROSTIM_PHASE_ONSET (LAST_STIMULUS_CODE+164)
+#define MICROSTIM_PHASE_DURATION (LAST_STIMULUS_CODE+165)
+#define MICROSTIM_PERIODIC (LAST_STIMULUS_CODE+166)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+162) /* 201 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+167)/* 201 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -1014,6 +1019,11 @@ ValueCode valstrings[] = {
   {"sP",     "Stim pulses",STIM_PULSES, 1 , 'N' ,2, SEND_EXPLICIT},
   {"pw",     "pulse width",PULSE_WIDTH, 1 , 'N' ,2, SEND_EXPT_NONZERO},
   {"pi",     "Pursuit Increment",PURSUIT_INCREMENT, 8 , 'N' ,4, SEND_EXPT},
+  {"puA",     "Pursuit Amplitude",PURSUIT_AMPLITUDE, 8 , 'N' ,4, SEND_EXPT},
+  {"puF",     "Pursuit Increment",PURSUIT_FREQUENCY, 8 , 'N' ,4, SEND_EXPT},
+  {"USp",     "Microstim Phase Onset",MICROSTIM_PHASE_ONSET, 8 , 'N' ,4, SEND_EXPT},
+   {"USd",     "Microstim Phase Duration",MICROSTIM_PHASE_DURATION, 8 , 'N' ,4, SEND_EXPT},
+   {"USf",     "Periodic Microstim Frequncy",MICROSTIM_PERIODIC, 8 , 'N' ,4, SEND_EXPT},
   {"IB",     "Backgr Image",BACKGROUND_IMAGE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"Br",     "Fast Rpt B", FASTB_RPT, 16 , 'N' ,2, SEND_EXPLICIT},
   {"bz",     "Backgr Zoom",BACKGROUND_ZOOM, 32 , 'N' ,2, SEND_EXPLICIT},
@@ -1221,6 +1231,7 @@ ValueCode valstrings[] = {
 };
 
 char **serial_strings;
+char **serial_names;
 
 char *mode_names[] = {
     "Balenced Dot Distribution",
@@ -1255,7 +1266,7 @@ char *mode_names[] = {
 int codesend[MAXTOTALCODES] = {
 	SEND_EXPLICIT};
 
-char *serial_names[] = {
+char *oldserial_names[] = {
 
     "X offset",
     "Y offset",
@@ -1713,7 +1724,7 @@ extern ValueCode valstrings[];
 extern char *mode_names[];
 extern int nfplaces[MAXTOTALCODES];
 extern int codesend[];
-extern char *serial_names[];
+extern char **serial_names;
 extern char *jumpnames[];
 #endif
 
