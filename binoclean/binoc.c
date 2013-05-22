@@ -233,6 +233,7 @@ void end_timeout();
 long optionflag;
 long option2flag = PRETRIAL_BRIGHT;
 int optionflags[MAXALLFLAGS];
+int oldoptionflags[MAXALLFLAGS];
 int defaultflags[MAXALLFLAGS] = {0};
 int testflags[NTESTFLAGS] = {0};
 
