@@ -588,7 +588,7 @@ for j = 1:length(strs{1})
         end
     else
         id = strfind(s,'=');
-        if id
+        if id & s(1) ~= '!'
             code = s(1:id(1)-1);
             if isempty(strmatch(code, {'1t' '2t' '3t' '4t'})) %illegal names
                 code = deblank(code);
@@ -1575,6 +1575,9 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','BlackScreen (shake)','Callback',{@MenuHit, 'setshake'},'accelerator','B');
     uimenu(hm,'Label','pipelog','Callback',{@MenuHit, 'pipelog'});
     uimenu(hm,'Label','freereward','Callback',{@MenuHit, 'freereward'},'accelerator','R');
+    hm = uimenu(cntrl_box,'Label','Mark');
+
+    
     hm = uimenu(cntrl_box,'Label','Help','Tag','QuickMenu');
     BuildHelpMenu(DATA, hm);
 
@@ -2023,6 +2026,7 @@ function MenuGui(a,b)
              set(DATA.toplevel,'UserData',DATA);
          case 'cm'
              fprintf(DATA.outid,'cm=%s\n',str);
+             LogCommand(DATA,sprintf('cm=%s',str));
              set(a,'string','');
          case 'nt'
              DATA.nstim(1) = str2num(str);
@@ -3353,7 +3357,8 @@ function OpenPenLog(a,b, varargin)
     elseif strcmp(btn,'PlotPen')
         name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.Pn);
         GetFigure('Pen');
-        PlotOnePen(name);
+        hold off;
+        PlotOnePen(name,'allcomments');
     end
     %writing to pen log fone in binoc
     if 0 

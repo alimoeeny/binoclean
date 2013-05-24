@@ -487,6 +487,17 @@ float StepProperty(int code)
     return(val);
 }
 
+void SetStepperDepth(int newdepth)
+{
+electrodeDepth = newdepth;
+expt.vals[ELECTRODE_DEPTH] = (float)(electrodeDepth)/1000;
+SerialSend(ELECTRODE_DEPTH);
+if(penlog){
+    fprintf(penlog,"ed %d at %.1f\n",electrodeDepth,times[totalsteps]);
+}
+    notifyPositionChange(electrodeDepth);
+
+}
 
 void SendStepProp(int prop)
 {

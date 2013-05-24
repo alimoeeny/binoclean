@@ -197,7 +197,7 @@ extern Stimulus *stimptr,*ChoiceStima,*ChoiceStimb;
 extern int fixstate, stimstate;
 char *expname = NULL;
 /* Ali Cursor */ int thecursor;
-extern int optionflags[],defaultflags[],states[],testflags[];
+extern int optionflags[],defaultflags[],states[],testflags[],oldoptionflags[];
 
 #define NSAVES 5
 static float savevals[NSAVES][MAXTOTALCODES+1];
@@ -245,6 +245,8 @@ static int *rcstimid = NULL;
 static int **rcstimxy = NULL;
 static float *rcstimframetimes = NULL;
 static float *sframetimes = NULL;
+void stepproc(float step);
+void SetStepperDepth(int newdepth);
 
 
 int alloptions = GO_BIT | STORE_WURTZ_BIT | LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK | SEARCH_MODE_BIT | FIXATION_CHECK  | SQUARE_RDS | RAMP_HOLD_BIT;
@@ -3965,6 +3967,14 @@ int ReadCommand(char *s)
                 imoutfd = fopen(imname,"w"); // First call - start a new file
         }
     }
+    else if(!strncasecmp(s,"seted",5)){
+        r = s;
+        r = strchr(r,'=');
+        if (r){
+            sscanf(++r,"%f",&val);
+            SetStepperDepth(1000*val);
+        }
+    }
     else if(!strncasecmp(s,"openpen",7))
     {
         OpenPenetrationLog(expt.newpen);
@@ -4575,7 +4585,6 @@ void setsecondexp(int w, int id, int val)
         case PARA_POS:
             expt.type2 = val;
             expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
-            expt.flag |= ADD_EXPT2;
             break;
         case NPLANES:
             expt.type2 = val;
@@ -5514,7 +5523,14 @@ void setstimuli(int flag)
     double val,loginc,val2,ratio;
     char c = 'v',cbuf[BUFSIZ];
     
-    
+    if( optionflags[TIMES_EXPT]){
+        expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+        expt.flag |= TIMES_EXPT2;
+    }
+    else{
+        expt.flag &= (~(ADD_EXPT2 | TIMES_EXPT2));
+        expt.flag |= ADD_EXPT2;
+    }
     setextras();
     if(optionflags[INTERLEAVE_MONOC_ALL] && expt.nstim[0] < 2)
         expt.nstim[0] = 2;
@@ -6395,6 +6411,7 @@ int confirm_no(char *s, *help)
 
 int confirm_yes(char *s, *help)
 {
+    acknowledge(s,help);
     return(1);   
 }
 
@@ -12002,8 +12019,8 @@ int CheckOption(int i)
     GLboolean isstereo;
     
     
-    if(i >= MAXOPTIONBITS){
-        flag = i - MAXOPTIONBITS;
+    if((flag = togglestrings[i].icode) >= 0)
+    {
         switch(flag){
             case TIMES_EXPT:
                 if( optionflags[flag]){
@@ -12053,6 +12070,7 @@ int ChangeFlag(char *s)
 {
     char c = *s,*a;
     int bit = 0, bit2 = 0,i = 0,slen=0;
+    int oldval;
     
     s++;
     if (a = strchr(s,'+'))
@@ -12083,6 +12101,9 @@ int ChangeFlag(char *s)
                 break;
         }
         bit = togglestrings[i].icode;
+//        if ((optionflag & bit && c == '-') || ((!optionflag & bit) && c =='+'))
+//            CheckOption(i);
+
     }
     else if(togglestrings[i].group ==3)
     {
@@ -12100,7 +12121,8 @@ int ChangeFlag(char *s)
         }
         else
             optionflags[togglestrings[i].icode] = 0;
-        CheckOption(i);
+        if (optionflags[togglestrings[i].icode] != oldoptionflags[togglestrings[i].icode])
+            CheckOption(i);
         return(i);
     }
     else if(togglestrings[i].group ==2)
@@ -12923,7 +12945,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                     expt.st->fix.fixcolors[i] = in[i];
             break;
         case ELECTRODE_DEPTH:
-            if (*s == '+'){
+            if (*s == '+'){ //to add a negatvie step, use ed=+-step, so that simply reporting a negative number doesn't change value
                 sscanf(s,"%f",&fval);
                 stepproc(fval);
                 sprintf(buf,"%2s=%.3f\n",valstrings[icode].code,expt.vals[ELECTRODE_DEPTH]);
@@ -13160,8 +13182,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 // if seting optionflag to 0, set all flags to 0.
                 if(optionflag == 0){
                     option2flag = 0;
-                    for(i = 0; i <= MAXALLFLAGS; i++)
+                    for(i = 0; i <= MAXALLFLAGS; i++){
+                        oldoptionflags[i] = optionflags[i];
                         optionflags[i] = 0;
+                    }
                 }
             }
             if (strchr(s,'+') || strchr(s,'-')) {
@@ -13176,6 +13200,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             setoption();
             SerialSend(OPTION_CODE);
+            if (optionflag > 0 && j > 0){
+                   for(i = 0; i <= MAXALLFLAGS; i++)
+                        oldoptionflags[i] = optionflags[i];
+            }
             break;
         case MODE_CODE:
             oldmode = TheStim->mode;
