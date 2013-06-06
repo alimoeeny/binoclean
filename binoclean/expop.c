@@ -132,6 +132,7 @@ static int flips[2] = {0};
 int seedoffsets[100] = {0};
 int covaryprop = -1;
 int maxseed = 0;
+int popup_confirmed = -1;
 
 #define MAXHELPFILES 200
 static char *helpfiles[MAXHELPFILES] = {NULL};
@@ -742,12 +743,12 @@ int SetTargets()
             aval = expval[expt.nstim[0]+expt.nstim[2]-1];
             val = expt.mean-45;
             aval = expt.mean+45;
-            if(usenewdirs){
+            if(usenewdirs == 1){
                 val = expt.mean+135;
                 afc_s.newdirs = 1;
             }
             else
-                afc_s.newdirs = 0;
+                afc_s.newdirs = usenewdirs;
             afc_s.sacdir[0] = val * M_PI/180;
             afc_s.sacdir[1] = aval * M_PI/180;
         }
@@ -774,7 +775,7 @@ int SetTargets()
          * July 2007 allow for different target locations. 
          * sacdir[0] is for the negative target, sacdir[1] is for the positive target
          */
-        if (afc_s.newdirs){
+        if (afc_s.newdirs ==1){
             cosa = cos(afc_s.sacdir[1]);
             sina = sin(afc_s.sacdir[1]);
             SetStimulus(ChoiceStima, cosa * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
@@ -785,7 +786,18 @@ int SetTargets()
             SetStimulus(ChoiceStimb, sina * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[1],  YPOS, NULL);
             
         }
-        else if(fabs(tan(val*M_PI/180.0)) > 0.46){  
+        else if (afc_s.newdirs > 0){
+            afc_s.sacdir[0] = afc_s.newdirs * M_PI/180;
+            cosa = cos(afc_s.sacdir[0]);
+            sina = sin(afc_s.sacdir[0]);
+            SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]*sina+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStimb, -sgn * expt.vals[SACCADE_AMPLITUDE]*cosa+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, expt.fixpos[1],  YPOS, NULL);
+            afc_s.abssac[1] = expt.vals[SACCADE_AMPLITUDE] * sina;
+            afc_s.abssac[0] = expt.vals[SACCADE_AMPLITUDE] * cosa;
+        }
+        else if(fabs(tan(val*M_PI/180.0)) > 0.46){
             SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStimb, -sgn * expt.vals[SACCADE_AMPLITUDE]+expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
@@ -6411,8 +6423,18 @@ int confirm_no(char *s, *help)
 
 int confirm_yes(char *s, *help)
 {
+    char buf[BUFSIZ*10];
+    int j;
+    float timeout = 10.0,tdiff;
+    struct timeval a,b;
+    
+    if (popup_confirmed >= 0)
+        return(popup_confirmed);
     acknowledge(s,help);
-    return(1);   
+    sprintf(buf,"confirm%s",s);
+    notify(buf);
+    sendNotification();
+    popup_confirmed = -1;
 }
 
 void runexpt(int w, Stimulus *st, int *cbs)
@@ -6660,6 +6682,10 @@ void InitExpt()
     else{
         afc_s.signflipp = 0;
         afc_s.target_in_trial = 0;
+    }
+    if (optionflags[ICON_IN_TRIAL]){
+        afc_s.target_in_trial = 1;
+        
     }
     
     
@@ -12416,6 +12442,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     Stimulus *TheStim = expt.st;
     static int lineflag = 0;
     static float lastticks = 0;
+    static char *lastline = NULL;
     MenuItem *new_menu = NULL;
     char *newnames = NULL;
     char *stimname = NULL;
@@ -12440,7 +12467,15 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     if(lineflag & BACKSTIM_BIT)
         TheStim = ex->st->next;
     TheStim = stimptr;
+
+
     s = strchr(line, '=');
+    if(!strncmp(line,"confirmpopup",10) && s != NULL){
+        sscanf(++s,&popup_confirmed);
+        if(popup_confirmed)
+            InterpretLine(lastline,ex, 0);
+    }
+    lastline = line;
     if((t = strchr(line,015))  != NULL){
         if (verbose){
             fprintf(stderr,"^M in %s",line);
@@ -12937,7 +12972,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             nonewline(expt.cmdinfile);
             break;
         case USENEWDIRS:
-            sscanf(++s,"%d",&usenewdirs);
+            sscanf(s,"%d",&usenewdirs);
             break;
         case FIXCOLORS:
             n = sscanf(++s,"%f %f %f %f",&in[0],&in[1],&in[2],&in[3]);

@@ -103,6 +103,11 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
         msgbox(s(5:end),'Binoc Warning','warn');
+    elseif strncmp(s,'confirm',7)
+        yn = questdlg(s(8:end),'Update Check');
+        if strcmp(yn,'Yes')
+            fprintf(DATA.outid,'confirm1\n');
+        end
     elseif s(1) == '#' %defines stim code/label
         [a,b] = sscanf(s,'#%d %s');
 %        a = a(1);
@@ -1083,7 +1088,7 @@ DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
-DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow'};
+DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow' 'electrodewindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-680 400 50];  %options popup
 DATA.winpos{3} = [600 scrsz(4)-100 600 150]; %softoff
@@ -1093,6 +1098,7 @@ DATA.winpos{6} = [600 scrsz(4)-100 400 100]; %log
 DATA.winpos{7} = [600 scrsz(4)-100 400 100]; %help
 DATA.winpos{8} = [600 scrsz(4)-100 400 100]; %sequence
 DATA.winpos{9} = [600 scrsz(4)-100 400 100]; %Penetraation log
+DATA.winpos{10} = [600 scrsz(4)-100 400 100]; %Electrode Moving
 
 DATA.outid = 0;
 DATA.inid = 0;
@@ -1550,6 +1556,7 @@ function DATA = InitInterface(DATA)
     uimenu(subm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
     uimenu(subm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(subm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
+    uimenu(subm,'Label','Electrode Control','Callback',{@ElectrodePopup, 'popup'});
     subm = uimenu(cntrl_box,'Label','Pipes');
     uimenu(subm,'Label','Reopen Pipes','Callback',{@ReadIO, 6});
     uimenu(subm,'Label','reopenserial','Callback',{@SendStr, '\reopenserial'});
@@ -2433,7 +2440,41 @@ function DATA = RunButton(a,b, type)
 %        DATA.outid = 0;
         set(DATA.toplevel,'UserData',DATA);
         
-        
+
+function ElectrodePopup(a,b, fcn, varargin)
+  DATA = GetDataFromFig(a);
+  nw = 10;
+  cntrl_box = findobj('Tag',DATA.windownames{10},'type','figure');
+  if ~isempty(cntrl_box)
+      figure(cntrl_box);
+      return;
+  end
+if length(DATA.winpos{10}) ~= 4
+    DATA.winpos{10} = get(DATA.toplevel,'position');
+end
+cntrl_box = figure('Position', DATA.winpos{9},...
+        'NumberTitle', 'off', 'Tag',DATA.windownames{9},'Name','Penetration Log','menubar','none');
+    set(cntrl_box,'UserData',DATA.toplevel);
+            set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
+    set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
+
+    nr = 5;
+    nc = 7;
+    bp = [0.01 0.99-1/nr 1./nc 0.98./nr];
+
+    
+
+    
+    bp(1) = 0.01;
+    bp(3) = 0.3;
+    uicontrol(gcf,'style','text','string','Step', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
+    bp(1) = bp(1)+bp(3);
+    bp(3) = 0.98./nc;
+    uicontrol(gcf,'style','edit','string',num2str(DATA.step), ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','Pn','callback',{@ElectrodePopup, 'Pn'});
+
+
  
 function PenLogPopup(a,b)
   DATA = GetDataFromFig(a);

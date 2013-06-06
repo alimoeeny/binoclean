@@ -116,7 +116,8 @@ void ReadInputPipe()
 {
     if(dataReadyInInputPipe)
     {
-        for (int i = 0; i < inputPipeBuffer.count; i++) 
+        dataReadyInInputPipe = NO;
+        for (int i = 0; i < inputPipeBuffer.count; i++)
         {
             if(![(NSString *)[inputPipeBuffer objectAtIndex:i] isEqualToString:@""]){
                 inputLineChars = [[inputPipeBuffer objectAtIndex:i] UTF8String];
@@ -140,7 +141,6 @@ void ReadInputPipe()
         }
         inputLineChars = NULL;
         [inputPipeBuffer removeAllObjects];
-        dataReadyInInputPipe = NO;
     }
 }
 

@@ -684,6 +684,7 @@ ToggleCode togglestrings[] = {
     {"Collapse Expt3",    "C3",  0, COLLAPSE_EXPT3, 3},
     {"Odd Man Out",    "af3", 0, ODD_MAN_OUT_TASK, 3},
     {"Choice by icon",    "Rcd", 0, CHOICE_BY_ICON, 3},
+    {"Icon In Trial",    "Iit", 0, ICON_IN_TRIAL, 3},
     {"Expt1 Mean as Crit",    "epy", 0, EXPTMEAN_FOR_PSYCH, 3},
     {"Flip",    "ff",  0, FLIP_FEEDBACK, 3},
     {"Count BadFix",    "cB",  0, COUNT_BADFIX_FOR_BONUS, 3},
