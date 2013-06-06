@@ -790,10 +790,10 @@ int SetTargets()
             afc_s.sacdir[0] = afc_s.newdirs * M_PI/180;
             cosa = cos(afc_s.sacdir[0]);
             sina = sin(afc_s.sacdir[0]);
-            SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]*sina+expt.fixpos[0],  XPOS, NULL);
+            SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]*cosa+expt.fixpos[0],  XPOS, NULL);
             SetStimulus(ChoiceStimb, -sgn * expt.vals[SACCADE_AMPLITUDE]*cosa+expt.fixpos[0],  XPOS, NULL);
-            SetStimulus(ChoiceStima, expt.fixpos[1],  YPOS, NULL);
-            SetStimulus(ChoiceStimb, expt.fixpos[1],  YPOS, NULL);
+            SetStimulus(ChoiceStima, sgn * expt.vals[SACCADE_AMPLITUDE]*sina+expt.fixpos[0],  YPOS, NULL);
+            SetStimulus(ChoiceStimb, -sgn * expt.vals[SACCADE_AMPLITUDE]*sina+expt.fixpos[0],  YPOS, NULL);
             afc_s.abssac[1] = expt.vals[SACCADE_AMPLITUDE] * sina;
             afc_s.abssac[0] = expt.vals[SACCADE_AMPLITUDE] * cosa;
         }
@@ -7431,8 +7431,7 @@ void SetSacVal(float stimval, int index)
     int i,sign;
     
     if(SACCREQD(afc_s) || option2flag & PSYCHOPHYSICS_BIT){
-        if(usenewdirs == 0)
-            afc_s.newdirs = 0;
+        afc_s.newdirs = usenewdirs;
         
         /*
          if(option2flag & STAIRCASE)
@@ -7510,7 +7509,7 @@ void SetSacVal(float stimval, int index)
         {
             afc_s.sacval[0] = afc_s.abssac[0];
             afc_s.sacval[1] = afc_s.abssac[1];
-            if(afc_s.newdirs){
+            if(afc_s.newdirs == 1){
                 cosa = cos(afc_s.sacdir[1]);
                 sina = sin(afc_s.sacdir[1]);
                 afc_s.sacval[0] = expt.vals[SACCADE_AMPLITUDE] * cosa;
@@ -7521,19 +7520,36 @@ void SetSacVal(float stimval, int index)
                 afc_s.sacval[4] = expt.vals[SACCADE_AMPLITUDE] * cosa;
                 afc_s.sacval[5] = expt.vals[SACCADE_AMPLITUDE] * sina;
             }
+            else if(afc_s.newdirs >0){
+                cosa = cos(afc_s.sacdir[0]);
+                sina = sin(afc_s.sacdir[0]);
+                afc_s.sacval[0] = expt.vals[SACCADE_AMPLITUDE] * cosa;
+                afc_s.sacval[1] = expt.vals[SACCADE_AMPLITUDE] * sina;
+                afc_s.sacval[4] = expt.vals[SACCADE_AMPLITUDE] * -cosa;
+                afc_s.sacval[5] = expt.vals[SACCADE_AMPLITUDE] * -sina;
+            }
+
             sign = 1;
         }
         else
         {
             afc_s.sacval[0] = -afc_s.abssac[0];
             afc_s.sacval[1] = -afc_s.abssac[1];
-            if(afc_s.newdirs){
+            if(afc_s.newdirs == 1){
                 cosa = cos(afc_s.sacdir[0]);
                 sina = sin(afc_s.sacdir[0]);
                 afc_s.sacval[0] = expt.vals[SACCADE_AMPLITUDE] * cosa;
                 afc_s.sacval[1] = expt.vals[SACCADE_AMPLITUDE] * sina;
-                cosa = cos(afc_s.sacdir[1]);
-                sina = sin(afc_s.sacdir[1]);
+                    cosa = cos(afc_s.sacdir[1]);
+                    sina = sin(afc_s.sacdir[1]);
+                afc_s.sacval[4] = expt.vals[SACCADE_AMPLITUDE] * -cosa;
+                afc_s.sacval[5] = expt.vals[SACCADE_AMPLITUDE] * -sina;
+            }
+            else if(afc_s.newdirs >0){
+                cosa = cos(afc_s.sacdir[0]);
+                sina = sin(afc_s.sacdir[0]);
+                afc_s.sacval[0] = expt.vals[SACCADE_AMPLITUDE] * -cosa;
+                afc_s.sacval[1] = expt.vals[SACCADE_AMPLITUDE] * -sina;
                 afc_s.sacval[4] = expt.vals[SACCADE_AMPLITUDE] * cosa;
                 afc_s.sacval[5] = expt.vals[SACCADE_AMPLITUDE] * sina;
             }
@@ -7758,7 +7774,8 @@ char *ShowStimVals(Thisstim *stp)
         strcat(cbuf,"**");
     else if(!expt.st->mode & EXPTPENDING)
         strcat(cbuf,"*rolling*");
-        
+    
+    glstatusline(cbuf,1);
     statusline(cbuf);
     return(cbuf);
 }
@@ -8337,7 +8354,6 @@ int PrepareExptStim(int show, int caller)
 
     else
         sprintf(ebuf,"");
-    printStringOnMonkeyView(ebuf, 0);
 
     if(expt.vals[ONETARGET_P] > 0){
         if ((drnd = mydrand()) < expt.vals[ONETARGET_P])
@@ -12457,7 +12473,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     
     
-    //	printf("%s\n",line);
+    printf("%d %s\n",frompc,line);
     gettimeofday(&now,NULL);
 /*
  * exp->cmdtype controls whether or not this line is send down the serial line. If it has come from verg, needs 

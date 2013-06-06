@@ -464,7 +464,7 @@ GLenum glReportError (void)
             e.scrolldelta = wheelDelta;
             NSLog(@"wheelDelta %f",wheelDelta);
             e.mouseButton = Button2;
-            if (fabs(wheelDelta) > 3)
+            if (fabs(wheelDelta) > 2)
                 HandleMouse(e);
     	}
 }

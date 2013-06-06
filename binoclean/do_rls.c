@@ -197,7 +197,10 @@ void calc_rls(Stimulus *st, Substim *sst)
     int bit, nbit;
     long *rp,rnd,*rq;
     int orthoguc = 0,orthogac = 0;
+    int pblank = 0;
 
+    if (sst->density < 100)
+        pblank = rint((100-sst->density) * 2.55);
     
     if (expt.stimmode == ORTHOG_UC || (st->left->ptr->plaid_angle) > M_2_PI)
         orthoguc = 1;
@@ -428,7 +431,6 @@ void calc_rls(Stimulus *st, Substim *sst)
             *p = WHITEMODE;
         else
             *p = BLACKMODE;
-        
         if (sst->mode == RIGHTMODE && orthoguc)
         {
             if(*rp & (1<<4))
@@ -449,6 +451,8 @@ void calc_rls(Stimulus *st, Substim *sst)
                 else
                     *q = BLACKMODE;
             }
+        if ((*rp & 0xff) < pblank)
+            *p = 0;
         
         
         if(sst->corrdots > 0 && sst->corrdots < sst->ndots && sst->mode == RIGHTMODE){
@@ -1016,7 +1020,7 @@ void paint_rls(Stimulus *st, int mode)
     vcoord  w,h,*x,*y,fw,fh,lasty;
     vcoord z[2];
     short pt[2];
-    float vcolor[4], bcolor[4];
+    float vcolor[4], bcolor[4],gcolor[4];
     vcoord xmv;
     int dotmode = 0;
     Substim *sst = st->left;
@@ -1046,6 +1050,7 @@ void paint_rls(Stimulus *st, int mode)
     vcolor[0] = vcolor[1] = vcolor[2] = 0;
     bcolor[0] = bcolor[1] = bcolor[2] = 0;
     bcolor[3] = vcolor[3] = 1.0;
+    gcolor[0] = gcolor[1] = gcolor[2] = 0.5;
     if(mode == LEFTMODE)
     {
         dotmode = LEFTDOT;
@@ -1055,6 +1060,7 @@ void paint_rls(Stimulus *st, int mode)
         bcolor[0] = sst->lum[1];
         vcolor[3] = sst->lum[0];
         bcolor[3] = sst->lum[1];
+        gcolor[3] = 0.5;
     }
     else if(mode == RIGHTMODE)
     {
@@ -1064,6 +1070,7 @@ void paint_rls(Stimulus *st, int mode)
         glTranslatef(xmv,pos->xy[1]-st->vdisp,0);
         vcolor[3] = vcolor[1] = vcolor[2] = sst->lum[0];
         bcolor[3] = bcolor[1] = bcolor[2] = sst->lum[1];
+        gcolor[3] = gcolor[1] = gcolor[2] = 0.5;
     }
     if(optionflags[STIMULUS_IN_OVERLAY])
     {
@@ -1142,6 +1149,8 @@ void paint_rls(Stimulus *st, int mode)
             mycolor(vcolor);      
         else if(*p & WHITEMODE)
             mycolor(bcolor);
+        else
+            mycolor(gcolor);
         if(*p & dotmode){
             z[0] = *x; 
             z[1] = *y; 

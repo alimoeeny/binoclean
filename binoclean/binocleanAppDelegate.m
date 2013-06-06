@@ -1,3 +1,4 @@
+
 //
 //  binocleanAppDelegate.m
 //  binoclean
@@ -206,11 +207,11 @@ int  processUIEvents()
     // should not return 3 but if it does it means some other event!
     //in future versions we may want to keep the time everytime it is called and return only the new events
     int result = 0; // 0 for nothing new happend
-    NSDate * now = [NSDate date];
-    NSEvent * e = [[NSApplication sharedApplication] nextEventMatchingMask:NSLeftMouseDownMask | NSRightMouseDownMask 
+    NSDate * now = [[NSDate date] retain];
+    NSEvent * e = [[[NSApplication sharedApplication] nextEventMatchingMask:NSLeftMouseDownMask | NSRightMouseDownMask
                                                                  untilDate:now
                                                                     inMode:NSEventTrackingRunLoopMode
-                                                                   dequeue:YES];
+                                                                   dequeue:YES] retain];
     if (e)
         if ([e type]==NSLeftMouseUp | [e type]==NSLeftMouseDown) {
             result = Button1; // left mouse event (up or down)
@@ -220,8 +221,8 @@ int  processUIEvents()
         else
             result = 4; // something else happend
 
-    [now release];
     [e release];
+    [now release];
     return result;
 
     //    [[[NSApplication sharedApplication] delegate] performSelectorOnMainThread:@selector(testselector) // no trailing :

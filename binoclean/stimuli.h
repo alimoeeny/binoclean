@@ -136,21 +136,7 @@ typedef struct RDS{
     
 }Rds;
 
-typedef struct CORRUG{
-    int *im;
-    float *imb;
-    int ndots, corrdots;
-    float dotsiz[2];
-    float disp,depth_mod,disp_grad,lum[2];
-    int mode;
-    vcoord *xpos, *ypos;
-    int seed,baseseed,seedloop,seedctr;
-    float density, xshift, correlation;
-    float sf2,incr,phase2,ori2,phaseoff,sy,plaid_angle;
-    
-    int x;
-    
-}Corrug;
+
 
 typedef struct SQCORRUG{
     int *im;

@@ -70,3 +70,5 @@ Things that need fixing:
 * need to make cursor invisible in Red and Blue  !!!NB IMPORTANT FOR HUMAN PSYCH
 - allow polling to see if mouse events are in queue for human pshychophysics
 - find cocoa command to get current monitor icc info
+For james. Ecah vary orientation randomly by frame. Orthogonal.
+    Allow multiple bars per frame. B or W. 

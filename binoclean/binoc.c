@@ -1570,7 +1570,6 @@ void glstatusline(char *s, int line)
 	mycmv(x);
 	if(s != NULL){
         printStringOnMonkeyView(s, strlen(s));
-//        printString(s, strlen(s)); //Need this? removed May 2013
     }
 	else if(lines[line] != NULL)
         printStringOnMonkeyView(lines[line], strlen(lines[line]));
@@ -1589,6 +1588,7 @@ void glstatusline(char *s, int line)
 
 void statusline(char *s)
 {
+    //prints a line in the binoc control window, and sends it to verg.
     char buf[BUFSIZ];
     
     
@@ -1596,7 +1596,9 @@ void statusline(char *s)
         statusstring = myscopy(statusstring,s);
     else
         s = statusstring;
-    glstatusline(s,1);
+//    glstatusline(s,1);
+    printString(s, strlen(s)); //Need this? removed May 2013
+
     notify("status=");
     notify(s);
     notify("\n");
@@ -3301,6 +3303,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 init_stimulus(st);
             }
             if(st->type == STIM_IMAGE){
+                SetStimulus(st,val,STIM_HEIGHT,event);
                 pos->imsize[0] = pos->imsize[1] = deg2pix(val);
             }
             if(st->type == STIM_RADIAL){
@@ -4082,7 +4085,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             break;
         case DOT_DENSITY:
-            if(st->type == STIM_RDS || st->type == STIM_RDSSINE)
+            if(st->type == STIM_RDS || st->type == STIM_RDSSINE || st->type == STIM_RLS)
             {
                 if(val > 0){
                     pos->density = val;
@@ -5778,6 +5781,7 @@ void PaintBackIm(PGM im)
     glDrawPixels(im.w, im.h, GL_LUMINANCE, GL_UNSIGNED_BYTE, im.ptr);
     
 }
+
 void wipescreen(float color)
 {
     setmask(bothmask);
@@ -5817,6 +5821,7 @@ void wipescreen(float color)
             grid(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]),1);
         }
     }
+    glstatusline(NULL,1);
     
 }
 
@@ -6095,6 +6100,7 @@ int next_frame(Stimulus *st)
 #ifdef MONITOR_CLOSE
     if(seroutfile && laststate != stimstate){
         fprintf(seroutfile,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
+        fprintf(stdout,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
         fflush(seroutfile);
     }
 #endif
@@ -6313,6 +6319,9 @@ int next_frame(Stimulus *st)
                 draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
             if (SACCREQD(afc_s) && val < expt.vals[CHOICE_TARGET_DURATION] && monkeypress == WURTZ_OK)
                 paint_target(expt.targetcolor,2);
+            if(optionflags[ICON_IN_TRIAL])
+                paint_target(expt.targetcolor,1);
+
             if(rdspair(expt.st))
                 i = 0;
             change_frame();
@@ -6903,6 +6912,8 @@ int next_frame(Stimulus *st)
                 if (expt.vals[CHOICE_TARGET_DURATION] > 0 && monkeypress == WURTZ_OK)
                     paint_target(expt.targetcolor,2);
             }
+            if(optionflags[ICON_IN_TRIAL])
+                paint_target(expt.targetcolor,1);
     
             if(testflags[PLAYING_EXPT]){
                 ReplayExpt(NULL);
@@ -7408,7 +7419,7 @@ void run_rds_test_loop()
     val = timediff(&now,&timeb);
     sprintf(mssg,"B%d dots(%dx%d) * 72 = %.3f seconds",sst->ndots,fw,fh,val);
     statusline(mssg);
-    
+    glstatusline(NULL,1);
     
     gettimeofday(&timeb,NULL);
     for(frame = 0; frame < 72; frame++){
@@ -10093,6 +10104,7 @@ void printString(char *s, int size)
 
 void printStringOnMonkeyView(char *s, int size)
 {
+    
     displayOnMonkeyView(s, -500, -450);
     glPushAttrib(GL_LIST_BIT);
     if(size == 1)
