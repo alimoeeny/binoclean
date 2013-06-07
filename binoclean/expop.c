@@ -11011,7 +11011,11 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     realframes = realframecount = getframecount();
     if(stimstate == INSTIMULUS)
         stimstate = POSTSTIMULUS;
-    
+  
+    if (expt.st->type == STIM_RLS){
+        StimStringRecord(buf, expt.st);
+        j = strlen(buf);
+    }
     /* reset stimulus type in case it was set to blank */
     if(retval == BAD_TRIAL || retval < 0)
     {

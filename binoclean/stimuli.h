@@ -207,7 +207,7 @@ typedef struct SUBSTIM{
     vcoord *xpos, *ypos, *xposa, *yposa;
     int xpl,ypl,xpla,ypla;
     int seed,baseseed,seedloop,seedctr;
-    int *iim;
+    int *iim,*iimb;
     int iimlen,imlen,imblen,imclen;
     float *im,*imb,*imc;
     int calculated;

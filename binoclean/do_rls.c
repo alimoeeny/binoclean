@@ -109,7 +109,10 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
         sst->iimlen = ndots *4 * nrect;
         if(sst->iim != NULL)
             free(sst->iim);
+        if(sst->iimb != NULL)
+            free(sst->iimb);
         sst->iim = (int *)malloc(sst->iimlen * sizeof(int));
+        sst->iimb = (int *)malloc(sst->iimlen * sizeof(int));
 	}
 	if(ndots *4*nrect > sst->imblen || sst->imb == NULL) /* need new memory */
     {
@@ -197,7 +200,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     int bit, nbit;
     long *rp,rnd,*rq;
     int orthoguc = 0,orthogac = 0;
-    int pblank = 0;
+    int pblank = 0,*pi;
 
     if (sst->density < 100)
         pblank = rint((100-sst->density) * 2.55);
@@ -356,6 +359,7 @@ void calc_rls(Stimulus *st, Substim *sst)
         csq = dsq = 0;
     p = sst->iim;
     q = sst->imb; //for second component. E.G. plaid
+    pi = sst->iimb; //records 1D pattern
     x = sst->xpos;
     y = sst->ypos;
     zy = sst->yposa;
@@ -427,10 +431,14 @@ void calc_rls(Stimulus *st, Substim *sst)
          */
         if(st->dotdist == WHITENOISE16)
             *p = *rp & 0xf;
-        else if(*rp & (1<<1))
+        else if(*rp & (1<<1)){
             *p = WHITEMODE;
-        else
+            *pi = 2;
+        }
+        else{
             *p = BLACKMODE;
+            *pi = 0;
+        }
         if (sst->mode == RIGHTMODE && orthoguc)
         {
             if(*rp & (1<<4))
@@ -451,8 +459,10 @@ void calc_rls(Stimulus *st, Substim *sst)
                 else
                     *q = BLACKMODE;
             }
-        if ((*rp & 0xff) < pblank)
+        if ((*rp & 0xff) < pblank){
             *p = 0;
+            *pi = 1;
+        }
         
         
         if(sst->corrdots > 0 && sst->corrdots < sst->ndots && sst->mode == RIGHTMODE){
@@ -626,7 +636,7 @@ void calc_rls(Stimulus *st, Substim *sst)
             lastq = *q;
             lastzy = *zy;
         }
-        i++,x++,y++,p++,rp++,q++,zx++,zy++;
+        i++,x++,y++,p++,rp++,q++,zx++,zy++,pi++;
         nx++;
     }
     if(nx > sst->xpl)

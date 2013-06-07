@@ -18,7 +18,7 @@
 
 
 
-
+int *imagerec[MAXFRAMES] = {NULL};
 extern int verbose,newmonoc;
 extern int testflags[];
 extern float **rclfreqs,**rcrfreqs;
@@ -53,6 +53,31 @@ extern int freezestimulus;
 int nrndcalls = 0;
 
 
+int *RecordImage(int frame, Stimulus *st){
+    int *p,j;
+    
+    if (imagerec[frame] == NULL){
+        imagerec[frame] = (int *)malloc(sizeof(int) * 256);
+    }
+    p=imagerec[frame];
+    for (j = 0; j < st->left->ndots; j++) {
+        *p++ = st->left->iimb[j] | (st->right->iimb[j] << 2);
+    }
+}
+
+void StimStringRecord(char *buf, Expt *ex)
+{
+    int j,*p,i;
+    char s[10];
+    sprintf(buf,"mtrls=");
+    for (j = 0; j < expt.st->nframes; j++){
+        p = imagerec[j];
+        for(i = 0; i < expt.st->left->ndots; i++){
+        sprintf(s,"%1x",*p++);
+        strcat(buf,s);
+        }
+    }
+}
 
 /*
  * As of version 4.31, gamma correction now all done outside binoc,
@@ -2310,6 +2335,7 @@ void paint_stimulus(Stimulus *st, int follow)
             setmask(BOTHMODE);
             st->pos.lastxy[0] = st->pos.xy[0];
             st->pos.lastxy[1] = st->pos.xy[1];
+            RecordImage(st->framectr, st);
             break;
         case STIM_CORRUG:
             st->left->mode = LEFTMODE;
