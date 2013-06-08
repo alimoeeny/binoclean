@@ -69,12 +69,17 @@ void StimStringRecord(char *buf, Expt *ex)
 {
     int j,*p,i;
     char s[10];
-    sprintf(buf,"mtrls=");
-    for (j = 0; j < expt.st->nframes; j++){
+    sprintf(buf,"",j);
+    for (j = 0; j < expt.st->framectr; j++){
         p = imagerec[j];
-        for(i = 0; i < expt.st->left->ndots; i++){
-        sprintf(s,"%1x",*p++);
-        strcat(buf,s);
+        if (p != NULL){
+            sprintf(s,"%x:",j);
+            strcat(buf,s);
+            for(i = 0; i < expt.st->left->ndots; i++){
+                sprintf(s,"%1x",*p++);
+                strcat(buf,s);
+            }
+            strcat(buf,"\n");
         }
     }
 }

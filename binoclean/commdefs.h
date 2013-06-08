@@ -784,6 +784,7 @@ ToggleCode togglestrings[] = {
     {"Watch Times",    "WT", 0, WATCH_TIMES, 3},
     {"Test mode",    "tm", 0, TEST_BIT, 1},
     {"Fix Sepn",    "fs",  0, FIXED_BARSEP, 3},
+    {"Record RLS",    "srls",  0, SAVE_RLS, 3},
     //   {"Auto Plot",    "ap", 0, AUTO_PLOT, 1},
     //   {"PreBack",    "pb", 0, BACKGROUND_IN_PREPERIOD, 1},
     //   {"Show Val",    "pw", 0, PLOT_WURTZ_BIT, 1},

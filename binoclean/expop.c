@@ -116,7 +116,7 @@ extern int lastbutton;
 double fakestim =0;
 
 int usenewdirs=0;
-static int pcmode = BRAINWAVE;
+static int pcmode = SPIKE2;
 static char **expmenustrings;
 
 
@@ -208,9 +208,9 @@ int showcodes[MAXTOTALCODES] = {0};
 static int savetype[NSAVES *2] = {0};
 unsigned long *rndbuf;
 
-// don't need online data files on Mac when using Spike2
-// char datprefix[256] = "/local/data/online";
-char datprefix = NULL;
+//Use online files to record RLS patterns
+char datprefix[256] = "/local/data/online";
+//char datprefix = NULL;
 
 extern char stepperport[];
 static char cyberport[256] = "/dev/ttyf1";
@@ -2319,6 +2319,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             expt.bwptr->prefix = (char *)myscopy(expt.bwptr->prefix,nonewline(s));
             expname = (char *)myscopy(expname,nonewline(s));
             t = getfilename(expt.bwptr->prefix);
+            expname = (char *)myscopy(expname,t);
             
             
             if(!(option2flag & PSYCHOPHYSICS_BIT) && pcmode != SPIKE2){
@@ -6967,76 +6968,28 @@ void InitExpt()
     
     //	if(optionflags[RUN_SEQUENCE]){
     // Don't need this any more now we use spike2
-    if(datprefix && expname && !(option2flag & PSYCHOPHYSICS_BIT && pcmode != SPIKE2)
-       && optionflags[ONLINE_DATA]){
+    if (optionflags[SAVE_RLS] && expt.st->type == STIM_RLS){
+        sprintf(buf,"%s/%s",datprefix,expname);        
+        if(!isdir(buf)){
+            sprintf(buf,"mkdir %s/%s",datprefix,expname);
+            sprintf(rcnamebuf,"%s/%s",datprefix,expname);
+            system(buf);
+            sprintf(buf,"chgrp 215 %s/%s",datprefix,expname);
+            chmod(rcnamebuf,02774);
+        }
         do{
-            if(expt.type2 != EXPTYPE_NONE)
-                sprintf(cbuf,"%s/%s.%sX%s.rc%d",expname,stimulus_names[expt.st->type],serial_strings[expt.mode],serial_strings[expt.type2],rcctr++);
-            else
-                sprintf(cbuf,"%s/%s.%s.rc%d",expname,stimulus_names[expt.st->type],serial_strings[expt.mode],rcctr++);
+            sprintf(cbuf,"%s/rls.rc%d",expname,rcctr++);
             rcname = myscopy(rcname,cbuf);
             sprintf(cbuf,"%s/%s",datprefix,rcname);
             if((rcfd = fopen(cbuf,"r")) != NULL)
                 fclose(rcfd);
         }while(rcfd != NULL);
-        onlinedat = 1;
         if((rcfd = fopen(cbuf,"w")) == NULL){
             sprintf(buf,"Can't write to %s",cbuf);
             acknowledge(buf,NULL);
             sprintf(cbuf,"./%s.%sX%s.rc%d",stimulus_names[expt.st->type],serial_strings[expt.mode],serial_strings[expt.type2],rcctr++);
             rcfd = fopen(cbuf,"w");
             
-        }
-        if(rcfd){
-            if(!optionflags[REVERSE_CORRELATE] && expt.type3 != EXPTYPE_NONE)
-                frameparams[0] = expt.type3;
-            else if(expt.type2 == CONTRAST_PAIRS)
-                frameparams[0] = SETCONTRAST;
-            else
-                frameparams[0] = XPOS;
-            fprintf(rcfd,"%s %s %s %s %s\n",serial_strings[expt.mode],
-                    serial_strings[expt.type2],serial_strings[frameparams[0]],
-                    serial_strings[(expt.type3 == EXPTYPE_NONE) ? frameparams[1] : expt.type3],
-                    serial_strings[frameparams[2]]);
-            fprintf(rcfd,"n5 %d\n",expt.nstim[5]);
-            cbuf[0] = 0;
-            for(i = 0; i < expt.totalcodes; i++){
-                switch(valstrings[i].icode){
-                    case EXPTYPE_CODE2:
-                    case EXPTYPE_CODE3:
-                    case EXPTYPE_CODE:
-                    case NFRAMES_CODE:
-                    case MONOCULARITY_EXPT:
-                    case TF:
-                    case SF:
-                    case SF2:
-                    case STIM_WIDTH:
-                    case STIM_HEIGHT:
-                    case CONTRAST_RATIO:
-                    case FRAMERATE_CODE:
-                    case SET_SEEDLOOP:
-                    case OPTION_CODE:
-                    case NCOMPONENTS:
-                    case STIMULUS_MODE:
-                        cbuf[0] = ' ';
-                        cbuf[1] = 0;
-                        MakeString(valstrings[i].icode,cbuf, &expt, expt.st, TO_FILE);
-                        fprintf(rcfd,"%s\n",cbuf);
-                        break;
-                }
-            }
-            if(optionflags[RUN_SEQUENCE]){
-                fprintf(rcfd,"%s %d\n",serial_strings[EXPT_STIMPERTRIAL],expt.stimpertrial);
-            }
-            else if(optionflags[FAST_SEQUENCE])
-                fprintf(rcfd,"%s %d\n",serial_strings[EXPT_STIMPERTRIAL],expt.st->nframes);
-            
-            fflush(rcfd);
-            /*
-             * nfsnobody cannot do this - not a member of the group
-             *	  sprintf(buf,"chgrp bgcdiv %s",rcname);
-             *  system(buf);
-             */
         }
     }
     else
@@ -10334,7 +10287,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     float tval;
     float swapwaits[MAXFRAMES],calctimes[MAXFRAMES],painttimes[MAXFRAMES];
     float forcewaits[MAXFRAMES],phase;
-    struct timeval lastframetime,pretime,forcetime;
+    struct timeval lastframetime,pretime,forcetime,timea;
     int nframes = n,rpt = 1;
     int noverflow = expt.noverflow;
     char cbuf[20560];
@@ -11012,9 +10965,14 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(stimstate == INSTIMULUS)
         stimstate = POSTSTIMULUS;
   
-    if (expt.st->type == STIM_RLS){
+    if (expt.st->type == STIM_RLS && optionflags[SAVE_RLS] && rcfd){
+        gettimeofday(&timea, NULL);
         StimStringRecord(buf, expt.st);
         j = strlen(buf);
+        fprintf(rcfd,"id%dse%d\n%s",expt.allstimid,expt.st->left->baseseed,buf);
+        gettimeofday(&now, NULL);
+        val = timediff(&now,&timea);
+        fprintf(seroutfile,"Id%d RLS save took %.3f\n",expt.st->stimid,val);
     }
     /* reset stimulus type in case it was set to blank */
     if(retval == BAD_TRIAL || retval < 0)
