@@ -1,0 +1,10 @@
+mo=fore
+expt=/local/jbe/stims/BarOposRC
+expt=/local/jbe/stims/SetBarSaccade
+mo=back
+st=none
+mo=fore
+sM=14
+n3=5
+nr=1
+
