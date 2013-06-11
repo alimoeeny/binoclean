@@ -10926,9 +10926,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
        frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){ 
         if(optionflags[CHECK_FRAMECOUNTS] < 2){
             sprintf(buf,"%d frames took %.1f. Continue Checking?",framesdone,frametimes[framesdone-1]);
-            if(!confirm_yes(buf,NULL)){
+            acknowledge(buf,NULL);
                 optionflags[CHECK_FRAMECOUNTS] = 0;
-            }  
         }
         else if (stimno == 0){
             sprintf(buf,"%d frames took %.1f. Won't check again",framesdone,frametimes[framesdone-1]);
