@@ -12988,8 +12988,17 @@ int InterpretLine(char *line, Expt *ex, int frompc)
              */
             LabelAndPath(s, qlabel, qpath, qname);
             t = qname;
-            quicknames[nquickexpts] = myscopy(quicknames[nquickexpts],s);
-            nquickexpts++;
+            if (nquickexpts > MAXQUICKEXP/2)
+                fprintf(stdout,"QUICK%d is %s\n",nquickexpts,qpath);
+            found = 0;
+            for(j = 0; j < nquickexpts; j++){
+                if (strcmp(s,quicknames[j]) == NULL)
+                    found++;
+            }
+            if(found ==0){
+                quicknames[nquickexpts] = myscopy(quicknames[nquickexpts],s);
+                nquickexpts++;
+            }
             /* Do nothing if this is already on the list */
             //Ali	  if(oldnquick && quick_menu){
             //	    for(i = 0; i <= oldnquick; i++){
@@ -13602,7 +13611,7 @@ int ButtonResponse(int button, int revise, vcoord *locn)
     static int laststim = -1;
     int stimid = expt.stimid;
     int ifcfirst = 0;
-    int correct = 0;
+    int correct = 0,j;
     float rt;
     int sign = 0, aid = 0;
     
@@ -13659,6 +13668,22 @@ int ButtonResponse(int button, int revise, vcoord *locn)
             sprintf(buf,"Only completed %d of %d frames",framesdone,realframes);
             acknowledge(buf,NULL);
         }
+        
+        if(res ==0)
+            GotChar(WURTZ_OK_W);
+        else
+            GotChar(WURTZ_OK);
+        if(res == 0 && optionflags[FEEDBACK] && res >= 0)
+        {
+            fprintf(stdout,"Wrong:");
+            start_timeout(SEARCH);
+            change_frame();
+            for(j = 0; j < 5; j++)
+                change_frame();
+            end_timeout();
+            change_frame();
+        }
+
     }
     return(retval);
 }

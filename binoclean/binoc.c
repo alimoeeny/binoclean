@@ -5889,7 +5889,7 @@ void paint_frame(int type, int showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
     draw_conjpos(cmarker_size,PLOT_COLOR);
-    if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0){
+    if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0 && !option2flag & PSYCHOPHYSICS_BIT){
         setmask(OVERLAY);
         DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],2,2,RF_COLOR);
         r = fabs(afc_s.sacval[0])+fabs(afc_s.sacval[1]);
