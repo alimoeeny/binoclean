@@ -2350,7 +2350,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             
             tval = time(NULL);
             if(option2flag & PSYCHOPHYSICS_BIT){
-                seroutfile = fopen("./psychtest.out","a");
+                seroutfile = fopen(expname,"a");
                 tval = time(NULL);
                 fprintf(seroutfile,"Reopened %s",ctime(&tval));
             }
@@ -6519,8 +6519,6 @@ char *SerialSend(int code)
     
     cbuf[0] = 0;
     
-    if(mode & NO_SERIAL_PORT)
-        return(cbuf);
     if((i = MakeString(code, cbuf, &expt, expt.st,0)) >= 0)
         strcat(cbuf,"\n\0");
     switch(code)
@@ -9272,9 +9270,10 @@ int PrepareExptStim(int show, int caller)
             st->framectr = i;
             st->left->calculated = st->right->calculated = 0;
             if (expt.st->type == STIM_IMAGE){
-                calc_image(expt.st,expt.st->left);
+                if((j = calc_image(expt.st,expt.st->left)) <0)
+                    return(-1);
                 if(expt.st->flag & UNCORRELATE)
-                    calc_image(expt.st,expt.st->right);
+                    j = calc_image(expt.st,expt.st->right);
                 for (j = 1; j < frpt; j++){
                 st->framectr = i+j;
                 st->left->calculated = st->right->calculated = 0;

@@ -128,9 +128,16 @@ for j = 1:length(strs{1})
         DATA.localmatdir=value;
     elseif strncmp(s,'netmatdir',6)
         DATA.netmatdir=value;
-    elseif strncmp(s,'electrdode',6)
+    elseif strncmp(s,'electrode=',10)
         estr = s(eid(1)+1:end);
-        DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+        eid = find(strcmp(estr,DATA.electrodestrings));
+        if isempty(eid)
+            DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+            DATA.electrodeid = length(DATA.electrodestrings);
+        else
+            DATA.electrodeid = eid(1);
+        end
+        DATA.electrodestring = estr;
     elseif strncmp(s,'read',4) %read a set of instructions
         fid = fopen(value,'r');
     elseif strncmp(s,'user',4)
@@ -838,7 +845,7 @@ function SendState(DATA, varargin)
     SendCode(DATA,'optionflag');
     SendCode(DATA,'expts');
     if DATA.electrodeid > 0
-        fprintf(DATA.outid,'electrode=%s\n',DATA.electrodes{DATA.electrodeid});
+        fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
     end
     
     fprintf(DATA.outid,'\neventcontinue\n');
@@ -1058,7 +1065,7 @@ DATA.stimflagnames.pc = 'White Dots';
 DATA.verbose = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
-DATA.electrodestrings = {};
+DATA.electrodestrings = {'Not Set'};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
 DATA.electrodestring = 'default';
@@ -1145,8 +1152,8 @@ DATA.exptype{2} = 'e0';
 DATA.exptype{3} = 'e0';
 DATA.stimtype(1) = 1;
 DATA.stimtype(2) = 1;
-DATA.electrodes = {};
-DATA.electrodeid = 0;
+
+DATA.electrodeid = 1;
 DATA.mean = [0 0 0];
 DATA.incr = [0 0 0];
 DATA = ReadSetupFile(DATA, '/local/binoc.setup');
@@ -2534,7 +2541,7 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 3./nc;
    uicontrol(gcf,'style','pop','string',DATA.electrodestrings, ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','ElectrodeType','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',DATA.electrodeid,'Tag','ElectrodeType','callback',{@MenuGui});
  
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.2;

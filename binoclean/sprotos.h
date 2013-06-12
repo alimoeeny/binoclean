@@ -434,7 +434,7 @@ Substim *NewImage(Stimulus *st, Substim *sst);
 int init_image(Stimulus *st,  Substim *sst);
 int ReadPGMstim(char *name, Substim *sst);
 int CopyPGMstim(Substim *src, Substim *tgt);
-void calc_image(Stimulus *st, Substim *sst);
+int calc_image(Stimulus *st, Substim *sst);
 int paint_image(Stimulus *st, Substim *sst);
 void runexpt(int w, Stimulus *st, int *cbs);
 void setexp(int w, int id, int val);

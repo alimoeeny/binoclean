@@ -86,17 +86,16 @@ int PreloadPGM(char *name, Stimulus *st, Substim *sst, int frame){
         if(strncmp(name,lastname,strlen(name)-5) != 0){
             sprintf(buf,"Can't Read Image %s\n",name);
             if(astate == NULL || *astate == 0){ // no confirmer up now
+                acknowledge(buf);                
             }
             fputs(buf,stderr);
             if(seroutfile)
                 fprintf(seroutfile,"Can't Read Image %s\n",name);
-            if(psychlog)
-//                fprintf(psychlog,"Can't Read Image %s\n",name);
             strcpy(lastname,name);
         }
         else
             fprintf(stderr,"Can't Read Image %s\n",name);
-        return(NULL);
+        return(0);
     }
     fgets(buf, BUFSIZ, imfd);
     sscanf(buf,"P5 %d %d %d",&w,&h,&imax);
@@ -209,7 +208,7 @@ int CopyPGMstim(Substim *src, Substim *tgt)
     return(w*h);
 }
 
-void calc_image(Stimulus *st, Substim *sst)
+int calc_image(Stimulus *st, Substim *sst)
 {
     char imname[BUFSIZ],buf[BUFSIZ],impref[BUFSIZ];
     int ival;
@@ -222,7 +221,7 @@ void calc_image(Stimulus *st, Substim *sst)
     int i,id,nf,fo = 0;
     
     if(sst->calculated)
-        return;
+        return(0);
     /*
      * calc_image is called directly when preloading, so this calculation needs
      * to be done here also, for an SF Fast sequence to work
@@ -235,7 +234,7 @@ void calc_image(Stimulus *st, Substim *sst)
         if(st->xstate == INTERLEAVE_EXPT_BLANK)
         {
         }
-        return;
+        return(0);
     }
     
 
@@ -292,7 +291,7 @@ void calc_image(Stimulus *st, Substim *sst)
         
         if(st->xstate == INTERLEAVE_EXPT_BLANK || ori == INTERLEAVE_EXPT_BLANK && !expt.st->preload){
             imageseed[st->framectr] = INTERLEAVE_EXPT_BLANK;
-            return;
+            return(0);
         }
         
         if(sst->orbw > MAXORBW)
@@ -368,7 +367,7 @@ void calc_image(Stimulus *st, Substim *sst)
         sprintf(imname,"%s%.*d.pgm",st->imprefix,st->nimplaces,seed);
         if(st->xstate == INTERLEAVE_EXPT_BLANK || ori == INTERLEAVE_EXPT_BLANK){
             imageseed[st->framectr] = INTERLEAVE_EXPT_BLANK;
-            return;
+            return(0);
         }
     }
     else if(sst->imagei > 0)
@@ -387,7 +386,9 @@ void calc_image(Stimulus *st, Substim *sst)
         imageseed[fo] = seed;
         
         if(st->xstate > INTERLEAVE_EXPT_BLANK){
-            PreloadPGM(imname,st,sst,fo);
+            i = PreloadPGM(imname,st,sst,fo);
+            if (i <= 0)
+                return(-1);
         }
         else{
             imageseed[fo] = INTERLEAVE_EXPT_BLANK;
@@ -415,6 +416,7 @@ void calc_image(Stimulus *st, Substim *sst)
      st->mode & STIMULUS_NEED_CLEAR
      */
     st->mode &= (~STIMULUS_NEEDS_CLEAR);
+    return(0);
 }
 
 int ShiftImage(int frame, int x, int y)

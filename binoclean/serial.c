@@ -229,6 +229,7 @@ void SerialString(char *s, int tty)
     int i = 0,k = 0,sumerrs = 0;
     static int writerrs = 0;
     
+
     if(tty == 0)
         tty = ttys[0];
     if(tty >= 0){
