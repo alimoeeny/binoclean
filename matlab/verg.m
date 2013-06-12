@@ -303,6 +303,7 @@ for j = 1:length(strs{1})
         if length(id) > 1
             DATA.Trial.id = sscanf(s(id(2)+1:end),'%d');
         end
+        fprintf('t%dR%d\n',DATA.nt,DATA.Trial.RespDir);
         if isfield(DATA.Trial,'RespDir')
             DATA = PlotPsych(DATA);
         end
