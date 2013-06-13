@@ -129,6 +129,8 @@ static int firstseed = 0;
 static PGM backims[MAXBACKIM+1];
 static int backloaded = 0;
 static int flips[2] = {0};
+float *manualstimvals[100];
+
 int seedoffsets[100] = {0};
 int covaryprop = -1;
 int maxseed = 0;
@@ -1659,6 +1661,10 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         if((cmdhistory = fopen("./binoc.history","a")) != NULL)
             fprintf(cmdhistory,"\nReopened %s",ctime(&tval));
     }
+    for (i = 0; i < 100; i++)
+        manualstimvals[i] = NULL;
+    for (i = 0; i < 10; i++)
+        manualstimvals[i] = (float *)malloc(sizeof(float)*MAXFRAMES);
     gettimeofday(&bwtime,NULL);
     stimseq = (Thisstim *)malloc((TRIALBUFFERLEN+1) * sizeof(Thisstim));
     pgimage.ptr = NULL;
@@ -1849,7 +1855,21 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 }
 
 
+int ReadManualStim(char *file){
+    struct stat statbuf;
+    FILE *fin;
+    char *s;
 
+    if(file == NULL)
+        return(0);
+    if(stat(file, &statbuf) == -1)
+        return(0);
+    fin = fopen(file,"r");
+    while((s = fgets(mssg, BUFSIZ, fin)) != NULL){
+    }
+    fclose(fin);
+
+}
 
 
 
