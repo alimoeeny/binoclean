@@ -9845,8 +9845,10 @@ int GotChar(char c)
                     monkey_dir = 0;
                     sprintf(resbuf," %c%d",result,monkey_dir);
                 }
-                sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,trueafc);
-                notify(buf);
+                if (!option2flag & PSYCHOPHYSICS_BIT){
+                    sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,trueafc);
+                    notify(buf);
+                }
 
                 res = (int)c;
                 
