@@ -130,6 +130,7 @@ static PGM backims[MAXBACKIM+1];
 static int backloaded = 0;
 static int flips[2] = {0};
 float *manualstimvals[100];
+int manualprop[100];
 
 int seedoffsets[100] = {0};
 int covaryprop = -1;
@@ -1858,19 +1859,42 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 int ReadManualStim(char *file){
     struct stat statbuf;
     FILE *fin;
-    char *s;
-
+    char *s,*t;
+    int nprop = 0,j;
+    float val;
+    
     if(file == NULL)
         return(0);
     if(stat(file, &statbuf) == -1)
         return(0);
     fin = fopen(file,"r");
     while((s = fgets(mssg, BUFSIZ, fin)) != NULL){
+        s = strchr(mssg,':');
+        if (s != NULL){
+            manualprop[nprop] = FindCode(mssg);
+            t = ++s;
+            j = 0;
+            while(t != NULL){
+                sscanf(t,"%f",&val);
+                manualstimvals[nprop][j++] = val;
+            }
+            manualstimvals[nprop][j++] = NOTSET;
+            nprop++;
+        }
+        manualstimvals[nprop][0] = NOTSET;
     }
+    manualprop[nprop] = -1;
     fclose(fin);
-
 }
 
+int SetManualStim(int frame)
+{
+    int i,p = 0;
+    
+    while(manualprop[p] >= 0){
+        SetProperty(&expt, expt.st, manualprop[p],manualstimvals[p][frame]);
+    }
+}
 
 
 int ReadCommandFile(char *file)

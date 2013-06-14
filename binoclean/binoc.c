@@ -5302,6 +5302,10 @@ void increment_stimulus(Stimulus *st, Locator *pos)
      * stimulus. N.B. this only needs to be done once, don't repeat it if 
      * incrementing the background stimulus. Hence only do it if st->prev == NULL
      */
+    if (expt.stimmode == MANUAL_STIM_SEQ){
+        SetManualStim(expt.st->framectr);
+        return;
+    }
     frame = expt.st->framectr;
     if(st->prev == NULL){
         if((i = (int)rint(expt.vals[FP_MOVE_FRAME])) > 0
