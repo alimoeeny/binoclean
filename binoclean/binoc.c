@@ -5303,7 +5303,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
      * incrementing the background stimulus. Hence only do it if st->prev == NULL
      */
     if (expt.stimmode == MANUAL_STIM_SEQ){
-        SetManualStim(expt.st->framectr);
+        SetManualStim(expt.framesdone);
         return;
     }
     frame = expt.st->framectr;

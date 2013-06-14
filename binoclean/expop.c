@@ -1872,11 +1872,13 @@ int ReadManualStim(char *file){
         s = strchr(mssg,':');
         if (s != NULL){
             manualprop[nprop] = FindCode(mssg);
-            t = ++s;
+            t = s;
             j = 0;
             while(t != NULL){
-                sscanf(t,"%f",&val);
+                sscanf(++t,"%f",&val);
                 manualstimvals[nprop][j++] = val;
+                s = strchr(t,' ');
+                t = s;
             }
             manualstimvals[nprop][j++] = NOTSET;
             nprop++;
@@ -1885,6 +1887,7 @@ int ReadManualStim(char *file){
     }
     manualprop[nprop] = -1;
     fclose(fin);
+    return(0);
 }
 
 int SetManualStim(int frame)
@@ -1893,6 +1896,7 @@ int SetManualStim(int frame)
     
     while(manualprop[p] >= 0){
         SetProperty(&expt, expt.st, manualprop[p],manualstimvals[p][frame]);
+        p++;
     }
 }
 
@@ -7970,8 +7974,13 @@ int PrepareExptStim(int show, int caller)
         fprintf(seroutfile,"PrEx %d\n",caller);
     }
 #endif
+
     fakestim = 0;
     expt.laststimno = stimno;
+    if (expt.stimmode = MANUAL_STIM_SEQ){
+        i = ReadManualStim("/local/manstim");
+        return(i);
+    }
     if(expt.type2 == OPPOSITE_DELAY){
         SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY]);
     }
@@ -10519,10 +10528,12 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 framecounts[framesdone] = rc;
                 if(rc >= n && n < MAXFRAMES) 
                     finished = 2;
+                if (!optionflags[FIXNUM_PAINTED_FRAMES]){
                 if((e.mouseButton = processUIEvents()) > 0){
                     e.eventType = ButtonPress;
                     HandleMouse(e);
                     finished = 2;
+                }
                 }
 
                 //Ali	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){	    }
