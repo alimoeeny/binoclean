@@ -402,7 +402,8 @@ float pix2degy(float val);
 #define RANDOM_INITIAL_PHASE 65
 #define ICON_IN_TRIAL 66
 #define SAVE_RLS 67
-#define LAST_CODED_OPTION 67
+#define MANUAL_EXPT 68
+#define LAST_CODED_OPTION 68
 
 
 #define AUTO_COPY_ONLINE_FILES (LAST_CODED_OPTION+1)

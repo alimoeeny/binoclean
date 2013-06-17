@@ -1863,12 +1863,15 @@ int ReadManualStim(char *file){
     int nprop = 0,j;
     float val;
     
+    manualprop[0] = -1;  //in case file error
     if(file == NULL)
         return(0);
     if(stat(file, &statbuf) == -1)
         return(0);
     fin = fopen(file,"r");
     while((s = fgets(mssg, BUFSIZ, fin)) != NULL){
+        if (seroutfile)
+            fputs(mssg,seroutfile);
         s = strchr(mssg,':');
         if (s != NULL){
             manualprop[nprop] = FindCode(mssg);
@@ -1883,6 +1886,8 @@ int ReadManualStim(char *file){
             manualstimvals[nprop][j++] = NOTSET;
             nprop++;
         }
+        else
+            InterpretLine(mssg,&expt,3);
         manualstimvals[nprop][0] = NOTSET;
     }
     manualprop[nprop] = -1;
@@ -4942,6 +4947,31 @@ int setexp3stim()
     return(expt.nstim[4]);
 }
 
+
+int ReadStimOrder(char *file)
+{
+
+    FILE *fd;
+    char buf[BUFSIZ*10],*s,*t;
+    int ival,nt=0;
+    
+    fd = fopen(file,"r");
+    if (fd != NULL){
+        while(fgets(buf, BUFSIZ, fd) != NULL){
+            s = buf;
+            while(s){
+                sscanf(s,"%d",&ival);
+                stimorder[nt++] = ival;
+                t = s;
+                if((s = strchr(t,' ')) != NULL)
+                    s++;
+            }
+        }
+    
+    }
+    return(nt-1);
+}
+
 /*
  * stimulusorder is now complicated because of mulitpe experimnets.
  * stimulus values are listed in expval as:
@@ -4995,6 +5025,9 @@ void setstimulusorder(int warnings)
     nset = nreps+1;
     baseseed = expt.st->left->baseseed & 0x1;
     
+    if (optionflags[MANUAL_EXPT]){
+        return;  // order set in matlab
+    }
     maxrpts = 3;
     if(optionflags[ALWAYS_CHANGE_STIM])
         maxrpts = 0;
@@ -7977,8 +8010,12 @@ int PrepareExptStim(int show, int caller)
 
     fakestim = 0;
     expt.laststimno = stimno;
-    if (expt.stimmode = MANUAL_STIM_SEQ){
-        i = ReadManualStim("/local/manstim");
+    if (optionflags[MANUAL_EXPT]){
+        sprintf(ebuf,"/local/manstim/stim%d",stimorder[stimno]);
+        i = ReadManualStim(ebuf);
+        val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
+        code = afc_s.sign = (int)(val/fabs(val));
+        stimulus_is_prepared = 1;
         return(i);
     }
     if(expt.type2 == OPPOSITE_DELAY){
@@ -9593,7 +9630,10 @@ int ExpStimOver(int retval, int lastchar)
     
 
     //	ResetExpStim();
-    ntotal = expt.nstim[5] * expt.nreps;
+    if(optionflags[MANUAL_EXPT])
+        ntotal = expt.nstim[6];
+    else
+        ntotal = expt.nstim[5] * expt.nreps;
     /*
      * in IFC mode, each trial has two stimuli, so there are
      * twice as many. But the reference is never shown with
@@ -12532,6 +12572,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         SerialString(buf,0);
         return(0);
     }
+    else if(!strncmp(line,"exvals",6)){
+        i = sscanf(&line[6],"%f %f %f",&in[0],&in[1],&in[2]);
+        for (j = 0; j <i; j++)
+            expt.currentval[j] = in[j];
+        return(0);
+    }
     else if(!strncmp(line,"electrode",7)){
         SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
     }
@@ -12551,6 +12597,24 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         SerialString(buf,0);
         return(0);
     }
+    else if(!strncmp(line,"stimorderfile",13)){
+        expt.nstim[6] = ReadStimOrder("/local/manstim/stimorder");
+        return(0);
+    }
+    else if(!strncmp(line,"stimorder",8)){
+            s = strchr(line,' ');
+            if (s != NULL){
+                t = s;
+                j = 0;
+                while(t != NULL){
+                    sscanf(++t,"%f",&val);
+                    stimorder[j++] = (int)(val);
+                    s = strchr(t,' ');
+                    t = s;
+                }
+            }
+            return(0);
+        }
     else if(!strncmp(line,"showrwbias",10)){
         optionflags[SHOW_REWARD_BIAS] = 2;
         if((s = strchr(line,'=')) != 0){
@@ -13684,7 +13748,7 @@ int ButtonResponse(int button, int revise, vcoord *locn)
     else
         res = 0;
 
-    PrintPsychLine(res, sign);
+    PrintPsychLine(res, sign); // now done in GotChar, so get rest of serial output
     if(expt.stimid >= 0){
         if(option2flag & IFC)
             res = ifcanswer;

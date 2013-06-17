@@ -462,9 +462,10 @@
 #define PROTRUSION (MAXSAVECODES+24)
 #define HEMISPHERE (MAXSAVECODES+25)
 #define COARSEMM (MAXSAVECODES+26)
+#define PSYCH_VALUE (MAXSAVECODES+27)
 
 
-#define MAXTOTALCODES (MAXSAVECODES+27)  //372
+#define MAXTOTALCODES (MAXSAVECODES+28)  //372
 
 
 /*
@@ -785,6 +786,7 @@ ToggleCode togglestrings[] = {
     {"Test mode",    "tm", 0, TEST_BIT, 1},
     {"Fix Sepn",    "fs",  0, FIXED_BARSEP, 3},
     {"Record RLS",    "srls",  0, SAVE_RLS, 3},
+    {"Manual Expt",    "exm",  0, MANUAL_EXPT, 3},
     //   {"Auto Plot",    "ap", 0, AUTO_PLOT, 1},
     //   {"PreBack",    "pb", 0, BACKGROUND_IN_PREPERIOD, 1},
     //   {"Show Val",    "pw", 0, PLOT_WURTZ_BIT, 1},
@@ -1231,6 +1233,7 @@ ValueCode valstrings[] = {
     {  "ePr", "Guide Tube Protrusion", PROTRUSION, 0, 'N', 0, SEND_EXPLICIT},
     {  "hemi", "HemiSphere", HEMISPHERE, 0, 'C', 0, SEND_EXPLICIT},
     {  "coarsemm", "Starting positino on Coarse drive", COARSEMM, 0, 'N', 0, SEND_EXPLICIT},
+    {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

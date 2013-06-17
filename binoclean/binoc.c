@@ -1406,7 +1406,7 @@ int SendTrialCount()
     else
         stim = stimno;
     
-    sprintf(buf,"STIMC %d %d %d %d %d %d %d %.1f\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stim,expt.nreps*expt.nstim[5],totalreward);
+    sprintf(buf,"STIMC %d %d %d %d %d %d %d %.1f\n",goodtrials, totaltrials, badtrials, latetrials, fixtrials,stim,expt.nstim[6],totalreward);
     notify(buf);
 }
 
@@ -5302,8 +5302,11 @@ void increment_stimulus(Stimulus *st, Locator *pos)
      * stimulus. N.B. this only needs to be done once, don't repeat it if 
      * incrementing the background stimulus. Hence only do it if st->prev == NULL
      */
-    if (expt.stimmode == MANUAL_STIM_SEQ){
+    rds = st->left;
+    if (optionflags[MANUAL_EXPT]){
         SetManualStim(expt.framesdone);
+        if(rds->seedloop == 0)
+            rds->baseseed += 2;
         return;
     }
     frame = expt.st->framectr;
@@ -9270,6 +9273,8 @@ int PrintPsychLine(int presult, int sign)
         fprintf(psychfile," sn=%d %.2f %.2f %.2f",sign,start,down,expt.vals[REWARD_SIZE]);
         if(microsaccade >0)
             sprintf(str,"%s(%,4f)=%.2f",serial_strings[SACCADE_DETECTED],microsaccdir, microsaccade);
+        else if (optionflags[MANUAL_EXPT])
+            sprintf(str,"stid=%d",stimorder[stimno]);
         else
             sprintf(str,"%s=%d",serial_strings[SET_SEED],expt.st->left->baseseed);
         sprintf(str,"%s %s",str,EyePosString());
@@ -9279,8 +9284,7 @@ int PrintPsychLine(int presult, int sign)
             fprintf(psychfile," %s=%.2f %s\n",serial_strings[DISP_X],expt.currentval[2],str);
         else if(expt.vals[ONETARGET_P] > 0)
             fprintf(psychfile," %s=%.2f %s\n",serial_strings[TARGET_RATIO],expt.vals[TARGET_RATIO],str);
-        else
-            
+        else            
             fprintf(psychfile," %s %s=%d\n",str,serial_strings[STIMID],expt.allstimid);
         fflush(psychfile);
     }
@@ -9643,7 +9647,8 @@ int GotChar(char c)
                     sign = 1;
                 else
                     sign = 0;
-                PrintPsychLine(presult, sign);
+                if (!option2flag & PSYCHOPHYSICS_BIT)
+                    PrintPsychLine(presult, sign);
                 if(seroutfile != NULL) 
                 {
                     if(c == WURTZ_OK || c == WURTZ_OK_W){
