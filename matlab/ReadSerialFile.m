@@ -176,6 +176,10 @@ if readexpts
     end
     lasteiid = 0;
         
+    if isempty(sqid)
+        sqid = strmatch('dx:',txt);
+    end
+        
     if length(exptlist)
         remid = strmatch('Remaining',txt);
 %        exid = strmatch('Expt',txt);
@@ -242,7 +246,17 @@ for j = 1:length(sqid)
     end
     
     line = txt(sqid(j),:);
-    a = sscanf(line(6:end),'%f ');
+    if strncmp(line,'ce:',3)
+        nc=5;
+        rcvar = 'ceseq';
+    elseif strncmp(line,'dx:',3)
+        nc = 5;
+        rcvar = 'dxseq';
+    else
+        rcvar = 'Seedseq';
+        nc = 6;
+    end
+    a = sscanf(line(nc:end),'%f ');
     Trials(j).nFr(1) = length(a);
     Trials(j).nFr(2) = length(a);
     if length(a) > nframes(j)
@@ -293,7 +307,7 @@ for j = 1:length(sqid)
         end
 %        t = id(end-1);
     end    
-    Trials(j).Seedseq = a;
+    Trials(j).(rcvar) = a;
     seedseq{j} = a;
     a = textscan(txt(pid(t),:),'%2s %[^=]=%f %[^=]=%f %[^=]=%f');
     %only set stimvals.et, e2 if its a psych trial
