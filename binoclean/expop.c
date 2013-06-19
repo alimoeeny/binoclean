@@ -1859,7 +1859,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 int ReadManualStim(char *file){
     struct stat statbuf;
     FILE *fin;
-    char *s,*t;
+    char *s,*t,inbuf[BUFSIZ*10];
     int nprop = 0,j;
     float val;
     
@@ -1869,12 +1869,12 @@ int ReadManualStim(char *file){
     if(stat(file, &statbuf) == -1)
         return(0);
     fin = fopen(file,"r");
-    while((s = fgets(mssg, BUFSIZ, fin)) != NULL){
+    while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
         if (seroutfile)
-            fputs(mssg,seroutfile);
-        s = strchr(mssg,':');
+            fputs(inbuf,seroutfile);
+        s = strchr(inbuf,':');
         if (s != NULL){
-            manualprop[nprop] = FindCode(mssg);
+            manualprop[nprop] = FindCode(inbuf);
             t = s;
             j = 0;
             while(t != NULL){
@@ -1887,7 +1887,7 @@ int ReadManualStim(char *file){
             nprop++;
         }
         else
-            InterpretLine(mssg,&expt,3);
+            InterpretLine(inbuf,&expt,3);
         manualstimvals[nprop][0] = NOTSET;
     }
     manualprop[nprop] = -1;
@@ -4954,8 +4954,13 @@ int ReadStimOrder(char *file)
     FILE *fd;
     char buf[BUFSIZ*10],*s,*t;
     int ival,nt=0;
-    
-    fd = fopen(file,"r");
+ 
+    if (expt.strings[EXPT_PREFIX] != NULL){
+        sprintf(buf,"%s/stimorder",expt.strings[EXPT_PREFIX]);
+        fd = fopen(file,"r");
+    }
+    else
+        fd = fopen(file,"r");
     if (fd != NULL){
         while(fgets(buf, BUFSIZ, fd) != NULL){
             s = buf;
@@ -5026,6 +5031,7 @@ void setstimulusorder(int warnings)
     baseseed = expt.st->left->baseseed & 0x1;
     
     if (optionflags[MANUAL_EXPT]){
+        expt.nstim[6] = ReadStimOrder("/local/manstim/stimorder");
         return;  // order set in matlab
     }
     maxrpts = 3;
@@ -8015,7 +8021,17 @@ int PrepareExptStim(int show, int caller)
         i = ReadManualStim(ebuf);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
         code = afc_s.sign = (int)(val/fabs(val));
+        if (val == 0)
+                afc_s.stimsign = (drand48() > 0.5);
+        else
+           afc_s.stimsign = code;
+        
+        
         stimulus_is_prepared = 1;
+        sprintf(cbuf,"exvals %.4f %.4f %.4f %d\n",expt.currentval[0],expt.currentval[1],expt.currentval[2],stimorder[stimno]);
+        SerialString(cbuf,0);
+        notify(cbuf);
+        statusline(cbuf);
         return(i);
     }
     if(expt.type2 == OPPOSITE_DELAY){
@@ -13690,13 +13706,13 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     
     /*
-     * Only lines with no # character are allowed to have mulitple codes
+     * Only lines with no # character and no : character are allowed to have mulitple codes
      * on a line. 
      * some strings are multi fields. Don't treat the rest of the line
      * as more input codes
      */
     
-    if((t = strchr(s,'#')) == NULL){
+    if((t = strchr(s,'#')) == NULL && (t = strchr(line,':')) == NULL){
         switch(code){
             default:
                 if((t = strchr(s,' ')) != NULL && *(++t))

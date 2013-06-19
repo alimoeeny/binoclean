@@ -9586,7 +9586,7 @@ int GotChar(char c)
                 trialdursum += trialdur;
                 
                 if(c== WURTZ_OK){
-                    if(option2flag & AFC) 
+                    if(option2flag & AFC || option2flag & PSYCHOPHYSICS_BIT)
                         result = 'G';
                     else
                         result = 'F';

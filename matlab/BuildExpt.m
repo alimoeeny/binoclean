@@ -12,7 +12,9 @@ end
 
 stimvals{3} = [-0.1 0.1];
 stimvals{2} = [-0.1 0.1];
-stimvals{1} = 0.8;
+stimvals{1} = [0 0.2 0.4 0.8];
+distvals = -0.2:0.05:0.2;
+distw = length(distvals);
 S.stimno = 0;
 S.sl = 0;
 S.types = {'dx' 'ce'};
@@ -21,7 +23,7 @@ for m = 1:nstim(3)
 for k = 1:nstim(2)
     for j = 1:nstim(1)
         nsig = floor((stimvals{1}(j) .* nf));
-        S.vals{1} = round(rand(nf+1,1) .*nstim(1))./(nstim(1) .*10);
+        S.vals{1} = distvals(ceil(rand(nf+1,1) .*distw));
         S.vals{1}(1:100) = stimvals{2}(k);
         sigframes = 100 + floor(rand(nsig,1) .* 100);
         S.vals{1}(sigframes) = stimvals{3}(m);
@@ -55,11 +57,11 @@ j = 1;
 
 sname = ['/local/manstim/stim' num2str(S.stimno)];
 fid = fopen(sname,'w');
-fprintf(fid,'psyv%d\n',S.signal);
-fprintf(fid,'se%d\n',S.se);
+fprintf(fid,'psyv=%.4f\n',S.signal);
+fprintf(fid,'se=%d\n',S.se);
 fprintf(fid,'exvals%.2f %.2f %.2f\n',S.dx,S.Dc,S.ac);
-fprintf(fid,'dx%0.2f\n',S.dx);
-fprintf(fid,'ac%0.2f\n',S.ac);
+fprintf(fid,'dx=%0.2f\n',S.dx);
+fprintf(fid,'ac=%0.2f\n',S.ac);
 fprintf(fid,'sl=%d\n',S.sl);
 types = {'dx' 'ce'};
 for k = 1:length(S.types)

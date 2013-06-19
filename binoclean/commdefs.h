@@ -463,9 +463,10 @@
 #define HEMISPHERE (MAXSAVECODES+25)
 #define COARSEMM (MAXSAVECODES+26)
 #define PSYCH_VALUE (MAXSAVECODES+27)
+#define EXPT_PREFIX (MAXSAVECODES+28)
 
 
-#define MAXTOTALCODES (MAXSAVECODES+28)  //372
+#define MAXTOTALCODES (MAXSAVECODES+29)  //372
 
 
 /*
@@ -1234,6 +1235,7 @@ ValueCode valstrings[] = {
     {  "hemi", "HemiSphere", HEMISPHERE, 0, 'C', 0, SEND_EXPLICIT},
     {  "coarsemm", "Starting positino on Coarse drive", COARSEMM, 0, 'N', 0, SEND_EXPLICIT},
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
+    {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 
