@@ -41,11 +41,9 @@
 		41B1211913DF6E21008869E3 /* counterButtonUP114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B1211713DF6E21008869E3 /* counterButtonUP114.png */; };
 		41B1212713DF795C008869E3 /* mainGUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B1212613DF795C008869E3 /* mainGUI.m */; };
 		41BF8E1E13A174FE00C8B6BA /* expop.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEB13A174FE00C8B6BA /* expop.c */; };
-		41BF8E1F13A174FE00C8B6BA /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
 		41BF8E2013A174FE00C8B6BA /* xrand.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DED13A174FE00C8B6BA /* xrand.c */; };
 		41BF8E2113A174FE00C8B6BA /* wurtz.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEE13A174FE00C8B6BA /* wurtz.c */; };
 		41BF8E2213A174FE00C8B6BA /* stimulus.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEF13A174FE00C8B6BA /* stimulus.c */; };
-		41BF8E2313A174FE00C8B6BA /* stepper.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DF013A174FE00C8B6BA /* stepper.c */; };
 		41BF8E2413A174FE00C8B6BA /* stairpop.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DF113A174FE00C8B6BA /* stairpop.c */; };
 		41BF8E2513A174FE00C8B6BA /* do_twobar.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DF213A174FE00C8B6BA /* do_twobar.c */; };
 		41BF8E2613A174FE00C8B6BA /* do_sqcorrug.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DF313A174FE00C8B6BA /* do_sqcorrug.c */; };
@@ -168,6 +166,8 @@
 		C969F920150D233B00D7A5A7 /* rdsopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F889150D233B00D7A5A7 /* rdsopos */; };
 		C969F921150D233B00D7A5A7 /* rdssine in Resources */ = {isa = PBXBuildFile; fileRef = C969F88A150D233B00D7A5A7 /* rdssine */; };
 		C96A1726155A982F005DE480 /* liblabjackusb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A1725155A982F005DE480 /* liblabjackusb.dylib */; };
+		C9AA959E1773855F003E9841 /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
+		C9AA95A0177385D0003E9841 /* servostepper.c in Sources */ = {isa = PBXBuildFile; fileRef = C9AA959F177385D0003E9841 /* servostepper.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -385,6 +385,7 @@
 		C969F889150D233B00D7A5A7 /* rdsopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsopos; sourceTree = "<group>"; };
 		C969F88A150D233B00D7A5A7 /* rdssine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssine; sourceTree = "<group>"; };
 		C96A1725155A982F005DE480 /* liblabjackusb.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblabjackusb.dylib; path = usr/local/lib/liblabjackusb.dylib; sourceTree = SDKROOT; };
+		C9AA959F177385D0003E9841 /* servostepper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = servostepper.c; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -469,6 +470,7 @@
 				41BF8DEB13A174FE00C8B6BA /* expop.c */,
 				41BF8DEF13A174FE00C8B6BA /* stimulus.c */,
 				41BF8DF013A174FE00C8B6BA /* stepper.c */,
+				C9AA959F177385D0003E9841 /* servostepper.c */,
 				41AA181D13AA71D7009AC8E2 /* ni_dio.c */,
 				41934E1B15223E61001D9E5C /* labjack_dio.c */,
 				41BF8DED13A174FE00C8B6BA /* xrand.c */,
@@ -996,13 +998,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				419DCE1513A133B3004E8464 /* main.m in Sources */,
-				41BF8E1F13A174FE00C8B6BA /* binoc.c in Sources */,
 				419DCE1C13A133B3004E8464 /* binocleanAppDelegate.m in Sources */,
 				41BF8E1E13A174FE00C8B6BA /* expop.c in Sources */,
 				41BF8E2013A174FE00C8B6BA /* xrand.c in Sources */,
 				41BF8E2113A174FE00C8B6BA /* wurtz.c in Sources */,
 				41BF8E2213A174FE00C8B6BA /* stimulus.c in Sources */,
-				41BF8E2313A174FE00C8B6BA /* stepper.c in Sources */,
 				41BF8E2413A174FE00C8B6BA /* stairpop.c in Sources */,
 				41BF8E2513A174FE00C8B6BA /* do_twobar.c in Sources */,
 				41BF8E2613A174FE00C8B6BA /* do_sqcorrug.c in Sources */,
@@ -1039,6 +1039,8 @@
 				3F2B7490152DFB1100458902 /* labjack_dio.c in Sources */,
 				41536F8815349D41002D0F9D /* u3.c in Sources */,
 				417FC01B1695AACB00B3CFFF /* MTRandom.m in Sources */,
+				C9AA959E1773855F003E9841 /* binoc.c in Sources */,
+				C9AA95A0177385D0003E9841 /* servostepper.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

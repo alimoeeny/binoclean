@@ -2,18 +2,31 @@ function BuildExpt(varargin)
 stimno= 1;
 nf = 200;
 j = 1;
-while j <= length(varargin)
-    if strncmpi(varargin{j},'stimno',5)
-        j = j+1;
-        stimno = varargin{j};
-    end
-    j = j+1;
-end
-
 stimvals{3} = [-0.1 0.1];
 stimvals{2} = [-0.1 0.1];
 stimvals{1} = [0 0.2 0.4 0.8];
 distvals = -0.2:0.05:0.2;
+
+while j <= length(varargin)
+    if strncmpi(varargin{j},'stimno',5)
+        j = j+1;
+        stimno = varargin{j};
+    else strncmpi(varargin{j},'dxvals',5)
+        j = j+1;
+        distvals = varargin{j};
+    else strncmpi(varargin{j},'disps',5)
+        j = j+1;
+        stimvals{2} = varargin{j};
+    else strncmpi(varargin{j},'acdisps',5)
+        j = j+1;
+        stimvals{3} = varargin{j};
+    else strncmpi(varargin{j},'signals',5)
+        j = j+1;
+        stimvals{1} = varargin{j};
+    end
+    j = j+1;
+end
+
 distw = length(distvals);
 S.stimno = 0;
 S.sl = 0;
