@@ -1,0 +1,12 @@
+mo=fore
+Ro=90
+expt=/local/jbe/stims/BarsWithSaccade
+expt=/local/jbe/stims/SetBackIms
+Ro=90
+expt=/local/jbe/stims/SetRectMask
+op=-fS
+nr=1
+et=Fa
+em=180
+ei=180
+nt=2

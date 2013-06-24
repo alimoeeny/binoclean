@@ -55,7 +55,8 @@ int OpenSerial(char *port)
     
     if(ttys[0] != 0)
         i = 1;
-    if((ttys[i] = open(port,O_RDWR|O_NONBLOCK)) < 0)
+//    if((ttys[i] = open(port,O_RDWR)) < 0)
+        if((ttys[i] = open(port,O_RDWR|O_NONBLOCK)) < 0)
     {
         sprintf(buf,"Can't open %s",port);
         perror(buf);

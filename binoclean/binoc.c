@@ -1177,12 +1177,12 @@ char **argv;
 	expt.polygonsmooth = 1;
     
     
-    
 	if((i = OpenSerial(theport)) <= 0)
 		mode |= NO_SERIAL_PORT;
     
     
 	OpenPenetrationLog(0); /* open a dummy so ed is ALWAYS saved */
+//    OpenStepSerial(stepperport);
     
 	while(argc >1)
 	{
