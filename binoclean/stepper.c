@@ -58,7 +58,7 @@ float motormags[4] = { 0.7933, 0.7933, 0.76, 0.7933};
  */
 static int turnoff = 1; 
 
-//#define MOTOR_MAG 1.60
+//#define MOTOR_MAG 1.60op
 #ifdef MICRODRIVE_VERSIONA
 
 #define MOTOR_MAG 2.6 // Jan 2002, for new screw

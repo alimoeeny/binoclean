@@ -1,4 +1,5 @@
-#include <stdio.h> 
+
+#include <stdio.h>
 #include <termios.h> 
 
 #include <term.h>
@@ -182,14 +183,17 @@ float timediff(struct timeval *a, struct timeval *b);
 #define ELECTRODE_MAX 50000
 #define MAX_MOTOR_POS 80000
 
-//Ali #if defined(macosx)
-#define CR 13
-//Ali #else
-//Ali #define CR 13
-//Ali #endif
 
-#define FIRST_RATE 8
-#define MAX_RATE 30
+
+
+const unsigned char LF = 10;
+const unsigned char CR = 13;
+const unsigned int	MAX_SPEED = 50;
+const unsigned char FIRST_RATE = 8;
+const unsigned char MAX_RATE = 30;
+const int MOTOR_MAX = 150000;
+
+
 #define ACCELERATION 200
 #define STEP_SEC 1008
 
@@ -201,6 +205,62 @@ static void settimeout()
 {
     fprintf(stderr, "Timeout opening port\n");
 }
+
+void ECmotorconnect()
+{
+    
+	struct termios termios_p;
+	long speed;
+	char str[32];
+	char istr[32];
+    int m_motorPort = motorPort;
+    int i = 0;
+    
+	tcgetattr(m_motorPort, &termios_p);
+    
+	/* setup serial line */
+	speed = B9600;					/* 9600 BAUD rate */
+	cfsetospeed(&termios_p, speed);
+	cfsetispeed(&termios_p, speed);
+	termios_p.c_cc[VMIN] = 1;
+	termios_p.c_cc[VTIME] = 0;
+//	termios_p.c_cflag = 0;
+	termios_p.c_lflag &= ~(ECHO|ICANON|ISIG|ECHOE|ECHOK|ECHONL);
+	termios_p.c_cflag &= ~(CCTS_OFLOW|PARENB|PARODD);
+	i = tcsetattr(m_motorPort, TCSANOW, &termios_p);
+	tcgetattr(m_motorPort, &termios_p);
+    
+	/* allow asynchronous responsed */
+	sprintf(str, "ANSW1%c", CR);
+	i = write(m_motorPort, str, strlen(str)), usleep(DELAY);
+    
+	/* set mode to serial interface */
+	sprintf(str, "SOR0%c", CR);
+	i = write(m_motorPort, str, strlen(str)); usleep(DELAY);
+    
+	/* send command to allow multiple motors */
+	sprintf(str, "NET1%c", CR);
+	i = write(m_motorPort, str, strlen(str)); usleep(DELAY);
+    
+	/* send commands to controller to select BAUD rate */
+	sprintf(str, "BAUD%ld%c", speed, CR);
+	write(m_motorPort, str, strlen(str)); usleep(DELAY);
+    
+	/* set maximum motor speed */
+	sprintf(str, "SP%d%c", MAX_SPEED, CR);
+	write(m_motorPort, str, strlen(str)); usleep(DELAY);
+    
+	/* set the position range limits */
+	sprintf(str, "LL0%c", CR);
+	write(m_motorPort, str, strlen(str)); usleep(DELAY);
+    
+	sprintf(str, "LL%d%c", MOTOR_MAX, CR);
+	write(m_motorPort, str, strlen(str)); usleep(DELAY);
+    
+	sprintf(str, "APL1%c", CR);
+	write(m_motorPort, str, strlen(str)); usleep(DELAY);
+}
+
 
 int OpenStepSerial(char *port)
 {
@@ -228,7 +288,8 @@ int OpenStepSerial(char *port)
      * CTS. CTS then used to poll when the motor has done its move
      */
     //Ali #if defined(macosx)
-    if((ttys[i] = open(port,O_RDWR|O_NONBLOCK)) < 0)
+    if((ttys[i] = open(port,O_RDWR)) < 0)
+//        if((ttys[i] = open(port,O_RDWR|O_NONBLOCK)) < 0)
         //Ali #else
         //Ali   if((ttys[i] = open("/dev/ttyd1",O_RDWR|O_NONBLOCK)) < 0)
         //Ali #endif
@@ -239,6 +300,8 @@ int OpenStepSerial(char *port)
     }
     alarm(0);
     motorPort = ttys[i];
+    ECmotorconnect();
+    
     if(tcgetattr(ttys[i], &termios_p)) {
         perror("Can't get terminal properties");
         exit(-1);
@@ -248,7 +311,9 @@ int OpenStepSerial(char *port)
         return(-1);
     }
     
+    return(motorPort);
     /*
+     * with the Faulhaber servo motor, no command for setting CTS
      * after first opening the port, set it to ignore CTS (VTIME = 0)
      * since the controller has the busy bit set at power up.
      * then reopen the port and set it up to wait for CTS
@@ -258,20 +323,27 @@ int OpenStepSerial(char *port)
     cfsetispeed(&termios_p, speed);
     termios_p.c_cc[VMIN] = 1;
     termios_p.c_cc[VTIME] = 0;
-    termios_p.c_lflag &= ~(ECHO|ICANON|ISIG|ECHOE|ECHOK|ECHONL|CCTS_OFLOW);
-    tcsetattr(motorPort, TCSANOW, &termios_p);
+    termios_p.c_lflag &= ~(ECHO|ICANON|ISIG|ECHOE|ECHOK|ECHONL);
+    i = tcsetattr(motorPort, TCSANOW, &termios_p);
     
     /* send commands to controller to auto select BAUD rate */
     sprintf(str, "ANSW1%c", CR);
-    write(motorPort, str, strlen(str));
+    i = write(motorPort, str, strlen(str));
     delay(20);
     write(motorPort, str, strlen(str));
     delay(20);
     
+    stepsetup();
+    notifyPositionChange(electrodeDepth);
+    return(motorPort);
+
     /* set mode to ASCII commands, enable CTS on bit 6 */
     sprintf(str, "O 0A0H%c", CR);
     i = write(motorPort, str, strlen(str)); delay(20);
     i = write(motorPort, str, strlen(str)); delay(20);
+
+    
+    
     termios_p.c_cc[VMIN] = 1;
     termios_p.c_cc[VTIME] = 0;
     termios_p.c_lflag &= ~(ECHO|ICANON|ISIG|ECHOE|ECHOK|ECHONL);
@@ -339,6 +411,8 @@ int OpenStepSerial(char *port)
     notifyPositionChange(electrodeDepth);
     return(motorPort);
 }
+
+
 
 int steptty_setup(int tty)
 {
@@ -650,6 +724,48 @@ void setNewPosition(int pos, int diff)
     
     return;
 }
+int getCurrentPosition(int num)
+{
+	char ostr[32];
+	char istr[32];
+	int n,i=0;
+    
+	sprintf(ostr, "%dPOS%c", num, CR);
+	i = write(motorPort, ostr, strlen(ostr));	usleep(DELAY);
+    
+	for(int j = 0; j < 32; ++j) istr[j] = 0;
+	char lastChar;
+	do {
+		n = read(motorPort, &istr[i], 32);
+		i += n;
+		lastChar = istr[i - 1];
+	} while((lastChar != CR) && (lastChar != LF));
+    
+	int pos = 0;
+	sscanf(istr, "%d", &pos);
+    
+	return(pos);
+}
+
+
+void ChangePosition(int diff)
+{
+
+    char str[32];
+	char istr[32];
+    int i;
+    
+	// set the position
+	sprintf(str, "%dLR%d%c", motorid, diff * motormags[motorid], CR);
+	i = write(motorPort, str, strlen(str));	usleep(DELAY);
+    
+	// initiate the movement
+	sprintf(str, "%dM%c", motorid, CR);
+	i = write(motorPort, str, strlen(str));	usleep(DELAY);
+    i = getCurrentPosition(motorid);
+	return;
+
+}
 
 void NewPosition(int pos)
 {
@@ -693,7 +809,7 @@ void NewPosition(int pos)
 #ifdef DEBUG
     printf("Setting new Postion to %d (%d) %d\n",pos,diff,electrodeDepthOffset);
 #endif
-#if !defined(WIN32)
+#ifdef USECTS
     ioctl(motorPort,TIOCMGET,&portstate);
     if(!(portstate & TIOCM_CTS)){
         fprintf(stderr,"Stepper Not Ready\n");

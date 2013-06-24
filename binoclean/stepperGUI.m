@@ -83,6 +83,7 @@ extern char stepperport[256];
     }
     else
     {
+//        ChangePosition(step);
         NewPosition(electrodeDepth + step);
         [self disableNewMovements];
     }
