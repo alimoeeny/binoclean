@@ -5,7 +5,8 @@
 #define TCGETA TIOCGETA
 #define TCSETA TIOCSETA
 #undef clear_screen
-
+#define DELAY 100
+#define LF 10 
 #include <sys/types.h> 
 #include <sys/stat.h> 
 #include <sys/time.h> 
@@ -254,6 +255,7 @@ int OpenStepSerial(char *port)
      * then reopen the port and set it up to wait for CTS
      */
     speed = B9600;
+#define MAX_SPEED 50
     cfsetospeed(&termios_p, speed);
     cfsetispeed(&termios_p, speed);
     termios_p.c_cc[VMIN] = 1;
@@ -265,13 +267,21 @@ int OpenStepSerial(char *port)
     sprintf(str, "ANSW1%c", CR);
     write(motorPort, str, strlen(str));
     delay(20);
+    sprintf(str, "BAUD%ld%c%c",speed,  CR);
+    write(motorPort, str, strlen(str));
+    delay(20);
+    sprintf(str, "SP%d%c%c", MAX_SPEED, CR);
+    write(motorPort, str, strlen(str));
+    delay(20);
+    sprintf(str, "APL1%c", CR);
     write(motorPort, str, strlen(str));
     delay(20);
     
     /* set mode to ASCII commands, enable CTS on bit 6 */
-    sprintf(str, "O 0A0H%c", CR);
+/*    sprintf(str, "O 0A0H%c", CR);
     i = write(motorPort, str, strlen(str)); delay(20);
     i = write(motorPort, str, strlen(str)); delay(20);
+ */
     termios_p.c_cc[VMIN] = 1;
     termios_p.c_cc[VTIME] = 0;
     termios_p.c_lflag &= ~(ECHO|ICANON|ISIG|ECHOE|ECHOK|ECHONL);
@@ -340,51 +350,6 @@ int OpenStepSerial(char *port)
     return(motorPort);
 }
 
-int steptty_setup(int tty)
-{
-    
-    TTY t;
-    
-	if(ioctl(tty,TCGETA,&t) < 0)
-	{
-		perror("iocntl 1");
-		exit(-1);	
-	}
-	
-	if(tty == ttys[0])
-        save_t = t;
-	else if(tty == ttys[1])
-        save_ta = t;
-	
-	t.c_lflag &= ~(ICANON | ECHO);
-    
-	t.c_cflag &= (~PARENB);
-#if defined(IRIX64) || defined(IRIX)
-	t.c_ospeed = B9600;
-#endif
-    
-    /*
-     *  In This Mode, (VEOF and VEOL = 0) Read() calls return immediately
-     *  returning 0 if there are no chars in the input buffer
-     */
-    
-	t.c_cc[VEOF] = 0; /* 0 buffered char */
-	t.c_cc[VEOL] = 0; /* return immediately between */
-    
-	if(ioctl(tty,TCSETA,&t) < 0)
-	{
-		perror("Ioctl 2");
-		exit(-2);
-	}
-#if defined(IRIX64) || defined(IRIX)
-	if(ioctl(tty,SIOC_ITIMER,0) < 0)
-	{
-		perror("Ioctl 2");
-		exit(-2);
-	}
-#endif
-	return(0);
-}
 
 void stepsetup(void)
 {
@@ -393,54 +358,22 @@ void stepsetup(void)
     /*
      * need the sleeps below or it doesn't all get processed
      */
-    
+    /* send commands to controller to auto select BAUD rate */
+    sprintf(str, "%c", CR);
+    SerialString(str, motorPort); fsleep(0.01);
+    sprintf(str, "ANSW1%c", CR);
+    SerialString(str, motorPort); fsleep(0.01);
+    sprintf(str, "BAUD%ld%c%c", B9600,  CR);
+    SerialString(str, motorPort); fsleep(0.01);
+    sprintf(str, "SP%d%c%c", MAX_SPEED, CR);
+    SerialString(str, motorPort); fsleep(0.01);
+    sprintf(str, "APL1%c", CR);
+    SerialString(str, motorPort); fsleep(0.01);
     sprintf(str, "%c", CR); 
     SerialString(str, motorPort); fsleep(0.01);
+
     sprintf(str, "O 0A0H%c", CR);
     SerialString(str, motorPort); fsleep(0.01);
-    
-    sprintf(str, "F %c%c\n", FIRST_RATE, CR);
-	SerialString(str,motorPort); fsleep(0.01);
-    sprintf(str, "R %c%c", MAX_RATE, CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "S %c%c", ACCELERATION, CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 7%c", CR);                     /* deselect motors */
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 1%c", CR);                      /* set B 1 high */
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 3%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 4%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 3%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 3%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 4%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "/B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 3%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 2%c", CR);
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "B 7%c", CR);                      /* close latch */
-	SerialString(str,motorPort);fsleep(0.01);
-    sprintf(str, "A 0%c", CR);                      /* set current position to 0 */
-	SerialString(str,motorPort);
 }
 
 
@@ -651,6 +584,60 @@ void setNewPosition(int pos, int diff)
     return;
 }
 
+
+void EsetNewPosition(int num, int pos)
+{
+	char str[32];
+	char istr[32];
+    
+	// set the position
+	sprintf(str, "%dLA%d%c", num, pos, CR);
+	write(motorPort, str, strlen(str));	usleep(DELAY);
+    
+	// initiate the movement
+	sprintf(str, "%dM%c", num, CR);
+	write(motorPort, str, strlen(str));	usleep(DELAY);
+}
+
+void disableMotor(int num, int flag)
+{
+	char str[32];
+	char istr[32];
+    
+	if(flag == 1) {
+		sprintf(str, "%dDI%c", num, CR);
+		write(motorPort, str, strlen(str));	usleep(DELAY);
+	}
+	else {
+		sprintf(str, "%dEN%c", num, CR);
+		write(motorPort, str, strlen(str));	usleep(DELAY);
+	}
+}
+
+int getCurrentPosition(int num)
+{
+	char ostr[32];
+	char istr[32];
+	int n;
+    
+	sprintf(ostr, "%dPOS%c", num, CR);
+	write(motorPort, ostr, strlen(ostr));	usleep(DELAY);
+    
+	for(int j = 0; j < 32; ++j) istr[j] = 0;
+	int i = 0;
+	char lastChar;
+	do {
+		n = read(motorPort, &istr[i], 32);
+		i += n;
+		lastChar = istr[i - 1];
+	} while((lastChar != CR) && (lastChar != LF));
+    
+	int pos = 0;
+	sscanf(istr, "%d", &pos);
+    
+	return(pos);
+}
+
 void NewPosition(int pos)
 {
     char buf[256];
@@ -710,6 +697,8 @@ void NewPosition(int pos)
     sprintf(buf,"%d",pos);
     
     electrodeDepth = pos;
+    
+    setnewPosition(electrodeDepth, motorid);
     
     selectMotor(motorids[motorid]);
     setCurrentPosition(old);  
