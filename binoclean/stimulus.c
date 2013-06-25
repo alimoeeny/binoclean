@@ -56,6 +56,8 @@ int nrndcalls = 0;
 int *RecordImage(int frame, Stimulus *st){
     int *p,j;
     
+    if(frame > MAXFRAMES)
+        frame = 0;
     if (imagerec[frame] == NULL){
         imagerec[frame] = (int *)malloc(sizeof(int) * 256);
     }

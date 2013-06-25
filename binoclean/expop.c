@@ -10398,7 +10398,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     struct timeval lastframetime,pretime,forcetime,timea;
     int nframes = n,rpt = 1;
     int noverflow = expt.noverflow;
-    char cbuf[20560];
+    char cbuf[20560],rcbuf[20560];
     int cctr = 0;
         int framesperstim = 1;
     WindowEvent e;
@@ -10896,16 +10896,16 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     }
     
     if(optionflags[FAST_SEQUENCE]){
-        sprintf(buf,"%srS=",serial_strings[MANUAL_TDR]);
+        sprintf(rcbuf,"%srS=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
             if(rcstimid[i] >= 0){
                 sprintf(tmp,"%d ",rcstimid[i]);
-                if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
-                    strcat(buf,tmp);
+                if(strlen(rcbuf)+strlen(tmp) < BUFSIZ*2)
+                    strcat(rcbuf,tmp);
             }
         }
-        strcat(buf,"\n");
-        SerialString(buf,0);
+        strcat(rcbuf,"\n");
+        SerialString(rcbuf,0);
         //    fputs(buf,stdout);
         if(optionflags[RANDOM_PHASE]){
             sprintf(buf,"%srP=",serial_strings[MANUAL_TDR]);
@@ -11079,6 +11079,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         StimStringRecord(buf, expt.st);
         j = strlen(buf);
         fprintf(rcfd,"id%dse%d\n%s",expt.allstimid,expt.st->left->baseseed,buf);
+        if(optionflags[FAST_SEQUENCE]){
+            fputs(rcbuf,rcfd);
+        }
         gettimeofday(&now, NULL);
         val = timediff(&now,&timea);
         fprintf(seroutfile,"Id%d RLS save took %.3f\n",expt.st->stimid,val);

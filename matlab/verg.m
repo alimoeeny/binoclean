@@ -3638,8 +3638,10 @@ if txt(end) == '='
        AddTextToGui(DATA,['cwd=' DATA.cwd]);
     end
     if sum(strcmp(code,{'rw'})) %show total reward
-       rwsum = sum([DATA.Trials([DATA.Trials.good] ==1).rw]);
-       AddTextToGui(DATA,['totalreward=' sprintf('%.1f',rwsum)]);
+        if isfield(DATA.Trials,'good') && isfield(DATA.Trials,'rw')
+            rwsum = sum([DATA.Trials([DATA.Trials.good] ==1).rw]);
+            AddTextToGui(DATA,['totalreward=' sprintf('%.1f',rwsum)]);
+        end
     end
     if strcmp(code,'op')
        txt = ['?' CodeText(DATA, 'optionflag')]; 
@@ -3649,6 +3651,8 @@ if txt(end) == '='
        if length(id) == 1 && DATA.comcodes(id).type == 'C'
            txt = ['?' txt '?' DATA.binoc{DATA.currentstim}.(code)];
        elseif isempty(id)
+           txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)') '(Unrecognized code)'];
+       elseif ischar(DATA.binoc{DATA.currentstim}.(code)) %sometimes nmes->char  (!! ei=180lin)
            txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)') '(Unrecognized code)'];
        else
            txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
