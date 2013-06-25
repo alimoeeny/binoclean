@@ -8,7 +8,8 @@
 #undef clear_screen
 #define DELAY 100
 #define LF 10 
-#include <sys/types.h> 
+
+#include <sys/types.h>
 #include <sys/stat.h> 
 #include <sys/time.h> 
 #include <stdarg.h> 
@@ -420,6 +421,53 @@ int OpenStepSerial(char *port)
 }
 
 
+
+int steptty_setup(int tty)
+{
+    
+    TTY t;
+    
+	if(ioctl(tty,TCGETA,&t) < 0)
+	{
+		perror("iocntl 1");
+		exit(-1);	
+	}
+	
+	if(tty == ttys[0])
+        save_t = t;
+	else if(tty == ttys[1])
+        save_ta = t;
+	
+	t.c_lflag &= ~(ICANON | ECHO);
+    
+	t.c_cflag &= (~PARENB);
+#if defined(IRIX64) || defined(IRIX)
+	t.c_ospeed = B9600;
+#endif
+    
+    /*
+     *  In This Mode, (VEOF and VEOL = 0) Read() calls return immediately
+     *  returning 0 if there are no chars in the input buffer
+     */
+    
+	t.c_cc[VEOF] = 0; /* 0 buffered char */
+	t.c_cc[VEOL] = 0; /* return immediately between */
+    
+	if(ioctl(tty,TCSETA,&t) < 0)
+	{
+		perror("Ioctl 2");
+		exit(-2);
+	}
+#if defined(IRIX64) || defined(IRIX)
+	if(ioctl(tty,SIOC_ITIMER,0) < 0)
+	{
+		perror("Ioctl 2");
+		exit(-2);
+	}
+#endif
+	return(0);
+}
+
 void stepsetup(void)
 {
     char str[256];
@@ -692,22 +740,6 @@ void ChangePosition(int diff)
 	i = write(motorPort, str, strlen(str));	usleep(DELAY);
     i = getCurrentPosition(motorid);
 	return;
-
-}
-
-
-void EsetNewPosition(int num, int pos)
-{
-	char str[32];
-	char istr[32];
-    
-	// set the position
-	sprintf(str, "%dLA%d%c", num, pos, CR);
-	write(motorPort, str, strlen(str));	usleep(DELAY);
-    
-	// initiate the movement
-	sprintf(str, "%dM%c", num, CR);
-	write(motorPort, str, strlen(str));	usleep(DELAY);
 }
 
 void disableMotor(int num, int flag)
