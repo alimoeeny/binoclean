@@ -6539,7 +6539,7 @@ int next_frame(Stimulus *st)
                     }
                     loopframes = 0;
                     if(option2flag & PSYCHOPHYSICS_BIT && stimstate == POSTSTIMULUS){
-                        ShowTrialCount(0.0, wsum);
+//                        ShowTrialCount(0.0, wsum);
                         stimstate = WAIT_FOR_RESPONSE;
                         if(isharris(altstimmode)){
                             o = drand48();
@@ -9850,7 +9850,7 @@ int GotChar(char c)
                     monkey_dir = 0;
                     sprintf(resbuf," %c%d",result,monkey_dir);
                 }
-                if (!option2flag & PSYCHOPHYSICS_BIT){
+                if (!(option2flag & PSYCHOPHYSICS_BIT)){
                     sprintf(buf,"TRES %c%d %d\n",result,monkey_dir,trueafc);
                     notify(buf);
                 }

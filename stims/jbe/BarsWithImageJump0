@@ -1,0 +1,14 @@
+mo=fore
+Ro=0
+expt=/local/jbe/stims/BarWithJump
+op=+fp+Fs
+ijump=70
+Fa=180
+expt=/local/jbe/stims/SetBackIms
+Ro=0
+expt=/local/jbe/stims/SetRectMask
+nr=1
+e2=Fa
+m2=90
+i2=180
+n2=2

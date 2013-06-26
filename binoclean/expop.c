@@ -2467,11 +2467,6 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                 OpenLogfile(expt.logfile);
             }
             if(option2flag & PSYCHOPHYSICS_BIT){
-                if(seroutfile != NULL)
-                    fclose(seroutfile);
-                seroutfile = fopen("./psychtest.out","a");
-                tval = time(NULL);
-                fprintf(seroutfile,"Reopened %s",ctime(&tval));
                 OpenPsychLog(expt.logfile);
             }
             break;

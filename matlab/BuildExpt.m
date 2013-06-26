@@ -1,4 +1,14 @@
-function BuildExpt(varargin)
+function varargout = BuildExpt(varargin)
+%AllS = BuildExpt(...  Makes stimulus description file for binoc
+%This version does disparity/correlation subspace stimuli
+%   ...,'dxvals', [dx],   give the list of dx vals for the subspace map
+%   ...,'disps', [dx],   gives signal disparity values (usually one -, one +)
+%   ..., 'acdisps', [ac] give disp values for the ac adaptors (first 100 frames) 
+%   ..., 'signal' [x]  gives the signal strength valses (fraction of frames
+%                      with signal disparity
+%   ...,'ntrials', N, is the number of times each stimulus is presented
+%   ...,'nrpts', R, is the number of times each exact (default 2 = twopass)
+
 stimno= 1;
 nf = 200;
 j = 1;
@@ -6,21 +16,29 @@ stimvals{3} = [-0.1 0.1];
 stimvals{2} = [-0.1 0.1];
 stimvals{1} = [0 0.2 0.4 0.8];
 distvals = -0.2:0.05:0.2;
+ntrials = 10;
+rpts = 2;
 
 while j <= length(varargin)
     if strncmpi(varargin{j},'stimno',5)
         j = j+1;
         stimno = varargin{j};
-    else strncmpi(varargin{j},'dxvals',5)
+    elseif strncmpi(varargin{j},'dxvals',5)
         j = j+1;
         distvals = varargin{j};
-    else strncmpi(varargin{j},'disps',5)
+    elseif strncmpi(varargin{j},'disps',5)
         j = j+1;
         stimvals{2} = varargin{j};
-    else strncmpi(varargin{j},'acdisps',5)
+    elseif strncmpi(varargin{j},'ntrials',5)
+        j = j+1;
+        ntrials = varargin{j};
+    elseif strncmpi(varargin{j},'nrpts',5)
+        j = j+1;
+        rpts = varargin{j};
+    elseif strncmpi(varargin{j},'acdisps',5)
         j = j+1;
         stimvals{3} = varargin{j};
-    else strncmpi(varargin{j},'signals',5)
+    elseif strncmpi(varargin{j},'signals',5)
         j = j+1;
         stimvals{1} = varargin{j};
     end
@@ -31,7 +49,8 @@ distw = length(distvals);
 S.stimno = 0;
 S.sl = 0;
 S.types = {'dx' 'ce'};
-nstim = [length(stimvals{1}) length(stimvals{2}) length(stimvals{3})];
+nstim = [length(stimvals{1}) length(stimvals{2}) length(stimvals{3}) ntrials/rpts];
+for t = 1:nstim(4)
 for m = 1:nstim(3)
 for k = 1:nstim(2)
     for j = 1:nstim(1)
@@ -54,10 +73,17 @@ for k = 1:nstim(2)
     end
 end
 end
+end
 
-rpts = 2;
 stimorder = repmat([0:S.stimno-1],rpts);
 stimorder = stimorder(randperm(length(stimorder)));
+if nargout > 0
+    varargout{1} = AllS;
+end
+if nargout > 1
+    varargout{2} = stimorder;
+end
+
 fid = fopen('/local/manstim/stimorder','w');
 fprintf(fid,'%d ',stimorder); 
 fprintf(fid,'\n');

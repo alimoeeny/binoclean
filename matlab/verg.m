@@ -217,6 +217,11 @@ for j = 1:length(strs{1})
         if strncmp(s,'status=Grid is',14)
             AddTextToGui(DATA,s(8:end));
         end
+        fid = strfind(s,'Frames:');
+        if ~isempty(fid) && ~isempty(DATA.Trials)
+            nf = sscanf(s(fid(1)+8:end),'%d');
+            DATA.Trials(length(DATA.Trials)).nf = nf;
+        end
 %        fprintf(s);
     elseif strncmp(s,'exps',4)
         ex = 1;
