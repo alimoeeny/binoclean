@@ -8,7 +8,7 @@
 #import <stdio.h>
 #import <stdlib.h> 
 #import <sys/types.h> 
-#import <sys/stat.h> 
+#import <sys/stat.h>
 #import <sys/fcntl.h> 
 #import <sys/time.h> 
 #import <termios.h> 
@@ -96,6 +96,7 @@ int DIOval = 0;
 int Frames2DIO = 0;
 int rewardall = 0;
 char resbuf[BUFSIZ] = {0};
+char timeoutstring[BUFSIZ*10] = {0};
 
 Monitor mon;
 Expt expt;
@@ -3057,7 +3058,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             break;
         case BACKGROUND_MOVIE:  //need this in setstimulus for Expt sequence modes
         case BACKGROUND_IMAGE:
-            SetExptProperty(&expt, expt.st, code,  val);
+            SetExptProperty(&expt, expt.st, code,  val, 0);
             break;
         case MIXAC:
             st->corrmix = val;
@@ -3865,7 +3866,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 
                 if(!(optionflag & BACKGROUND_FIXED_BIT)){
                     if(st->next != NULL && expt.stimvals[BACK_CORRELATION] > 0)
-                        SetStimulus(st->next, val, CORRELATION, NULL);
+                        SetStimulus(st->next, val, CORRELATION, event);
                 }
             }
             else
@@ -4142,6 +4143,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             fval = deg2pix(val);
             if(st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_RDSSINE || st->type == STIM_CHECKER)
             {
+                if(st->type == STIM_RLS && !(optionflag & ANTIALIAS_BIT))
+                {
+                    fval = round(fval);
+                }
                 if(fval > 0.5){
                     st->left->dotsiz[0] = fval;
                     st->left->dotsiz[1] = fval;
@@ -4822,6 +4827,8 @@ void search_background()
         srandom(TheStim->left->baseseed);
         setmask(bothmask);
         gettimeofday(&lastcleartime,NULL);
+        if(strlen(timeoutstring) > 0)
+            printStringOnMonkeyView(timeoutstring,6);
     }
 }
 
@@ -9357,6 +9364,7 @@ int GotChar(char c)
                 GotChar(BAD_FIXATION);
                 sprintf(buf,"%.2s:%.2f %.2f\n",serial_strings[SACCADE_DETECTED],sacsiz,sacdir);
                 statusline(buf);
+                sprintf(timeoutstring,"Saccade %s",buf);
                 SerialString(buf,0);
                 for( i = 0; i < strlen(charbuf); i++)
                     charbuf[i] = 0;
@@ -9528,6 +9536,7 @@ int GotChar(char c)
                  end_timeout();*/
                 break;
             case BAD_FIXATION:
+                sprintf(timeoutstring,"BadFix");
                 if (fixstate == BADFIX_STATE) // Already received code
                     break;
                 fixstate = BADFIX_STATE;

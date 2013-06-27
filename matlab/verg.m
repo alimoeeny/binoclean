@@ -289,7 +289,7 @@ for j = 1:length(strs{1})
         else
             a = 0;
         end
-        if(s(6) == 'G')
+        if(s(6) == 'G' || s(6) == 'F')
             DATA.Trial.good = 1;
         elseif(s(6) == 'W')
             DATA.Trial.good = -1;
@@ -692,6 +692,9 @@ if fid > 0
         end
         if strncmp(tline,'electrode=',8) && ~isempty(value)
             DATA.electrodestrings{1+length(DATA.electrodestrings)} = value;
+        end
+        if strncmp(tline,'tty2=',5) && ~isempty(value)
+            DATA.servoport = deblank(value);
         end
         tline = fgets(fid);
     end
@@ -1134,6 +1137,7 @@ DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
 DATA.comcodes(1).const = 1;
 DATA.comcodes(1).type = 'num';
+DATA.comcodes(1).group = 1;
 DATA.strcodes(1).label = 'Monitor file';
 DATA.strcodes(1).code = 'monitor';
 DATA.strcodes(1).icode = 0; 
@@ -1162,6 +1166,7 @@ DATA.stimtype(2) = 1;
 DATA.electrodeid = 1;
 DATA.mean = [0 0 0];
 DATA.incr = [0 0 0];
+DATA.servoport = [];
 DATA = ReadSetupFile(DATA, '/local/binoc.setup');
 DATA = ReadStimFile(DATA, '/local/verg.setup');
 
@@ -2096,7 +2101,11 @@ function MenuGui(a,b)
              
      end
              
-        
+ function outprintf(DATA,varargin)
+     if DATA.outid
+         fprintf(DATA.outid,varargin{:});
+     end
+     
  function SendStr(a,b, str)
      DATA = GetDataFromFig(a);
      fprintf(DATA.outid,'%s\n',str);
@@ -2453,40 +2462,18 @@ function DATA = RunButton(a,b, type)
 %        DATA.outid = 0;
         set(DATA.toplevel,'UserData',DATA);
         
+function ElectrodeMoved(F, pos) %called by ServoDrive
+%ServoDrive sends position in microns. Binoc wants mm            
+    DATA = get(F, 'UserData');
+    outprintf(DATA,'!seted=%.3f\n',pos./1000);
 
 function ElectrodePopup(a,b, fcn, varargin)
   DATA = GetDataFromFig(a);
-  nw = 10;
-  cntrl_box = findobj('Tag',DATA.windownames{10},'type','figure');
-  if ~isempty(cntrl_box)
-      figure(cntrl_box);
-      return;
+
+  if ~isempty(DATA.servoport)
+  ServoDrive('ttyname',DATA.servoport,'callback',{@ElectrodeMoved, DATA.toplevel});
   end
-if length(DATA.winpos{10}) ~= 4
-    DATA.winpos{10} = get(DATA.toplevel,'position');
-end
-cntrl_box = figure('Position', DATA.winpos{9},...
-        'NumberTitle', 'off', 'Tag',DATA.windownames{9},'Name','Penetration Log','menubar','none');
-    set(cntrl_box,'UserData',DATA.toplevel);
-            set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
-    set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
-
-    nr = 5;
-    nc = 7;
-    bp = [0.01 0.99-1/nr 1./nc 0.98./nr];
-
-    
-
-    
-    bp(1) = 0.01;
-    bp(3) = 0.3;
-    uicontrol(gcf,'style','text','string','Step', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
-    bp(1) = bp(1)+bp(3);
-    bp(3) = 0.98./nc;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.step), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Pn','callback',{@ElectrodePopup, 'Pn'});
-
+  
 
  
 function PenLogPopup(a,b)
@@ -2810,6 +2797,13 @@ function DATA = RunExptSequence(DATA, str, line)
             return;
         end
     end
+    if ischar(str)
+        astr = str;
+        clear str;
+        for j = 1:size(astr,1)
+            str{j} = deblank(astr(j,:));
+        end
+    end
 for j = line:length(str)
     nread = 1+j-line;
     DATA = InterpretLine(DATA,str{j});
@@ -2889,7 +2883,6 @@ lst = uicontrol(gcf, 'Style','edit','String', 'sequence',...
          'Tag','SequenceList',...
 'units','norm', 'Position',[0.01 0.01 0.99 0.99-1./nr]);
 set(lst,'string',exptlines);
-DATA.statusitem = lst;
 set(DATA.toplevel,'UserData',DATA);
 
 

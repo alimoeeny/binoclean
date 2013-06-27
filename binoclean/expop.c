@@ -1897,10 +1897,13 @@ int ReadManualStim(char *file){
 
 int SetManualStim(int frame)
 {
-    int i,p = 0;
-    
+    int i,p = 0,code;
+    float val;
     while(manualprop[p] >= 0){
-        SetProperty(&expt, expt.st, manualprop[p],manualstimvals[p][frame]);
+        val = manualstimvals[p][frame];
+        code = manualprop[p];
+        if((i = SetStimulus(expt.st, val, code, NOEVENT)) < 0)
+            SetExptProperty(&expt, expt.st, code, val, NOEVENT);
         p++;
     }
 }
@@ -2521,7 +2524,7 @@ int RecalcRepeats(Expt *exp)
 int SetProperty(Expt *exp, Stimulus *st, int code, float val)
 {
     int i;
-    if((i = SetExptProperty(exp, st, code, val)) < 0)
+    if((i = SetExptProperty(exp, st, code, val,0)) < 0)
         i = SetStimulus(st, val, code, NULL);
     if (i < 0 && code <= expt.maxcode && valstringindex[code] > 0){
         expt.vals[code] = val;
@@ -2535,7 +2538,7 @@ void ElectrodeDepth(int depth)
     SetProperty(&expt, expt.st, ELECTRODE_DEPTH, (float)(depth)/1000);
 }
 
-int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
+int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
 {
     Wurtz *fix = &(expt.st->fix);
     float x,y,theta,old,xymove;
@@ -2547,7 +2550,8 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
     
     if(exp->cmdtype == 2) // from verg
         evtype = 0; //= up
-    
+    if (event == NOEVENT)
+        evtype = event;
     
     switch(flag)
     {
@@ -3209,6 +3213,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
      * To brainwave.
      */
     
+    if(event != NOEVENT){
     switch(flag)
     {
 
@@ -3289,6 +3294,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val)
                 }
             }
             break;
+    }
     }
     return(0);
     
@@ -8011,6 +8017,8 @@ int PrepareExptStim(int show, int caller)
 
     fakestim = 0;
     expt.laststimno = stimno;
+    expt.allstimid++;
+
     if (optionflags[MANUAL_EXPT]){
         sprintf(ebuf,"/local/manstim/stim%d",stimorder[stimno]);
         i = ReadManualStim(ebuf);
@@ -8077,7 +8085,6 @@ int PrepareExptStim(int show, int caller)
     }
     
     
-    expt.allstimid++;
     if(optionflags[REVERSE_CORRELATE])
     {
         nframes = expt.st->nframes/expt.st->framerepeat;
@@ -10579,12 +10586,15 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 framecounts[framesdone] = rc;
                 if(rc >= n && n < MAXFRAMES) 
                     finished = 2;
-                if (!optionflags[FIXNUM_PAINTED_FRAMES]){
+// if FIXNUM PAINTED FRAMES, force paintg of all frames. ANd ignore button presses.
+// Button presses during the stimulus will be ignored
                 if((e.mouseButton = processUIEvents()) > 0){
+                    if (!optionflags[FIXNUM_PAINTED_FRAMES]){
                     e.eventType = ButtonPress;
+                        e.modifierKey = 0;
                     HandleMouse(e);
                     finished = 2;
-                }
+                    }
                 }
 
                 //Ali	    if(XCheckTypedWindowEvent(D, 0 /* AliGLX myXWindow()*/, KeyPress, &e)){	    }
@@ -13520,7 +13530,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 }
                 if(code == EXPTYPE_CODE3){
                 }
-                SetExptProperty(ex, TheStim,code, (float)(j));
+                SetExptProperty(ex, TheStim,code, (float)(j),0);
             }
             break;
         case RELDISP:
@@ -13637,7 +13647,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                     expt.flag &= (~LOGINCR2);
             }
             if(ok)
-                SetExptProperty(ex, TheStim,code, val);
+                SetExptProperty(ex, TheStim,code, val,0);
             break;
         case SETFIXCOLOR:
         case SETBACKCOLOR:
@@ -13646,7 +13656,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sscanf(s,"%f",&val);
             if(val > 2)
                 val = val/255.0;
-            SetExptProperty(ex, TheStim,code, val);
+            SetExptProperty(ex, TheStim,code, val,0);
             break;
         case TRIAL_COUNT:
             sscanf(s,"%d",&trialcnt);
@@ -13660,7 +13670,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             sscanf(s,"%f",&val);
             if(strstr(s,"rad"))
                 val = val * 180/M_PI;
-            SetExptProperty(ex, TheStim,code, val);
+            SetExptProperty(ex, TheStim,code, val,0);
             break;
         case UFF_COMMENT:
             SerialString(line,NULL);
@@ -13672,7 +13682,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         
         case TF:
             if(!strncmp(s,"tf",2)){
-                SetExptProperty(ex, TheStim,code, lasttf);
+                SetExptProperty(ex, TheStim,code, lasttf,0);
                 break;
             }
             sscanf(s,"%f",&val);

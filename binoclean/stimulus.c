@@ -56,10 +56,11 @@ int nrndcalls = 0;
 int *RecordImage(int frame, Stimulus *st){
     int *p,j;
     
-    if(frame > MAXFRAMES)
+    if(frame > MAXFRAMES-1)
         frame = 0;
+    
     if (imagerec[frame] == NULL){
-        imagerec[frame] = (int *)malloc(sizeof(int) * 256);
+        imagerec[frame] = (int *)malloc(sizeof(int) * 4096); //MAX # bars......
     }
     p=imagerec[frame];
     for (j = 0; j < st->left->ndots; j++) {

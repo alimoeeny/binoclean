@@ -134,7 +134,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s);
 int RecalcRepeats(Expt *exp);
 int SetProperty(Expt *exp, Stimulus *st, int code, float val);
 void ElectrodeDepth(int depth);
-int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val);
+int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event);
 float GetProperty(Expt *exp, Stimulus *st, int code);
 float ExptProperty(Expt *exp, int flag);
 void setextras();
