@@ -6,6 +6,9 @@ while j <= length(varargin)
     if strncmpi(varargin{j},'position',5)
         j = j+1;
         figpos = varargin{j};
+    elseif strncmpi(varargin{j},'ttyname',3)
+        j = j+1;
+        DATA.ttyname = varargin{j};
     end
     j = j+1;
 end
@@ -18,11 +21,16 @@ if isnew
     DATA = SetDefaults(DATA);
     BuildServoWindow(DATA);
     DATA = OpenServoPort(DATA);
+    set(DATA.toplevel,'UserData',DATA);
 end
 
 function MoveMicroDrive(a,b,fcn)
 DATA = GetDataFromFig(a);
 it = findobj(DATA.toplevel,'tag','StepSize');
+
+if strcmp(fcn,'moveto')
+elseif strcmp(fcn,'reopen')
+else
 str = get(it,'string');
 j= get(it,'value');
 step = sscanf(str(j,:),'%d');
@@ -30,8 +38,8 @@ if  strcmp(fcn,'Up')
     step = -step;
 end
 fprintf('Moving %d\n',step);
-
-
+ChangePosition(DATA, step);
+end
 function BuildServoWindow(DATA)
 F = DATA.toplevel;
 nr = 7;
@@ -80,7 +88,7 @@ uicontrol(gcf,'style','pushbutton','string','Move', ...
 
 bp = [0.5 0.2 0.45 0.15];
     uicontrol(gcf,'style','pushbutton','string','Reopen', ...
-   'Callback', {@MoveMicroDrive, 'moveto'}, ...
+   'Callback', {@MoveMicroDrive, 'reopen'}, ...
    'fontsize',18,'fontweight','bold',...
         'units', 'norm', 'position',bp,'value',1);
 
@@ -127,9 +135,81 @@ function DATA = SetDefaults(DATA)
 DATA.position = 0;
 DATA.step = 0;
 DATA.customstep = 0;
+DATA.stepscale = 100;
+DATA.motorid = 1;
+if ~isfield(DATA,'ttyname')
+DATA.ttyname = '/dev/tty.USA49Wfa1212P1.1';
+end
+
+function SetHomePostition(DATA, pos)
 
 
-function OpenServoPort(DATA)
+function ChangePosition(DATA, step)
+
+d = GetCurrentPostion(DATA);
+SetNewPosition(DATA,d+step);
+
+function d = GetCurrentPostion(DATA)
+
+fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
+pause(0.01);
+s = fscanf(DATA.sport,'%s')
+d = sscanf(s,'%d');
+d = d./DATA.stepscale;
+
+function SetNewPosition(DATA, pos)
+
+newpos = pos .* DATA.stepscale;
+pause(0.01);
+fprintf(DATA.sport,'%dPOS\n',DATA.motorid);
+pause(0.01);
+s = fscanf(DATA.sport,'%s');
+d = sscanf(s,'%d');
+fprintf(DATA.sport,sprintf('%dLA%d\n',DATA.motorid,newpos));
+pause(0.01);
+fprintf(DATA.sport,'%dM\n',DATA.motorid);
+pause(0.01);
+for j = 1:30
+fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
+s = ReadLine(DATA.sport);
+ts(j) = now;
+if ~isempty(s)
+newd(j) = sscanf(s,'%d');
+else
+    newd(j) = 0;
+end
+end
+fprintf('End pos %s\n',s);
+
+plot(ts-ts(1),newd);
+fprintf(DATA.sport,'%dDI\n',DATA.motorid);
+pause(0.01);
+
+function s = ReadLine(port)
+
+while get(port,'BytesAvailable') == 0
+    pause(0.001);
+end
+s = fscanf(port,'%s');
 
 
+function DATA = OpenServoPort(DATA)
+ 
+num = 1;
+x = instrfind('type','serial');
+delete(x);
+DATA.sport = serial(DATA.ttyname,'BaudRate',9600);
+fopen(DATA.sport);
+fprintf(DATA.sport,'ANSW1\n');
+fprintf(DATA.sport,'SOR0\n');
+fprintf(DATA.sport,'NET1\n');
+fprintf(DATA.sport,'BAUD%d\n',9600);
+fprintf(DATA.sport,'SP%d\n',50);
+fprintf(DATA.sport,'LL%d\n',150000);
+fprintf(DATA.sport,'APL1\n');
+fprintf(DATA.sport,'%dEN\n',num);
 
+function DATA = CloseServoPort(DATA)
+fclose(DATA.sport);
+delete(DATA.sport);
+DATA.sport = 0;
