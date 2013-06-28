@@ -1825,10 +1825,16 @@ function CheckForUpdate(DATA)
     tgt = [DATA.localmatdir '/verg.m'];
     a = dir(src);
     b = dir(tgt);
+    
+    
+    
     if ~isempty(a) && ~isempty(b) && a.datenum > b.datenum
         yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check');
         if strcmp(yn,'Yes')
-            copyfile(src,tgt);
+            try  %This will produce and error becuase verg.m is in use. But the copy succeeds
+                copyfile(src,tgt);
+            catch
+            end
         end
     end
     

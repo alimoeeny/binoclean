@@ -122,9 +122,48 @@ DATA.depthlabel = uicontrol(gcf,'style','text','string','0 uM', ...
 mn = uimenu(F,'Label','Close','callback',@CloseServoPort);
 mn = uimenu(F,'Label','Reopen','callback',@OpenServoPort);
 mn = uimenu(F,'Label','Stop','callback',@StopMotor);
+mn = uimenu(F,'Label','Options');
+sm = uimenu(mn,'Label','Plots');
+uimenu(sm,'Label','Full History','tag','FullHistory','checked','on','callback',@SetMotorPlot);
+uimenu(sm,'Label','Last Move','tag','LastMove','callback',@SetMotorPlot);
+sm = uimenu(mn,'Label','Speed');
+uimenu(sm,'Label','Normal (20uM/s)','tag','Normal','Checked','on','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Fast (40uM/s)','tag','Fast','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Slow (2uM/s)','tag','Slow','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Custom','tag','Custom','callback',@SetMotorSpeed);
+
 set(gca,'position',[0.4 0.4 0.6 0.6],'xtick',[],'ytick',[]);
 set(DATA.toplevel,'UserData',DATA);
 
+
+function SetMotorPlot(a,b)
+DATA = GetDataFromFig(a);
+tag = get(a,'tag');
+DATA.plottype = tag;
+SetMenuCheck(a,'exclusive');
+set(DATA.toplevel,'UserData',DATA);
+
+function SetMotorSpeed(a,b)
+DATA = GetDataFromFig(a);
+tag = get(a,'tag');
+if strcmp(tag,'Normal')
+    DATA.motorspeed = 100;
+elseif strcmp(tag,'Slow')
+    DATA.motorspeed = 10;
+elseif strcmp(tag,'Fast')
+    DATA.motorspeed = 200;
+elseif strcmp(tag,'Custom')
+    defaultanswer{1} = num2str(DATA.customspeed);
+    str = inputdlg('Step Size','Custom',1,defaultanswer);
+    step = str2num(str{1});
+    str = sprintf('Custom (%d uM/s)',step);
+    set(a,'Label',str);
+    DATA.motorspeed =step;
+    DATA.customspeed = step;
+end
+fprintf(DATA.sport,'SP%d\n',DATA.motorspeed.*DATA.stepscale);
+SetMenuCheck(a,'exclusive');
+set(DATA.toplevel,'UserData',DATA);
 
 function CloseServoPort(a,b)
 DATA = GetDataFromFig(a);
@@ -159,7 +198,9 @@ function DATA = SetDefaults(DATA)
 DATA.position = 0;
 DATA.step = 0;
 DATA.customstep = 0;
-DATA.stepscale = 100;
+DATA.stepscale = 10;
+DATA.motorspeed = 5;
+DATA.customspeed = 1;
 DATA.motorid = 1;
 DATA.alldepths = [];
 DATA.alltimes = [];
@@ -168,6 +209,9 @@ if ~isfield(DATA,'ttyname')
 end
 if ~isfield(DATA,'callback')
     DATA.callback = [];
+end
+if ~isfield(DATA,'plottype')
+    DATA.plottype = 'FullHistory';
 end
 
 function SetHomePosition(DATA, pos)
@@ -186,7 +230,7 @@ function d = GetCurrentPostion(DATA)
 
 fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
 pause(0.01);
-s = fscanf(DATA.sport,'%s');
+s = ReadLine(DATA.sport);
 d = sscanf(s,'%d');
 d = d./DATA.stepscale;
 
@@ -245,9 +289,32 @@ pause(0.01);
 
 DATA.alltimes = [DATA.alltimes ts];
 DATA.alldepths = [DATA.alldepths newd];
+if ~strcmp(DATA.plottype,'None')
+if strcmp(DATA.plottype,'LastMove')
+plot(ts, newd);
+set(gca,'xtick',[],'ytick',[]);
+xl = [min(ts) max(ts)];
+yl = [min(newd) max(newd)];
+else
 plot(DATA.alltimes, DATA.alldepths);
 set(gca,'xtick',[],'ytick',[]);
-axis([min(DATA.alltimes) max(DATA.alltimes) min(DATA.alldepths) max(DATA.alldepths)])
+xl = [min(DATA.alltimes) max(DATA.alltimes)];
+yl = [min(DATA.alldepths) max(DATA.alldepths)];
+end
+tdur = diff(xl).*24; %hours
+tlabel = 'hr';
+if tdur < 1
+    tdur = tdur .* 60;
+    tlabel = 'min';
+end
+if tdur < 1
+    tdur = tdur .* 60;
+    tlabel = 'sec';
+end
+axis([xl yl]);
+text(xl(2),yl(1),sprintf('%.1f%s',tdur,tlabel),'horizontalalignment','right','verticalalignment','bottom');
+end
+
 if ~isempty(DATA.callback)
     feval(DATA.callback{:}, newd(end)./DATA.stepscale);
 end
@@ -271,8 +338,8 @@ fprintf(DATA.sport,'ANSW1\n');
 fprintf(DATA.sport,'SOR0\n');
 fprintf(DATA.sport,'NET1\n');
 fprintf(DATA.sport,'BAUD%d\n',9600);
-fprintf(DATA.sport,'SP%d\n',50);
+fprintf(DATA.sport,'SP%d\n',DATA.motorspeed.*DATA.stepscale);
 fprintf(DATA.sport,'LL%d\n',150000);
 fprintf(DATA.sport,'APL1\n');
 fprintf(DATA.sport,'%dEN\n',DATA.motorid);
-
+set(DATA.toplevel,'UserData',DATA);
