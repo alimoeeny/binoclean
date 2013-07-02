@@ -5314,6 +5314,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         SetManualStim(expt.framesdone);
         if(rds->seedloop == 0)
             rds->baseseed += 2;
+        st->framectr++;
         return;
     }
     frame = expt.st->framectr;
@@ -5911,8 +5912,7 @@ void paint_frame(int type, int showfix)
         if (afc_s.jstairval> 0)
         DrawLine(fixpos[0]+r,fixpos[1]+r-0.5,fixpos[0]+r,fixpos[1]+r+0.5,RF_COLOR);
     }
-    if(debug)
-        
+    if (optionflags[DEBUG_OUTPUT])        
         glFlushRenderAPPLE();
     paintdur = timediff(&btime,&paintframetime);
     if(optionflags[STIMULUS_IN_OVERLAY])
@@ -6111,13 +6111,13 @@ int next_frame(Stimulus *st)
     
     markercolor = 1.0;
     glstatusline(NULL,1);
-#ifdef MONITOR_CLOSE
-    if(seroutfile && laststate != stimstate){
-        fprintf(seroutfile,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
+    if (optionflags[MONITOR_STATE]){
+        if(seroutfile && laststate != stimstate){
+            fprintf(seroutfile,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
         fprintf(stdout,"#State %d %d VS%.1f%c\n",stimstate,fixstate,afc_s.sacval[1],exptchr);
         fflush(seroutfile);
     }
-#endif
+    }
     t2 = timediff(&now,&endstimtime);
     if(t2 > 3600 && !(option2flag & PSYCHOPHYSICS_BIT) && check_for_monkey) /* 1hr sec gone with no trial */
     {

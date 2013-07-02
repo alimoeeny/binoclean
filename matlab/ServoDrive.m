@@ -1,5 +1,6 @@
-function ServoDrive(varargin)
+function DATA = ServoDrive(varargin)
 figpos = [1400 400 350 350];
+tag = 'Servo Controller';
 
 j = 1;
 while j <= length(varargin)
@@ -15,7 +16,6 @@ while j <= length(varargin)
     end
     j = j+1;
 end
-tag = 'Servo Controller';
 
 [F, isnew] = GetFigure(tag);
 if isnew
@@ -25,6 +25,19 @@ if isnew
     DATA = BuildServoWindow(DATA);
     DATA = OpenServoPort(DATA);
     set(DATA.toplevel,'UserData',DATA);
+else 
+    DATA = get(F,'UserData');
+end
+
+%Things to do after startup
+j = 1;
+while j <= length(varargin)
+    if strncmpi(varargin{j},'readpos',5)
+        d = GetCurrentPosition(DATA, 'show');
+        DATA.alldepths = [DATA.alldepths d];
+        DATA.alltimes = [DATA.alltimes now];
+    end
+    j = j+1;
 end
 
 function MoveMicroDrive(a,b,fcn)
@@ -34,6 +47,8 @@ it = findobj(DATA.toplevel,'tag','StepSize');
 if strcmp(fcn,'moveto')
     newpos = str2num(get(DATA.setdepth,'string'));
     DATA = SetNewPosition(DATA, newpos);
+elseif strcmp(fcn,'readposition')
+    d = GetCurrentPosition(DATA, 'show');
 elseif strcmp(fcn,'set')
     newpos = str2num(get(DATA.setdepth,'string'));
     SetHomePosition(DATA, newpos);
@@ -123,9 +138,11 @@ mn = uimenu(F,'Label','Close','callback',@CloseServoPort);
 mn = uimenu(F,'Label','Reopen','callback',@OpenServoPort);
 mn = uimenu(F,'Label','Stop','callback',@StopMotor);
 mn = uimenu(F,'Label','Options');
+sm = uimenu(mn,'Label','Read Position','callback',{@MoveMicroDrive, 'readposition'},'accelerator','R');
 sm = uimenu(mn,'Label','Plots');
 uimenu(sm,'Label','Full History','tag','FullHistory','checked','on','callback',@SetMotorPlot);
 uimenu(sm,'Label','Last Move','tag','LastMove','callback',@SetMotorPlot);
+uimenu(sm,'Label','None','tag','None','callback',@SetMotorPlot);
 sm = uimenu(mn,'Label','Speed');
 uimenu(sm,'Label','Normal (20uM/s)','tag','Normal','Checked','on','callback',@SetMotorSpeed);
 uimenu(sm,'Label','Fast (40uM/s)','tag','Fast','callback',@SetMotorSpeed);
@@ -167,12 +184,16 @@ set(DATA.toplevel,'UserData',DATA);
 
 function CloseServoPort(a,b)
 DATA = GetDataFromFig(a);
+%tell verg first
+if ~isempty(DATA.callback)
+    feval(DATA.callback{:}, 'close');
+end
+
 if isfield(DATA, 'sport');
     fclose(DATA.sport);
     delete(DATA.sport);
 end
 close(DATA.toplevel);
-
 
 function SetStepSize(a,b)
 
@@ -198,7 +219,7 @@ function DATA = SetDefaults(DATA)
 DATA.position = 0;
 DATA.step = 0;
 DATA.customstep = 0;
-DATA.stepscale = 10;
+DATA.stepscale = 3.2;
 DATA.motorspeed = 5;
 DATA.customspeed = 1;
 DATA.motorid = 1;
@@ -223,16 +244,28 @@ function SetHomePosition(DATA, pos)
     
 function DATA = ChangePosition(DATA, step)
 
-d = GetCurrentPostion(DATA);
+d = GetCurrentPosition(DATA,'show');
 DATA = SetNewPosition(DATA,d+step);
 
-function d = GetCurrentPostion(DATA)
+function d = GetCurrentPosition(DATA, varargin)
+
+showdepth = 0;
+j = 1;
+while j <= length(varargin)
+    if strncmpi(varargin{j},'show',4)
+        showdepth = 1;
+    end
+    j = j+1;
+end
 
 fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
 pause(0.01);
 s = ReadLine(DATA.sport);
 d = sscanf(s,'%d');
 d = d./DATA.stepscale;
+if showdepth
+    set(DATA.depthlabel,'string',sprintf('%.0f uM',d));
+end
 
 function StopMotor(a,b)
 DATA = GetDataFromFig(a);
@@ -255,7 +288,7 @@ fprintf(DATA.sport,'%dM\n',DATA.motorid);
 pause(0.01);
 ts = now;
 npost = 0;
-edur = abs(newpos-d) ./2000; %estimated duration
+edur = abs(newpos-d) ./600; %estimated duration
 newd(1) = d;
 j = 2;
 while npost < 2
@@ -287,10 +320,13 @@ fprintf('End pos %s took %.2f (%.2f) rate %.2f\n',s,dur,edur,(newd(end)-newd(1))
 fprintf(DATA.sport,'%dDI\n',DATA.motorid);
 pause(0.01);
 
+DATA.newtimes = ts;
+DATA.newdepths = newd;
 DATA.alltimes = [DATA.alltimes ts];
 DATA.alldepths = [DATA.alldepths newd];
 if ~strcmp(DATA.plottype,'None')
 if strcmp(DATA.plottype,'LastMove')
+    ts = ts-ts(1);
 plot(ts, newd);
 set(gca,'xtick',[],'ytick',[]);
 xl = [min(ts) max(ts)];
@@ -313,6 +349,11 @@ if tdur < 1
 end
 axis([xl yl]);
 text(xl(2),yl(1),sprintf('%.1f%s',tdur,tlabel),'horizontalalignment','right','verticalalignment','bottom');
+text(xl(1),yl(2),sprintf('%.1fuM',diff(yl)),'horizontalalignment','left','verticalalignment','top');
+else
+    delete(get(gca,'children'));
+    bc = get(gcf,'color');
+    set(gca,'color',bc,'box','off','xcolor',bc,'ycolor',bc);
 end
 
 if ~isempty(DATA.callback)
@@ -342,4 +383,5 @@ fprintf(DATA.sport,'SP%d\n',DATA.motorspeed.*DATA.stepscale);
 fprintf(DATA.sport,'LL%d\n',150000);
 fprintf(DATA.sport,'APL1\n');
 fprintf(DATA.sport,'%dEN\n',DATA.motorid);
+GetCurrentPosition(DATA,'show');
 set(DATA.toplevel,'UserData',DATA);

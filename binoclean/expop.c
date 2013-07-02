@@ -1860,8 +1860,9 @@ int ReadManualStim(char *file){
     struct stat statbuf;
     FILE *fin;
     char *s,*t,inbuf[BUFSIZ*10];
-    int nprop = 0,j;
-    float val;
+    int nprop = 0,j,i,nframes;
+    float val,imx[MAXFRAMES],imy[MAXFRAMES];
+    Stimulus *st;
     
     manualprop[0] = -1;  //in case file error
     if(file == NULL)
@@ -1869,6 +1870,8 @@ int ReadManualStim(char *file){
     if(stat(file, &statbuf) == -1)
         return(0);
     fin = fopen(file,"r");
+    for(i = 0; i < MAXFRAMES; i++)
+        imx[i] = imy[i] = 0;
     while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
         if (seroutfile)
             fputs(inbuf,seroutfile);
@@ -1883,6 +1886,13 @@ int ReadManualStim(char *file){
                 s = strchr(t,' ');
                 t = s;
             }
+            nframes= j;
+            if(!strncmp(inbuf,"imx",3)){
+                memcpy(imx,manualstimvals[nprop],nframes * sizeof(float));
+            }
+            if(!strncmp(inbuf,"imy",3)){
+                memcpy(imy,manualstimvals[nprop],nframes * sizeof(float));
+            }
             manualstimvals[nprop][j++] = NOTSET;
             nprop++;
         }
@@ -1892,6 +1902,36 @@ int ReadManualStim(char *file){
     }
     manualprop[nprop] = -1;
     fclose(fin);
+    if (expt.st->preload){
+        st = expt.st;
+        for (j = 0; j < nframes; j++){
+            expt.st->next->xyshift[1] = imy[j];
+            expt.st->next->xyshift[0] = imx[j];
+            expt.st->next->immode = expt.st->immode;
+            expt.st->next->preload = 1;
+            expt.st->next->jumps = 1;
+            expt.st->next->left->calculated = 0;
+            expt.st->next->framectr = j;
+            expt.st->framectr = j;
+            expt.st->next->preloaded = 0;
+            expt.st->next->left->baseseed = st->left->baseseed;
+            expt.st->next->seedoffset = st->seedoffset;
+            expt.st->next->imprefix = st->imprefix;
+            expt.st->next->preload = st->preload;
+            expt.st->next->imprefix = st->imprefix;
+            expt.st->next->immode = st->immode;
+            expt.st->next->left->calculated = st->next->right->calculated = 0;
+            imageseed[j] = 0; //backgr seed sets frame
+            
+//            expt.st->left->preloaded = 0;
+            calc_image(expt.st->next, expt.st->next->left);
+            expt.st->next->left->calculated = st->next->right->calculated = 1;
+            expt.st->next->calculated = 1;
+            expt.st->next->preloaded = 1;
+        }
+        
+    }
+        
     return(0);
 }
 
@@ -1902,8 +1942,15 @@ int SetManualStim(int frame)
     while(manualprop[p] >= 0){
         val = manualstimvals[p][frame];
         code = manualprop[p];
-        if((i = SetStimulus(expt.st, val, code, NOEVENT)) < 0)
-            SetExptProperty(&expt, expt.st, code, val, NOEVENT);
+        if (code == STIMCHANGE_CODE){
+            if(val > 0)
+                mode |= STIMCHANGE_FRAME;
+        
+        }
+        else{
+            if((i = SetStimulus(expt.st, val, code, NOEVENT)) < 0)
+                SetExptProperty(&expt, expt.st, code, val, NOEVENT);
+        }
         p++;
     }
 }
@@ -10388,7 +10435,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int finished = 0,j,i = 0, nreps, ntotal, retval =0;
     int framecount,rc,lastframecount;
     Substim *rds;
-    char c,buf[BUFSIZ*20],tmp[BUFSIZ*20];
+    char c,buf[BUFSIZ*1000],tmp[BUFSIZ*20];
     float val;
 //    Expstim *stim;
     struct plotdata *plot;
@@ -12551,8 +12598,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     double dval;
     
     
-    
-    printf("%d %s\n",frompc,line);
+  
+    if (optionflags[DEBUG_OUTPUT])
+        printf("%d %s\n",frompc,line);
     gettimeofday(&now,NULL);
 /*
  * exp->cmdtype controls whether or not this line is send down the serial line. If it has come from verg, needs 

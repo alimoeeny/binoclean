@@ -1043,6 +1043,7 @@ DATA.Trial.Trial = 1;
 DATA.windowcolor = [0.8 0.8 0.8];
 DATA.Trial.sv = [];
 DATA.psych.show = 1;
+DATA.psych.trialresult = 0;
 DATA.psych.blockmode = 'All';
 DATA.psych.crosshairs = 1;
 DATA.psych.blockid = [];
@@ -1166,7 +1167,8 @@ DATA.stimtype(2) = 1;
 DATA.electrodeid = 1;
 DATA.mean = [0 0 0];
 DATA.incr = [0 0 0];
-DATA.servoport = [];
+DATA.servoport = []; %name of tty2 in /local/binoc.setup
+DATA.servofig = 0;  %Figre # of servo control window.
 DATA = ReadSetupFile(DATA, '/local/binoc.setup');
 DATA = ReadStimFile(DATA, '/local/verg.setup');
 
@@ -1833,7 +1835,8 @@ function CheckForUpdate(DATA)
         if strcmp(yn,'Yes')
             try  %This will produce and error becuase verg.m is in use. But the copy succeeds
                 copyfile(src,tgt);
-            catch
+            catch ME
+                fprintf('possible error copying %s\n',tgt);
             end
         end
     end
@@ -2284,10 +2287,14 @@ end
 
 function CheckInput(a,b, fig, varargin)
     DATA = get(fig,'UserData');
+    if DATA.servofig
+        ServoDrive('readposition');
+    end
     ReadFromBinoc(DATA, 'auto');
     if DATA.verbose > 1
     fprintf('Timer read over at %s\n',datestr(now));
     end
+    
     
  
  function DATA = ReadFromBinoc(DATA, varargin)
@@ -2470,14 +2477,24 @@ function DATA = RunButton(a,b, type)
         
 function ElectrodeMoved(F, pos) %called by ServoDrive
 %ServoDrive sends position in microns. Binoc wants mm            
-    DATA = get(F, 'UserData');
+if ~isfigure(F) %if verg was close before servowindow
+    return;
+end
+DATA = get(F, 'UserData');
+if strcmp(pos,'close') %Servo Contoller Closing
+    DATA.servofig = 0;
+    set(DATA.toplevel,'UserData',DATA);
+else
     outprintf(DATA,'!seted=%.3f\n',pos./1000);
+end
 
 function ElectrodePopup(a,b, fcn, varargin)
   DATA = GetDataFromFig(a);
 
   if ~isempty(DATA.servoport)
-  ServoDrive('ttyname',DATA.servoport,'callback',{@ElectrodeMoved, DATA.toplevel});
+      X = ServoDrive('ttyname',DATA.servoport,'callback',{@ElectrodeMoved, DATA.toplevel});
+      DATA.servofig = X.toplevel;
+      set(DATA.toplevel,'UserData',DATA);
   end
   
 
@@ -2794,7 +2811,15 @@ set(DATA.toplevel,'UserData',DATA);
 function DATA = RunExptSequence(DATA, str, line)
 
     nread = 0;
-    if line > length(str)
+    runlines = find(strncmp('!expt',str,5));
+    if isempty(runlines)
+        warndlg('Sequence must contain !expt','Sequence file error');
+        lastline = 1;
+    else
+        lastline = runlines(end);
+    end
+ 
+    if line > lastline
         if DATA.rptexpts > 0
             DATA.rptexpts = DATA.rptexpts-1;
             line = 1;
@@ -3727,6 +3752,7 @@ function ChoosePsych(a,b, mode)
         else
             DATA.plotexpts(e) = ~DATA.plotexpts(e);
         end
+        DATA.psych.blockmode = 'Select';
         PlotPsych(DATA);
         if strmatch(DATA.psych.blockmode,'OneOnly')
             c = get(get(a,'parent'),'children');
@@ -3760,9 +3786,9 @@ function ChoosePsych(a,b, mode)
         DATA.psych.show = ~DATA.psych.show;
         set(a,'Checked',onoff{DATA.psych.show+1});
         PlotPsych(DATA);
-    elseif strcmp(mode,'crosshairs')
-        DATA.psych.crosshairs = ~DATA.psych.crosshairs;
-        set(a,'Checked',onoff{DATA.psych.crosshairs+1});
+    elseif sum(strcmp(mode,{'crosshairs' 'trialresult'}))
+        DATA.psych.(mode) = ~DATA.psych.(mode);
+        set(a,'Checked',onoff{DATA.psych.(mode)+1});
         PlotPsych(DATA);
     end
     set(DATA.toplevel,'UserData',DATA);
@@ -3781,6 +3807,8 @@ function DATA = SetFigure(tag, DATA)
             hm = uimenu(a, 'Label','Options','Tag','PsychOptions');
             sm = uimenu(hm,'Label','Crosshairs','callback', {@ChoosePsych, 'crosshairs'},...
                 'checked',onoff{DATA.psych.crosshairs+1});
+            sm = uimenu(hm,'Label','Just Show Trial outcomes','callback', {@ChoosePsych, 'trialresult'},...
+                'checked',onoff{DATA.psych.trialresult+1});
             set(a,'UserData',DATA.toplevel);
             set(a,'DefaultUIControlFontSize',DATA.font.FontSize);
             set(a,'DefaultUIControlFontName',DATA.font.FontName);
@@ -3888,35 +3916,42 @@ function DATA = PlotPsych(DATA)
         end
     end    
     
+    
     if DATA.psych.show
-    DATA = SetFigure('VergPsych', DATA);
-    hold off; 
-    np = sum(abs([Expt.Trials.RespDir]) ==1); %psych trials
-    eargs = {};
-    if np > 1
-        if strcmp(Expt.Stimvals.e2,'od') && isfield(Expt.Stimvals,'or')
-            for j = 1:length(DATA.expvals{2})
-                do = DATA.expvals{2}(j);
-                lo = Expt.Stimvals.or + do/2;
-                ro = Expt.Stimvals.or - do/2;
-                legendlabels{j} = sprintf('R%.0dL%.0f',ro,lo);
+        DATA = SetFigure('VergPsych', DATA);
+        hold off;
+        if DATA.psych.trialresult
+            plot([Expt.Trials.Start],[Expt.Trials.good],'o');
+            datetick('x','hh:mm');
+            axis('tight');
+        else
+        np = sum(abs([Expt.Trials.RespDir]) ==1); %psych trials
+        eargs = {};
+        if np > 1
+            if strcmp(Expt.Stimvals.e2,'od') && isfield(Expt.Stimvals,'or')
+                for j = 1:length(DATA.expvals{2})
+                    do = DATA.expvals{2}(j);
+                    lo = Expt.Stimvals.or + do/2;
+                    ro = Expt.Stimvals.or - do/2;
+                    legendlabels{j} = sprintf('R%.0dL%.0f',ro,lo);
+                end
+                eargs = {eargs{:} 'legendlabels' legendlabels};
             end
-            eargs = {eargs{:} 'legendlabels' legendlabels};
+            try
+                [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown',eargs{:});
+            catch ME
+                fprintf('Error In ExptPsych %s\n',ME.message);
+            end
+            id = find(strcmp(Expt.Stimvals.et,{DATA.comcodes.code}));
+            if length(id) == 1
+                set(get(gca,'xlabel'),'string',DATA.comcodes(id).label);
+            end
+            if DATA.psych.crosshairs
+                plot([0 0], get(gca,'ylim'),'k:')
+                plot(get(gca,'xlim'),[0.5 0.5],'k:')
+            end
         end
-        try
-        [a,b] = ExptPsych(Expt,'nmin',1,'mintrials',2,'shown',eargs{:});
-        catch ME
-            fprintf('Error In ExptPsych %s\n',ME.message);
         end
-        id = find(strcmp(Expt.Stimvals.et,{DATA.comcodes.code}));
-        if length(id) == 1
-            set(get(gca,'xlabel'),'string',DATA.comcodes(id).label);
-        end
-    if DATA.psych.crosshairs
-        plot([0 0], get(gca,'ylim'),'k:')
-        plot(get(gca,'xlim'),[0.5 0.5],'k:')
-    end
-    end
     end
     DATA.Expt = Expt;
     

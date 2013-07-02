@@ -2009,7 +2009,7 @@ void calc_stimulus(Stimulus *st)
             st->next->flag = st->flag;
             st->next->corrmix = st->corrmix;
         }
-        if(backdone == 0)
+        if(backdone == 0 && st->next->calculated == 0)
             calc_stimulus(st->next);
     }
     st->calculated = 1;

@@ -265,9 +265,11 @@
 #define MICROSTIM_PHASE_ONSET (LAST_STIMULUS_CODE+164)
 #define MICROSTIM_PHASE_DURATION (LAST_STIMULUS_CODE+165)
 #define MICROSTIM_PERIODIC (LAST_STIMULUS_CODE+166)
+#define IMAGEXPOS (LAST_STIMULUS_CODE+167)
+#define IMAGEYPOS (LAST_STIMULUS_CODE+168)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+167)/* 201 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+169)/* 201 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -784,6 +786,7 @@ ToggleCode togglestrings[] = {
     {"SplitScreen",    "ss",  0, SPLITSCREEN, 3},
     {"Debug",    "od", 0, DEBUG_OUTPUT, 3},
     {"Watch Times",    "WT", 0, WATCH_TIMES, 3},
+    {"Monitor State",    "MS", 0, MONITOR_STATE, 3},
     {"Test mode",    "tm", 0, TEST_BIT, 1},
     {"Fix Sepn",    "fs",  0, FIXED_BARSEP, 3},
     {"Record RLS",    "srls",  0, SAVE_RLS, 3},
@@ -1044,6 +1047,9 @@ ValueCode valstrings[] = {
   {"T2",     "Target 2 pos",TARGET2_POS , 16 , 'N' ,2, SEND_EXPLICIT},
   {"mixac",     "AC Mixture",MIXAC, 1 , 'N' ,2, SEND_EXPLICIT},
   {"ijump",     "Image Jumps",IMAGEJUMPS, 1 , 'N' ,0, SEND_EXPT},
+    {"imx",     "Image X pos",IMAGEXPOS, 3 , 'N' ,0, SEND_EXPT},
+    {"imy",     "Image Y pos",IMAGEYPOS, 3 , 'N' ,0, SEND_EXPT},
+    
   {"Tt",     "Tone time",TONETIME, 16 , 'N' ,2, SEND_EXPLICIT},
   {"iD",  "Opposite Delay",OPPOSITE_DELAY , 1 , 'N' ,5, SEND_EXPLICIT},
     {"baddir",  "Saccade Punish Direcion",SACCADE_PUNISH_DIRECTION , 8 , 'N' ,1, SEND_EXPLICIT},
