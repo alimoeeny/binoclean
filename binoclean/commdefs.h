@@ -267,9 +267,10 @@
 #define MICROSTIM_PERIODIC (LAST_STIMULUS_CODE+166)
 #define IMAGEXPOS (LAST_STIMULUS_CODE+167)
 #define IMAGEYPOS (LAST_STIMULUS_CODE+168)
+#define NBARS (LAST_STIMULUS_CODE+169)
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+169)/* 201 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+170)/* 201 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -466,9 +467,13 @@
 #define COARSEMM (MAXSAVECODES+26)
 #define PSYCH_VALUE (MAXSAVECODES+27)
 #define EXPT_PREFIX (MAXSAVECODES+28)
+#define LEFTX (MAXSAVECODES+29)
+#define LEFTY (MAXSAVECODES+30)
+#define RIGHTX (MAXSAVECODES+31)
+#define RIGHTY (MAXSAVECODES+32)
 
 
-#define MAXTOTALCODES (MAXSAVECODES+29)  //372
+#define MAXTOTALCODES (MAXSAVECODES+33)  //372
 
 
 /*
@@ -871,6 +876,7 @@ ValueCode valstrings[] = {
   {"jn",     "cyl num dots", JNUMDOTS, 5, 'N' ,2, SEND_EXPLICIT},
   {"jl",     "dotlife (cyl)",JLIFEFRAMES, 5, 'N' ,2, SEND_EXPLICIT}, 
   {"jx",     "death chance",  JDEATH, 5, 'N' ,4, SEND_EXPT},
+  {"nbars",     "Nnumber of Bars", NBARS, 5, 'N' ,0, SEND_EXPLICIT},
   {"c2",     "contrast 2", CONTRAST2, 1, 'N' ,4, SEND_EXPLICIT},
   {"ic",     "Delta contrast (L-R)", CONTRAST_DIFF, 3, 'N' ,4, SEND_EXPLICIT},
   {"od",     "Delta ori (L-R)", ORIENTATION_DIFF, 3, 'N' ,2, SEND_EXPLICIT},
@@ -1219,6 +1225,10 @@ ValueCode valstrings[] = {
   {"dfx",    "fx change", FIXPOS_XSHIFT, 8 , 'N' ,2, SEND_EXPLICIT},
   {"ddx",    "dx change",NEWDISP, 513 , 'N' ,2, SEND_EXPLICIT},
   {"backMov",    "Backgr Movie",BACKGROUND_MOVIE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"xL",    "Xpos Left",LEFTX, 512 , 'N' ,3, SEND_EXPLICIT},
+    {"yL",    "Ypos Left",LEFTY, 512 , 'N' ,3, SEND_EXPLICIT},
+    {"xR",    "Xpos Right",RIGHTX, 512 , 'N' ,3, SEND_EXPLICIT},
+    {"yR",    "Ypos Right",RIGHTY, 512 , 'N' ,3, SEND_EXPLICIT},
   {"annTyp",     "Annulus Type",SETANNULUS, 1 , 'N' ,2, SEND_EXPLICIT},
   {"StartDepth",     "Start Depth",PEN_START_DEPTH, 128 , 'N' ,2, SEND_EXPLICIT},
   {"TwoCylDisp",     "TwoCyl Disp",TWOCYL_DISP, 513 , 'N' ,2, SEND_EXPLICIT},

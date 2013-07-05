@@ -131,11 +131,13 @@ static int backloaded = 0;
 static int flips[2] = {0};
 float *manualstimvals[100];
 int manualprop[100];
+int propmodifier[100];
 
 int seedoffsets[100] = {0};
 int covaryprop = -1;
 int maxseed = 0;
 int popup_confirmed = -1;
+extern int renderoff;
 
 #define MAXHELPFILES 200
 static char *helpfiles[MAXHELPFILES] = {NULL};
@@ -1860,7 +1862,7 @@ int ReadManualStim(char *file){
     struct stat statbuf;
     FILE *fin;
     char *s,*t,inbuf[BUFSIZ*10];
-    int nprop = 0,j,i,nframes;
+    int nprop = 0,j,i,nframes,modifier;
     float val,imx[MAXFRAMES],imy[MAXFRAMES];
     Stimulus *st;
     
@@ -1877,7 +1879,17 @@ int ReadManualStim(char *file){
             fputs(inbuf,seroutfile);
         s = strchr(inbuf,':');
         if (s != NULL){
-            manualprop[nprop] = FindCode(inbuf);
+            if (strncmp(inbuf,"bar",3) == NULL){
+                sscanf(&inbuf[3],"%x",&modifier);
+                manualprop[nprop] = FindCode(&inbuf[4]);
+                propmodifier[nprop] = modifier;
+            }
+            else{
+                manualprop[nprop] = FindCode(inbuf);
+                propmodifier[nprop] = 0;
+            }
+
+        
             t = s;
             j = 0;
             while(t != NULL){
@@ -1941,6 +1953,7 @@ int SetManualStim(int frame)
     float val;
     while(manualprop[p] >= 0){
         val = manualstimvals[p][frame];
+        expt.st->modifier = propmodifier[p];
         code = manualprop[p];
         if (code == STIMCHANGE_CODE){
             if(val > 0)
@@ -3988,6 +4001,13 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"openuff",7)){
         SerialSend(UFF_PREFIX);
+    }
+    else if(!strncasecmp(s,"renderoff",9)){
+        renderoff = 1;
+        acknowledge("Rendering OFF!!",NULL);
+    }
+    else if(!strncasecmp(s,"renderon",8)){
+        renderoff = 0;
     }
     else if(!strncasecmp(s,"reopenserial",10)){
         ReopenSerial();
@@ -10906,7 +10926,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
 #ifdef NIDAQ
     DIOWriteBit(0,0); //clear stimchange pin
 #endif
-    
+    if (seroutfile)
+        fprintf(seroutfile,"se%d\n",firstseed);
     SerialSend(SET_SEED); // get this recorded at stim end also
     if(cctr && 0) // Don't do this normally
         printf("Serial %d: %s\n",cctr,cbuf);
@@ -11137,6 +11158,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         gettimeofday(&now, NULL);
         val = timediff(&now,&timea);
         fprintf(seroutfile,"Id%d RLS save took %.3f\n",expt.st->stimid,val);
+    }
+    else if (expt.st->type == STIM_RLS && seroutfile){
     }
     /* reset stimulus type in case it was set to blank */
     if(retval == BAD_TRIAL || retval < 0)
@@ -12633,6 +12656,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(!strcmp(line,"whatsup")){
         sendNotification();
+    }
+    else if(!strncmp(line,"bar",3) && s != NULL){
+        sscanf(&line[3],"%f",&expt.st->modifier);
+        i = FindCode(&line[3]);
+        sscanf(&line[4],"%f",&val);
+        SetStimulus(expt.st, val, i, NOEVENT);
     }
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));

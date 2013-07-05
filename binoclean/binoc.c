@@ -65,6 +65,7 @@ static int forcestart = 0;
 static int nostore = 0;
 static float pursued = 0;
 int lastbutton = -1000;
+int renderoff;
 
 int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
@@ -4457,6 +4458,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 val = -1;
             pos->contrast_amp = val;
             pos->contrast = pos->contrast_amp * cos(pos->contrast_phase);
+            if (st->modifier > 0 && st->type == STIM_BAR){
+                st->left->imc[st->modifier-1] = val;
+                st->right->imc[st->modifier-1] = val;
+            }
             if(expt.vals[GRIDSIZE] > 0.1){
             }
             break;
@@ -4479,12 +4484,57 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case SETZOOM:
             zoom = val;
             break;
+        case LEFTX:
+            fval = deg2pix(val);
+            if(st->modifier > 0 && st->type == STIM_BAR){
+                st->left->xpos[st->modifier-1] = fval;
+            }
+            break;
+        case RIGHTX:
+            fval = deg2pix(val);
+            if(st->modifier > 0 && st->type == STIM_BAR){
+                st->left->xpos[st->modifier-1] = fval;
+            }
+            break;
+        case LEFTY:
+            fval = deg2pix(val);
+            if(st->modifier > 0 && st->type == STIM_BAR){
+                st->left->xpos[st->modifier-1] = fval;
+            }
+            break;
+        case RIGHTY:
+            fval = deg2pix(val);
+            if(st->modifier > 0 && st->type == STIM_BAR){
+                st->left->xpos[st->modifier-1] = fval;
+            }
+            break;
         case SETZXOFF:
             fval = deg2pix(val);
-            LocateStimulus(st, fval+winsiz[0],pos->xy[1]+winsiz[1]);
+            if(st->modifier > 0 && st->type == STIM_BAR){
+                st->left->xpos[st->modifier-1] = fval;
+                st->right->xpos[st->modifier-1] = fval;
+            }
+            else
+                    LocateStimulus(st, fval+winsiz[0],pos->xy[1]+winsiz[1]);
+            
+            break;
+        case NBARS:
+            if (st->type == STIM_BAR){
+            st->left->nbars = val;
+            st->right->nbars = val;
+            init_bar(st,st->left);
+            init_bar(st,st->right);
+            st->left->nbars = val;
+            st->right->nbars = val;
+            }
             break;
         case SETZYOFF:
             fval = deg2pix(val);
+            if(st->modifier > 0 && st->type == STIM_BAR){
+                st->left->ypos[st->modifier-1] = fval;
+                st->right->ypos[st->modifier-1] = fval;
+            }
+            else
             LocateStimulus(st, pos->xy[0]+winsiz[0],fval+winsiz[1]);
             break;
         case SETOVERLAYCOLOR:
@@ -4797,12 +4847,14 @@ void search_background()
                     val = (val * val)/99.7;
                 else
                     val = -(val * val)/99.7;
+                tempstim->left->imc[nb] =  0;
                 tempstim->left->imb[nb] =  (expt.rf->angle + val) * 2 * M_PI/360.0;
                 tempstim->left->ypos[nb] = j;
                 tempstim->left->xpos[nb] = i;
                 tempstim->right->imb[nb] =  (expt.rf->angle + val) * 2 * M_PI/360.0;
                 tempstim->right->ypos[nb] = j;
                 tempstim->right->xpos[nb] = i;
+                tempstim->right->imc[nb] =  0;
                 nb++;
                 if (tempstim->f < 5 || tempstim->left->pos.sf < 5 ||tempstim->right->pos.sf < 5 || tempstim->right->pos.radius[0] > 200)
                 {
@@ -5134,8 +5186,10 @@ int change_frame()
 	}
     //	—glFlushRenderAPPLE();
     //AliGLX	mySwapBuffers();
+    if (renderoff == 0){
 	glFinishRenderAPPLE();
     glSwapAPPLE();
+    }
     gettimeofday(&changeframetime,NULL);
 
 	framesswapped++;
@@ -5850,6 +5904,8 @@ void paint_frame(int type, int showfix)
     if(!optionflags[CALCULATE_ONCE_ONLY])
         calc_stimulus(TheStim);
     gettimeofday(&calctime, NULL);
+    if (renderoff)
+        return;
     setmask(ALLMODE);
     
     

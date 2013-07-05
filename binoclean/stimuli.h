@@ -287,6 +287,7 @@ struct STIMULUS{
     int jumps;
     int envelopetype;
     float envelope;
+    int modifier;
 };
 
 typedef struct STIMULUS Stimulus;

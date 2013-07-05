@@ -54,6 +54,7 @@ void init_bar(Stimulus *st, Substim *sst)
 {
     st->pos.barsep = NOTSET;
     sst->pos.barsep = NOTSET;
+    if (sst->nbars > 0){
     if(sst->nbars > sst->xpl)
     {
         sst->xpl = sst->nbars;
@@ -70,12 +71,20 @@ void init_bar(Stimulus *st, Substim *sst)
     }
     if(sst->nbars > sst->imblen || sst->imb == NULL) /* need new memory */
     {
-        if(sst->imb != NULL)
+        if(sst->imb != NULL) //imb used for bar contast
             free(sst->imb);
         sst->imblen = sst->nbars;
         sst->imb = (float *)malloc(sst->imblen * sizeof(float));
     }
-    sst->nbars = 0;
+    if(sst->nbars > sst->imclen || sst->imc == NULL) /* need new memory */
+    {
+        if(sst->imc != NULL)
+            free(sst->imc);
+        sst->imclen = sst->nbars;
+        sst->imc = (float *)malloc(sst->imclen * sizeof(float));
+    }
+    }
+        sst->nbars = 0;
 }
 
 void calc_bar(Stimulus *st)
@@ -197,7 +206,8 @@ void paint_bar(Stimulus *st, Substim *sst, int mode)
         angle = (float) (sst->imb[i] * 180.0/M_PI);
         glRotatef(angle,0,0,1);
         glBegin(GL_POLYGON);
-        mycolor(vcolor);	
+        vcolor[0] = vcolor[1] = vcolor[2] = sst->imc[i];
+        mycolor(vcolor);
         x[0] = z[0];
         x[1] = z[1];
         myvx(x);
