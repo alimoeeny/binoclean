@@ -2560,7 +2560,7 @@ void ShowTrialsNeeded(){
     char cbuf[BUFSIZ];
     
     if (freeToGo){
-    sprintf(cbuf,"%d stim  x %d rpts = %d, %d trials",expt.nstim[5],expt.nreps,expt.nstim[5]*expt.nreps,(expt.nstim[5]*expt.nreps)/expt.stimpertrial);
+    sprintf(cbuf,"%d stim  x %.1f rpts = %.0f, %.0f trials",expt.nstim[5],expt.nreps,expt.nstim[5]*expt.nreps,(expt.nstim[5]*expt.nreps)/expt.stimpertrial);
     statusline(cbuf);
     }
 }
@@ -3030,7 +3030,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
              */
             if(exp->st->mode & EXPTPENDING){
                 if(val <= repetitions_set || exp->st->mode & EXPT_OVER){
-                    exp->nreps = (int)val;
+                    exp->nreps = val;
                     RecalcRepeats(exp);
                 }
                 //Ali	    else
@@ -3039,7 +3039,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
             else
             {
                 //don't allow increase during expt - it would mess up order
-                exp->nreps = (int)val;
+                exp->nreps = val;
                 setstimulusorder(0);
             }
             ShowTrialsNeeded();

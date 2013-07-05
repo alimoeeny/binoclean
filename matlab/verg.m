@@ -99,7 +99,10 @@ for j = 1:length(strs{1})
     else
         code = s;
     end
+    
     if length(s) == 0
+    elseif strncmp(s,'!mat',4) && ~isempty(value)
+        eval(value);        
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
         msgbox(s(5:end),'Binoc Warning','warn');

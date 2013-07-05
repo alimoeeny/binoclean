@@ -369,7 +369,8 @@ typedef struct PGIMAGE PGM;
 
 struct EXPERIMENT{
     float mean, incr, isi, mean2, incr2,mean3,incr3;
-    int nframes, nstim[10],mode, nreps,flag,isiframes,stimno,nstim2,stimid;
+    float nreps; // can be fraction for Fastseq trials
+    int nframes, nstim[10],mode, nrepsi,flag,isiframes,stimno,nstim2,stimid;
     int laststim,ncycles,nlines, trials_per_stim, extras, stimtype, backtype;
     int nextstim,plotcluster,type2,type3,blksize,oldstimflag,stimpertrial;
     int laststimno;
