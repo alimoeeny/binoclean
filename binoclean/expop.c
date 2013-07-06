@@ -1862,7 +1862,7 @@ int ReadManualStim(char *file){
     struct stat statbuf;
     FILE *fin;
     char *s,*t,inbuf[BUFSIZ*10];
-    int nprop = 0,j,i,nframes,modifier;
+    int nprop = 0,j,i,nframes,modifier,pos;
     float val,imx[MAXFRAMES],imy[MAXFRAMES];
     Stimulus *st;
     
@@ -1880,8 +1880,12 @@ int ReadManualStim(char *file){
         s = strchr(inbuf,':');
         if (s != NULL){
             if (strncmp(inbuf,"bar",3) == NULL){
-                sscanf(&inbuf[3],"%x",&modifier);
-                manualprop[nprop] = FindCode(&inbuf[4]);
+                sscanf(&inbuf[3],"%d",&modifier);
+                if (modifier > 9)
+                    pos = 5;
+                else
+                    pos = 4;
+                manualprop[nprop] = FindCode(&inbuf[pos]);
                 propmodifier[nprop] = modifier;
             }
             else{
@@ -11355,7 +11359,7 @@ int ExptTrialOver(int type)
 #endif
                 expt.st->left->baseseed = currentstim.lastseed;
             }
-            else{
+            else if(optionflags[MANUAL_EXPT] ==0){
                 if(unrepeatn[stimi] < RPTLISTLEN && expt.vals[RC_REPEATS] > 0)
                     unrepeatn[stimi]++;
                 if(unrepeatn[stimi] > expt.nreps && expt.nreps > 1)

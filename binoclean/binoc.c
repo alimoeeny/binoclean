@@ -3046,6 +3046,14 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         st = TheStim;
     icode = valstringindex[code];
 //    if setblank is set, val may be -1009, so don't set anything to this. Consider same for setuc
+    if (st->type == STIM_BAR && st->modifier > st->left->xpl){
+        if(st->modifier > st->left->nbars){
+            st->left->nbars = st->modifier;
+            st->left->nbars = st->modifier;
+        }
+        init_bar(st,st->left);
+        init_bar(st,st->right);
+    }
     if (setblank == 0){
 	switch(code)
 	{
@@ -4456,11 +4464,13 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 val = 1.0;
             if(val < -1)
                 val = -1;
-            pos->contrast_amp = val;
-            pos->contrast = pos->contrast_amp * cos(pos->contrast_phase);
             if (st->modifier > 0 && st->type == STIM_BAR){
                 st->left->imc[st->modifier-1] = val;
                 st->right->imc[st->modifier-1] = val;
+            }
+            else{
+                pos->contrast_amp = val;
+                pos->contrast = pos->contrast_amp * cos(pos->contrast_phase);
             }
             if(expt.vals[GRIDSIZE] > 0.1){
             }
@@ -5904,8 +5914,11 @@ void paint_frame(int type, int showfix)
     if(!optionflags[CALCULATE_ONCE_ONLY])
         calc_stimulus(TheStim);
     gettimeofday(&calctime, NULL);
-    if (renderoff)
+    
+    RecordImage(expt.st->framectr, expt.st);
+    if (renderoff){
         return;
+    }
     setmask(ALLMODE);
     
     

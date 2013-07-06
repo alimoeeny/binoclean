@@ -56,6 +56,7 @@ int nrndcalls = 0;
 int *RecordImage(int frame, Stimulus *st){
     int *p,j;
     
+    if(st->type == STIM_RLS){
     if(frame > MAXFRAMES-1)
         frame = 0;
     
@@ -65,6 +66,7 @@ int *RecordImage(int frame, Stimulus *st){
     p=imagerec[frame];
     for (j = 0; j < st->left->ndots; j++) {
         *p++ = st->left->iimb[j] | (st->right->iimb[j] << 2);
+    }
     }
 }
 
@@ -2343,7 +2345,6 @@ void paint_stimulus(Stimulus *st, int follow)
             setmask(BOTHMODE);
             st->pos.lastxy[0] = st->pos.xy[0];
             st->pos.lastxy[1] = st->pos.xy[1];
-            RecordImage(st->framectr, st);
             break;
         case STIM_CORRUG:
             st->left->mode = LEFTMODE;

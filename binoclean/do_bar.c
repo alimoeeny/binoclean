@@ -84,6 +84,7 @@ void init_bar(Stimulus *st, Substim *sst)
         sst->imc = (float *)malloc(sst->imclen * sizeof(float));
     }
     }
+    if(st->modifier == 0)
         sst->nbars = 0;
 }
 
