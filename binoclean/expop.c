@@ -12652,6 +12652,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         }
         *t = 0;
     }
+    else if(line[0] == '#'  && frompc ==2){
+        strcat(line,"\n");
+        SerialString(line,0);
+    }
     else if(line[0] == '\\' || line[0] == '\!'){
         ReadCommand(&line[1]);
     }

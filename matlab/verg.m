@@ -717,7 +717,8 @@ function DATA = ReadStimFile(DATA, name, varargin)
         end
         j = j+1;
     end
-        
+outprintf(DATA,'#qe%s\n',name);
+
 fid = fopen(name,'r');
 if fid > 0
             
