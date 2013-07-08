@@ -267,6 +267,7 @@ for j = 1:length(strs{1})
             DATA = ReadExptLines(DATA,{});
             DATA = RunButton(DATA,[],1);
         elseif DATA.rptexpts > 0
+            outprintf(DATA,'#Nrpt is %d\n',DATA.rptexpts);
             DATA.rptexpts = DATA.rptexpts-1;
             it = findobj(DATA.toplevel,'Tag','RptExpts');
             set(it,'string',num2str(DATA.rptexpts));
@@ -2852,9 +2853,8 @@ for j = line:length(str)
         DATA.Expts{DATA.nexpts} = ExptSummary(DATA);
         DATA.seqline = j;
         set(DATA.toplevel,'UserData',DATA);
-        if DATA.outid > 0
-            fprintf(DATA.outid,'%s\n',str{j});
-        end
+        outprintf(DATA,'#From RunSequence\n');
+        outprintf(DATA,'%s\n',str{j});
         return;
     end
     if DATA.outid > 0

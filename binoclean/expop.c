@@ -10523,6 +10523,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     framecount = 0;
     framesdone = 0;
     expt.st->framectr = 0;
+    expt.st->next->framectr = 0;
     if(optionflags[TEMPORAL_GAUSS]){
         expt.st->tenvelope = 0;
     }
@@ -10536,6 +10537,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(!(optionflag & FIXATION_CHECK))
         fixstate = GOOD_FIXATION;
     sframetimes[0] = -10000;
+    for(i = 0; i < n; i++)
+        frameiseqp[i] = 0;
     if(optionflags[RANDOM_PHASE] || optionflags[RANDOM_INITIAL_PHASE]){
         phase = SetRandomPhase(expt.st, &(expt.st->pos));
         expt.vals[START_PHASE] = val;
@@ -10972,6 +10975,21 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         fprintf(seroutfile,"(%.3f,%.3f,%.3f)\n",StimDuration(),timediff(&endstimtime,&frametime),timediff(&firstframetime,&zeroframetime));
     }
     
+    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0){
+        sprintf(buf,"%srP=",serial_strings[MANUAL_TDR]);
+        for(i = 0; i < framesdone; i++){
+            if(frameiseqp[i] >= 0){
+                if( expt.st->nphases < 16)
+                    sprintf(tmp,"%x",frameiseqp[i]);
+                else
+                    sprintf(tmp,"%x ",frameiseqp[i]);
+                if(strlen(buf)+strlen(tmp) < BUFSIZ*2)
+                    strcat(buf,tmp);
+            }
+        }
+        strcat(buf,"\n");
+        SerialString(buf,0);
+    }
     if(optionflags[FAST_SEQUENCE]){
         sprintf(rcbuf,"%srS=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){

@@ -67,7 +67,7 @@ void paint_square(Stimulus *st, Substim *sst, int mode)
     Locator *pos = &sst->pos;
     int i,ci,w,h,ncycles;
     short *p,*q,*end,vx,vy,*vpx,*vpy,*vpoy,*vpox;
-    short x[2],z[2],*xc,*yc,c;
+    vcoord x[2],z[2],*xc,*yc,c;
     float offcolor[3],vcolor[3],*rc,*cc;
     float angle, oldplaid;
     double val,cval;

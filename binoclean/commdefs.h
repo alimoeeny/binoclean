@@ -436,7 +436,8 @@
 #define MONKEYNAME MAXSERIALCODES+162
 #define SIGNALFRAME_P MAXSERIALCODES+163
 #define COMMAND_FILE MAXSERIALCODES+164
-#define MAXSAVECODES MAXSERIALCODES+165 //364
+#define NPHASES MAXSERIALCODES+165
+#define MAXSAVECODES MAXSERIALCODES+166 //364
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -903,7 +904,7 @@ ValueCode valstrings[] = {
   {"mo",     "Mode",MODE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"vr",     "RAMP_VERGENCE",RAMP_VERGENCE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"nt",     "N Stim (Expt 1)",NTRIALS_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"uf",     "Uff Prefix",UFF_PREFIX, 32 , 'N' ,2, SEND_USER_ONLY},
+  {"uf",     "Uff Prefix",UFF_PREFIX, 32 , 'C' ,2, SEND_USER_ONLY},
   {"hx",     "High X Value for Interleaves",HIGHX, 16 , 'N' ,2, SEND_EXPLICIT},
   {"sM",     "Stimulus mode",STIMULUS_MODE, 1 , 'N' ,2, SEND_EXPT},
   {"wr",     "WURTZ task response period", WURTZ_RT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1252,6 +1253,7 @@ ValueCode valstrings[] = {
     {  "coarsemm", "Starting positino on Coarse drive", COARSEMM, 0, 'N', 0, SEND_EXPLICIT},
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
+    {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
   { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

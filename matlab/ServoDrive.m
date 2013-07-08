@@ -261,7 +261,7 @@ end
 fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
 pause(0.01);
 s = ReadLine(DATA.sport);
-d = sscanf(s,'%d');
+d = sscanf(s,'%d')
 d = d./DATA.stepscale;
 if showdepth
     set(DATA.depthlabel,'string',sprintf('%.0f uM',d));
@@ -288,12 +288,15 @@ fprintf(DATA.sport,'%dM\n',DATA.motorid);
 pause(0.01);
 ts = now;
 npost = 0;
-edur = abs(newpos-d) ./600; %estimated duration
+edur = abs(newpos-d) ./600 %estimated duration
 newd(1) = d;
 j = 2;
 while npost < 2
     fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
     s = ReadLine(DATA.sport);
+    if strcmp(s,'OK')
+        s = ReadLine(DATA.sport);
+    end
     ts(j) = now;
     if ~isempty(s)
         newd(j) = sscanf(s,'%d');
@@ -380,6 +383,7 @@ fprintf(DATA.sport,'SOR0\n');
 fprintf(DATA.sport,'NET1\n');
 fprintf(DATA.sport,'BAUD%d\n',9600);
 fprintf(DATA.sport,'SP%d\n',DATA.motorspeed.*DATA.stepscale);
+fprintf(DATA.sport,'LL0\n');
 fprintf(DATA.sport,'LL%d\n',150000);
 fprintf(DATA.sport,'APL1\n');
 fprintf(DATA.sport,'%dEN\n',DATA.motorid);

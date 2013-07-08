@@ -288,6 +288,7 @@ struct STIMULUS{
     int envelopetype;
     float envelope;
     int modifier;
+    int nphases;
 };
 
 typedef struct STIMULUS Stimulus;

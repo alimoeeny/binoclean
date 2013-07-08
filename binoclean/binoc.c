@@ -3057,6 +3057,9 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
     if (setblank == 0){
 	switch(code)
 	{
+        case NPHASES:
+            st->nphases = (int)(val);
+            break;
         case IMAGEINDEX:
             stimptr->left->imagei = val;
             stimptr->right->imagei = val;
@@ -5307,12 +5310,14 @@ float SetRandomPhase( Stimulus *st,     Locator *pos)
         pos->phase2 = (myrnd_i() %2) * M_PI;
     }
     else{
-        iphase = (myrnd_i() %360);
-        pos->phase = (iphase * M_PI)/180;
-        pos->phase2 = (myrnd_i() %360);
-        pos->phase2 *= (M_PI/180);
+        if( st->nphases > 0){
+        iphase = (myrnd_i() %st->nphases);
+        pos->phase = (iphase * 2 * M_PI)/st->nphases;
+        pos->phase2 = (myrnd_i() %st->nphases);
+        pos->phase2 *= (2 * M_PI/st->nphases);
         for(i = 0; i < st->nfreqs; i++)
-            st->phases[i] = (myrnd_i() %360) * M_PI/180;
+            st->phases[i] = (myrnd_i() %st->nphases) * 2 *  M_PI/st->nphases;
+        }
     }
     frameiseqp[expt.framesdone] = iphase;
     if(pos->phase != 0)
@@ -5688,8 +5693,10 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 		pos->phase += st->incr;
 		if(optionflags[RANDOM_PHASE]){
             /* make sure these phases come from this seed so can be reconstructed*/
+            if (expt.vals[FAST_SEQUENCE_RPT] <2 || st->framectr % (int)(expt.vals[FAST_SEQUENCE_RPT]) == 0){
             myrnd_init(st->left->baseseed);
             SetRandomPhase(st, pos);
+            }
 		}
 		pos->locn[0] += st->posinc;
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
@@ -7884,6 +7891,9 @@ float StimulusProperty(Stimulus *st, int code)
 	rds = st->left;
 	switch(code)
 	{
+        case NPHASES:
+            value = st->nphases;
+            break;
         case IMAGEINDEX:
             value = st->left->imagei;
             break;
