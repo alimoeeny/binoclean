@@ -365,6 +365,7 @@ end
 
 function s = ReadLine(port)
 
+ts = now;
 while get(port,'BytesAvailable') == 0
     pause(0.001);
 end

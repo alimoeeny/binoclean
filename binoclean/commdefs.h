@@ -1012,7 +1012,7 @@ ValueCode valstrings[] = {
   {"hd",     "Length Disparity",LENGTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
   {"wd",     "Width Disparity",WIDTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
   {"nc",     "N Components",NCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
-  {"id",     "Stim ID",STIMID, 1 , 'N' ,2, SEND_STIMULUS},
+  {"id",     "Stim ID",STIMID, 1 , 'N' ,0, SEND_STIMULUS},
   {"O2",     "Ori 2",ORI2, 1 , 'N' ,2, SEND_EXPLICIT},
   {"n3",     "Nstim 3",EXPT3_NSTIM, 16 , 'N' ,0, SEND_EXPT},
   {"Sr",     "Spin Rate",SPINRATE, 1 , 'N' ,2, SEND_EXPLICIT},

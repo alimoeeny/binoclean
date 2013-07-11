@@ -5480,12 +5480,21 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         {
             rds->baseseed += 2;
         }
+        else if(rds->seedloop > 1){
+            if(expt.framesdone%rds->seedloop == 0)
+                rds->baseseed += 2;
+        }
         
         /*
          * always stepping 2 is easier. But need to make seed delay * 2 also....
          *	  if(st->flag & UNCORRELATE)
          *         rds->baseseed++;
          */
+    }
+    else if( isadotstim(st) && st->left->seedloop > 1) //seedloop now sets # of repeated frames
+    {
+        if(expt.framesdone%rds->seedloop == 0)
+            rds->baseseed += 2;
     }
     if(st->type == STIM_CYLINDER || st->type == STIM_RDS && st->left->seedloop == 1){
         if(realframecount == 0)
@@ -9383,12 +9392,12 @@ int GotChar(char c)
 	float down, *ptr,t1,t2,t3,val,start,sacval[4],sacdir,sacsiz;
 	float choiceaxis,tansac;
 	static float intended;
-	char result = '0',buf[MBUFLEN],str[BUFSIZ],xresult = 0;
+	char result = '0',buf[MBUFLEN],str[BUFSIZ],xresult = 0,*s;
 	static int cctr = 0,lastcharcnt;
 	int jonresult,presult =-1;
 	int stim_direction;
 	int topline;
-	int monkey_dir,x,y,aid;
+	int monkey_dir,x,y,aid,ns=0;
 	float oldrw,sacth;
 	int sign,code,trueafc = 0;
     
@@ -9472,13 +9481,34 @@ int GotChar(char c)
             fprintf(seroutfile,"#StartExpt from Spike2 at %.4f\n",ufftime(&now));
         if (timediff(&now,&lastconnecttime) < 1){
             if(seroutfile){
-                fprintf(seroutfile,"#Double Connection attempted\n");
+                ns=0;
+                s = CheckSerialInput(100);
+                if(s != NULL){
+                    for(i = 0; i < 100; i++){
+                    if(s[i] == START_EXPT)
+                        ns++;
+                    }
+                }
+                else
+                    ns=-1;
+                fprintf(seroutfile,"#Double Connection attempted %d StartExpts\n",ns);
                 fflush(seroutfile);
             }
+//Just write StimChange bit if here, for diagnostics
+            DIOWriteBit(0,1);
+            fsleep(0.01);
+            DIOWriteBit(0,0);
             acknowledge("Very Short interval between Serial Connect",NULL);
         }
-        else
+        else{
+            DIOWriteBit(0,1);
+            DIOWriteBit(2,1);
+            
+            fsleep(0.01);
+            DIOWriteBit(0,0);
+            DIOWriteBit(2,0);
             MakeConnection(1);
+        }
         gettimeofday(&lastconnecttime,NULL);
 	}
     

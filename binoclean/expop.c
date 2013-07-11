@@ -5063,7 +5063,7 @@ int ReadStimOrder(char *file)
 
 void setstimulusorder(int warnings)
 {
-    int i, nreps,j = 0,nstim,n,tw,a,b;
+    int i, j = 0,nstim,n,tw,a,b;
     int thisblk, blksize,k,rnd,last = -1, lastctr = 0,nblk = 0;
     int loop, nset, errs = 0;
     char cbuf[BUFSIZ],buf[BUFSIZ];
@@ -5086,6 +5086,7 @@ void setstimulusorder(int warnings)
     FILE *out;
     int noneed = 0;
     int rcrpt = 0;
+    float nreps;
     
     if(!(mode & RUNNING))
         return;
@@ -5159,9 +5160,9 @@ void setstimulusorder(int warnings)
     else
         blksize = 1;
     if(option2flag & PSYCHOPHYSICS_BIT)
-        blksize = nreps;
+        blksize = ceil(nreps);
     if(blksize > nreps)
-        blksize = nreps;
+        blksize = ceil(nreps);
     thisblk = 1;
     
     /* 
@@ -5177,7 +5178,7 @@ void setstimulusorder(int warnings)
     }
     else{
         ntoset = nstimtotal*nreps;
-        nset = nreps;
+        nset = ceil(nreps);
     }
     if(ntoset > TRIALBUFFERLEN){
         sprintf(cbuf,"%d trials is too many",ntoset);
@@ -5668,7 +5669,7 @@ int permute(int *in, int n)
 
 int CountReps(int start)
 {
-    int i, ntoset,counts[1024],stim;
+    int i, ntoset,counts[TRIALBUFFERLEN],stim;
     
     
     ntoset = expt.nstim[6];
@@ -6114,7 +6115,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s%s%.2f",scode,temp,expt.mon->framerate);
             break;
         case NREPS_CODE:
-            sprintf(cbuf,"%s%s%d",scode,temp,expt.nreps);
+            sprintf(cbuf,"%s%s%.2f",scode,temp,expt.nreps);
             break;
         case NEXTRAS_CODE:
             if(optionflags[FAST_SEQUENCE])
@@ -7497,7 +7498,8 @@ void ShuffleStimulus(int state)
     if(seroutfile)
     {
         fprintf(seroutfile,"#Shuf stimno %d type %d (fix %d state %d,%d)\n",stimno, afc_s.lasttrial,fixstate,state,afc_s.loopstate);
-        CountReps(stimno);
+        if (optionflags[FAST_SEQUENCE] == 0)
+            CountReps(stimno);
     }
     if(state == BAD_FIXATION && fixstate == INTERTRIAL)
         return;
@@ -10517,6 +10519,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     else if(seroutfile){
         fprintf(seroutfile,"#Velocity 0 before stim starts, was %.2f\n",oldvelocity);
     }
+    SerialSend(STIMID);
     SerialSend(SET_SEED);
     if(st->type == STIM_RDS)
         rds = st->left;
@@ -11179,7 +11182,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         }
         gettimeofday(&now, NULL);
         val = timediff(&now,&timea);
-        fprintf(seroutfile,"Id%d RLS save took %.3f\n",expt.st->stimid,val);
+        fprintf(seroutfile,"Id%d RLS save took %.3f\n",expt.allstimid,val);
     }
     else if (expt.st->type == STIM_RLS && seroutfile){
     }
