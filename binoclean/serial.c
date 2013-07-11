@@ -218,8 +218,7 @@ char *CheckSerialInput(int length)
     
     if(length < charsread){
         longlist[charsread] = 0;
-        sprintf(buf,"%*s",length,&longlist[charsread-length]);
-        return(buf);
+        return(&longlist[charsread-length]);
     }
     else
         return(NULL);
