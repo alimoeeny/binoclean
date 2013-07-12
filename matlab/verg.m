@@ -27,6 +27,7 @@ if isempty(it)
         if exist(DATA.binocstr.lo,'file')
             DATA = ReadLogFile(DATA, DATA.binocstr.lo);
         end
+        DATA = LoadLastSettings(DATA,'interactive');
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
         j = 2;
@@ -84,7 +85,7 @@ function [DATA, codetype] = InterpretLine(DATA, line)
 setlist = 0;  %% don't update gui for every line read.
 codetype = 0;
 
-if isempty(line)
+if nargin < 2 || isempty(line)
         return;
 end
 strs = textscan(line,'%s','delimiter','\n');
@@ -1759,6 +1760,42 @@ function MenuHit(a,b, arg)
     end
     set(DATA.toplevel,'UserData',DATA);
 
+    
+function DATA = LoadLastSettings(DATA, varargin)
+    
+    interactive = 0;
+    j = 1;
+    while j <= length(varargin)
+        if strncmpi(varargin{j},'interactive',5)
+            interactive = 1;
+        end
+        j = j+1;
+    end
+    
+        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
+        d = mydir(rfile);
+        [a,id] = max([d.datenum]);
+        d = d(id);
+        go  = 0;
+        if now - d.datenum < 1/24 %less than an hour old - read in settings
+            go = 1;
+            if interactive 
+                yn = questdlg(sprintf('Looks like you are re-starting Mid expt. Do you want to reload id/se from %s',d.filename),'fontsize',18);
+                if ~strcmp(yn,'Yes')
+                    go = 0;
+                end
+            end
+        end
+        if go
+            txt = scanlines(d.name);
+            for s = {'id' 'se'}
+            id = find(strncmp(s,txt,length(s{1})));
+            if ~isempty(id)
+                cprintf('blue','Setting %s from %s\n',txt{id(1)},d.name);
+                DATA = InterpretLine(DATA, txt{id(1)});
+            end
+            end
+        end
     
 function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);

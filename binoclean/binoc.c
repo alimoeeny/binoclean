@@ -1022,6 +1022,8 @@ char **argv;
      */
     printf("VERSION %s\n",VERSION_NUMBER);
     gettimeofday(&lastmonkeycheck,NULL);
+    sprintf(timeoutstring,"Waiting...");
+
 
     while(i < argc) //Ali: for some reason xcode passes these additional arguments that messes up things.
     {
@@ -6267,13 +6269,8 @@ int next_frame(Stimulus *st)
             else if(expt.vals[GRIDSIZE] > 0.1){
                 if(optionflag & CONTRAST_REVERSE_BIT){
                     expt.st->pos.contrast_phase += expt.st->incr;
-                    i = (int)(expt.st->pos.contrast_phase) % 21;
-                    val = expt.vals[TIMEOUT_CONTRAST];
-                    expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/10.0)-1;
-                    if((int)(expt.vals[ALTERNATE_STIM_MODE]) == QUICK_CAL){
-                        i = (int)(expt.st->pos.contrast_phase) % expt.nstim[0];
-                        expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/(floor(expt.nstim[0]/2)))-1;
-                    }
+                    i = (int)(expt.st->pos.contrast_phase) % expt.nstim[0];
+                    expt.vals[TIMEOUT_CONTRAST] = ((float)(i)/(floor(expt.nstim[0]/2)))-1;
                 }
                 setmask(ALLMODE);
                 chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
@@ -10235,15 +10232,15 @@ void printStringOnMonkeyView(char *s, int size)
 {
     
     displayOnMonkeyView(s, -500, -450);
-    glPushAttrib(GL_LIST_BIT);
-    if(size == 1)
-        glListBase(mediumbase);
-    else if(size == 2)
-        glListBase(bigbase);
-    else
-        glListBase(base);
-    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
-    glPopAttrib();
+//    glPushAttrib(GL_LIST_BIT);
+//    if(size == 1)
+//        glListBase(mediumbase);
+//    else if(size == 2)
+//        glListBase(bigbase);
+//    else
+//        glListBase(base);
+//    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
+//    glPopAttrib();
 }
 
 
