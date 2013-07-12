@@ -27,6 +27,7 @@ if isempty(it)
         if exist(DATA.binocstr.lo,'file')
             DATA = ReadLogFile(DATA, DATA.binocstr.lo);
         end
+        DATA = LoadLastSettings(DATA,'interactive');
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
         j = 2;
@@ -84,7 +85,7 @@ function [DATA, codetype] = InterpretLine(DATA, line)
 setlist = 0;  %% don't update gui for every line read.
 codetype = 0;
 
-if isempty(line)
+if nargin < 2 || isempty(line)
         return;
 end
 strs = textscan(line,'%s','delimiter','\n');
@@ -96,6 +97,7 @@ for j = 1:length(strs{1})
     if ~isempty(eid)
         code = s(1:eid(1)-1);
         value = s(eid(1)+1:end);
+        numval = str2num(value);
     else
         code = s;
     end
@@ -413,25 +415,25 @@ for j = 1:length(strs{1})
         DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'nt',2)
         DATA.nstim(1) = sscanf(s,'nt=%d');
-        DATA.binoc{1}.(code) = value;
+        DATA.binoc{1}.(code) = numval;
     elseif strncmp(s,'n2',2)
         DATA.nstim(2) = sscanf(s,'n2=%d');
-        DATA.binoc{1}.(code) = value;
+        DATA.binoc{1}.(code) = numval;
     elseif strncmp(s,'n3',2)
         DATA.nstim(3) = sscanf(s,'n3=%d');
-        DATA.binoc{1}.(code) = value;
+        DATA.binoc{1}.(code) = numval;
     elseif strncmp(s,'ei',2)
         DATA.incr(1) = sscanf(s,'ei=%f');
         DATA.binoc{1}.ei = DATA.incr(1);
-        DATA.binoc{1}.(code) = value;
+        DATA.binoc{1}.(code) = numval;
     elseif strncmp(s,'i2',2)
         DATA.incr(2) = sscanf(s,'i2=%f');
         DATA.binoc{1}.i2 = DATA.incr(2);
-        DATA.binoc{1}.(code) = value;
+        DATA.binoc{1}.(code) = numval;
     elseif strncmp(s,'i3',2)
         DATA.incr(3) = sscanf(s,'i3=%f');
         DATA.binoc{1}.i3 = DATA.incr(3);
-        DATA.binoc{1}.(code) = value;
+        DATA.binoc{1}.(code) = numval;
     elseif strncmp(s,'em',2)
         DATA.mean(1) = ReadVal(s,DATA);
         DATA.binoc{1}.em = DATA.mean(1);
@@ -1566,6 +1568,7 @@ function DATA = InitInterface(DATA)
     uimenu(sm,'Label','eb.stm','Callback',{@RecoverFile, 'eb.stm'});
     uimenu(sm,'Label','0.stm','Callback',{@RecoverFile, '0stim'});
     uimenu(sm,'Label','1.stm','Callback',{@RecoverFile, '2stim'});
+    uimenu(sm,'Label','Just Read id/se from last','Callback',{@RecoverFile, 'loadlast'});
     set(DATA.toplevel,'UserData',DATA);
             RecoverFile(x,[],'list');    
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
@@ -1760,6 +1763,42 @@ function MenuHit(a,b, arg)
     set(DATA.toplevel,'UserData',DATA);
 
     
+function DATA = LoadLastSettings(DATA, varargin)
+    
+    interactive = 0;
+    j = 1;
+    while j <= length(varargin)
+        if strncmpi(varargin{j},'interactive',5)
+            interactive = 1;
+        end
+        j = j+1;
+    end
+    
+        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
+        d = mydir(rfile);
+        [a,id] = max([d.datenum]);
+        d = d(id);
+        go  = 0;
+        if now - d.datenum < 0.5/24 %less than an half an hour old - read in settings
+            go = 1;
+            if interactive 
+                yn = questdlg(sprintf('Looks like you are re-starting Mid expt. Do you want to reload id/se from %s',d.filename));
+                if ~strcmp(yn,'Yes')
+                    go = 0;
+                end
+            end
+        end
+        if go
+            txt = scanlines(d.name);
+            for s = {'id' 'se'}
+            id = find(strncmp(s,txt,length(s{1})));
+            if ~isempty(id)
+                cprintf('blue','Setting %s from %s\n',txt{id(1)},d.name);
+                DATA = InterpretLine(DATA, txt{id(1)});
+            end
+            end
+        end
+    
 function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);
         fprintf('Recover called with %s\n',type);
@@ -1777,6 +1816,7 @@ function RecoverFile(a, b, type)
         uimenu(hm,'Label','List','callback',{@RecoverFile, 'list'});
         [a,id] = sort([d.datenum]);
         d = d(id);
+        uimenu(hm,'Label',['Just Restore id/se from ' d(end).name],'callback',{@RecoverFile, 'loadlast'});
         for j = 1:length(d)
             uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(5:end)});
         end
@@ -1785,6 +1825,8 @@ function RecoverFile(a, b, type)
         dfile = ['/local/' DATA.binocstr.monkey '/lean.today'];
         copyfile(rfile,dfile);
         ReadStimFile(DATA, dfile);
+    elseif strcmp(type,'loadlast')
+        LoadLastSettings(DATA,'noninteractive');
     else
         fprintf('Recover called with %s\n',type);
     end
@@ -3686,7 +3728,7 @@ if txt(end) == '='
        elseif isempty(id)
            txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)') '(Unrecognized code)'];
        elseif ischar(DATA.binoc{DATA.currentstim}.(code)) %sometimes nmes->char  (!! ei=180lin)
-           txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)') '(Unrecognized code)'];
+           txt = ['?' txt '?''' DATA.binoc{DATA.currentstim}.(code) ''''];
        else
            txt = ['?' txt '?' num2str(DATA.binoc{DATA.currentstim}.(code)')];
        end
@@ -3697,7 +3739,7 @@ if txt(end) == '='
        txt = ['?' CodeText(DATA, code)];       
        str = 'Nstim';
     elseif isfield(DATA.binocstr,code)
-        txt = ['?' txt '?' DATA.binocstr.(code)];
+        txt = ['?' txt '?''' DATA.binocstr.(code) ''''];
        id =  strmatch(code,{DATA.strcodes.code},'exact');
        if length(id)
            str = DATA.strcodes(id(1)).label;

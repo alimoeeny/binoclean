@@ -1670,6 +1670,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         manualstimvals[i] = (float *)malloc(sizeof(float)*MAXFRAMES);
     gettimeofday(&bwtime,NULL);
     stimseq = (Thisstim *)malloc((TRIALBUFFERLEN+1) * sizeof(Thisstim));
+
     pgimage.ptr = NULL;
     pgimage.name = NULL;
     ex->verbose = 0;  //controls NSlog
@@ -6562,8 +6563,14 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
                 else
                     sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],val);
             }
-            else if (icode > 0) // is recognized
+            else if (icode > 0){ // is recognized
+                if (valstrings[icode].ctype == 'C'){
+                    if (expt.strings[code] != NULL)
+                    sprintf(cbuf,"%s%s%s",scode,temp,expt.strings[code]);
+                }
+                    else
                 sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],expt.vals[code]);
+            }
             else
             {
                 sprintf(cbuf,"");
