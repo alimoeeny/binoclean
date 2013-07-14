@@ -6456,7 +6456,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             sprintf(cbuf,"%s%s%s",scode,temp,serial_strings[i]);
             break;
         case HIGHXTYPE:
-            i = expt.vals[expt.hightype];
+            i = expt.hightype;
             if (i > 0 && i < expt.maxcode)
                 sprintf(cbuf,"%s%s%s",scode,temp,serial_strings[i]);
             else
@@ -10486,6 +10486,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     WindowEvent e;
     
     
+    if (n > MAXFRAMES)
+        n = MAXFRAMES;
     cbuf[0] = 0;
     
     currentstim.stimid = expt.stimid;

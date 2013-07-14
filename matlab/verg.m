@@ -10,7 +10,17 @@ if length(varargin) & ishandle(varargin{1})
     DATA = get(f,'UserData');
     varargin = varargin(3:end);
 else
-TOPTAG = 'binoc';
+    checkforrestart = 1;
+    TOPTAG = 'binoc';
+j = 1;
+while j <= length(varargin)
+    if strcmp(varargin{j},'new')
+        checkforrestart = 0;
+    end
+    j = j+1;
+end
+
+
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
     DATA.name = 'Binoc';
@@ -27,7 +37,9 @@ if isempty(it)
         if exist(DATA.binocstr.lo,'file')
             DATA = ReadLogFile(DATA, DATA.binocstr.lo);
         end
-        DATA = LoadLastSettings(DATA,'interactive');
+        if checkforrestart
+            DATA = LoadLastSettings(DATA,'interactive');
+        end
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
         j = 2;
@@ -422,18 +434,8 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'n3',2)
         DATA.nstim(3) = sscanf(s,'n3=%d');
         DATA.binoc{1}.(code) = numval;
-    elseif strncmp(s,'ei',2)
-        DATA.incr(1) = sscanf(s,'ei=%f');
-        DATA.binoc{1}.ei = DATA.incr(1);
-        DATA.binoc{1}.(code) = numval;
-    elseif strncmp(s,'i2',2)
-        DATA.incr(2) = sscanf(s,'i2=%f');
-        DATA.binoc{1}.i2 = DATA.incr(2);
-        DATA.binoc{1}.(code) = numval;
-    elseif strncmp(s,'i3',2)
-        DATA.incr(3) = sscanf(s,'i3=%f');
-        DATA.binoc{1}.i3 = DATA.incr(3);
-        DATA.binoc{1}.(code) = numval;
+    elseif sum(strncmp(s,{'ei' 'i2' 'i3'},2)) %store incremenest in verg as strings. Then can have "lin/log"
+        DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'em',2)
         DATA.mean(1) = ReadVal(s,DATA);
         DATA.binoc{1}.em = DATA.mean(1);
@@ -547,13 +549,18 @@ for j = 1:length(strs{1})
                 
             end
         end
-    
     elseif sum(strcmp(code,{DATA.comcodes.code}))
         cid = find(strcmp(code,{DATA.comcodes.code}));
         code = DATA.comcodes(cid(1)).code;
         id = strfind(s,'=');
         if id
-            if DATA.comcodes(cid(1)).type == 'C'
+%some variables are numeric internally, but best recorded via the matching code        
+            if sum(strcmp(code,{'hxtype'}))
+                vtype = 'C';
+            else
+                vtype = DATA.comcodes(cid(1)).type;
+            end
+            if  vtype == 'C'
                 DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
             else
                 val = sscanf(s(id(1)+1:end),'%f');
@@ -1149,10 +1156,17 @@ DATA.comcodes(1).group = 1;
 DATA.strcodes(1).label = 'Monitor file';
 DATA.strcodes(1).code = 'monitor';
 DATA.strcodes(1).icode = 0; 
+%Need to initialize values that verg might try to use 
+%before reading values from binoclean
 DATA.binoc{1}.xo = 0;
 DATA.binoc{2}.xo = 0;
 DATA.binoc{1}.ePr = 0;
 DATA.binoc{1}.adapter = 'None';
+DATA.binoc{1}.ei = '0';
+DATA.binoc{1}.i2 = '0';
+DATA.binoc{1}.i3 = '0';
+DATA.binoc{1}.nr = 1;
+DATA.binoc{1}.rw = 0;
 
 
 DATA.binocstr.monitor = '/local/monitors/Default';
@@ -1178,6 +1192,7 @@ DATA.servoport = []; %name of tty2 in /local/binoc.setup
 DATA.servofig = 0;  %Figre # of servo control window.
 DATA = ReadSetupFile(DATA, '/local/binoc.setup');
 DATA = ReadStimFile(DATA, '/local/verg.setup');
+DATA.helpstrs = ReadHelp(DATA);
 
 for j = 1:3 
 DATA.expmenucodes{j} = {};
@@ -1201,7 +1216,21 @@ for j = 1:length(DATA.comcodes)
 end
 
 
-function DATA = SetExptMenus(DATA)
+function strs = ReadHelp(DATA)
+ 
+    sts = {};
+    helpfile = [DATA.localmatdir '/helpstrings.txt'];
+    fid = fopen(helpfile,'r')
+    a = textscan(fid,'%s','delimiter','\n');
+    fclose(fid);
+    txt = a{1};
+    for j = 1:length(txt)
+        code = regexprep(txt{j},'\s.*','');
+        strs.(code) =  regexprep(txt{j},code,'');
+    end
+    
+    
+ function DATA = SetExptMenus(DATA)
 
     
     
@@ -1448,13 +1477,13 @@ function DATA = InitInterface(DATA)
     uicontrol(gcf,'style','text','string','Incr',  'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = cw;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.incr(1)), ...
+    uicontrol(gcf,'style','edit','string',DATA.binoc{1}.ei, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt1Incr','callback',{@TextGui, 'ei'});
     bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.incr(2)), ...
+    uicontrol(gcf,'style','edit','string',DATA.binoc{1}.i2, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt2Incr','callback',{@TextGui, 'i2'});
     bp(1) = bp(1)+bp(3)+0.01;
-    uicontrol(gcf,'style','edit','string',num2str(DATA.incr(3)), ...
+    uicontrol(gcf,'style','edit','string',DATA.binoc{1}.i3, ...
         'units', 'norm', 'position',bp,'value',1,'Tag','Expt3Incr','callback',{@TextGui, 'i3'});
 
     bp(1) = 0.01;
@@ -1581,7 +1610,7 @@ function DATA = InitInterface(DATA)
     uimenu(subm,'Label','&Options','Callback',{@OptionPopup},'accelerator','O');
     uimenu(subm,'Label','Penetration Log','Callback',{@PenLogPopup});
     uimenu(subm,'Label','Monkey Log','Callback',{@MonkeyLogPopup, 'popup'});
-    uimenu(subm,'Label','List Codes','Callback',{@CodesPopup, 'popup'});
+    uimenu(subm,'Label','List Codes','Callback',{@CodesPopup, 'popup'},'accelerator','L');
     uimenu(subm,'Label','Status Lines','Callback',{@StatusPopup, 'popup'});
     uimenu(subm,'Label','Psych Window','Callback',{@MenuHit, 'showpsych'});
     uimenu(subm,'Label','Electrode Control','Callback',{@ElectrodePopup, 'popup'});
@@ -2133,17 +2162,8 @@ function MenuGui(a,b)
              DATA.mean(3) = str2num(str);
              fprintf(DATA.outid,'m3=%.8f\n',DATA.mean(3));
              ReadFromBinoc(DATA);
-         case 'ei'
-             DATA.incr(1) = str2num(str);
-             fprintf(DATA.outid,'ei=%.8f\n',DATA.incr(1));
-             ReadFromBinoc(DATA);
-         case 'i2'
-             DATA.incr(2) = str2num(str);
-             fprintf(DATA.outid,'i2=%.8f\n',DATA.incr(2));
-             ReadFromBinoc(DATA);
-         case 'i3'
-             DATA.incr(3) = str2num(str);
-             fprintf(DATA.outid,'i3=%.8f\n',DATA.incr(3));
+         case {'ei' 'i2' 'i3'}
+             fprintf(DATA.outid,'%s=%s\n',type,DATA.binoc{1}.(type));
              ReadFromBinoc(DATA);
          case 'st'
              DATA.stimtype(1) = strmatch(str,DATA.stimulusnames);
@@ -2249,9 +2269,9 @@ end
     SetTextItem(DATA.toplevel,'Expt1Nstim',DATA.nstim(1));
     SetTextItem(DATA.toplevel,'Expt2Nstim',DATA.nstim(2));
     SetTextItem(DATA.toplevel,'Expt3Nstim',DATA.nstim(3));
-    SetTextItem(DATA.toplevel,'Expt1Incr',DATA.incr(1));
-    SetTextItem(DATA.toplevel,'Expt2Incr',DATA.incr(2));
-    SetTextItem(DATA.toplevel,'Expt3Incr',DATA.incr(3));
+    SetTextItem(DATA.toplevel,'Expt1Incr',DATA.binoc{1}.ei);
+    SetTextItem(DATA.toplevel,'Expt2Incr',DATA.binoc{1}.i2);
+    SetTextItem(DATA.toplevel,'Expt3Incr',DATA.binoc{1}.i3);
     SetTextItem(DATA.toplevel,'Expt1Mean',DATA.mean(1));
     SetTextItem(DATA.toplevel,'Expt2Mean',DATA.mean(2));
     SetTextItem(DATA.toplevel,'Expt3Mean',DATA.mean(3));
@@ -2733,7 +2753,7 @@ function CodesPopup(a,b, type)
 
   DATA = GetDataFromFig(a);
   
-  if isnumeric(type) | strmatch(type,{'bycode' 'bylabel' 'bygroup' 'numeric'},'exact')
+  if isnumeric(type) | strmatch(type,{'bycode' 'bylabel' 'bygroup' 'numeric' 'printcodes'},'exact')
       lst = findobj(get(get(a,'parent'),'parent'),'Tag','CodeListString');
       if isnumeric(type)
           if type == 8
@@ -2743,6 +2763,27 @@ function CodesPopup(a,b, type)
           id = find(bitand([DATA.comcodes.group],type) > 0);
         [c,b] = sort({DATA.comcodes(id).code});
         b = id(b);
+      elseif strcmp(type,'printcodes')
+          F = get(a,'parent');
+         [outname, path] = uiputfile([DATA.localmatdir '/BinocCodes.txt'], 'Save Binoc Codes');
+         it = findobj(F,'tag','CodeListString');
+         txt = get(it,'String');
+         fid = fopen(outname,'w');
+         for j = 1:size(txt,1)
+             fprintf(fid,'%s\n',deblank(txt(j,:)));
+         end
+         fprintf(fid,'Binary Option Codes (op=+xx to set)\n')
+         f = fields(DATA.optionflags);
+         for j = 1:length(f)
+             if strncmp((f{j}),'lbl',3)
+                 fprintf(fid,'Group: %s\n',DATA.optionstrings.(f{j}));
+             else
+                 fprintf(fid,'%s %s\n',f{j},DATA.optionstrings.(f{j}));
+             end
+         end         
+         fclose(fid);
+         return;
+
       elseif strcmp(type,'bycode')
           set(lst,'string','Alphabetical by code');
           [c,b] = sort({DATA.comcodes.code});
@@ -2817,19 +2858,74 @@ function CodesPopup(a,b, type)
     sm = uimenu(hm,'Label','By Group','callback',{@CodesPopup, 'bygroup'});
     sm = uimenu(hm,'Label','Psych/Reward','callback',{@CodesPopup, 8 });
     sm = uimenu(hm,'Label','Numerical','callback',{@CodesPopup, 'numeric'});
+    hm = uimenu(cntrl_box,'Label','Print','callback',{@CodesPopup, 'printcodes'});
     
+    uicontrol(gcf,'style','pop','string','Search|Codes|Labels|Help','tag','SearchMode',...
+        'units','norm', 'Position',[0 0.01 0.3 0.08]);
+
+    srch = uicontrol(gcf, 'Style','edit','String', '',...
+        'callback', @SearchList, ...
+        'units','norm', 'Position',[0.3 0.01 0.99 0.08]);
+
     lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
         'Tag','CodeListString',...
-'units','norm', 'Position',[0.01 0.01 0.99 0.99]);
+'units','norm', 'Position',[0.01 0.085 0.99 0.91]);
 a = get(lst,'string');
 for j = 1:length(DATA.comcodes)
+    code = DATA.comcodes(j).code;
     s = sprintf('%s %s',DATA.comcodes(j).code,DATA.comcodes(j).label);
+    if isfield(DATA.helpstrs,code)
+        s = [s '  : ' DATA.helpstrs.(code)];
+    end
     a(j,1:length(s)) = s;
 end
 set(lst,'string',a);
    
+function SearchList(a,b)
+
+    pttn = get(a,'string');
+    lastpttn = get(a,'UserData');
+    set(a,'UserData',pttn);    
+    F = get(a,'parent');
+    findn = getappdata(F,'findn');
+    if isempty(findn)
+        findn = 1;
+    end
+    if strcmp(pttn, lastpttn)
+        findn = findn+1;
+    end
+    
+    sm = findobj(F,'tag','SearchMode');
+    searchmode = get(sm,'value');
+    it = findobj(F,'tag','CodeListString');
+    txt = get(it,'String');
+    found = [];
+    for j = 1:size(txt,1)
+        if searchmode == 2 %just codes
+            s = regexprep(txt(j,:),'\s.*','');
+        elseif searchmode == 3 %just labels
+            s = regexprep(txt(j,:),'\s(.*):.*','$1');
+        elseif searchmode == 4 %just help
+            s = regexprep(txt(j,:),'.* : ','');
+        else
+            s = txt(j,:);
+        end
+        x = findstr(pttn,s);
+        if ~isempty(findstr(pttn,s))
+            found(j) = 1;
+        end
+    end
+    found = find(found);
+    if ~isempty(found)
+       if findn > length(found)
+           findn = 1;
+       end
+        set(it,'value',found(findn));
+    end
+    setappdata(F,'findn',findn);
+    
 function StatusPopup(a,b, type)  
 
   DATA = GetDataFromFig(a);
@@ -2846,7 +2942,7 @@ function StatusPopup(a,b, type)
     set(cntrl_box,'UserData',DATA.toplevel);
         set(cntrl_box,'DefaultUIControlFontSize',DATA.font.FontSize);
 
-    lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
+    lst = uicontrol(gcf, 'Style','list','String', 'Code List',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
          'Tag','NextButton',...
@@ -3599,9 +3695,9 @@ if strcmp(code,'optionflag')
         id = strmatch(code,{'et' 'e2' 'e3'});
         s = sprintf('%s=%s',code,DATA.exptype{id});
     elseif strcmp(code,'expts')
-        s = sprintf('et=%s\nei=%.6f\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.incr(1),DATA.mean(1),DATA.nstim(1));
-        s = [s sprintf('e2=%s\ni2=%.6f\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.incr(2),DATA.mean(2),DATA.nstim(2))];
-        s = [s sprintf('e3=%s\ni3=%.6f\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.incr(3),DATA.mean(3),DATA.nstim(3))];
+        s = sprintf('et=%s\nei=%sf\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.binoc{1}.ei,DATA.mean(1),DATA.nstim(1));
+        s = [s sprintf('e2=%s\ni2=%s\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.binoc{1}.i2,DATA.mean(2),DATA.nstim(2))];
+        s = [s sprintf('e3=%s\ni3=%s\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.binoc{1}.i3,DATA.mean(3),DATA.nstim(3))];
     elseif strcmp(code,'st')
         s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
     elseif strcmp(code,'pf')

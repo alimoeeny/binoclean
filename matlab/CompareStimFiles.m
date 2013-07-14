@@ -20,10 +20,16 @@ for j = 1:length(atxt)
     end
     s = atxt{j}(1:eid(1));
     aval = sscanf(atxt{j}(eid(1)+1:end),'%f');
-    id = find(strncmp(s,btxt,length(s)));
-     if isempty(id)
-        fprintf('Unmatched %s\n', atxt{j});
+    if strncmp(s,'qe=',3)
+        id = find(strncmp(atxt{j},btxt,length(atxt{j})));
+        if isempty(id)
+            fprintf('Unmatched %s\n', atxt{j});
+        end
     else
+        id = find(strncmp(s,btxt,length(s)));
+        if isempty(id)
+            fprintf('Unmatched %s\n', atxt{j});
+        else
         for k = 1:length(id)
             if strfind(atxt{j},'#Fore')
                 atype = 1;
@@ -46,10 +52,12 @@ for j = 1:length(atxt)
             if atype == btype
                 bval = sscanf(btxt{id(k)}(eid(1)+1:end),'%f');
                 if showall || length(aval) ~= length(bval) ||  sum(aval ~= bval)
-                    fprintf('%s:%s\n', regexprep(atxt{j},'#.*',''),btxt{id(k)});
+                    fprintf('%s:', regexprep(atxt{j},'#.*',''));
+                    cprintf('blue','%s\n',btxt{id(k)});
                 end
             else
             end
         end
+     end
     end
 end

@@ -2637,6 +2637,9 @@ void paint_stimulus(Stimulus *st, int follow)
         paint_stimulus(st->next,0);
     
     st->calculated = 0;
+    if (st->next != NULL)
+        st->next->calculated = 0 ;
+    st->left->calculated = st->right->calculated = 0;
     st->painted = 1;
 }
 

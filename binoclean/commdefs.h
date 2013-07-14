@@ -809,6 +809,7 @@ ToggleCode togglestrings[] = {
 
 
 StringCode commstrings[] = {
+    {"uf","DataFile name",  UFF_PREFIX, NULL},
     {"monitor","Monitor Filename",  MONITOR_FILE, NULL},
     {"lo", "Log File", LOGFILE_CODE, NULL},
     {"st", "Stimulus", STIMULUS_TYPE_CODE, NULL},
@@ -1156,7 +1157,7 @@ ValueCode valstrings[] = {
   {"pT",     "p(One Target)",ONETARGET_P, 16 , 'N' ,2, SEND_EXPLICIT},
   {"sO",     "StimOrthog Pos",STIMORTHOG_POS, 513 , 'N' ,2, SEND_EXPLICIT},
   {"pR",     "Plaid Contrast Ratio",PLAID_RATIO, 1 , 'N' ,4, SEND_EXPLICIT},
-  {"Al",     "Avg Len for eyepos auto-ze{ro",AUTO_ZERO, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"Al",     "Avg Len for eyepos auto-zero",AUTO_ZERO, 8 , 'N' ,2, SEND_EXPLICIT},
   {"xx",     "Old Orthog disp",OLD_ORTHOG_DISP, 512 , 'N' ,2, SEND_EXPLICIT},
   {"xx",     "Old Paralell disp",OLD_PARA_DISP, 512 , 'N' ,2, SEND_EXPLICIT},
   {"Op",     "Orthog Offset",ORTHOG_POS, 513 , 'N' ,2, SEND_EXPLICIT},
@@ -1292,6 +1293,7 @@ char *mode_names[] = {
 
 int codesend[MAXTOTALCODES] = {
 	SEND_EXPLICIT};
+
 
 char *oldserial_names[] = {
 
