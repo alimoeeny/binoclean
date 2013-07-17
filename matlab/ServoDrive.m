@@ -142,11 +142,12 @@ sm = uimenu(mn,'Label','Read Position','callback',{@MoveMicroDrive, 'readpositio
 sm = uimenu(mn,'Label','Plots');
 uimenu(sm,'Label','Full History','tag','FullHistory','checked','on','callback',@SetMotorPlot);
 uimenu(sm,'Label','Last Move','tag','LastMove','callback',@SetMotorPlot);
+uimenu(sm,'Label','Speed','tag','MoveSpeed','callback',@SetMotorPlot);
 uimenu(sm,'Label','None','tag','None','callback',@SetMotorPlot);
 sm = uimenu(mn,'Label','Speed');
-uimenu(sm,'Label','Normal (20uM/s)','tag','Normal','Checked','on','callback',@SetMotorSpeed);
-uimenu(sm,'Label','Fast (40uM/s)','tag','Fast','callback',@SetMotorSpeed);
-uimenu(sm,'Label','Slow (2uM/s)','tag','Slow','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Normal (2mmM/s)','tag','Normal','Checked','on','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Fast (20 mm/s)','tag','Fast','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Slow (1mm/s)','tag','Slow','callback',@SetMotorSpeed);
 uimenu(sm,'Label','Custom','tag','Custom','callback',@SetMotorSpeed);
 
 set(gca,'position',[0.4 0.4 0.6 0.6],'xtick',[],'ytick',[]);
@@ -164,21 +165,26 @@ function SetMotorSpeed(a,b)
 DATA = GetDataFromFig(a);
 tag = get(a,'tag');
 if strcmp(tag,'Normal')
-    DATA.motorspeed = 100;
+    DATA.motorspeed = 20000;
 elseif strcmp(tag,'Slow')
-    DATA.motorspeed = 10;
+    DATA.motorspeed = 10000;
 elseif strcmp(tag,'Fast')
-    DATA.motorspeed = 200;
+    DATA.motorspeed = 200000;
 elseif strcmp(tag,'Custom')
     defaultanswer{1} = num2str(DATA.customspeed);
-    str = inputdlg('Step Size','Custom',1,defaultanswer);
+    str = inputdlg('Step Size in uM/sec','Custom',1,defaultanswer);
+    if isempty(str)
+       return;
+    end
     step = str2num(str{1});
     str = sprintf('Custom (%d uM/s)',step);
     set(a,'Label',str);
-    DATA.motorspeed =step;
+    DATA.motorspeed =  step;
     DATA.customspeed = step;
 end
-fprintf(DATA.sport,'SP%d\n',DATA.motorspeed.*DATA.stepscale);
+ispeed = round(DATA.motorspeed.*DATA.stepscale/1000);
+fprintf('New Speed %.0f\n',ispeed);
+fprintf(DATA.sport,'SP%.0f\n',ispeed);
 SetMenuCheck(a,'exclusive');
 set(DATA.toplevel,'UserData',DATA);
 
@@ -204,12 +210,14 @@ if strncmp(s(val,:),'Set Custom',8)
     step = DATA.customstep;
     defaultanswer{1} = num2str(step);
     str = inputdlg('Step Size','Custom',1,defaultanswer);
+    if ~isempty(str)
     step = str2num(str{1});
     str = sprintf('%d (Custom)',step);
     DATA.customstep = step;
     DATA.step = step;
     s(val+1,1:length(str)) = str;
     set(a,'string',s,'value',val+1);
+    end
 else
     DATA.step = sscanf(s(val,:),'%d');
 end
@@ -219,7 +227,7 @@ function DATA = SetDefaults(DATA)
 DATA.position = 0;
 DATA.step = 0;
 DATA.customstep = 0;
-DATA.stepscale = 3.2;
+DATA.stepscale = 2.9;
 DATA.motorspeed = 5;
 DATA.customspeed = 1;
 DATA.motorid = 1;
@@ -330,10 +338,20 @@ DATA.alldepths = [DATA.alldepths newd];
 if ~strcmp(DATA.plottype,'None')
 if strcmp(DATA.plottype,'LastMove')
     ts = ts-ts(1);
-plot(ts, newd);
+    y =newd./DATA.stepscale;
+plot(ts, y);
 set(gca,'xtick',[],'ytick',[]);
 xl = [min(ts) max(ts)];
-yl = [min(newd) max(newd)];
+yl = [min(y) max(y)];
+elseif strcmp(DATA.plottype,'MoveSpeed')
+    ts = ts-ts(1);
+    k = 24 * 60 * 60 ./DATA.stepscale;    
+    dt = diff(ts) .* 24 * 60 * 60; 
+    y = diff(newd)./(dt .*DATA.stepscale);
+    plot(ts(2:end), y);
+    set(gca,'xtick',[],'ytick',[]);
+    xl = [min(ts) max(ts)];
+    yl = minmax(y);
 else
 plot(DATA.alltimes, DATA.alldepths);
 set(gca,'xtick',[],'ytick',[]);
@@ -352,7 +370,12 @@ if tdur < 1
 end
 axis([xl yl]);
 text(xl(2),yl(1),sprintf('%.1f%s',tdur,tlabel),'horizontalalignment','right','verticalalignment','bottom');
-text(xl(1),yl(2),sprintf('%.1fuM',diff(yl)),'horizontalalignment','left','verticalalignment','top');
+if strcmp(DATA.plottype,'MoveSpeed')
+    text(xl(1),yl(2),sprintf('%.1fuM/sec',max(yl)),'horizontalalignment','left','verticalalignment','top');
+    text(xl(1),yl(1),sprintf('%.1fuM/sec',min(yl)),'horizontalalignment','left','verticalalignment','bottom');
+else
+    text(xl(1),yl(2),sprintf('%.1fuM',diff(yl)),'horizontalalignment','left','verticalalignment','top');
+end
 else
     delete(get(gca,'children'));
     bc = get(gcf,'color');

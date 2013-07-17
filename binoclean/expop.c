@@ -2499,7 +2499,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                 t = NULL;
             }
             
-            BackupStimFile();
+//            BackupStimFile();
             if(flag != TO_FILE && (mode & UFF_FILE_OPEN))
                 CheckPenetration();
             SerialSend(RF_DIMENSIONS);
@@ -4916,7 +4916,6 @@ int setexp3stim()
                 expt.exp3vals[1] = 130;
                 expt.nstim[4] = 2;
                 break;
-            case SET_SEEDLOOP:
             case MICROSTIM_EXPT:
                 expt.exp3vals[0] = 0;
                 expt.exp3vals[1] = 1;
@@ -4984,6 +4983,7 @@ int setexp3stim()
                 break;
             case FAKESTIM_EXPT:
                 expt.nstim[4] = 2;
+            case SET_SEEDLOOP:
             case TONETIME:
             case STIMULUS_MODE:
             case TARGET_RATIO:
@@ -5729,7 +5729,6 @@ void setstimuli(int flag)
         case DISP_P:
         case RELDISP:
         case CORRELATION:
-        case SET_SEEDLOOP:
         case MONOCULARITY_EXPT:
         case ASPECT_RATIO:
         case YPOS:
@@ -5737,6 +5736,7 @@ void setstimuli(int flag)
         case SPINRATE:
             expt.nstim[4] = 2;
             break;	
+        case SET_SEEDLOOP:
         case STIMULUS_MODE:
         case NFRAMES_CODE:
         case STIMULUS_TYPE_CODE:
@@ -8943,14 +8943,14 @@ int PrepareExptStim(int show, int caller)
                 }
                 fprintf(seroutfile,"Repeat exval %d, %d (#%d, id%d)\n",expt.stimid,dorpt,stimno,id);
             }
+            /*
+             * dorpt = 2 for testing presetting the seed sequence
+             */
+            dorpt = 2;
         }
         else
             dorpt = 0;
         
-        /*
-         * dorpt = 2 for testing presetting the seed sequence
-         */
-        dorpt = 2;
         if(dorpt == 2){
             expt.st->left->baseseed = seedorder[stimno];
         }
@@ -10987,7 +10987,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         fprintf(seroutfile,"(%.3f,%.3f,%.3f)\n",StimDuration(),timediff(&endstimtime,&frametime),timediff(&firstframetime,&zeroframetime));
     }
     
-    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0){
+    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0 && (st->type != STIM_RDS && st->type != STIM_RLS)){
         sprintf(buf,"%srP=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
             if(frameiseqp[i] >= 0){
@@ -11259,7 +11259,7 @@ int CheckStimDuration(int retval)
     
     rpt = (expt.st->framerepeat < 1) ? 1 : expt.st->framerepeat;
 
-    sprintf(buf,"#du%.3f(%d:%.3f)",frametimes[framesdone],framesdone,(framesdone-0.5)/expt.mon->framerate);
+    sprintf(buf,"#du%.3f(%d:%.3f)\n",frametimes[framesdone],framesdone,(framesdone-0.5)/expt.mon->framerate);
     SerialString(buf,0);
     if (optionflags[FIXNUM_PAINTED_FRAMES]){
         if(frametimes[framesdone]  > (framesdone-0.5)/expt.mon->framerate){

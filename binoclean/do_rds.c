@@ -725,6 +725,7 @@ int calc_rds(Stimulus *st, Substim *sst)
       // ver 4.38 and earier %wpixmull means some positions more freuent
       // see rev 1.19 and earlier
       yi = (*p>>15) & 0xffff;
+        yi = q & 0xffff;
       *y = hiscale * yi + *pdisp -h/2;
         
       if(i ==0)  // track 1st dot for debugger

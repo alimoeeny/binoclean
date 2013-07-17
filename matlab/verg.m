@@ -16,6 +16,9 @@ j = 1;
 while j <= length(varargin)
     if strcmp(varargin{j},'new')
         checkforrestart = 0;
+    elseif strcmp(varargin{j},'verbose')
+        DATA.verbose = 2; 
+        DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
     end
     j = j+1;
 end
@@ -23,16 +26,20 @@ end
 
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
+    tt = TimeMark([], 'Start');
     DATA.name = 'Binoc';
     DATA.tag.top = 'Binoc';
+    ts = now;
     DATA = SetDefaults(DATA);
 %open pipes to binoc 
 % if a file is named in teh command line, then take all setting from there.
 % Otherwise read from binoc
     if length(varargin) && exist(varargin{1},'file')
         DATA = OpenPipes(DATA, 0);
+        tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
+        tt = TimeMark(tt, 'Read');
         DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
         if exist(DATA.binocstr.lo,'file')
             DATA = ReadLogFile(DATA, DATA.binocstr.lo);
@@ -42,6 +49,8 @@ if isempty(it)
         end
         fprintf(DATA.outid,'QueryState\n');
         DATA = ReadFromBinoc(DATA);
+        tt = TimeMark(tt, 'FromBinoc');
+
         j = 2;
         while j <= length(varargin)
             if ischar(varargin{j})
@@ -57,9 +66,11 @@ if isempty(it)
     end
     
     DATA = InitInterface(DATA);
+    tt = TimeMark(tt, 'Interface');
     CheckForUpdate(DATA);
     DATA = SetExptMenus(DATA);
     SetGui(DATA);
+    tt = TimeMark(tt, 'Reset Interface');
     cmdfile = ['/local/' DATA.binocstr.monkey '/binoccmdhistory'];
     DATA.cmdfid = fopen(cmdfile,'a');
     fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
@@ -91,16 +102,34 @@ while j <= length(varargin)
     j = j+1;
 end
 
-function [DATA, codetype] = InterpretLine(DATA, line)
+function [DATA, codetype] = InterpretLine(DATA, line, varargin)
 
+    
     
 setlist = 0;  %% don't update gui for every line read.
 codetype = 0;
-
+frombinoc = 0;
+j = 1;
+while j <= length(varargin)
+    if strncmpi(varargin{j},'frombinoc',6)
+        frombinoc = 1;
+    elseif strncmpi(varargin{j},'fromseq',6)
+        frombinoc = 2;
+    end
+    j = j+1;
+end
+    
 if nargin < 2 || isempty(line)
         return;
 end
 strs = textscan(line,'%s','delimiter','\n');
+
+%vergNFields defines fields that are only known to verg. Must be at least
+%6 chars long to avoid confusion with codes from binoc
+vergNfields = {'seqpause'};
+if DATA.verbose && length(strs{1}) > 1
+    fprintf('Reading %d lines\n',length(strs{1}));
+end
 
 for j = 1:length(strs{1})
  %   fprintf('%s\n', strs{1}{j});
@@ -109,11 +138,17 @@ for j = 1:length(strs{1})
     if ~isempty(eid)
         code = s(1:eid(1)-1);
         value = s(eid(1)+1:end);
-        numval = str2num(value);
     else
         code = s;
     end
+    if DATA.verbose && frombinoc == 1
+            fprintf('%s**\n',strs{1}{j});
+    end
     
+    if ~isempty(code) && strncmp(code,vergNfields,6) % A setting for verg only
+        DATA.verg.(code) = str2num(value);
+        return;
+    end
     if length(s) == 0
     elseif strncmp(s,'!mat',4) && ~isempty(value)
         eval(value);        
@@ -170,9 +205,9 @@ for j = 1:length(strs{1})
         end
         DATA.optionstrings.(cc) = s(id(2)+1:end);
     elseif strncmp(s,'pause',5)
-%        DATA.readpause = str2num(value);
-        pause(DATA.readpause);
-%       DATA.pausetime = now;
+        DATA.readpause = str2num(value);
+ %       pause(DATA.readpause);
+        DATA.pausetime = now;
     elseif strncmp(s,'rptexpts',6)
         DATA.rptexpts = sscanf(value,'%d');
     elseif strncmp(s,'STIMTYPE',6)
@@ -196,6 +231,9 @@ for j = 1:length(strs{1})
             if isempty(DATA.comcodes(j).code)
                 DATA.comcodes(j).code = 'xx';
                 DATA.comcodes(j).label = '';
+                DATA.comcodes(j).const = NaN;
+                DATA.comcodes(j).type = 'N';
+                DATA.comcodes(j).group = 512+2048;
             end
         end
     elseif strncmp(s,'CODE',4)
@@ -275,7 +313,9 @@ for j = 1:length(strs{1})
         if DATA.exptstoppedbyuser  
         %if user hist cancal/stop, dont repeat or move on to automatic next expt
             DATA.exptstoppedbyuser = 0;
+            DATA.seqline = 0;
         elseif DATA.seqline > 0
+            myprintf(DATA.cmdfid,'Sequence continuing from line %d',DATA.seqline);
             DATA = ContinueSequence(DATA);
         elseif DATA.exptnextline > 0
             DATA = ReadExptLines(DATA,{});
@@ -285,6 +325,7 @@ for j = 1:length(strs{1})
             DATA.rptexpts = DATA.rptexpts-1;
             it = findobj(DATA.toplevel,'Tag','RptExpts');
             set(it,'string',num2str(DATA.rptexpts));
+            uipause(now, DATA.verg.seqpause, 'Fixed Delay for repeats');
             DATA = RunButton(DATA,[],1);
         end
     elseif strncmp(s,'Expts1',6)
@@ -365,14 +406,24 @@ for j = 1:length(strs{1})
         end
         s = [s '+'];
         id = regexp(s,'[+-]');
+        xid = strfind(s,':');
+        id = union(id,xid);
         f = fields(DATA.optionflags);
+        stimf = fields(DATA.stimflags{1});
         nflag = 1;
         DATA.showflagseq = {};
+        codetype = 1;
         for k= 1:length(id)-1
             code = strmatch(s(id(k)+1:id(k+1)-1),f);
-            if isempty(code)
+            if s(id(k)) == ':'
+                codetype = 2;
+            elseif codetype == 2 %need to look for these in stimglags
+                code = strmatch(s(id(k)+1:id(k+1)-1),stimf);
+            elseif isempty(code)
                 fprintf('No Code for %s\n,',s(id(k):end));
-            elseif s(id(k)) == '+'
+            elseif id(k+1) < id(k)+2
+                fprintf('Code too short %s\n',s(id(k):end));
+            elseif s(id(k)) == '+' && id(k+1)
                 DATA.showflags.(f{code}) = 1;
                DATA.showflagseq{nflag} = f{code};
                nflag = nflag+1;
@@ -427,13 +478,13 @@ for j = 1:length(strs{1})
         DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'nt',2)
         DATA.nstim(1) = sscanf(s,'nt=%d');
-        DATA.binoc{1}.(code) = numval;
+        DATA.binoc{1}.(code) = str2num(value);
     elseif strncmp(s,'n2',2)
         DATA.nstim(2) = sscanf(s,'n2=%d');
-        DATA.binoc{1}.(code) = numval;
+        DATA.binoc{1}.(code) = str2num(value);
     elseif strncmp(s,'n3',2)
         DATA.nstim(3) = sscanf(s,'n3=%d');
-        DATA.binoc{1}.(code) = numval;
+        DATA.binoc{1}.(code) = str2num(value);
     elseif sum(strncmp(s,{'ei' 'i2' 'i3'},2)) %store incremenest in verg as strings. Then can have "lin/log"
         DATA.binoc{1}.(code) = value;
     elseif strncmp(s,'em',2)
@@ -1031,6 +1082,14 @@ function val = ReadVal(s, DATA)
     end
 
         
+function S = SetField(S, F, x)
+%Sets a field only if is doesn't exist
+if ~isfield(S,F)
+    S.(F) = x;
+else
+    x = S.(F);
+end
+    
 function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
@@ -1040,6 +1099,7 @@ DATA.localmatdir='/local/matlab';
 DATA.pausetime = 0;
 DATA.readpause = 0;
 DATA.rptexpts = 0;
+DATA.verg.layoutfile = '/local/verg.layout';
 DATA.font.FontSize = 14;
 DATA.font.FontName = 'Arial';
 DATA.Coil.gain= [0 0 0 0];
@@ -1086,7 +1146,12 @@ DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
 DATA.stimflagnames.nc = 'Black Dots';
 DATA.stimflagnames.pc = 'White Dots';
-DATA.verbose = 0;
+DATA = SetField(DATA,'verbose',0);
+if ~isfield(DATA,'verg')
+    DATA.verg.seqpause = 0.
+end
+DATA.verg = SetField(DATA.verg, 'seqpause',5);
+
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {'Not Set'};
@@ -1134,6 +1199,8 @@ DATA.winpos{10} = [600 scrsz(4)-100 400 100]; %Electrode Moving
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.cmdfid = 0;
+DATA.frombinocfid = 0;
+DATA.tobinocfid = 0;
 DATA.incr = [0 0 0];
 DATA.nstim = [0 0 0];
 DATA.quickexpts = [];
@@ -1146,7 +1213,7 @@ DATA.tag.options = 'Options';
 DATA.tag.penlog = 'Penetration Log';
 DATA.tag.monkeylog = 'Monkey Log';
 DATA.tag.codes = 'Codelist';
-DATA.tag.psych = 'VergPsych'
+DATA.tag.psych = 'VergPsych';
 DATA.tag.status = 'StatusWindow';
 DATA.comcodes(1).label = 'Xoffset';
 DATA.comcodes(1).code = 'xo';
@@ -1218,15 +1285,17 @@ end
 
 function strs = ReadHelp(DATA)
  
-    sts = {};
+    strs = {};
     helpfile = [DATA.localmatdir '/helpstrings.txt'];
-    fid = fopen(helpfile,'r')
+    fid = fopen(helpfile,'r');
+    if fid > 0
     a = textscan(fid,'%s','delimiter','\n');
     fclose(fid);
     txt = a{1};
     for j = 1:length(txt)
         code = regexprep(txt{j},'\s.*','');
         strs.(code) =  regexprep(txt{j},code,'');
+    end
     end
     
     
@@ -1243,7 +1312,6 @@ if isfield(DATA,'exptstimlist')
             DATA.expvals{j}(m) = val;
             end
         end
-
     end
 end
 
@@ -1275,11 +1343,16 @@ set(it,'string',DATA.expstrs{1});
 it = findobj(DATA.toplevel,'Tag','Expt2List');
 set(it,'string',DATA.expstrs{2});
 it = findobj(DATA.toplevel,'Tag','Expt3List');
+e2 = get(it,'value');
+if e2 > length(DATA.expstrs{3})
+    set(it,'value',1);
+end
 set(it,'string',DATA.expstrs{3});
 end
 
 function ShowStatus(DATA)
 
+    status = 1;
     if DATA.inexpt  && DATA.nexpts > 0
         str = datestr(DATA.Expts{DATA.nexpts}.Start);
         str = ['Started ' str(13:17)];
@@ -1291,7 +1364,8 @@ function ShowStatus(DATA)
             str = 'Expt not over But In Expt!';
         end
     else
-        str = ['No status'];
+        status = 0;
+        str = ['No Trials Run'];
     end
     if isfield(DATA,'trialcounts') && length(DATA.trialcounts) > 7
     s = sprintf('Trials %d/%d Bad%d Late%d  Rw%.1f Ex:%d/%d %s',...
@@ -1302,10 +1376,11 @@ function ShowStatus(DATA)
     end
 
 if isfield(DATA,'toplevel')
-set(DATA.toplevel,'Name',s);
+    set(DATA.toplevel,'Name',s);
 end
+if status >0
 fprintf('%s\n',s);
-
+end
 function DATA = InitInterface(DATA)
 
     scrsz = get(0,'Screensize');
@@ -1830,7 +1905,7 @@ function DATA = LoadLastSettings(DATA, varargin)
     
 function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);
-        fprintf('Recover called with %s\n',type);
+%        fprintf('Recover called with %s\n',type);
     if strmatch(type,{'list'});
         rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
         d = dir(rfile);
@@ -2182,6 +2257,11 @@ function MenuGui(a,b)
          fprintf(DATA.outid,varargin{:});
      end
      
+ function myprintf(fid,varargin)
+     if fid
+         fprintf(fid,varargin{:});
+     end
+     
  function SendStr(a,b, str)
      DATA = GetDataFromFig(a);
      fprintf(DATA.outid,'%s\n',str);
@@ -2343,7 +2423,12 @@ function SetMenuItem(top, tag, value, varargin)
 if length(value) == 1
      it = findobj(top,'Tag',tag);
      if ~isempty(it)
+         str = get(it,'string');
+         if value > size(str,1)
+             fprintf('Value %d out of range for %s\n',value, tag);
+         else
          set(it,'value',value);
+         end
      end
 elseif length(value) > 1
      it = findobj(top,'Tag',tag);
@@ -2447,7 +2532,9 @@ function CheckInput(a,b, fig, varargin)
          fprintf('%s',char(a'));
          fprintf('Read %d bytes took %.2f\n',length(a),mytoc(ts));
          end
-         DATA = InterpretLine(DATA,char(a'));
+         myprintf(DATA.frombinocfid,'Read %d bytes at %s\n',nbytes,datestr(now));
+         myprintf(DATA.frombinocfid,'%s',char(a'));
+         DATA = InterpretLine(DATA,char(a'),'frombinoc');
          if isfield(DATA,'toplevel')
              set(DATA.toplevel,'UserData',DATA);
          end
@@ -2961,6 +3048,7 @@ function DATA = RunExptSequence(DATA, str, line)
     else
         lastline = runlines(end);
     end
+    firstline = line;
  
     if line > lastline
         if DATA.rptexpts > 0
@@ -2980,13 +3068,16 @@ function DATA = RunExptSequence(DATA, str, line)
     end
 for j = line:length(str)
     nread = 1+j-line;
-    DATA = InterpretLine(DATA,str{j});
-    while((now - DATA.pausetime) < DATA.readpause/(24 * 60 * 60))
-        dt = (now - DATA.pausetime) - DATA.readpause/(24 * 60 * 60)
-    end
+    DATA = InterpretLine(DATA,str{j},'fromseq');
+    uipause(DATA.pausetime,DATA.readpause,'Pause in sequence');
+    DATA.readpause = 0;
     if strcmp(str{j},'!expt')
 %need to do this before sending !expt to binoc, so that UserData is set
 % before binoc calls back with settings
+        if firstline > 1
+            uipause(now, DATA.verg.seqpause,'Fixed Sequence Pause');
+        end
+        myprintf(DATA.cmdfid,'!expt line %d',j);
         DATA.nexpts = DATA.nexpts+1;
         DATA.Expts{DATA.nexpts} = ExptSummary(DATA);
         DATA.seqline = j;
@@ -2996,10 +3087,25 @@ for j = line:length(str)
         return;
     end
     if DATA.outid > 0
-         fprintf(DATA.outid,'%s\n',str{j});
+         fprintf(DATA.outid,'%s #RunSeq\n',str{j});
     end
     LogCommand(DATA, str{j});
 end
+
+function uipause(start, secs, msg)
+
+    if secs <= 0
+        return;
+    end
+    days = secs/(24 * 60 * 60);
+    wh = waitbar(0,sprintf('%.1f sec %s at %s',secs,msg,datestr(start)));
+    while (now - start) < days
+        dt = (now - start)/days;
+        wdur = (now-start) * (24 * 60 * 60);
+        waitbar(dt,wh,sprintf('%.1f/%.1f sec %s at %s',wdur,secs,msg,datestr(start)));
+    end
+    delete(wh);
+
 
 function DATA = ContinueSequence(DATA)
   cntrl_box = findobj('Tag',DATA.windownames{8},'type','figure');

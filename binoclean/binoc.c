@@ -9557,7 +9557,7 @@ int GotChar(char c)
         printf("Code %d\n",(int)c);
 #endif
         if(seroutfile)
-            fprintf(seroutfile,"#Gch%d\n",(int)(c));
+            fprintf(seroutfile,"#Gch%d %.3f\n",(int)(c),ufftime(&now));
 		switch(c)
 		{
             case 10: /* = '\n' -  dont use it */
@@ -9977,6 +9977,7 @@ int GotChar(char c)
                  * if show reward bias is set, biased reward may be an expt type
                  * reward size
                  */
+                srandom(totaltrials);
                 oldrw = TheStim->fix.rwsize;
                 if(option2flag & AFC && expt.biasedreward == 0)
                 {
@@ -9994,6 +9995,7 @@ int GotChar(char c)
                 else if(option2flag & AFC){
                 }
                 else if(rndbonus > 0 && (i = random())%rndbonus == 0 && !optionflags[INITIAL_TRAINING]){
+                    fprintf(stderr,"Rnd was %ld: (seed %d) big reward\n",i,totaltrials);
                     TheStim->fix.rwsize = oldrw * 3;
                 }
                 SerialSend(REWARD_SIZE);
