@@ -259,7 +259,8 @@ int precalc_rds_disps(Stimulus *st)
 {
   int i,j,balenced = 1;
   float *pf,*rpf,xpixdisps[MAXDISPS],ratio,pixdisp[2],phase;
-  unsigned int rnd, myrnd_u(),q;
+//Ali did this 7/19/13
+    uint64_t rnd, myrnd_u(),q;
   Locator *pos = &st->left->pos;
   Substim *sst = st->left;
   int pixmul;
@@ -350,10 +351,12 @@ int calc_rds(Stimulus *st, Substim *sst)
   int eyemode,induced = 0,hpixmul,wpixmul;
   float *pf,wscale,hiscale,dw,laps,partlap,ftmp;
   int wrapped = 0,sumwrap = 0,nowrap = 1;
-  unsigned int q,rnds[10],myrnd_u();
-  int overlap = 1,k =0, checkoverlap = 0;
+//Ali did this 7/19/13
+    uint64_t q,rnds[10],myrnd_u();
+
+    int overlap = 1,k =0, checkoverlap = 0;
   int nwrap = 5,nac=0,npaint,flipac;
-    
+    uint64_t newp = 0;
   if(st->corrmix > 0)
     checkoverlap = 0.5;
     
@@ -372,6 +375,7 @@ int calc_rds(Stimulus *st, Substim *sst)
     
   if(!optionflags[RANDOM_DEPTH_PHASE] || expt.vals[DISTRIBUTION_WIDTH] < 2)
     st->ndisps = 0;
+    newp = random_l();
     
   if(st->flag & CONTRAST_POSITIVE)
     {
@@ -728,6 +732,7 @@ int calc_rds(Stimulus *st, Substim *sst)
         yi = q & 0xffff;
       *y = hiscale * yi + *pdisp -h/2;
         
+//            q = myrnd_u();
       if(i ==0)  // track 1st dot for debugger
 	*y = hiscale * yi + *pdisp -h/2;
       if(*y > h/2){
@@ -757,7 +762,7 @@ int calc_rds(Stimulus *st, Substim *sst)
 	else if(wrapped == 3)
 	  *x = wscale * ((q>>8) & 0xffff) + xshift[0];
 	else if(wrapped == 2)
-	  *x = wscale * (q & 0xffff) + xshift[0];
+	  *x = wscale * ((*p >> 16) & 0xffff) + xshift[0];
 	else if(wrapped == 1)
 	  *x = wscale * ((*p>>8) & 0xffff) + xshift[0];
 	else

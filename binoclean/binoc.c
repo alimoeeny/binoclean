@@ -4797,7 +4797,7 @@ void search_background()
 {
     int i,j,xstep,ystep,rnd,nb;
     int oldoption = optionflag;
-    float val,vborder,hborder,rndval;
+    float val,vborder,hborder,rndval,vcolor[4];
     int forcecalc = 1;
     ystep = xstep = 70;
     
@@ -4888,14 +4888,21 @@ void search_background()
         clearcolor = expt.vals[BLANKCOLOR_CODE];
         glClearColor(clearcolor,TheStim->gammaback,clearcolor,clearcolor);
         glClear(GL_COLOR_BUFFER_BIT);
-        ShowTime();
+       ShowTime();
         paint_stimulus(tempstim,1);
         optionflag = oldoption;
         srandom(TheStim->left->baseseed);
-        setmask(bothmask);
-        gettimeofday(&lastcleartime,NULL);
+//        glGetFloatv(GL_CURRENT_COLOR,vcolor);
+//        glColor4f(0.0,0.0,1.0,0.5);
+//        glGetFloatv(GL_CURRENT_COLOR,vcolor);
+//        glColor4f(1.0,1.0,1.0,1.0);
+//        gettimeofday(&lastcleartime,NULL);
+//        glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
+//		glDisable(GL_LINE_SMOOTH);
+//        glEnable(GL_BLEND);
         if(strlen(timeoutstring) > 0)
             printStringOnMonkeyView(timeoutstring,6);
+        setmask(bothmask);
     }
 }
 
@@ -5991,7 +5998,7 @@ void paint_frame(int type, int showfix)
         draw_fix(fixpos[0],fixpos[1], TheStim->fix.size, TheStim->fixcolor);
     gettimeofday(&btime, NULL);
     draw_conjpos(cmarker_size,PLOT_COLOR);
-    if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0 && !option2flag & PSYCHOPHYSICS_BIT){
+    if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0 && !(option2flag & PSYCHOPHYSICS_BIT)){
         setmask(OVERLAY);
         DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],2,2,RF_COLOR);
         r = fabs(afc_s.sacval[0])+fabs(afc_s.sacval[1]);
@@ -6778,7 +6785,7 @@ int next_frame(Stimulus *st)
             }
 #endif
             mode &= (~FIXATION_OFF_BIT);
-            if (!option2flag &AFC) // don't mess with color before response
+            if (!(option2flag &AFC)) // don't mess with color before response
                 TheStim->fixcolor = TheStim->fix.fixcolor;
             if(CheckFix() < 0)
                 break;
@@ -6788,7 +6795,7 @@ int next_frame(Stimulus *st)
                     stimstate = PRESTIMULUS;
                 else{
                     stimstate = POSTPOSTSTIMULUS;
-                    if (!option2flag &AFC) // don't mess with color before response
+                    if (!(option2flag &AFC)) // don't mess with color before response
                         TheStim->fixcolor = TheStim->fix.offcolor;
                     if(!(TheStim->mode & EXPTPENDING))
                         stimctr = 0;
@@ -9762,7 +9769,7 @@ int GotChar(char c)
                     sign = 1;
                 else
                     sign = 0;
-                if (!option2flag & PSYCHOPHYSICS_BIT)
+                if (!(option2flag & PSYCHOPHYSICS_BIT))
                     PrintPsychLine(presult, sign);
                 if(seroutfile != NULL) 
                 {
@@ -10232,7 +10239,8 @@ void printString(char *s, int size)
 
 void printStringOnMonkeyView(char *s, int size)
 {
-    
+    glColor4f(1.0,1.0,1.0,1.0); //white text
+    glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
     displayOnMonkeyView(s, -500, -450);
 //    glPushAttrib(GL_LIST_BIT);
 //    if(size == 1)

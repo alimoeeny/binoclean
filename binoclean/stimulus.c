@@ -2567,7 +2567,7 @@ void paint_stimulus(Stimulus *st, int follow)
             if(optionflags[SPLITSCREEN])
                 glTranslatef(-psychoff[0]/2,0,0);
             if(st->next != NULL && st->next->type == STIM_CYLINDER){
-                if(!optionflag & BACKGROUND_FIXED_BIT){
+                if(!(optionflag & BACKGROUND_FIXED_BIT)){
                     st->next->pos.angle = st->pos.angle;
                     /*
                      *	st->next->pos.xy[0] = st->pos.xy[0];

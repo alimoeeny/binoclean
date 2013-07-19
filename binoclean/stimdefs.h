@@ -552,6 +552,11 @@ float pix2degy(float val);
 
 // Need something else for 64 bit version.  drand48? 
 
+
+//Ali did this 07/19/2013
+#include "stdint.h"
+
+
 #ifdef __i386__
     #define mydrand rnd_01d
     #define myrnd_init rnd_init
@@ -563,7 +568,7 @@ long rnd_i(void);
     #define srand48 drandinit
     #define myrnd_init randinit
     #define myrnd_i random_l
-    unsigned int random_l();
+    uint64_t random_l();
     #define myrnd_u random_l
     double drand64(void);
 #endif

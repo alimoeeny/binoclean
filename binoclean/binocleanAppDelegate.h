@@ -20,7 +20,7 @@
 #import "MonkeyWindow.h"
 
 #ifndef __i386__
-#import "MTRandom.h"
+#import "MTRandom64.h"
 #endif
 
 #define OUT_PIPE "/tmp/binocoutputpipe"
