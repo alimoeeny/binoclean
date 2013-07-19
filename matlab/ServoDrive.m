@@ -145,9 +145,9 @@ uimenu(sm,'Label','Last Move','tag','LastMove','callback',@SetMotorPlot);
 uimenu(sm,'Label','Speed','tag','MoveSpeed','callback',@SetMotorPlot);
 uimenu(sm,'Label','None','tag','None','callback',@SetMotorPlot);
 sm = uimenu(mn,'Label','Speed');
-uimenu(sm,'Label','Normal (2mmM/s)','tag','Normal','Checked','on','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Normal (1mmM/s)','tag','Normal','Checked','on','callback',@SetMotorSpeed);
 uimenu(sm,'Label','Fast (20 mm/s)','tag','Fast','callback',@SetMotorSpeed);
-uimenu(sm,'Label','Slow (1mm/s)','tag','Slow','callback',@SetMotorSpeed);
+uimenu(sm,'Label','Slow (0.5mm/s)','tag','Slow','callback',@SetMotorSpeed);
 uimenu(sm,'Label','Custom','tag','Custom','callback',@SetMotorSpeed);
 
 set(gca,'position',[0.4 0.4 0.6 0.6],'xtick',[],'ytick',[]);
@@ -179,7 +179,7 @@ elseif strcmp(tag,'Custom')
     step = str2num(str{1});
     str = sprintf('Custom (%d uM/s)',step);
     set(a,'Label',str);
-    DATA.motorspeed =  step;
+    DATA.motorspeed =  step.*10;
     DATA.customspeed = step;
 end
 ispeed = round(DATA.motorspeed.*DATA.stepscale/1000);
@@ -269,7 +269,7 @@ end
 fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
 pause(0.01);
 s = ReadLine(DATA.sport);
-d = sscanf(s,'%d')
+d = sscanf(s,'%d');
 d = d./DATA.stepscale;
 if showdepth
     set(DATA.depthlabel,'string',sprintf('%.0f uM',d));
@@ -288,7 +288,8 @@ fprintf(DATA.sport,'%dPOS\n',DATA.motorid);
 pause(0.01);
 s = ReadLine(DATA.sport);
 d = sscanf(s,'%d');
-fprintf('Requesting %.0f->%.0f\n',d,newpos);
+edur = 20 .* abs(newpos-d) ./DATA.motorspeed; %estimated duration
+fprintf('Requesting %.0f->%.0f (~%.2f sec)\n',d,newpos,edur);
 fprintf(DATA.sport,'%dEN\n',DATA.motorid);
 fprintf(DATA.sport,sprintf('%dLA%.0f\n',DATA.motorid,newpos));
 pause(0.01);
@@ -296,7 +297,6 @@ fprintf(DATA.sport,'%dM\n',DATA.motorid);
 pause(0.01);
 ts = now;
 npost = 0;
-edur = abs(newpos-d) ./600 %estimated duration
 newd(1) = d;
 j = 2;
 while npost < 2
@@ -317,10 +317,10 @@ while npost < 2
         newd(j) = 0;
     end
     if mytoc(ts(1)) > edur+1
-       npost = 2; 
-       yn = questdlg(sprintf('Only Moved to %.3f',newd(end)./(DATA.stepscale.*1000)),'Microdrive Error');
-       if strcmp(yn,'Yes')
-       end
+       npost = 2;
+       F = gcf;
+       uiwait(warndlg(sprintf('Only Moved to %.3f',newd(end)./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
+       figure(F);
     end
     j = j+1;
 end
