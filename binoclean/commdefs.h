@@ -819,6 +819,7 @@ StringCode commstrings[] = {
     {"imload", "image load type", -1, NULL},
     {"psychfile", "Psych results file", -1, NULL},
     {"cmdfile", "File for remote commands", COMMAND_FILE, NULL},
+    {"electrode", "Electrode Decsription", ELECTRODE_TYPE, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -1255,7 +1256,9 @@ ValueCode valstrings[] = {
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
-  { NULL, NULL, -1, -1 ,0 ,0, 0},
+    {"electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},
+
+    { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 
 char **serial_strings;
