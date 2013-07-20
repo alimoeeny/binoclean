@@ -29,8 +29,8 @@ NSMutableDictionary *bold12Attribs;
 
 
 #ifndef __i386__
-MTRandom * randEngine;
-MTRandom * drandEngine;
+MTRandom64 * randEngine;
+MTRandom64 * drandEngine;
 #endif
 
 void quit_binoc()
@@ -65,7 +65,7 @@ void displayOnMonkeyView(char *s, int x, int y)
     if(!textColor)
         textColor = [NSColor colorWithCalibratedRed:0.5f green:1.0f blue:0.5f alpha:1.0f];
     if(!textBGColor)
-        textBGColor = [NSColor colorWithCalibratedRed:0.5f green:0.0f blue:0.5f alpha:1.0f];
+       textBGColor = [NSColor colorWithCalibratedRed:0.5f green:0.0f blue:0.5f alpha:1.0f];
 
     if (!bold12Attribs) {
         bold12Attribs = [[NSMutableDictionary dictionary] retain];
@@ -173,22 +173,22 @@ void notify(char * s)
 #pragma mark random
 void randinit(int seed) // that sets the seed
 {
-    randEngine = [[MTRandom alloc] initWithSeed:seed];
+    randEngine = [[MTRandom64 alloc] initWithSeed:seed];
 }
 
-unsigned int random_l()  //that returns  random int
+uint64_t random_l()  //that returns  random int
 {
     if (!randEngine) {
-        randEngine = [[MTRandom alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
+        randEngine = [[MTRandom64 alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
     }
-    uint32_t q = [randEngine randomUInt32];
+    uint64_t q = [randEngine randomUInt64];
     return q;
 }
 
 double drand64()  //that returns a float between 0 and 1
 {
     if (!drandEngine) {
-        drandEngine = [[MTRandom alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
+        drandEngine = [[MTRandom64 alloc] initWithSeed:(int)[[NSDate date] timeIntervalSince1970]];
     }
     double   t = [drandEngine randomDouble0To1Exclusive];
     return t;
@@ -196,7 +196,7 @@ double drand64()  //that returns a float between 0 and 1
 
 void drandinit(int seed ) //that sets the state for the drand generator.
 {
-    drandEngine = [[MTRandom alloc] initWithSeed:seed];
+    drandEngine = [[MTRandom64 alloc] initWithSeed:seed];
 }
 
 

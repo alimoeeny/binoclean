@@ -168,6 +168,7 @@
 		C96A1726155A982F005DE480 /* liblabjackusb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A1725155A982F005DE480 /* liblabjackusb.dylib */; };
 		C9AA959E1773855F003E9841 /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
 		C9E0BD621778F7BD003B1BEB /* stepper.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DF013A174FE00C8B6BA /* stepper.c */; };
+		C9FE34881799BFFC0088ED4C /* MTRandom64.m in Sources */ = {isa = PBXBuildFile; fileRef = C9FE34871799BFFC0088ED4C /* MTRandom64.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -387,6 +388,8 @@
 		C96A1725155A982F005DE480 /* liblabjackusb.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblabjackusb.dylib; path = usr/local/lib/liblabjackusb.dylib; sourceTree = SDKROOT; };
 		C9AA959F177385D0003E9841 /* servostepper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = servostepper.c; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
+		C9FE34861799BFFC0088ED4C /* MTRandom64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTRandom64.h; sourceTree = "<group>"; };
+		C9FE34871799BFFC0088ED4C /* MTRandom64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTRandom64.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -537,6 +540,8 @@
 		417FC0171695AAB600B3CFFF /* Random */ = {
 			isa = PBXGroup;
 			children = (
+				C9FE34861799BFFC0088ED4C /* MTRandom64.h */,
+				C9FE34871799BFFC0088ED4C /* MTRandom64.m */,
 				417FC0191695AACB00B3CFFF /* MTRandom.h */,
 				417FC01A1695AACB00B3CFFF /* MTRandom.m */,
 			);
@@ -1041,6 +1046,7 @@
 				417FC01B1695AACB00B3CFFF /* MTRandom.m in Sources */,
 				C9AA959E1773855F003E9841 /* binoc.c in Sources */,
 				C9E0BD621778F7BD003B1BEB /* stepper.c in Sources */,
+				C9FE34881799BFFC0088ED4C /* MTRandom64.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6659,7 +6659,7 @@ void runexpt(int w, Stimulus *st, int *cbs)
     SaveExptFile("./leaneb.stm",1);
     afc_s.lasttrial = -(BAD_TRIAL);
     firststimno = stimno;
-    if(!option2flag & PSYCHOPHYSICS_BIT){
+    if(!(option2flag & PSYCHOPHYSICS_BIT)){
         SerialSignal(BW_IS_READY);
         CheckBW(BW_IS_READY,"Expt Start");
     }
