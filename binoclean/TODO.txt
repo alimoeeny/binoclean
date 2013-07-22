@@ -72,3 +72,4 @@ Things that need fixing:
 - find cocoa command to get current monitor icc info
 *For james. Ecah vary orientation randomly by frame. Orthogonal.
 *    Allow multiple bars per frame. B or W.
+* For manual expts make a useful statusline
