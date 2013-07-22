@@ -423,6 +423,8 @@ extern float frameseq[];
 extern int frameiseqp[];
 extern int valstringindex[];
 extern int toggleidx[];
+extern int manualprop[];
+
 
 AppResources app_resources;
 int framesdone = 0;
@@ -5387,8 +5389,9 @@ void increment_stimulus(Stimulus *st, Locator *pos)
      * stimulus. N.B. this only needs to be done once, don't repeat it if 
      * incrementing the background stimulus. Hence only do it if st->prev == NULL
      */
+    //if manualprop[0] < 0 increment using binoc rules
     rds = st->left;
-    if (optionflags[MANUAL_EXPT]){
+    if (optionflags[MANUAL_EXPT] && manualprop[0] >= 0 ){
         SetManualStim(expt.framesdone);
         if(rds->seedloop == 0)
             rds->baseseed += 2;
@@ -5708,14 +5711,15 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if(st->next)
                 st->next->pos.contrast = st->next->pos.contrast_amp;
         }
-		pos->phase += st->incr;
-		if(optionflags[RANDOM_PHASE]){
+		if(optionflags[RANDOM_PHASE] && st->nphases > 0){
             /* make sure these phases come from this seed so can be reconstructed*/
             if (expt.vals[FAST_SEQUENCE_RPT] <2 || st->framectr % (int)(expt.vals[FAST_SEQUENCE_RPT]) == 0){
             myrnd_init(st->left->baseseed);
             SetRandomPhase(st, pos);
             }
 		}
+        else
+            pos->phase += st->incr;
 		pos->locn[0] += st->posinc;
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
