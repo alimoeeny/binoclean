@@ -472,14 +472,16 @@
 #define LEFTY (MAXSAVECODES+30)
 #define RIGHTX (MAXSAVECODES+31)
 #define RIGHTY (MAXSAVECODES+32)
+#define ELECTRODE_TYPE (MAXSAVECODES +33)
 
 
-#define MAXTOTALCODES (MAXSAVECODES+33)  //372
+#define MAXTOTALCODES (MAXSAVECODES+34)  //372
 
 
 /*
  *  MAXTOTALCODES is the total number of values with string codes
  * anything not needing a string (e.g. EARLY_RWSIZE) is > MAXTOTALCODES
+ * anything that verg and binoc need t communicat needs to be above
  */
 
 
@@ -532,9 +534,8 @@
 #define ODPD MAXTOTALCODES+67
 #define EARLY_RWSIZE MAXTOTALCODES+68
 #define RESET_TRIALS MAXTOTALCODES +69
-#define ELECTRODE_TYPE MAXTOTALCODES +70
 #define END_TIMEOUT MAXTOTALCODES +71
-#define TOTALCODES MAXTOTALCODES+73
+#define TOTALCODES MAXTOTALCODES+72
 /*
  *  TOTALCODES is the total numer of CHAMBER_AD in Expt 
  * anything not needed in Expt is > TOTALCODES
@@ -819,6 +820,7 @@ StringCode commstrings[] = {
     {"imload", "image load type", -1, NULL},
     {"psychfile", "Psych results file", -1, NULL},
     {"cmdfile", "File for remote commands", COMMAND_FILE, NULL},
+    {"electrode", "Electrode Decsription", ELECTRODE_TYPE, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -1255,7 +1257,9 @@ ValueCode valstrings[] = {
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
-  { NULL, NULL, -1, -1 ,0 ,0, 0},
+    {"electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},
+
+    { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 
 char **serial_strings;

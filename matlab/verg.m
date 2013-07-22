@@ -19,6 +19,9 @@ while j <= length(varargin)
     elseif strcmp(varargin{j},'verbose')
         DATA.verbose = 2; 
         DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
+    elseif strcmp(varargin{j},'monitor')
+        DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
+        DATA.perfmonitor = 1;
     end
     j = j+1;
 end
@@ -75,11 +78,16 @@ if isempty(it)
     DATA.cmdfid = fopen(cmdfile,'a');
     fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
+    if DATA.frombinocfid > 0
+        TimeMark(tt,1);
+    end
 end
 end
 j = 1;
 while j <= length(varargin)
-    if strncmpi(varargin{1},'close',5)
+    if strncmpi(varargin{1},'autoreopen',6)
+        DATA.autoreopen =1;
+    elseif strncmpi(varargin{1},'close',5)
         if DATA.pipelog
             system('/bgc/bgc/perl/pipelog end');
         end
@@ -713,6 +721,9 @@ function DATA = ReadExptLines(DATA, strs)
             break;
         end
         [DATA, type] = InterpretLine(DATA,tline);
+        if DATA.perfmonitor
+            myprintf(DATA.frombinocfid,'%s %s\n',datestr(now),tline);
+        end
   %if filename set before monkey, set monkeyname first
         if strncmp(tline,'uf=',3) && strcmp(DATA.binocstr.monkey,'none')
             DATA.binocstr.monkey = GetMonkeyName(DATA.datafile);
@@ -1147,6 +1158,7 @@ DATA.stimflags{1}.nc = 1;
 DATA.stimflagnames.nc = 'Black Dots';
 DATA.stimflagnames.pc = 'White Dots';
 DATA = SetField(DATA,'verbose',0);
+DATA = SetField(DATA,'perfmonitor',0);
 if ~isfield(DATA,'verg')
     DATA.verg.seqpause = 0.
 end
@@ -1199,7 +1211,7 @@ DATA.winpos{10} = [600 scrsz(4)-100 400 100]; %Electrode Moving
 DATA.outid = 0;
 DATA.inid = 0;
 DATA.cmdfid = 0;
-DATA.frombinocfid = 0;
+DATA = SetField(DATA,'frombinocfid', 0);
 DATA.tobinocfid = 0;
 DATA.incr = [0 0 0];
 DATA.nstim = [0 0 0];
@@ -1260,6 +1272,7 @@ DATA.servofig = 0;  %Figre # of servo control window.
 DATA = ReadSetupFile(DATA, '/local/binoc.setup');
 DATA = ReadStimFile(DATA, '/local/verg.setup');
 DATA.helpstrs = ReadHelp(DATA);
+DATA.autoreopen = 0;
 
 for j = 1:3 
 DATA.expmenucodes{j} = {};
@@ -2306,6 +2319,10 @@ function MenuGui(a,b)
          else
              DATA.verbose = 2;
              set(a,'Label','Quiet pipes');
+             if DATA.frombinocfid <= 0
+                 DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
+             end
+
          end
          fprintf(DATA.outid,'verbose=%d\n',DATA.verbose);
          set(DATA.toplevel,'UserData',DATA);
@@ -2451,6 +2468,7 @@ function CheckInput(a,b, fig, varargin)
  
  function DATA = ReadFromBinoc(DATA, varargin)
      global rbusy;
+     persistent lastts;
      
      verbose = DATA.verbose;
      autocall = 0;
@@ -2496,9 +2514,13 @@ function CheckInput(a,b, fig, varargin)
          a = fread(DATA.inid,14);
      end
      rbusy = 0;
+     if DATA.frombinocfid > 0 && ~isempty(a)
+         fprintf(DATA.frombinocfid,'%s %s',datestr(now),char(a'));
+     end
      if strncmp(char(a'),'SENDINGstart1',12)
         a = fread(DATA.inid,14);
         nbytes = sscanf(char(a'),'SENDING%d');
+        fprintf('Start String\n');
      elseif strncmp(char(a'),'SENDING',7)
          nbytes = sscanf(char(a'),'SENDING%d');
          else
@@ -2521,6 +2543,15 @@ function CheckInput(a,b, fig, varargin)
                  end
              else
                  nbytes = 0;
+                 %if binoc has resstarted, reopen pipes
+                 d = dir('/tmp/binocisnew');
+                 if isfield(d,'datenum')  && DATA.autoreopen
+                     if d.datenum > lastts
+                         fprintf('Reopening pipes\n');
+                         lastts = ts;
+                        ReadIO(DATA,[],6);
+                     end
+                 end
              end
      end
      if verbose > 1
@@ -2538,9 +2569,10 @@ function CheckInput(a,b, fig, varargin)
          if isfield(DATA,'toplevel')
              set(DATA.toplevel,'UserData',DATA);
          end
+         myprintf(DATA.frombinocfid,'Finished at %s\n',datestr(now));
      end
      rbusy = 0;
-
+     lastts = ts;
      
 function OpenUffFile(a,b, type)
         DATA = GetDataFromFig(a);

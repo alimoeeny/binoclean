@@ -680,7 +680,7 @@ static int unrepeatn[MAXSTIM] = {0};
 int *stimorder,*seedorder;
 static int *isset, nstimorder, nisset,*stim3order,*stim2order;
 
-
+char *GetExptString(Expt *exp, int code);
 
 /*
  * FindCode(*s)  return the numerical index of the code matching string *s
@@ -2375,6 +2375,30 @@ int OpenPenetrationLog(int pen){
     }
     fflush(penlog);
     return(0);
+}
+
+char *GetExptString(Expt *exp, int code)
+{
+    char *s = NULL;
+    int icode = valstringindex[code];
+    
+    switch(code){
+        case MONKEYNAME:
+            s = expt.monkey;
+            break;
+        case ELECTRODE_TYPE:
+            s = electrodestrings[electrodeid];
+            break;
+        case HELPFILE_PATH:
+            s = expt.helpfile;
+            break;
+        default:
+            if (valstrings[icode].ctype == 'C'){
+                s = expt.strings[code];
+            }
+            break;
+    }
+    return(s);
 }
 
 int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
@@ -5980,8 +6004,7 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     double *f;
     int ret = 0,ival =0,i,pcflag =0,nstim = 0,icode = 0;
     time_t tval;
-    char *t,*r,c = ' ';
-    
+    char *t,*r,c = ' ',*s;
     
     if (flag == TO_GUI || flag == TO_FILE)
         sprintf(temp,"=");
@@ -6565,8 +6588,10 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             }
             else if (icode > 0){ // is recognized
                 if (valstrings[icode].ctype == 'C'){
-                    if (expt.strings[code] != NULL)
-                    sprintf(cbuf,"%s%s%s",scode,temp,expt.strings[code]);
+                    if ((s = GetExptString(&expt,code)) != NULL)
+                        sprintf(cbuf,"%s%s%s",scode,temp,s);
+                    else
+                        sprintf(cbuf,"%s%sNotSet",scode,temp,s);
                 }
                     else
                 sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],expt.vals[code]);
