@@ -1395,6 +1395,8 @@ char **argv;
 	TheStim->incr = TheStim->incr * framerate/mon.framerate;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
+//    notify("NewBinoc\n");  //init string in binocappdelegate
+    system("touch /tmp/binocisnew");
 }
 
 

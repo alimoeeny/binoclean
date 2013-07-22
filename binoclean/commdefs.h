@@ -472,14 +472,16 @@
 #define LEFTY (MAXSAVECODES+30)
 #define RIGHTX (MAXSAVECODES+31)
 #define RIGHTY (MAXSAVECODES+32)
+#define ELECTRODE_TYPE (MAXSAVECODES +33)
 
 
-#define MAXTOTALCODES (MAXSAVECODES+33)  //372
+#define MAXTOTALCODES (MAXSAVECODES+34)  //372
 
 
 /*
  *  MAXTOTALCODES is the total number of values with string codes
  * anything not needing a string (e.g. EARLY_RWSIZE) is > MAXTOTALCODES
+ * anything that verg and binoc need t communicat needs to be above
  */
 
 
@@ -532,9 +534,8 @@
 #define ODPD MAXTOTALCODES+67
 #define EARLY_RWSIZE MAXTOTALCODES+68
 #define RESET_TRIALS MAXTOTALCODES +69
-#define ELECTRODE_TYPE MAXTOTALCODES +70
 #define END_TIMEOUT MAXTOTALCODES +71
-#define TOTALCODES MAXTOTALCODES+73
+#define TOTALCODES MAXTOTALCODES+72
 /*
  *  TOTALCODES is the total numer of CHAMBER_AD in Expt 
  * anything not needed in Expt is > TOTALCODES
