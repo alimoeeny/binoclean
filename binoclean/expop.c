@@ -667,7 +667,7 @@ static double expval[MAXSTIM];
 static double expavals[MAXSTIM*4], expbvals[MAXSTIM*4];
 static double fastvals[MAXSTIM*4],fastbvals[MAXSTIM*4],fastcvals[MAXSTIM*4];
 static int uncompleted[MAXSTIM],completed[MAXSTIM];
-
+static int rndcounts[MAXSTIM];
 
 /*
  * keeping track of repeated seeds. For kernel cross validattion.
@@ -1861,13 +1861,14 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 }
 
 
-int ReadManualStim(char *file){
+char *ReadManualStim(char *file){
     struct stat statbuf;
     FILE *fin;
     char *s,*t,inbuf[BUFSIZ*10];
     int nprop = 0,j,i,nframes,modifier,pos;
     float val,imx[MAXFRAMES],imy[MAXFRAMES];
     Stimulus *st;
+    static char cbuf[BUFSIZ*10];
     
     manualprop[0] = -1;  //in case file error
     if(file == NULL)
@@ -1875,6 +1876,7 @@ int ReadManualStim(char *file){
     if(stat(file, &statbuf) == -1)
         return(0);
     fin = fopen(file,"r");
+    sprintf(cbuf,"");
     for(i = 0; i < MAXFRAMES; i++)
         imx[i] = imy[i] = 0;
     while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
@@ -1915,8 +1917,14 @@ int ReadManualStim(char *file){
             manualstimvals[nprop][j++] = NOTSET;
             nprop++;
         }
-        else
+        else{
+            inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             InterpretLine(inbuf,&expt,3);
+            if (strncmp(inbuf,"exvals",5) != NULL){
+                strcat(cbuf, inbuf);
+                strcat(cbuf, " ");
+            }
+        }
         manualstimvals[nprop][0] = NOTSET;
     }
     manualprop[nprop] = -1;
@@ -1951,7 +1959,7 @@ int ReadManualStim(char *file){
         
     }
         
-    return(0);
+    return(cbuf);
 }
 
 int SetManualStim(int frame)
@@ -7223,6 +7231,9 @@ void InitExpt()
         SerialString(cbuf,0);
     }
     SendAllToGui();
+    for( i = 0; i < MAXSTIM; i++){
+        rndcounts[i] = 0;
+    }
     notify("\nEXPTSTART\n");
 
 }
@@ -7929,11 +7940,11 @@ char *ShowStimVals(Thisstim *stp)
 
 
 
-int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
+int SetFrameStim(int i, unsigned long long lrnd, double inc, Thisstim *stp, int *nstim)
 {
     int nv = expt.nfast;
     int rnd = lrnd % (nv + expt.fastextras);
-    double minval = expt.minval, pb = 0,frnd = 1, forcex = 0;
+    double minval = expt.minval, pb = 0,frnd = 1, forcex = 0,drnd;
     int nextra = expt.fastextras,xoff = 0;
     
     if(expt.vals[BLANK_P] > 0 && nextra){ //need to have +blank and pblank set
@@ -7950,8 +7961,8 @@ int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim)
         frnd = expt.vals[BLANK_P] + 1;
         xoff = 0;
     }
-    
     rnd = lrnd % (nv + nextra);
+    rndcounts[rnd]++;
     frameiseq[i] = rnd+xoff;
     
     if(expt.mode == DISTRIBUTION_CONC)
@@ -8094,10 +8105,10 @@ int PrepareExptStim(int show, int caller)
     Substim *rds;
     Thisstim *stp,*istp,thisstim;
     float val,rval,xval,yval,inc, minval,psychval,bvals[MAXFRAMES];
-    char cbuf[256];
+    char cbuf[256],*s;
     int extra = -1,lastid = 0,ivals[MAXFRAMES];
     int frameset[MAXFRAMES],rnd,nframes;
-    long lrnd;
+    unsigned long long lrnd;
     char ebuf[BUFSIZ];
     double tf,depth_mod,scale,odiff,mean,drnd;
     Stimulus *st = expt.st;
@@ -8128,7 +8139,7 @@ int PrepareExptStim(int show, int caller)
 
     if (optionflags[MANUAL_EXPT]){
         sprintf(ebuf,"/local/manstim/stim%d",stimorder[stimno]);
-        i = ReadManualStim(ebuf);
+        s = ReadManualStim(ebuf);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
         code = afc_s.sign = (int)(val/fabs(val));
         if (val == 0)
@@ -8142,6 +8153,8 @@ int PrepareExptStim(int show, int caller)
         SerialString(cbuf,0);
         notify(cbuf);
         statusline(cbuf);
+        statusline(s);
+        glstatusline(s,1);
         return(i);
     }
     if(expt.type2 == OPPOSITE_DELAY){
@@ -9224,6 +9237,8 @@ int PrepareExptStim(int show, int caller)
             id = 0;
             for(i = 0; i < expt.st->nframes+1; i+= frpt){
                 //	    lrnd = rnd_ri((long)(nv + expt.fastextras));
+//                lrnd = myrnd_i();
+//                lrnd = mydrand() * (UINT64_MAX-1);
                 lrnd = myrnd_i();
                 SetFrameStim(i, lrnd, inc, stp, nstim);
                 ivals[id] = frameiseq[i];

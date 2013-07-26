@@ -117,12 +117,11 @@ function [DATA, codetype] = InterpretLine(DATA, line, varargin)
 setlist = 0;  %% don't update gui for every line read.
 codetype = 0;
 frombinoc = 0;
+src = 'unknown';
 j = 1;
 while j <= length(varargin)
-    if strncmpi(varargin{j},'frombinoc',6)
-        frombinoc = 1;
-    elseif strncmpi(varargin{j},'fromseq',6)
-        frombinoc = 2;
+    if strncmpi(varargin{j},'from',4)
+        src = varargin{j};
     end
     j = j+1;
 end
@@ -149,7 +148,7 @@ for j = 1:length(strs{1})
     else
         code = s;
     end
-    if DATA.verbose && frombinoc == 1
+    if DATA.verbose && strcmp(src,'frombinoc')
             fprintf('%s**\n',strs{1}{j});
     end
     
@@ -159,7 +158,11 @@ for j = 1:length(strs{1})
     end
     if length(s) == 0
     elseif strncmp(s,'!mat',4) && ~isempty(value)
-        eval(value);        
+        if strcmp(src,'fromstim')
+            DATA.matexpt = value;
+        else
+            eval(value);
+        end
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
         msgbox(s(5:end),'Binoc Warning','warn');
@@ -326,7 +329,7 @@ for j = 1:length(strs{1})
             myprintf(DATA.cmdfid,'Sequence continuing from line %d',DATA.seqline);
             DATA = ContinueSequence(DATA);
         elseif DATA.exptnextline > 0
-            DATA = ReadExptLines(DATA,{});
+            DATA = ReadExptLines(DATA,{},'fromseq');
             DATA = RunButton(DATA,[],1);
         elseif DATA.rptexpts > 0
             outprintf(DATA,'#Nrpt is %d\n',DATA.rptexpts);
@@ -705,7 +708,7 @@ function [code, codeid] = FindCode(DATA, s)
     end
         
 
-function DATA = ReadExptLines(DATA, strs)
+function DATA = ReadExptLines(DATA, strs, src)
 
     if isempty(strs)
         strs = DATA.explines
@@ -720,7 +723,7 @@ function DATA = ReadExptLines(DATA, strs)
             DATA.exptnextline = j;
             break;
         end
-        [DATA, type] = InterpretLine(DATA,tline);
+        [DATA, type] = InterpretLine(DATA,tline, src);
         if DATA.perfmonitor
             myprintf(DATA.frombinocfid,'%s %s\n',datestr(now),tline);
         end
@@ -809,7 +812,7 @@ if fid > 0
     if strcmp(DATA.exptlines{1},'sequence')
         SequencePopup(DATA,DATA.exptlines(2:end),'popup');
     else
-        DATA = ReadExptLines(DATA,a{1});
+        DATA = ReadExptLines(DATA,a{1},'fromstim');
     end
 else
     msgbox(sprintf('Can''t read %s',name),'Read Error','error');
@@ -1158,6 +1161,7 @@ DATA.stimflags{1}.nc = 1;
 DATA.stimflagnames.nc = 'Black Dots';
 DATA.stimflagnames.pc = 'White Dots';
 DATA = SetField(DATA,'verbose',0);
+DATA = SetField(DATA,'matexpt','');
 DATA = SetField(DATA,'perfmonitor',0);
 if ~isfield(DATA,'verg')
     DATA.verg.seqpause = 0.
@@ -2597,6 +2601,9 @@ function DATA = RunButton(a,b, type)
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
         if type == 1
             if DATA.inexpt == 0 %sarting a new one. Increment counter
+                if DATA.optionflags.exm && ~isempty(DATA.matexpt)
+                    eval(DATA.matexpt);
+                end
                 if DATA.listmodified(1)
                     SendManualVals(DATA,'Expt1StimList');
                 end
