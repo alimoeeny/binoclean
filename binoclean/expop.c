@@ -11033,7 +11033,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         sprintf(buf,"%srP=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
             if(frameiseqp[i] >= 0){
-                if( expt.st->nphases < 16)
+                if (expt.st->nphases < 16)
                     sprintf(tmp,"%x",frameiseqp[i]);
                 else
                     sprintf(tmp,"%x ",frameiseqp[i]);
@@ -12335,18 +12335,19 @@ int CheckOption(int i)
 
 int ChangeFlag(char *s)
 {
-    char c = *s,*a;
+    char c = *s,*a,*b;
     int bit = 0, bit2 = 0,i = 0,slen=0;
     int oldval;
     
     s++;
-    if (a = strchr(s,'+'))
-        slen = a-s;
-    else if (a=strchr(s,'-'))
-            slen = a-s;
-    else
+    a = strchr(s,'+');
+    b = strchr(s,'-');
+    if (b == NULL && a == NULL)
         slen = strlen(s);
-
+    else if (a < b || b == NULL)
+        slen = a-s;
+    else if (b < a || a == NULL)
+        slen = b-s;
 
     i = 0;
     while(togglestrings[i].code!= NULL)

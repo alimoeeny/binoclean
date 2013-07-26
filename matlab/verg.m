@@ -1164,7 +1164,7 @@ DATA = SetField(DATA,'verbose',0);
 DATA = SetField(DATA,'matexpt','');
 DATA = SetField(DATA,'perfmonitor',0);
 if ~isfield(DATA,'verg')
-    DATA.verg.seqpause = 0.
+    DATA.verg.seqpause = 10;
 end
 DATA.verg = SetField(DATA.verg, 'seqpause',5);
 
@@ -2255,7 +2255,7 @@ function MenuGui(a,b)
              fprintf(DATA.outid,'m3=%.8f\n',DATA.mean(3));
              ReadFromBinoc(DATA);
          case {'ei' 'i2' 'i3'}
-             fprintf(DATA.outid,'%s=%s\n',type,DATA.binoc{1}.(type));
+             fprintf(DATA.outid,'%s=%s\n',type,str);
              ReadFromBinoc(DATA);
          case 'st'
              DATA.stimtype(1) = strmatch(str,DATA.stimulusnames);

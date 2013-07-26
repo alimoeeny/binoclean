@@ -3399,7 +3399,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             pos->ss[0] = (int)ceilf(fval/pos->size[0]);
             if(pos->ss[0] <= 0)
                 pos->ss[0] = 1;
-            if(rlspair(st)){
+            if(rlspair(st) && !(optionflag & BACKGROUND_FIXED_BIT)){
                 SetStimulus(st->next, val, code, event);
             }
             if(st->type == STIM_IMAGE){
@@ -5721,7 +5721,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             }
             else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
                 pos->phase += st->incr;
-                frameiseqp[expt.framesdone] = st->nphases;
+                frameiseqp[expt.framesdone] = (int)(pos->phase * 180/M_PI)%360; //record actual PHASE2
             }
 		}
         else{
