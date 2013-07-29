@@ -355,12 +355,14 @@ int  processUIEvents()
     static struct timeval atime, btime;
     float val,aval,bval;
     int stimstate = 0;
+    time_t tval;
+
     gettimeofday(&btime,NULL);
-    aval = timediff(&btime,&atime);
+    aval = timediff(&btime,&atime); //time since last call
 
   ReadInputPipe();
     gettimeofday(&atime,NULL);
-    bval = timediff(&atime,&btime);
+    bval = timediff(&atime,&btime); // time taken in ReadInputPipe
     if (freeToGo) {
        stimstate = event_loop(bval);
     }
@@ -371,7 +373,11 @@ int  processUIEvents()
     gettimeofday(&atime,NULL);
     val = timediff(&atime,&btime);
     if (aval > 0.03 || bval > 0.001){
-        fprintf(stderr,"#############Long delay (%.8f,%.4f,%.6f) in Timer\n",val,aval,bval);
+        tval = time(NULL);
+        fprintf(stderr,"#############Long delay (%.8f,%.4f,%.6f) at %s in Timer\n",val,aval,bval,ctime(&tval));
+    }
+    else if (aval > 0.05 && freeToGo == 0){
+        fprintf(stderr,"#######Long delay when free (%.8f,%.4f) in Timer\n",val,aval,bval);
     }
 }
 

@@ -61,7 +61,7 @@ Things that need fixing:
 *allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?
 -could binoc write to pipe when started so that verg automatically reopens pipes? 
 *when verg connects to a running binoc which is mid expt, get vert to know and set Run button
--stausline only on alternate frames in expt/ But thats ok
+*stausline only on alternate frames in expt/ But thats ok
 *when rpt is on, make expts separte for the psych plot (currently all lumped into one)
 *expt labels in verg when expt type not in list.
 *check Buts expts expt2 setups
@@ -70,5 +70,6 @@ Things that need fixing:
 * need to make cursor invisible in Red and Blue  !!!NB IMPORTANT FOR HUMAN PSYCH
 * allow polling to see if mouse events are in queue for human pshychophysics
 - find cocoa command to get current monitor icc info
-*For james. Ecah vary orientation randomly by frame. Orthogonal.
+* For james. Ecah vary orientation randomly by frame. Orthogonal.
 *    Allow multiple bars per frame. B or W.
+-if manual list of exp stims, verg doesn't send to binoc when reopen pipes

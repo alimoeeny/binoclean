@@ -1022,7 +1022,7 @@ char **argv;
      */
     printf("VERSION %s\n",VERSION_NUMBER);
     gettimeofday(&lastmonkeycheck,NULL);
-    sprintf(timeoutstring,"Waiting...");
+    sprintf(timeoutstring,"Startup...");
 
 
     while(i < argc) //Ali: for some reason xcode passes these additional arguments that messes up things.
@@ -1396,7 +1396,7 @@ char **argv;
 	printf("FrameRate %.2f\n",mon.framerate);
 	SerialSend(FRAMERATE_CODE);
 //    notify("NewBinoc\n");  //init string in binocappdelegate
-    system("touch /tmp/binocisnew");
+//    system("touch /tmp/binocisnew");
 }
 
 
@@ -1472,7 +1472,7 @@ void SendAllToGui()
             notify(buf);
     }
     i =0;
-
+/*
     if(expt.st->imprefix != NULL){
         sprintf(buf,"impref=%s\n",expt.st->imprefix);
         notify(buf);
@@ -1485,7 +1485,7 @@ void SendAllToGui()
         else
             notify("imload=load\n");
     }
-
+*/
     ListExpStims(NULL);
     ListQuickExpts();
 }
@@ -1568,11 +1568,6 @@ void glstatusline(char *s, int line)
         glDrawBuffer(GL_FRONT_AND_BACK);
     if(optionflag & SHOW_STIMVAL_BIT)
         setmask(ALLPLANES);
-    else
-        setmask(OVERLAY);
-    SetGrey(TheStim->gammaback);
-    myrect(x[0],x[1]-5,x[0]+400,x[1]+15);
-	SetGrey(1.0);
 	mycmv(x);
 	if(s != NULL){
         printStringOnMonkeyView(s, strlen(s));
@@ -1676,6 +1671,8 @@ void StopGo(int go)
      */
     else if(stimstate != POSTSTIMULUS || testflags[PLAYING_EXPT])
     {
+        sprintf(timeoutstring,"Stopped");
+
         optionflag &= (~GO_BIT);
         mode &= (~(ANIMATE_BIT | TEST_PENDING));
         monkeypress = WURTZ_STOPPED;
@@ -2573,6 +2570,9 @@ int event_loop(float delay)
             cleartime.tv_sec = 0;
         }
     }
+    if (nftime.tv_sec == 0) //first call
+        system("touch /tmp/binocisnew");
+    
     if(!(mode & RUNNING) && window_is_mapped)
     {
         if(statectr > 2) /* finally ready */
@@ -6025,7 +6025,7 @@ void paint_frame(int type, int showfix)
         else
             ShowBox(expt.rf,RF_COLOR);
     }
-    
+    glstatusline(NULL, 1);
 }
 
 int CheckFix()
@@ -10384,6 +10384,8 @@ void expt_over(int flag)
             fprintf(seroutfile,"Cancelled at %.2f\n",ufftime(&now));
             fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
         }
+        sprintf(timeoutstring,"Expt Cancelled");
+
     }
     else{
         gettimeofday(&now,NULL);
@@ -10393,6 +10395,7 @@ void expt_over(int flag)
             fprintf(seroutfile,"Run ended at %s\n",ctime(&tval));
             fflush(seroutfile);
         }
+        sprintf(timeoutstring,"Expt Over");
     }
     if(demomode = 0){
         SetStopButton(STOP);

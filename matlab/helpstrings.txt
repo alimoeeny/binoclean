@@ -1,1 +1,8 @@
 Covariate In Psych training, this variable covaries withe the metatmeter
+sx  Sd of Gaussian Envelope, orthogonal to Orientation.
+sy  Sd of Gaussian Envelope, Parallel to Orientation.
+dp  Phase angle disparity.  For RLS/RDS its a disparity in degrees, but made by "rotating" the pattern, not by horizontal displacement
+xn  For Gabors, size of grid rectangle in X direction
+yn  For Gabors, size of grid rectangle in Y direction
+sl  sl=0 make RDS/RLS dynamic. sl=1 fixed seed, static/drifting (jv  > 0). sl=n pattern changed every nth frame, if n > 1
+f2 SF of second frequency component for compound gratings/plaids
