@@ -100,7 +100,7 @@ extern Expstim oldrfs[];
 extern int Frames2DIO;
 extern float pursuedir;
 extern FILE *imidxfd;
-extern char *replay_expt, ImageOutDir[];
+extern char *replay_expt, ImageOutDir[],timeoutstring[];
 extern int rfctr,mimic_fixation;
 extern char *rcname;
 extern int wurtzctr,*fixed,lasteyecheck;
@@ -284,7 +284,7 @@ extern struct timeval signaltime,now,endstimtime,firstframetime,zeroframetime,fr
 extern struct timeval calctime,paintframetime,changeframetime;
 extern vcoord conjpos[],fixpos[];
 static time_t lastcmdread;
-
+static struct timeval lastcmdtime;
 static char mssg[BUFSIZ];
 static short *linedata = NULL;
 struct timeval endsigtime,bwtime;
@@ -2383,6 +2383,9 @@ char *GetExptString(Expt *exp, int code)
     int icode = valstringindex[code];
     
     switch(code){
+        case IMAGELOAD_PREFIX:
+            s = expt.st->imprefix;
+            break;
         case MONKEYNAME:
             s = expt.monkey;
             break;
@@ -2391,6 +2394,12 @@ char *GetExptString(Expt *exp, int code)
             break;
         case HELPFILE_PATH:
             s = expt.helpfile;
+            break;
+        case COMMAND_FILE:
+            s = expt.cmdinfile;
+            break;
+        case PSYCHFILE:
+            s = psychfilename;
             break;
         default:
             if (valstrings[icode].ctype == 'C'){
@@ -2403,15 +2412,56 @@ char *GetExptString(Expt *exp, int code)
 
 int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
 {
-    int chan,pen,i,duplicate = 0;
-    time_t tval;
-    char *t,*r,buf[256],name[BUFSIZ],sfile[BUFSIZ],path[BUFSIZ];
+    int chan,pen,i,duplicate = 0,ok = 1;
+    time_t tval,nowtime;
+    char *t,*r,buf[BUFSIZ],name[BUFSIZ],sfile[BUFSIZ],path[BUFSIZ],outbuf[BUFSIZ];
+    char nbuf[BUFSIZ];
     
     s = nonewline(s);
     if (*s == NULL)
         return(0);
     switch(flag)
     {
+        case IMAGELOAD_PREFIX:
+            expt.st->imprefix = myscopy(expt.st->imprefix,nonewline(s));
+        
+            break;
+        case IMAGELOAD_TYPE:
+                // used to be done with immode, but best to have one attribute per code for sending to verg
+                if(!strncmp(s,"preload",4)){
+                    expt.st->preload = 1;
+                }
+                else if(!strncmp(s,"load",4)){
+                    expt.st->preload = 0;
+                }
+            expt.strings[flag] = myscopy(expt.strings[flag],s);
+            break;
+        case IMAGELOAD_MODE:
+            ok = 1;
+                if(!strncmp(s,"orbw",4))
+                    expt.st->immode = IMAGEMODE_ORBW;
+                else if(!strncmp(s,"plain",4)){
+                    expt.st->immode = 0;
+                    expt.st->nimseed = 0;
+                }
+                else if(!strncmp(s,"binocular",4)){
+                    expt.st->immode = BINOCULAR_PLAIN_IMAGES;
+                    expt.st->nimseed = 0;
+                }
+                else if(!strncmp(s,"preload",4)){
+                    expt.st->preload = 1;
+                }
+                else if(!strncmp(s,"load",4)){
+                    expt.st->preload = 0;
+                }
+                else
+                    ok = 0;
+                expt.strings[flag] = myscopy(expt.strings[flag],s);
+                if(ok){// recognized command
+                    SerialSend(flag);
+                }
+            break;
+            
         case MONKEYNAME:
             expt.monkey = myscopy(expt.monkey,s);
             sprintf(expt.cwd,"/local/%s",expt.monkey);
@@ -2463,9 +2513,12 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         case UFF_PREFIX:
             expt.bwptr->prefix = (char *)myscopy(expt.bwptr->prefix,nonewline(s));
             expname = (char *)myscopy(expname,nonewline(s));
+            
             t = getfilename(expt.bwptr->prefix);
             expname = (char *)myscopy(expname,t);
-            
+            sprintf(buf,"%s/%s",datprefix,expname);
+            expt.strings[ONLINEPREFIX] = myscopy(expt.strings[ONLINEPREFIX],buf);
+
             
             if(!(option2flag & PSYCHOPHYSICS_BIT) && pcmode != SPIKE2){
                 /*
@@ -2535,6 +2588,40 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             nonewline(s);
             expt.username = myscopy(expt.username,s);
             break;
+        case PSYCHFILE:
+                psychfilename = myscopy(psychfilename,s);
+                nonewline(psychfilename);
+                if((t = strstr(s,"DATE")) != NULL){
+                    *t = 0;
+                    time(&nowtime);
+                    t= ctime(&nowtime);
+                    t[10] = 0;
+                    t[24] = 0;
+                    t[7] = 0;
+                    if(t[8]==' ')
+                        t[8] = '0';
+                    sprintf(buf,"%s%s%s%s",s,&t[8],&t[4],&t[20]);
+                    psychfilename = myscopy(psychfilename,buf);
+                    sprintf(outbuf,"Psych Log: %s\n",buf);
+                    statusline(outbuf);
+                    strcpy(nbuf,buf);
+                    if(seroutfile){
+                        fprintf(seroutfile,"Psych Log: %s\n",buf);
+                    }
+                    psychfile = fopen(buf,"a");
+                    sprintf(buf,"%s.log",s);
+                    psychfilelog = fopen(buf,"a");
+                }
+                else{
+                    psychfile = fopen(nonewline(s),"w");
+                    sprintf(nbuf,"%s",nonewline(s));
+                }
+                if (psychfile == NULL){
+                    sprintf(buf,"Can't open %s\n",nbuf);
+                    acknowledge(buf,NULL);
+                }
+            break;
+
         case ELECTRODE_TYPE:
             i = 0;
             nonewline(s);
@@ -2577,6 +2664,10 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             break;
         case BACKGROUND_IMAGE:
             expt.backprefix = myscopy(expt.backprefix,s);
+            break;
+        case COMMAND_FILE:
+            expt.cmdinfile = myscopy(expt.cmdinfile,s);
+            nonewline(expt.cmdinfile);
             break;
         default:
             expt.strings[flag] = myscopy(expt.strings[flag],s);
@@ -5112,9 +5203,11 @@ void setstimulusorder(int warnings)
     int noneed = 0;
     int rcrpt = 0;
     float nreps;
+    struct timeval then;
     
     if(!(mode & RUNNING))
         return;
+    gettimeofday(&then,NULL);
     if(option2flag & (PSYCHOPHYSICS_BIT | AFC))
         expt.flag &= (~ALTERNATE_EXPTS);
     
@@ -5664,7 +5757,7 @@ void setstimulusorder(int warnings)
     }
     printf("\n");
 #endif
-    
+    gettimeofday(&now,NULL);
 }
 
 int permute(int *in, int n)
@@ -5689,6 +5782,7 @@ int permute(int *in, int n)
         printf("%d ",in[i]);
     printf("\n");
 #endif
+
     
 }
 
@@ -11149,7 +11243,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
          */
         if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
             if(optionflags[CHECK_FRAMECOUNTS] < 2){
-                sprintf(buf,"Only completed %d/%d frames. Continue Checking?",framesdone,n);
+                sprintf(buf,"Only completed %d/%d frames. op-CN to stop Checking",framesdone,n);
                 if(!confirm_yes(buf,NULL) )
                     optionflags[CHECK_FRAMECOUNTS] = 0;
             }
@@ -11167,7 +11261,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(optionflags[CHECK_FRAMECOUNTS] && retval != BAD_TRIAL && 
        frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){ 
         if(optionflags[CHECK_FRAMECOUNTS] < 2){
-            sprintf(buf,"%d frames took %.1f. Continue Checking?",framesdone,frametimes[framesdone-1]);
+            sprintf(buf,"%d frames took %.1f.  op-CN to stop Checking",framesdone,frametimes[framesdone-1]);
             acknowledge(buf,NULL);
                 optionflags[CHECK_FRAMECOUNTS] = 0;
         }
@@ -12681,9 +12775,13 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     
   
-    if (optionflags[DEBUG_OUTPUT])
-        printf("%d %s\n",frompc,line);
     gettimeofday(&now,NULL);
+    if (optionflags[DEBUG_OUTPUT]){
+        dval = timediff(&now,&lastcmdtime);
+        if (dval > 0.001)
+            printf("%d %s %.3f %s\n",frompc,line,dval,ctime(&now.tv_sec));
+        gettimeofday(&lastcmdtime, NULL);
+    }
 /*
  * exp->cmdtype controls whether or not this line is send down the serial line. If it has come from verg, needs 
  * to go. So SetExptProberpty will set the event type to match
@@ -12742,9 +12840,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             expt.currentval[j] = in[j];
         return(0);
     }
-    else if(!strncmp(line,"electrode",7)){
-        SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
-    }
+//    else if(!strncmp(line,"electrode",7)){
+//        SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
+//    }
     else if(!strncmp(line,"freerwd",7)){
         SerialSignal(FREE_REWARD);
     }
@@ -12973,13 +13071,13 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             j++;
         }
     }
-    else if(!strncmp(line,"monitor",5) && (s = strchr(line,'=')) != 0)
-    {
-        sscanf(++s,"%s",buf);
-        commstrings[MONITOR_FILE].value = myscopy(commstrings[MONITOR_FILE].value,buf);
-        ReadMonitorSetup(buf);
-        return(-1);
-    }
+//    else if(!strncmp(line,"monitor",5) && (s = strchr(line,'=')) != 0)
+//    {
+//        sscanf(++s,"%s",buf);
+//        commstrings[MONITOR_FILE].value = myscopy(commstrings[MONITOR_FILE].value,buf);
+//        ReadMonitorSetup(buf);
+//        return(-1);
+//    }
     else if(!strncmp(line,"clearquick",7)){
         nquickexpts = 0;
         for(i = 0; i < MAXQUICK_SUB; i++)
@@ -13010,13 +13108,14 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"backim",5)  && (s = strchr(line,'='))){
         ReadPGM(nonewline(++s),&expt.backim);
     }
-    else if(!strncmp(line,"impref",5)  && (s = strchr(line,'='))){
-        if(strlen(s) > 2)
-            expt.st->imprefix = myscopy(expt.st->imprefix,nonewline(++s));
-        else
-            return(MAXTOTALCODES);
-    }
-    else if(!strncmp(line,"imload",5)  && (s = strchr(line,'='))){
+//    else if(!strncmp(line,"impref",5)  && (s = strchr(line,'='))){
+//        if(strlen(s) > 2)
+//            expt.st->imprefix = myscopy(expt.st->imprefix,nonewline(++s));
+//        else
+//            return(MAXTOTALCODES);
+//    }
+/*
+ else if(!strncmp(line,"imload",5)  && (s = strchr(line,'='))){
 // used to be done with immode, but best to have one attribute per code for sending to verg
         ok = 1;
         if(!strncmp(++s,"preload",4)){
@@ -13056,6 +13155,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         else
             return(-1);
     }
+ */
     else if(!strncmp(line,"oldrf",5)){
         sscanf(line,"oldrf %f %f %d %d %f",&oldrfs[rfctr].pos[0],&oldrfs[rfctr].pos[1],&oldrfs[rfctr].size[0],&oldrfs[rfctr].size[1],&oldrfs[rfctr].angle);
         oldrfs[rfctr].flag = CENTERMARK_ON;
@@ -13224,12 +13324,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
-        case COMMAND_FILE:
-            s = strchr(line,'=');
-            if(s)
-                expt.cmdinfile = myscopy(expt.cmdinfile,++s);
-            nonewline(expt.cmdinfile);
-            break;
+
         case USENEWDIRS:
             sscanf(s,"%d",&usenewdirs);
             break;
@@ -13624,8 +13719,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case USERID:
         case BACKGROUND_IMAGE: 
         case MONKEYNAME:
+        case COMMAND_FILE:
+        case PSYCHFILE:
             SetExptString(ex, TheStim, code, s);
-            SerialSend(code);
+            if (valstrings[icode].codesend != SEND_NEVER)
+                SerialSend(code);
             break;
         case QUERY_STATE:
             gettimeofday(&now,NULL);
