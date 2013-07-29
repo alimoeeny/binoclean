@@ -47,7 +47,7 @@ Substim *NewRls(Stimulus *st, Substim *sst, Substim  *copy)
     if(pos->density != 0)
         sst->density = pos->density;
     else
-        sst->density = 20;
+        sst->density = 100;
     if(sst->baseseed <= 0 || sst->baseseed > 1000000)
         sst->seed = sst->baseseed = 1001;
     st->correlation = 1.0;
@@ -88,7 +88,7 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
 	if(density > 0)
         sst->density = sst->density = density;
 	else if(sst->density <= 0.0)
-        sst->density = sst->density = 20.0;
+        sst->density = sst->density = 100.0;
     /*
      * calculate actual number of dots from density
      * N.B. 25 * dotsiz * dotsiz = 100 * dotsiz/2 * dotsiz/2,

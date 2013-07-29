@@ -171,7 +171,7 @@ int init_rds(Stimulus *st,  Substim *sst, float density)
       sst->iimlen = ndots +2;
       if(sst->iim != NULL)
 	free(sst->iim);
-      sst->iim = (uint64_t *)malloc(sst->iimlen * sizeof(uint64_t));
+      sst->iim = (int *)malloc(sst->iimlen * sizeof(uint64_t));
     }
   if(ndots > sst->xpl || sst->xpos == NULL) /* need new memory */
     {
@@ -335,7 +335,7 @@ int calc_rds(Stimulus *st, Substim *sst)
   float cval,f,sy,cm,deg,iscale[2],val[2];
   float asq,bsq,csq,dsq,xsq,ysq,pixdisp[2],offset[2],eshift[0];
   float dpos[2],htest;
-  int *cend,yi,rnd,*pl;
+  int *cend,yi,rnd,*pl,*p;
   vcoord *x,*y,w,h,xmv[2],truex,truey,dx,dy;
   float *pdisp;
   int iw,ih,xdisp[2];
@@ -352,7 +352,7 @@ int calc_rds(Stimulus *st, Substim *sst)
   float *pf,wscale,hiscale,dw,laps,partlap,ftmp;
   int wrapped = 0,sumwrap = 0,nowrap = 1;
 //Ali did this 7/19/13
-    uint64_t q,rnds[10],myrnd_u(),*p;
+    uint64_t q,prnd, rnds[10],myrnd_u();
 
     int overlap = 1,k =0, checkoverlap = 0;
   int nwrap = 5,nac=0,npaint,flipac;
@@ -718,7 +718,7 @@ int calc_rds(Stimulus *st, Substim *sst)
 	srandom(sst->seed+200),seedcall++;
 	myseed(sst->seed+200);
       }
-      *p = myrnd_u();
+      prnd = myrnd_u();
       q = myrnd_u();
       if (nwrap > 15){
 	rnds[0] = myrnd_u();
@@ -728,7 +728,7 @@ int calc_rds(Stimulus *st, Substim *sst)
         
       // ver 4.38 and earier %wpixmull means some positions more freuent
       // see rev 1.19 and earlier
-      yi = (*p>>15) & 0xffff;
+      yi = (prnd>>15) & 0xffff;
         yi = q & 0xffff;
       *y = hiscale * yi + *pdisp -h/2;
         
@@ -749,7 +749,7 @@ int calc_rds(Stimulus *st, Substim *sst)
       sumwrap += wrapped;
       wrapped = wrapped % nwrap; //virtual RDs nwrapx wider than windoe
       if(nowrap == 0){
-	*x = wscale * (*p & 0xffff) + xshift[0];
+	*x = wscale * (prnd & 0xffff) + xshift[0];
 	wrapped = 0;
       }
       else{
@@ -758,15 +758,15 @@ int calc_rds(Stimulus *st, Substim *sst)
 	else if(wrapped > 4) // kludge for now should call rand again
 	  *x = wscale * ((q>>(wrapped%16)) & 0xffff) + xshift[0];
 	else if(wrapped == 4)
-	  *x = wscale * ((*p>>32) & 0xffff) + xshift[0];
+	  *x = wscale * ((prnd>>32) & 0xffff) + xshift[0];
 	else if(wrapped == 3)
-	  *x = wscale * ((*p>>24) & 0xffff) + xshift[0];
+	  *x = wscale * ((prnd>>24) & 0xffff) + xshift[0];
 	else if(wrapped == 2)
-	  *x = wscale * ((*p >> 16) & 0xffff) + xshift[0];
+	  *x = wscale * ((prnd >> 16) & 0xffff) + xshift[0];
 	else if(wrapped == 1)
-	  *x = wscale * ((*p>>8) & 0xffff) + xshift[0];
+	  *x = wscale * ((prnd>>8) & 0xffff) + xshift[0];
 	else
-	  *x = wscale * ((*p>>0) & 0xffff) + xshift[0];
+	  *x = wscale * ((prnd>>0) & 0xffff) + xshift[0];
       }
       if(*x > wpixmul)
 	*x -= wpixmul;
@@ -784,7 +784,7 @@ int calc_rds(Stimulus *st, Substim *sst)
 	    drnd = drand48();
 	    htest =  1 - 2 * fabsf(*y/h) * (sst->vscale-1);
 	    if (drnd >htest)
-	      *x = (float)(((*p>>8) + (int)(xshift[0]) + xdisp[0]) % (iw*pixmul))/pixmul - w/2;
+	      *x = (float)(((prnd>>8) + (int)(xshift[0]) + xdisp[0]) % (iw*pixmul))/pixmul - w/2;
 	  }
 	}
       }
@@ -1374,7 +1374,7 @@ void paint_rds(Stimulus *st, int mode)
 {
   int i;
   int *p,d,*end;
-  vcoord  w,h,*x,*y,fw,fh;
+  vcoord  w,h,*x,*y,fw,fh,r;
   short pt[2];
   float vcolor[4], bcolor[4];
   vcoord xmv;
@@ -1558,8 +1558,12 @@ void paint_rds(Stimulus *st, int mode)
                 mycolor(vcolor);      
             else if(*p & WHITEMODE)
                 mycolor(bcolor);
+            r = *x * *x + *y + *y;
             if(*p & mode)
                 rotrect(crect,*x,*y);
+            else
+                r = *x * *x + *y + *y;
+            
 	    }
         if(optionflag & TEST_BIT)
             rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);

@@ -174,7 +174,7 @@ float ResetFixWin();
 int SetDotDistribution(void);
 int SetDotPlanes(Stimulus *st, double tf, double depth_mod);
 char *ShowStimVals(Thisstim *stp);
-int SetFrameStim(int i, long lrnd, double inc, Thisstim *stp, int *nstim);
+int SetFrameStim(int i, unsigned long long lrnd, double inc, Thisstim *stp, int *nstim);
 int PrepareExptStim(int show, int caller);
 void ResetExpStim(int offset);
 int ExpStimOver(int retval, int lastchar);

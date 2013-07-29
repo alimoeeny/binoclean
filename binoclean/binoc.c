@@ -3224,7 +3224,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
             if(st->type == STIM_RDS || st->type == STIM_RLS){
                 tf = val * st->pos.sf;
-                st->incr = (val *M_PI *2)/(mon.framerate);
+//                st->incr = (val *M_PI *2)/(mon.framerate);
                 st->posinc = deg2pix(val)/mon.framerate;
                 if(rdspair(st))
                     st->next->posinc = st->posinc;
@@ -3399,7 +3399,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             pos->ss[0] = (int)ceilf(fval/pos->size[0]);
             if(pos->ss[0] <= 0)
                 pos->ss[0] = 1;
-            if(rlspair(st)){
+            if(rlspair(st) && !(optionflag & BACKGROUND_FIXED_BIT)){
                 SetStimulus(st->next, val, code, event);
             }
             if(st->type == STIM_IMAGE){
@@ -5715,13 +5715,21 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         }
 		if(optionflags[RANDOM_PHASE] && st->nphases > 0){
             /* make sure these phases come from this seed so can be reconstructed*/
-            if (expt.vals[FAST_SEQUENCE_RPT] <2 || st->framectr % (int)(expt.vals[FAST_SEQUENCE_RPT]) == 0){
+            if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
             myrnd_init(st->left->baseseed);
             SetRandomPhase(st, pos);
             }
+            else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
+                pos->phase += st->incr;
+                frameiseqp[expt.framesdone] = (int)(pos->phase * 180/M_PI)%360; //record actual PHASE2
+            }
 		}
-        else
-            pos->phase += st->incr;
+        else{
+            if (st->left->seedloop < 2)
+               pos->phase += st->incr;
+            else if (st->framectr % (int)st->left->seedloop == 0)
+                pos->phase += (st->incr * st->left->seedloop);
+        }
 		pos->locn[0] += st->posinc;
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
@@ -9274,7 +9282,7 @@ int ShowTrialCount(float down, float sum)
     strcat(mssg,buf);
 	if(TheStim->mode & EXPTPENDING)
     {
-	    sprintf(buf,"Ex: %d/%d",stimno,expt.nreps*expt.nstim[5]);
+	    sprintf(buf,"Ex: %d/%d",stimno,expt.nstim[6]);
 	    strcat(mssg,buf);
     }
     strcat(mssg,resbuf);
