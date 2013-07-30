@@ -102,7 +102,7 @@ while j <= length(varargin)
     elseif strncmpi(varargin{j},'quick',5)
         j = j+1;
         DATA = ReadStimFile(DATA, varargin{j});
-        AddTextToGui(DATA, ['qe=' varargin{j}]);
+        DATA = AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
         DATA.optionflags.afc;
         set(DATA.toplevel,'UserData',DATA);
@@ -275,7 +275,7 @@ for j = 1:length(strs{1})
             set(DATA.toplevel,'Name',s(8:end));
         end
         if strncmp(s,'status=Grid is',14)
-            AddTextToGui(DATA,s(8:end));
+            DATA = AddTextToGui(DATA,s(8:end));
         end
         fid = strfind(s,'Frames:');
         if ~isempty(fid) && ~isempty(DATA.Trials)
@@ -1162,7 +1162,8 @@ DATA = SetField(DATA,'perfmonitor',0);
 DATA = SetField(DATA,'togglecodesreceived',0);
 DATA = SetField(DATA,'autoreopen', 0);;
 
-
+DATA.commands = {};
+DATA.commandctr = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {'Not Set'};
@@ -1413,7 +1414,8 @@ function DATA = InitInterface(DATA)
     lst = uicontrol(gcf, 'Style','edit','String', '',...
         'HorizontalAlignment','left',...
         'Callback', {@TextEntered}, 'Tag','NextButton',...
-'units','norm', 'Position',[0.01 0.01 0.98 1./nr]);
+        'units','norm', 'Position',[0.01 0.01 0.98 1./nr],...
+        'KeyPressFcn',@TextKey);
     DATA.txtui = lst;
     
     bp = [0.01 1.01./nr 3.5./nc 6/nr];
@@ -1837,7 +1839,7 @@ function MenuHit(a,b, arg)
         prefix = regexprep(prefix,'DATE$','');
         system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
-        AddTextToGui(DATA,['Pipelog ' prefix]);
+        DATA = AddTextToGui(DATA,['Pipelog ' prefix]);
     elseif strcmp(arg,'setshake')
         fprintf(DATA.outid,'usershake\n');
         
@@ -2626,7 +2628,7 @@ function DATA = RunButton(a,b, type)
             else
                 DATA.rptexpts = 0;
                 fprintf(DATA.outid,'\\ecancel\n');
-                AddTextToGui(DATA,'Cancelled');
+                DATA = AddTextToGui(DATA,'Cancelled');
                 if DATA.nexpts > 0
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
@@ -2641,7 +2643,7 @@ function DATA = RunButton(a,b, type)
             DATA.Expts{DATA.nexpts}.End = now;
             ti = 1 + DATA.Trial.Trial-DATA.Expts{DATA.nexpts}.first;
             DATA.optionflags.do = 0;
-            AddTextToGui(DATA,['Stopped after ' num2str(ti) ' Trials']);
+            DATA = AddTextToGui(DATA,['Stopped after ' num2str(ti) ' Trials']);
             DATA.exptstoppedbyuser = 1;
         end
 %if expt is over, EXPTOVER should be received. - query state then
@@ -3147,7 +3149,7 @@ for j = line:length(str)
     if DATA.outid > 0
          fprintf(DATA.outid,'%s #RunSeq\n',str{j});
     end
-    LogCommand(DATA, str{j});
+    DATA = LogCommand(DATA, str{j});
 end
 
 function uipause(start, secs, msg)
@@ -3170,18 +3172,29 @@ function DATA = ContinueSequence(DATA)
   lst = findobj(cntrl_box,'Tag','SequenceList');
   DATA = RunExptSequence(DATA,get(lst,'string'),DATA.seqline+1);
 
-function LogCommand(DATA, str, varargin)
+function DATA = LogCommand(DATA, str, varargin)
     j = 1;
+    reccmd = 1;
     d = [' #' datestr(now,'HH:MM')];
     while  j <= length(varargin)
-        if strcmp(varargin{j},'notime')
+        if strcmp(varargin{j},'norec')
+            reccmd = 0;
+        elseif strcmp(varargin{j},'notime')
             d = '';
         end
         j = j+1;
     end
+
+    if reccmd
+    DATA.commands = {DATA.commands{:} str};
+    DATA.commandctr = length(DATA.commands);
+    end
     
     if DATA.cmdfid > 0
         fprintf(DATA.cmdfid,'%s%s\n',str,d);
+    end
+    if nargout == 0
+        set(DATA.toplevel,'UserData',DATA);
     end
 
 function SequencePopup(a,exptlines,type)
@@ -3925,7 +3938,28 @@ function OtherToggles(a,b,flag)
     end        
     
     
+function TextKey(src,ks)
+    DATA = GetDataFromFig(src);
+    if strcmp(ks.Key,'downarrow')
+        if DATA.commandctr < length(DATA.commands)
+            DATA.commandctr = DATA.commandctr+1;
+            set(src,'string',DATA.commands{DATA.commandctr})
+            set(DATA.toplevel,'UserData',DATA);
+        end
+    elseif strcmp(ks.Key,'uparrow')
+        if DATA.commandctr > 1
+            DATA.commandctr = DATA.commandctr-1;
+            set(src,'string',DATA.commands{DATA.commandctr})
+            set(DATA.toplevel,'UserData',DATA);
+        end
+    elseif strcmp(ks.Key,'tab')
+    end
+        
 function TextEntered(a,b)
+    
+    if get(gcf, 'currentcharacter') ~= 13 %return
+        return;
+    end
     DATA = GetDataFromFig(a);
 txt = get(a,'string');
 if isempty(txt)
@@ -3941,7 +3975,7 @@ end
 if DATA.outid > 0
     fprintf(DATA.outid,'%s\n',txt);
 end
-LogCommand(DATA, txt);
+DATA = LogCommand(DATA, txt);
 
 str = [];
 xstr = {};
@@ -3971,12 +4005,12 @@ DATA = ReadFromBinoc(DATA,'from TextEntered ');
 if txt(end) == '='
     code = txt(1:end-1);
     if sum(strcmp(code,{'uf' 'monkey'}))
-       AddTextToGui(DATA,['cwd=' DATA.cwd]);
+       DATA = AddTextToGui(DATA,['cwd=' DATA.cwd]);
     end
     if sum(strcmp(code,{'rw'})) %show total reward
         if isfield(DATA.Trials,'good') && isfield(DATA.Trials,'rw')
             rwsum = sum([DATA.Trials([DATA.Trials.good] ==1).rw]);
-            AddTextToGui(DATA,['totalreward=' sprintf('%.1f',rwsum)]);
+            DATA = AddTextToGui(DATA,['totalreward=' sprintf('%.1f',rwsum)]);
         end
     end
     if strcmp(code,'op')
@@ -4026,19 +4060,20 @@ for j = 1:length(xstr)
 end
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
+DATA = LogCommand(DATA, txt, 'norec');
 set(DATA.toplevel,'UserData',DATA);
-LogCommand(DATA, txt);
 SetGui(DATA);
 
 
-function AddTextToGui(DATA, txt)
+function DATA = AddTextToGui(DATA, txt)
 a =  get(DATA.txtrec,'string');
 n = size(a,1);
-LogCommand(DATA, txt);
+DATA = LogCommand(DATA, txt);
 txt  = [txt ' ' datestr(now,'HH:MM')];
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);
 set(DATA.txtrec,'listboxtop',n+1);
+
         
 
 function ClearTaggedChecks(it, tags)
