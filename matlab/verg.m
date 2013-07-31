@@ -101,7 +101,7 @@ while j <= length(varargin)
         return;
     elseif strncmpi(varargin{j},'quick',5)
         j = j+1;
-        DATA = ReadStimFile(DATA, varargin{j});
+        DATA = ReadStimFile(DATA, varargin{j},'quickmenu');
         AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
         DATA.optionflags.afc;
@@ -506,6 +506,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'uf=',3)
         DATA.datafile = s(4:end);
         DATA.binocstr.uf = DATA.datafile;
+        DATA.binoc{1}.uf = DATA.datafile;
     elseif strncmp(s,'op',2)
         f = fields(DATA.optionflags);
         if strncmp(s,'op=0',4) %everything else off
@@ -785,6 +786,8 @@ function DATA = ReadStimFile(DATA, name, varargin)
             inread = 1;
         elseif strncmpi(varargin{j},'init',4)
             setall = 1;
+        elseif strncmpi(varargin{j},'quickmenu',8)
+            src = varargin{j};
         end
         j = j+1;
     end
@@ -792,6 +795,10 @@ outprintf(DATA,'#qe%s\n',name);
 
 fid = fopen(name,'r');
 if fid > 0
+    if strcmp(src,'quickmenu') %undo some things whenever load new quick
+        DATA.matexpt = []; 
+    end
+        
             
     if DATA.outid > 0 && inread == 0
         fprintf(DATA.outid,'\neventpause\nnewexpt\n');
