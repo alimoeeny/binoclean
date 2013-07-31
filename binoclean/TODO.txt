@@ -74,4 +74,4 @@ Things that need fixing:
 *    Allow multiple bars per frame. B or W.
 * For manual expts make a useful statusline
 -if manual list of exp stims, verg doesn't send to binoc when reopen pipes
-added this line to office copy
+
