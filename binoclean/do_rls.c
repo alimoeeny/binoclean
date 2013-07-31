@@ -1030,7 +1030,7 @@ void paint_rls(Stimulus *st, int mode)
     vcoord  w,h,*x,*y,fw,fh,lasty;
     vcoord z[2];
     short pt[2];
-    float vcolor[4], bcolor[4],gcolor[4];
+    float vcolor[4], bcolor[4],gcolor[4],fcol;
     vcoord xmv;
     int dotmode = 0;
     Substim *sst = st->left;
@@ -1087,6 +1087,16 @@ void paint_rls(Stimulus *st, int mode)
         vcolor[1] = vcolor[2] = vcolor[0] = sst->lum[0];
         bcolor[1] = bcolor[2] = bcolor[0] = sst->lum[1];
     }
+    // swap colors if relative phase = pi
+    if (st->prev != NULL && st->prev->pos.dphase > M_PI_2){
+        for(i = 0; i < 3; i++)
+        {
+            fcol = bcolor[i];
+            bcolor[i] = vcolor[i];
+            vcolor[i] = fcol;
+        }
+    }
+        
     glRotatef(angle,0.0,0.0,1.0);
     
     mycolor(vcolor);

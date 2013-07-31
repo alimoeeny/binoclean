@@ -1798,7 +1798,11 @@ void calc_stimulus(Stimulus *st)
             if(rlspair(st)){
                 rdsnext =  st->next->left;
 // normally don't force rls background to have same seed
-                rdsnext->baseseed = rds->baseseed+200;
+// if relphase == PI, then make seed the same and reverse contrast
+                if (st->pos.dphase < 0.99 * M_PI)
+                    rdsnext->baseseed = rds->baseseed+200;
+                else
+                    rdsnext->baseseed = rds->baseseed;
             }
             if(st->prev == NULL){
                 ndots = (st->left->ndots > MAXFREQS) ? MAXFREQS : st->left->ndots;
