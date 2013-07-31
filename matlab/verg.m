@@ -780,6 +780,7 @@ function DATA = ReadStimFile(DATA, name, varargin)
    
     setall = 0;
     inread = 0;
+    src = 'unknown';
     j = 1;
     while j <= length(varargin)
         if strncmpi(varargin{j},'inread',4)
