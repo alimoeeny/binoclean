@@ -102,7 +102,7 @@ while j <= length(varargin)
     elseif strncmpi(varargin{j},'quick',5)
         j = j+1;
         DATA = ReadStimFile(DATA, varargin{j},'quickmenu');
-        AddTextToGui(DATA, ['qe=' varargin{j}]);
+        DATA = AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
         DATA.optionflags.afc;
         set(DATA.toplevel,'UserData',DATA);
