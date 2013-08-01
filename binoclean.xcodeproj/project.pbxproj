@@ -294,7 +294,6 @@
 		41DB130A14F7F06100418C95 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		41DD53021521ED51004D28A0 /* binoclean.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = binoclean.icns; sourceTree = "<group>"; };
 		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
-		C9127F6117A9894D00F15C20 /* liblabjackusb.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = liblabjackusb.dylib; sourceTree = "<group>"; };
 		C91697121695DF6000D740F7 /* Ping.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = Ping.aiff; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
