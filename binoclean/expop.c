@@ -1872,9 +1872,9 @@ char *ReadManualStim(char *file){
     
     manualprop[0] = -1;  //in case file error
     if(file == NULL)
-        return(0);
+        return(NULL);
     if(stat(file, &statbuf) == -1)
-        return(0);
+        return(NULL);
     fin = fopen(file,"r");
     sprintf(cbuf,"");
     for(i = 0; i < MAXFRAMES; i++)
@@ -8241,7 +8241,8 @@ int PrepareExptStim(int show, int caller)
         else
            afc_s.stimsign = code;
         
-        
+        if (s == NULL) //Error setting stimulus
+            return(-1);
         stimulus_is_prepared = 1;
         sprintf(cbuf,"exvals %.4f %.4f %.4f %d\n",expt.currentval[0],expt.currentval[1],expt.currentval[2],stimorder[stimno]);
         SerialString(cbuf,0);
@@ -8249,7 +8250,7 @@ int PrepareExptStim(int show, int caller)
         statusline(cbuf);
         statusline(s);
         glstatusline(s,1);
-        return(i);
+        return(1);
     }
     if(expt.type2 == OPPOSITE_DELAY){
         SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY]);
