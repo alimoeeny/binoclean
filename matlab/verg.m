@@ -1908,7 +1908,7 @@ function DATA = LoadLastSettings(DATA, varargin)
         if now - d.datenum < 0.5/24 %less than an half an hour old - read in settings
             go = 1;
             if interactive 
-                yn = questdlg(sprintf('Looks like you are re-starting Mid expt. Do you want to reload id/se from %s',d.filename));
+                yn = questdlg(sprintf('Looks like you are re-starting Mid expt. Do you want to reload id/se from %s',d.filename),'Binoc has been working','Yes','No','Yes');
                 if ~strcmp(yn,'Yes')
                     go = 0;
                 end
@@ -1916,7 +1916,7 @@ function DATA = LoadLastSettings(DATA, varargin)
         end
         if go
             txt = scanlines(d.name);
-            for s = {'id' 'se'}
+            for s = {'id' 'se' 'ed' 'Rx' 'Ry' 'Ro' 'Rw' 'Rh'}
             id = find(strncmp(s,txt,length(s{1})));
             if ~isempty(id)
                 cprintf('blue','Setting %s from %s\n',txt{id(1)},d.name);
@@ -2004,7 +2004,7 @@ function CheckForUpdate(DATA)
     
     
     if ~isempty(a) && ~isempty(b) && a.datenum > b.datenum
-        yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check');
+        yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check','Yes','No','Yes');
         if strcmp(yn,'Yes')
             try  %This will produce and error becuase verg.m is in use. But the copy succeeds
                 copyfile(src,tgt);

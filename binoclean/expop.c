@@ -14021,6 +14021,8 @@ int ButtonResponse(int button, int revise, vcoord *locn)
      * this count is divided by nreps at plotting time, so each
      * button press scores 100% here
      */
+    
+// button = 1 (L) or 3(R)
     sign = afc_s.stimsign;
     if (sign == 0)
         res = button;
@@ -14028,7 +14030,14 @@ int ButtonResponse(int button, int revise, vcoord *locn)
         res = 1;
     else
         res = 0;
-
+    if(button == 1){
+        afc_s.respdir = 'L';
+    }
+    else if(button == 3){
+        afc_s.respdir = 'R';
+    }
+    else
+        afc_s.respdir = '?';
     PrintPsychLine(res, sign); // now done in GotChar, so get rest of serial output
     if(expt.stimid >= 0){
         if(option2flag & IFC)

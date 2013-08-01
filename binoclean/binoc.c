@@ -9773,7 +9773,7 @@ int GotChar(char c)
                 
                 else
                     aid = 1;
-                if(afc_s.newdirs)
+                if(afc_s.newdirs || (optionflag & PSYCHOPHYSICS_BIT))
                     sign = afc_s.stimsign;
                 else
                     sign = (afc_s.sacval[aid] *  afc_s.abssac[aid])*afc_s.sign;
@@ -9783,9 +9783,9 @@ int GotChar(char c)
                     sign = 1;
                 else
                     sign = 0;
-                if (!(option2flag & PSYCHOPHYSICS_BIT))
-                    PrintPsychLine(presult, sign);
-                if(seroutfile != NULL) 
+
+                
+                if(seroutfile != NULL)
                 {
                     if(c == WURTZ_OK || c == WURTZ_OK_W){
                     }
@@ -9809,7 +9809,10 @@ int GotChar(char c)
                     else
                         fprintf(seroutfile,"R%c %s=%.5f",
                                 result, serial_strings[expt.mode],expt.currentval[0]);
-                    fprintf(seroutfile," sn=%d",sign);
+                    if (option2flag & PSYCHOPHYSICS_BIT)
+                        fprintf(seroutfile," sn=%d%c",sign,afc_s.respdir);
+                    else
+                        fprintf(seroutfile," sn=%d",sign);
                     buf[0] = '=';
                     buf[1] = 0;
                     if((i =MakeString(STIMULUS_FLAG, buf,&expt, TheStim, TO_FILE)) >= 0)

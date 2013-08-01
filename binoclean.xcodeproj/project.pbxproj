@@ -74,9 +74,9 @@
 		41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DB130A14F7F06100418C95 /* OpenGL.framework */; };
 		41DD53031521ED51004D28A0 /* binoclean.icns in Resources */ = {isa = PBXBuildFile; fileRef = 41DD53021521ED51004D28A0 /* binoclean.icns */; };
 		C90350CC150D279800DFD9D3 /* ali in Resources */ = {isa = PBXBuildFile; fileRef = C90350CB150D279800DFD9D3 /* ali */; };
-		C9127F6217A9894D00F15C20 /* liblabjackusb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C9127F6117A9894D00F15C20 /* liblabjackusb.dylib */; };
 		C91697131695DF6000D740F7 /* Ping.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C91697121695DF6000D740F7 /* Ping.aiff */; };
 		C9308B7E14F82EF50054C963 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = C9308B7D14F82EF50054C963 /* TODO.txt */; };
+		C937651517AABEDC00B0D590 /* liblabjackusb-2.5.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C937651417AABED800B0D590 /* liblabjackusb-2.5.1.dylib */; };
 		C969F8C9150D233B00D7A5A7 /* lempsy110 in Resources */ = {isa = PBXBuildFile; fileRef = C969F832150D233A00D7A5A7 /* lempsy110 */; };
 		C969F8CA150D233B00D7A5A7 /* bwlatest in Resources */ = {isa = PBXBuildFile; fileRef = C969F833150D233A00D7A5A7 /* bwlatest */; };
 		C969F8CB150D233B00D7A5A7 /* savetest in Resources */ = {isa = PBXBuildFile; fileRef = C969F834150D233A00D7A5A7 /* savetest */; };
@@ -167,7 +167,6 @@
 		C969F920150D233B00D7A5A7 /* rdsopos in Resources */ = {isa = PBXBuildFile; fileRef = C969F889150D233B00D7A5A7 /* rdsopos */; };
 		C969F921150D233B00D7A5A7 /* rdssine in Resources */ = {isa = PBXBuildFile; fileRef = C969F88A150D233B00D7A5A7 /* rdssine */; };
 		C9AA959E1773855F003E9841 /* binoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DEC13A174FE00C8B6BA /* binoc.c */; };
-		C9CFD79C17AA92AE00B0C6A3 /* liblabjackusb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C9CFD79B17AA92AE00B0C6A3 /* liblabjackusb.dylib */; };
 		C9E0BD621778F7BD003B1BEB /* stepper.c in Sources */ = {isa = PBXBuildFile; fileRef = 41BF8DF013A174FE00C8B6BA /* stepper.c */; };
 		C9FE34881799BFFC0088ED4C /* MTRandom64.m in Sources */ = {isa = PBXBuildFile; fileRef = C9FE34871799BFFC0088ED4C /* MTRandom64.m */; };
 /* End PBXBuildFile section */
@@ -296,6 +295,7 @@
 		C90350CB150D279800DFD9D3 /* ali */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ali; sourceTree = "<group>"; };
 		C91697121695DF6000D740F7 /* Ping.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = Ping.aiff; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
+		C937651417AABED800B0D590 /* liblabjackusb-2.5.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "liblabjackusb-2.5.1.dylib"; path = "../../../usr/local/lib/liblabjackusb-2.5.1.dylib"; sourceTree = "<group>"; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
 		C969F832150D233A00D7A5A7 /* lempsy110 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy110; sourceTree = "<group>"; };
 		C969F833150D233A00D7A5A7 /* bwlatest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwlatest; sourceTree = "<group>"; };
@@ -388,7 +388,6 @@
 		C969F88A150D233B00D7A5A7 /* rdssine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssine; sourceTree = "<group>"; };
 		C9AA959F177385D0003E9841 /* servostepper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = servostepper.c; sourceTree = "<group>"; };
 		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
-		C9CFD79B17AA92AE00B0C6A3 /* liblabjackusb.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = liblabjackusb.dylib; sourceTree = "<group>"; };
 		C9FE34861799BFFC0088ED4C /* MTRandom64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTRandom64.h; sourceTree = "<group>"; };
 		C9FE34871799BFFC0088ED4C /* MTRandom64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTRandom64.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -400,8 +399,8 @@
 			files = (
 				41DB130B14F7F06100418C95 /* OpenGL.framework in Frameworks */,
 				419DCE4613A145D1004E8464 /* Foundation.framework in Frameworks */,
-				C9CFD79C17AA92AE00B0C6A3 /* liblabjackusb.dylib in Frameworks */,
 				419DCE0913A133B3004E8464 /* Cocoa.framework in Frameworks */,
+				C937651517AABEDC00B0D590 /* liblabjackusb-2.5.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,6 +551,7 @@
 		419DCDF913A133B2004E8464 = {
 			isa = PBXGroup;
 			children = (
+				C937651417AABED800B0D590 /* liblabjackusb-2.5.1.dylib */,
 				C969F830150D233A00D7A5A7 /* stims */,
 				C94CF80313C8B69E00985271 /* filetypes.c */,
 				C9308B7D14F82EF50054C963 /* TODO.txt */,
@@ -574,7 +574,6 @@
 		419DCE0713A133B3004E8464 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				C9CFD79B17AA92AE00B0C6A3 /* liblabjackusb.dylib */,
 				41DB130A14F7F06100418C95 /* OpenGL.framework */,
 				419DCE0813A133B3004E8464 /* Cocoa.framework */,
 				419DCE2613A133B3004E8464 /* SenTestingKit.framework */,
@@ -1129,6 +1128,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				ONLY_ACTIVE_ARCH = YES;
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-L/usr/local/lib",
+					"-llabjackusb",
+					"-lusb-1.0",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -1153,6 +1157,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
 					"-llabjackusb",
 					"-lusb-1.0",
 				);
