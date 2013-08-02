@@ -2501,6 +2501,11 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             if(!duplicate)
                 nhelpfiles++;
             break;
+        case MONITOR_FILE:
+            sscanf(s,"%s",buf);
+            expt.strings[MONITOR_FILE] = myscopy(expt.strings[MONITOR_FILE],buf);
+            ReadMonitorSetup(buf);
+            break;
         case PENETRATION_TEXT:
             expt.pnum = myscopy(expt.pnum,s);
             nonewline(expt.pnum);
@@ -13090,13 +13095,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             j++;
         }
     }
-//    else if(!strncmp(line,"monitor",5) && (s = strchr(line,'=')) != 0)
-//    {
-//        sscanf(++s,"%s",buf);
-//        commstrings[MONITOR_FILE].value = myscopy(commstrings[MONITOR_FILE].value,buf);
-//        ReadMonitorSetup(buf);
-//        return(-1);
-//    }
     else if(!strncmp(line,"clearquick",7)){
         nquickexpts = 0;
         for(i = 0; i < MAXQUICK_SUB; i++)
@@ -13740,6 +13738,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case MONKEYNAME:
         case COMMAND_FILE:
         case PSYCHFILE:
+        case MONITOR_FILE:
             SetExptString(ex, TheStim, code, s);
             if (valstrings[icode].codesend != SEND_NEVER)
                 SerialSend(code);

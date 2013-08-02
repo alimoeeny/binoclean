@@ -1842,7 +1842,7 @@ function MenuHit(a,b, arg)
     elseif strcmp(arg,'freereward')
         fprintf(DATA.outid,'freerwd\n');
     elseif strcmp(arg,'pipelog')       
-        [a, prefix] = fileparts(DATA.binocstr.psychfile);
+        [a, prefix] = fileparts(DATA.binoc{1}.psychfile);
         prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');
         prefix = regexprep(prefix,'DATE$','');
         system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
@@ -2264,8 +2264,13 @@ function MenuGui(a,b)
              ReadFromBinoc(DATA);
          case 'st'
              DATA.stimtype(1) = strmatch(str,DATA.stimulusnames);
+             set(DATA.toplevel,'UserData',DATA);
          case 'bs'
              DATA.stimtype(2) = strmatch(str,DATA.stimulusnames);
+             set(DATA.toplevel,'UserData',DATA);
+         case 'uf'
+             DATA = InterpretLine(DATA, ['uf=' str],'fromgui');
+             set(DATA.toplevel,'UserData',DATA);
          otherwise
              DATA.binoc{DATA.currentstim}.(type) = str2num(str);
              fprintf(DATA.outid,'%s=%s\n',type,str);
@@ -2381,7 +2386,7 @@ end
     SetTextItem(DATA.toplevel,'Expt1Mean',DATA.mean(1));
     SetTextItem(DATA.toplevel,'Expt2Mean',DATA.mean(2));
     SetTextItem(DATA.toplevel,'Expt3Mean',DATA.mean(3));
-    SetTextItem(DATA.toplevel,'DataFileName',DATA.datafile);
+    SetTextItem(DATA.toplevel,'DataFileName',DATA.binoc{1}.uf);
     SetTextItem(DATA.toplevel,'binoc.nr',DATA.binoc{1}.nr);
     SetTextItem(DATA.toplevel,'RptExpts',DATA.rptexpts);
     id = strmatch(DATA.exptype{1},DATA.expmenucodes{1},'exact');
