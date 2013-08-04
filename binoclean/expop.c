@@ -984,7 +984,7 @@ void write_expvals(FILE *ofd, int flag)
 {
     int i;
     
-    if(mode & CUSTOM_EXPVAL)
+    if(optionflags[CUSTOM_EXPVAL])
         for(i = 0; i < expt.nstim[0]; i++)
             fprintf(ofd,"E%d=%.3f\n",i,expval[i]);
     if(optionflags[CUSTOM_EXPVALB])
@@ -1019,8 +1019,8 @@ write_helpfiles(FILE *ofd)
 int ResetCustomVals(int imode)
 {
     int i=0;
-    if(imode & CUSTOM_EXPVAL){
-        mode |= CUSTOM_EXPVAL;
+    if(optionflags[CUSTOM_EXPVAL]){
+        optionflags[CUSTOM_EXPVAL] = 1;
         for(i = 0; i < expt.nstim[0]; i++)
             expval[i] = expt.customvals[i];
     }
@@ -2077,19 +2077,26 @@ void ListQuickExpts()
 void ListExpStims(int w)
 {
     int i;
-    char buf[256],cbuf[256];
+    char buf[256],cbuf[256],c;
 
     if(!(mode & RUNNING) || freeToGo == 0)
         return;
 
-    notify("ECLEAR\n");
+    if (optionflags[CUSTOM_EXPVAL])
+        notify("ECLEAR*\n");
+    else
+        notify("ECLEAR\n");
+    
     for(i = 0; i < (expt.nstim[0]+expt.nstim[2]); i++)
     {
         MakePlotLabel(&expt, cbuf, i, 0);
-        sprintf(buf, "E%d=%s\n",i,cbuf);
+        sprintf(buf, "E%d=%s\n",i-expt.nstim[2],cbuf);
         notify(buf);
     }
     
+    if (optionflags[CUSTOM_EXPVALB])
+    notify("EBCLEAR*\n");
+    else
     notify("EBCLEAR\n");
     for(i = expt.nstim[0]+expt.nstim[2]; i < (expt.nstim[0]+expt.nstim[2]+expt.nstim[1]) ; i++)
     {
@@ -2098,7 +2105,11 @@ void ListExpStims(int w)
         notify(buf);
         
     }
-    notify("ECCLEAR\n");
+
+    if (optionflags[CUSTOM_EXPVALC])
+        notify("ECCLEAR*\n");
+    else
+        notify("ECCLEAR\n");
     for(i = 0; i < expt.nstim[4]; i++){
         sprintf(buf,"EC%d=%.2f\n",i,expt.exp3vals[i]);
         notify(buf);
@@ -3114,7 +3125,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
                 new = 0;
             if(flag == NTRIALS_CODE){
                 exp->nstim[0] = (int)val;
-                mode &= (~CUSTOM_EXPVAL);
+                optionflags[CUSTOM_EXPVAL] = 0;
             }
             if(flag == EXPT3_NSTIM){
                 if((int)val != exp->nstim[4])
@@ -5899,8 +5910,6 @@ void setstimuli(int flag)
     
     expt.nstim[5] = expt.nstim[3] * expt.nstim[4];
 
-    if(seroutfile) fprintf(seroutfile,"#SS Plot n set to %d\n",expt.nstim[3]);
-    
     ShowTrialsNeeded();
     for(i = 0; i < expt.nstim[2]; i++)
         expval[i] = expt.mean;
@@ -13283,7 +13292,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     // string with no value means report back current value
     
     if(strlen(s) == 0 && code < MAXTOTALCODES){
-        MakeString(code,buf,&expt, expt.st, TO_GUI);
+        MakeString(code,buf,&expt, TheStim, TO_GUI);
         notify(buf);
         return(code);
     }
@@ -13304,7 +13313,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             if((val = readval(s,TheStim)) > NOTSET){
                 expval[i+expt.nstim[2]] = val;
                 expt.customvals[i] = val;
-                mode |= CUSTOM_EXPVAL;
+                optionflags[CUSTOM_EXPVAL] = 1;
             }
         }
         if (frompc < 2)

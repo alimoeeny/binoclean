@@ -840,7 +840,7 @@ char *bwtoggle_codes[] = {
  */
 #define VERGONLY 4096
 #define INTERNALCOMMAND 1024
-#define INDIRECT_PROPERTIES 512
+#define INDIRECT 512
 #define RF_PROPERTIES 256
 
 ValueCode valstrings[] = {
@@ -852,6 +852,7 @@ ValueCode valstrings[] = {
   {"sy",     "Sigma Y",  SD_Y, 1, 'N' ,2, SEND_EXPLICIT},
   {"dp",     "Diparate phase", DISP_P, 3, 'N' ,5, SEND_EXPT},
   {"dx",     "Disparity ", DISP_X, 3, 'N' ,5, SEND_EXPT},
+  {"sz",     "Size (H and W)",STIM_SIZE, 1+INDIRECT , 'N' ,2, SEND_EXPLICIT},
   {"wi",     "Width ", STIM_WIDTH, 1, 'N' ,4, SEND_EXPT},
   {"hi",     "Height ", STIM_HEIGHT, 1, 'N' ,4, SEND_EXPT},
   {"sf",     "Spatial Frequency", SF,  1, 'N' ,4, SEND_EXPT},
@@ -965,14 +966,14 @@ ValueCode valstrings[] = {
   {"e0",     "EXPTYPE_NONE",EXPTYPE_NONE, 16 , 'N' ,0, SEND_EXPLICIT},
   {"n2",     "Expt 2 Nstims",EXPT2_NSTIM, 16 , 'N' ,0, SEND_EXPT},
   {"i2",     "Expt 2 increment",EXPT2_INCR, 16 , 'N' ,5, SEND_EXPT},
-  {"ac",     "ANTICORRELATED_DISPARITY",ANTICORRELATED_DISPARITY, 3 , 'N' ,4, SEND_EXPLICIT},
-  {"cd",     "CORRELATED_DISPARITY",CORRELATED_DISPARITY, 3 , 'N' ,4, SEND_EXPLICIT},
+  {"ac",     "ANTICORRELATED_DISPARITY",ANTICORRELATED_DISPARITY, 3+INDIRECT , 'N' ,4, SEND_EXPLICIT},
+  {"cd",     "CORRELATED_DISPARITY",CORRELATED_DISPARITY, 3+INDIRECT, 'N' ,4, SEND_EXPLICIT},
   {"Dm",     "Distribution Mean",DISTRIBUTION_MEAN, 3 , 'N' ,2, SEND_EXPLICIT},
   {"np",     "NPLANES",NPLANES , 3 , 'N' ,2, SEND_EXPLICIT},
   {"me",     "MONOCULARITY_EXPT",MONOCULARITY_EXPT, 128 , 'N' ,0, SEND_STIMULUS},
   {"cv",     "VERGENCE_CORRECTION",VERGENCE_CORRECTION, 8 , 'N' ,2, SEND_EXPLICIT},
   {"fh",     "FIXATION_SURROUND",FIXATION_SURROUND, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"bh",     "Back Size",BACK_SIZE, 64 , 'N' ,2, SEND_EXPT},
+  {"bh",     "Back Size",BACK_SIZE, 64+INDIRECT , 'N' ,2, SEND_EXPT},
   {"fd",     "Fixation Overlap duration",FIXATION_OVERLAP, 8 , 'N' ,2, SEND_EXPLICIT},
   {"fr",     "P(reward)",PREWARD, 8 , 'N' ,2, SEND_EXPLICIT},
   {"aq",     "Acquision ON/OFF",ACQUISITION_CODE, 128 , 'N' ,2, SEND_EXPLICIT},
@@ -980,8 +981,7 @@ ValueCode valstrings[] = {
   {"oL",     "ORI_LEFT",ORI_LEFT, 512+5 , 'N' ,2, SEND_EXPLICIT},
   {"oR",     "ORI_RIGHT",ORI_RIGHT, 512+5 , 'N' ,2, SEND_EXPLICIT},
   {"ve",     "Version",VERSION_CODE, 32 , 'C' ,2, SEND_EXPT},
-  {"sz",     "Size (H and W)",STIM_SIZE, 1 , 'N' ,2, SEND_EXPLICIT},
-  {"cb",     "Backround Correlation",BACK_CORRELATION, 64 , 'N' ,2, SEND_EXPT},
+  {"cb",     "Backround Correlation",BACK_CORRELATION, 64+INDIRECT , 'N' ,2, SEND_EXPT},
   {"sd",     "Seed Delay",SEED_DELAY, 5 , 'N' ,0, SEND_EXPLICIT},
   {"xx",     "Trigger 1",TRIGGER_LEVEL1, 0 , 'N' ,2, SEND_EXPLICIT},
   {"xx",     "Trigger 2",TRIGGER_LEVEL2, 0 , 'N' ,2, SEND_EXPLICIT},

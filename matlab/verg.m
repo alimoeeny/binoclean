@@ -46,8 +46,8 @@ if isempty(it)
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
         tt = TimeMark(tt, 'Read');
         DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
-        if exist(DATA.binocstr.lo,'file')
-            DATA = ReadLogFile(DATA, DATA.binocstr.lo);
+        if exist(DATA.binoc{1}.lo,'file')
+            DATA = ReadLogFile(DATA, DATA.binoc{1}.lo);
         end
         if checkforrestart
             DATA = LoadLastSettings(DATA,'interactive');
@@ -76,7 +76,7 @@ if isempty(it)
     DATA = SetExptMenus(DATA);
     SetGui(DATA);
     tt = TimeMark(tt, 'Reset Interface');
-    cmdfile = ['/local/' DATA.binocstr.monkey '/binoccmdhistory'];
+    cmdfile = ['/local/' DATA.binoc{1}.monkey '/binoccmdhistory'];
     DATA.cmdfid = fopen(cmdfile,'a');
     fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
@@ -372,7 +372,9 @@ for j = 1:length(strs{1})
         if length(id) > 1
             DATA.Trial.id = sscanf(s(id(2)+1:end),'%d');
         end
-        fprintf('t%dR%d\n',DATA.nt,DATA.Trial.RespDir);
+        if DATA.verbose
+            fprintf('t%dR%d\n',DATA.nt,DATA.Trial.RespDir);
+        end
         if isfield(DATA.Trial,'RespDir')
             DATA = PlotPsych(DATA);
         end
@@ -561,6 +563,7 @@ for j = 1:length(strs{1})
         if length(id) == 1
         DATA.stimtype(DATA.currentstim) = id;
         DATA.binocstr.st = deblank(s(4:end));
+        DATA.binoc{1}.st = deblank(s(4:end));
         end
     elseif sum(strcmp(code,{DATA.strcodes.code}))
         id = strfind(s,'=');
@@ -630,10 +633,16 @@ for j = 1:length(strs{1})
     elseif s(1) == 'E'  %don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
+            DATA.nextras(2) = 0;
+            DATA = CheckCustomStim(DATA,s,2);
         elseif strncmp(s,'ECCLEAR',5)
             DATA.exptstimlist{3} = {};
+            DATA.nextras(3) = 0;
+            DATA = CheckCustomStim(DATA,s,3);
         elseif strncmp(s,'ECLEAR',5)
             DATA.exptstimlist{1} = {};
+            DATA.nextras(1) = 0;
+            DATA = CheckCustomStim(DATA,s,1);
         elseif s(2) == 'C'
             n = sscanf(s(3:end),'%d');
             id = findstr(s,'=');
@@ -662,9 +671,12 @@ for j = 1:length(strs{1})
             end
         else
             n = sscanf(s(2:end),'%d');
+            if n < 0 && isempty(DATA.exptstimlist{1})
+                DATA.nextras(1) = abs(n(1));
+            end
             id = findstr(s,'=');
             if length(n)
-                DATA.exptstimlist{1}{n(1)+1} = s(id(1)+1:end);
+                DATA.exptstimlist{1}{n(1)+1+DATA.nextras(1)} = s(id(1)+1:end);
                 if isfield(DATA,'toplevel') && setlist
                     it = findobj(DATA.toplevel,'Tag','Expt1StimList');
                     if length(it) == 1
@@ -688,6 +700,24 @@ for j = 1:length(strs{1})
         end
     end
 end
+
+function DATA = CheckCustomStim(DATA, s, n)
+    if s(end) == '*'
+        DATA.customstimlist(n) = 1;
+    else
+        DATA.customstimlist(n) = 0;
+    end
+    
+function s = AddCustomStim(DATA, s, n)
+    
+    pre = {'E' 'EB' 'EC'};
+    o = 1+DATA.nextras(n);
+    if DATA.customstimlist(n)
+        for j = o:length(DATA.exptstimlist{n})
+            s = [s sprintf('%s%d=%s\n',pre{n},j-o,DATA.exptstimlist{n}{j})];
+        end
+    end
+    
 
 function [code, codeid] = FindCode(DATA, s)
     code = '';
@@ -725,8 +755,8 @@ function DATA = ReadExptLines(DATA, strs, src)
             myprintf(DATA.frombinocfid,'%s file %s\n',datestr(now),tline);
         end
   %if filename set before monkey, set monkeyname first
-        if strncmp(tline,'uf=',3) && strcmp(DATA.binocstr.monkey,'none')
-            DATA.binocstr.monkey = GetMonkeyName(DATA.datafile);
+        if strncmp(tline,'uf=',3) && strcmp(DATA.binoc{1}.monkey,'none')
+            DATA.binoc{1}.monkey = GetMonkeyName(DATA.datafile);
             SendCode(DATA,'monkey');
         end
         if DATA.over
@@ -1112,6 +1142,7 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
+DATA.completions = {};
 DATA.netmatdir='/bgc/bgc/c/binoclean/matlab';
 DATA.localmatdir='/local/matlab';
 DATA.pausetime = 0;
@@ -1141,6 +1172,7 @@ DATA.psych.crosshairs = 1;
 DATA.psych.blockid = [];
 DATA.overcmds = {};
 DATA.exptstimlist = { {} {} {} };
+DATA.customstimlist = [0 0 ];
 DATA.stimtypenames = {'fore' 'back' 'ChoiceU' 'ChoiceD'};
 DATA.Statuslines = {};
 DATA.statusitem = -1;
@@ -1178,8 +1210,8 @@ DATA.electrodestrings = {'Not Set'};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
 DATA.electrodestring = 'default';
-DATA.binocstr.monkey = 'none';
-DATA.binocstr.lo = '';
+DATA.binoc{1}.monkey = 'none';
+DATA.binoc{1}.lo = '';
 DATA.penid = 0;
 DATA.stimulusnames{1} = 'none';
 DATA.stimulusnames{4} = 'grating';
@@ -1235,17 +1267,22 @@ DATA.tag.monkeylog = 'Monkey Log';
 DATA.tag.codes = 'Codelist';
 DATA.tag.psych = 'VergPsych';
 DATA.tag.status = 'StatusWindow';
-DATA.comcodes(1).label = 'Xoffset';
-DATA.comcodes(1).code = 'xo';
+%make sure the size field is defined, then it comes before wi,hi
+DATA.comcodes(1).label = 'Size';
+DATA.comcodes(1).code = 'sz';
 DATA.comcodes(1).const = 1;
 DATA.comcodes(1).type = 'num';
 DATA.comcodes(1).group = 1;
-DATA.strcodes(1).label = 'Monitor file';
-DATA.strcodes(1).code = 'monitor';
+DATA.strcodes(1).label = 'Old Monitor file';
+DATA.strcodes(1).code = 'oldmonitor';
 DATA.strcodes(1).icode = 0; 
+
 %Need to initialize values that verg might try to use 
 %before reading values from binoclean
+%Also define fields here that need to be send early in stream
+% like sz - send before wi/hi so that is doen not override
 DATA.binoc{1}.xo = 0;
+DATA.binoc{1}.sz = 0;
 DATA.binoc{2}.xo = 0;
 DATA.binoc{1}.ePr = 0;
 DATA.binoc{1}.adapter = 'None';
@@ -1431,6 +1468,7 @@ function DATA = InitInterface(DATA)
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
         'Tag','CommandHistory',...
+        'callback',@TextList,...
 'units','norm', 'Position',bp);
    DATA.txtrec = lst;
    
@@ -1805,7 +1843,7 @@ function ShowHelp(a,b,file)
 
 function AddQuickMenu(a,b)
     DATA = GetDataFromFig(a);
-    [name, path] = uigetfile(['/local/' DATA.binocstr.monkey '/stims/*.*']);
+    [name, path] = uigetfile(['/local/' DATA.binoc{1}.monkey '/stims/*.*']);
     j = length(DATA.quickexpts)+1;
     DATA.quickexpts(j).name = name;
     DATA.quickexpts(j).filename = [path '/' name];
@@ -1845,7 +1883,7 @@ function MenuHit(a,b, arg)
         [a, prefix] = fileparts(DATA.binoc{1}.psychfile);
         prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');
         prefix = regexprep(prefix,'DATE$','');
-        system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
+        system(['/bgc/bgc/perl/pipelog ' DATA.binoc{1}.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
         DATA = AddTextToGui(DATA,['Pipelog ' prefix]);
     elseif strcmp(arg,'setshake')
@@ -1900,7 +1938,7 @@ function DATA = LoadLastSettings(DATA, varargin)
         j = j+1;
     end
     
-        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
+        rfile = ['/local/' DATA.binoc{1}.monkey '/lean*.stm'];
         d = mydir(rfile);
         [a,id] = max([d.datenum]);
         d = d(id);
@@ -1929,7 +1967,7 @@ function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);
 %        fprintf('Recover called with %s\n',type);
     if strmatch(type,{'list'});
-        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
+        rfile = ['/local/' DATA.binoc{1}.monkey '/lean*.stm'];
         d = dir(rfile);
 
         if strcmp(type,'list')
@@ -1947,8 +1985,8 @@ function RecoverFile(a, b, type)
             uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(5:end)});
         end
     elseif strmatch(type,{'eo.stm' 'eb.stm' '0.stm' '1.stm' '2.stm' '3.stm' '4.stm' '5.stm'})
-        rfile = ['/local/' DATA.binocstr.monkey '/lean' type];
-        dfile = ['/local/' DATA.binocstr.monkey '/lean.today'];
+        rfile = ['/local/' DATA.binoc{1}.monkey '/lean' type];
+        dfile = ['/local/' DATA.binoc{1}.monkey '/lean.today'];
         copyfile(rfile,dfile);
         ReadStimFile(DATA, dfile);
     elseif strcmp(type,'loadlast')
@@ -1960,7 +1998,7 @@ function RecoverFile(a, b, type)
     
 function ReadSlot(a,b,id)
     DATA = GetDataFromFig(a);
-    quickname = sprintf('/local/%s/q%dexp.stm', DATA.binocstr.monkey,id);
+    quickname = sprintf('/local/%s/q%dexp.stm', DATA.binoc{1}.monkey,id);
     DATA = ReadStimFile(DATA, quickname);
     set(DATA.toplevel,'UserData',DATA);
     
@@ -2019,7 +2057,7 @@ function SaveFile(a,b,type)
 
     DATA = GetDataFromFig(a);
     if ~isfield(DATA,'stimfilename')
-        DATA.stimfilename = ['/local/' DATA.binocstr.monkey '/stims/auto.stm'];
+        DATA.stimfilename = ['/local/' DATA.binoc{1}.monkey '/stims/auto.stm'];
     end
     if strcmp(type,'current')
         filename = DATA.stimfilename;
@@ -2078,17 +2116,20 @@ function SendManualVals(a, b)
     str = get(a,'string');
     if strcmp(tag,'Expt2StimList')
         c = 'EB';
+        o = 1+DATA.nextras(2);
     elseif strcmp(tag,'Expt3StimList')
         c = 'EC';
+        o = 1+DATA.nextras(3);
     else
+        o = 1+DATA.nextras(1);
         if size(str,2) > DATA.nt
             yn = questdlg('Nstim mismatch','That will Change N stims','OK','Cancel','OK');
         end
         c = 'E';
     end
 
-    for j = 1:length(str)
-            fprintf(DATA.outid,'%s%d=%s\n',c,j-1,str{j});
+    for j = o:length(str)
+            fprintf(DATA.outid,'%s%d=%s\n',c,j-o,str{j});
     end
     fprintf(DATA.outid,'EDONE\n');
      
@@ -3330,7 +3371,7 @@ function MonkeyLogPopup(a,b, type, channel)
   
 
   if DATA.Coil.gain(1) == 0 %not read yet
-      DATA = ReadLogFile(DATA, DATA.binocstr.lo);
+      DATA = ReadLogFile(DATA, DATA.binoc{1}.lo);
   end
   
   if ~strcmp(type,'popup')
@@ -3359,7 +3400,7 @@ function MonkeyLogPopup(a,b, type, channel)
   elseif strncmp(type,'soft',4)
       DATA.Coil.so(channel) = value;
   elseif strmatch(type,'savelog')
-      fid = fopen(DATA.binocstr.lo,'a');
+      fid = fopen(DATA.binoc{1}.lo,'a');
       if fid > 0
       fprintf(fid,'Saved: %s\n',datestr(now));
       fprintf(fid,'so%s\n',sprintf(' %.2f',DATA.Coil.so));
@@ -3370,7 +3411,7 @@ function MonkeyLogPopup(a,b, type, channel)
           fprintf(fid,'we%.2f %.2f\n',DATA.binoc{1}.we,DATA.Coil.CriticalWeight);
       end
       fclose(fid);
-      fprintf('Saved to %s\n',DATA.binocstr.lo);
+      fprintf('Saved to %s\n',DATA.binoc{1}.lo);
       end
   end
   set(DATA.toplevel,'UserData',DATA);
@@ -3765,7 +3806,7 @@ function OpenPenLog(a,b, varargin)
             fprintf(DATA.outid,'!openpen');
         end
     elseif strcmp(btn,'PlotPen')
-        name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.Pn);
+        name = sprintf('/local/%s/pen%d.log',DATA.binoc{1}.monkey,DATA.binoc{1}.Pn);
         GetFigure('Pen');
         hold off;
         PlotOnePen(name,'allcomments');
@@ -3775,7 +3816,7 @@ function OpenPenLog(a,b, varargin)
     if DATA.penid > 0
         fclose(DATA.penid);
     end
-    name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.pe);
+    name = sprintf('/local/%s/pen%d.log',DATA.binoc{1}.monkey,DATA.binoc{1}.pe);
     DATA.penid = fopen(name,'a');
     fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc{1}.pe,DATA.binoc{1}.px,DATA.binoc{1}.py,datestr(now));
     fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);
@@ -3887,7 +3928,8 @@ if strcmp(code,'optionflag')
     elseif strcmp(code,'expts')
         s = sprintf('et=%s\nei=%sf\nem=%.6f\nnt=%d\n',DATA.exptype{1},DATA.binoc{1}.ei,DATA.mean(1),DATA.nstim(1));
         s = [s sprintf('e2=%s\ni2=%s\nm2=%6f\nn2=%d\n',DATA.exptype{2},DATA.binoc{1}.i2,DATA.mean(2),DATA.nstim(2))];
-        s = [s sprintf('e3=%s\ni3=%s\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.binoc{1}.i3,DATA.mean(3),DATA.nstim(3))];
+        s = [s sprintf('e3=%s\ni3=%s\nm3=%.6f\nn3=%d\n',DATA.exptype{3},DATA.binoc{1}.i3,DATA.mean(3),DATA.nstim(3))];
+        s = AddCustomStim(DATA,s,1);
     elseif strcmp(code,'st')
         s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
     elseif strcmp(code,'pf')
@@ -3954,27 +3996,118 @@ function OtherToggles(a,b,flag)
 function TextKey(src,ks)
     DATA = GetDataFromFig(src);
     if strcmp(ks.Key,'downarrow')
-        if DATA.commandctr < length(DATA.commands)
+        if ~isempty(DATA.completions)
+            x = get(DATA.txtrec,'value');
+            if x <= length(DATA.completions)
+                set(DATA.txtrec,'value',x+1);
+                set(src,'string',[DATA.completions{x} '=']);
+            end
+        elseif DATA.commandctr < length(DATA.commands)
             DATA.commandctr = DATA.commandctr+1;
             set(src,'string',DATA.commands{DATA.commandctr})
             set(DATA.toplevel,'UserData',DATA);
         end
+    elseif strcmp(ks.Key,'downarrow')
     elseif strcmp(ks.Key,'uparrow')
-        if DATA.commandctr > 1
+        if ~isempty(DATA.completions)
+            x = get(DATA.txtrec,'value');
+            if x > 3
+                set(DATA.txtrec,'value',x-1);
+                set(src,'string',[DATA.completions{x-2} '=']);
+            end
+        elseif DATA.commandctr > 1
             DATA.commandctr = DATA.commandctr-1;
             set(src,'string',DATA.commands{DATA.commandctr})
             set(DATA.toplevel,'UserData',DATA);
         end
+    elseif strcmp(ks.Key,'space')
+        a = deblank(get(src,'string'))
+        if isempty(strfind(a,'='))  %complete codes
+            DATA = ShowCompletions(DATA,a);
+        end
     elseif strcmp(ks.Key,'tab')
+    elseif strcmp(ks.Key,'control')
+        setappdata(DATA.toplevel,'cntrl_is_down',1);
+    else
+        str = get(src,'string')
+%        if str(end) ~= ' ' && ~isempty(DATA.completions)
+%            ResetTextLst(DATA);
+%        end
     end
-        
+    if strcmp(ks.Modifier,'control')
+        setappdata(DATA.toplevel,'cntrl_is_down',1);
+    else
+        setappdata(DATA.toplevel,'cntrl_is_down',0);
+    end
+    
+function DATA = ShowCompletions(DATA, a)
+        id = find(strncmp(a,{DATA.comcodes.code},length(a)));
+        fprintf('Completing %s\n',a);
+        str{1} = sprintf('%d Possible Completions for %s  (Return or Click here to cancel)',length(id),a);
+        for j = 1:length(id)
+            str{j+1} = [DATA.comcodes(id(j)).code '   (' DATA.comcodes(id(j)).label ')' ];
+        end
+% if completions not empty, there is already a set of completions up
+% so don't change the recorded text
+        if isempty(DATA.completions) %
+            DATA.oldtxt = get(DATA.txtrec,'string');
+        end
+        DATA.completions = {DATA.comcodes(id).code};
+        set(DATA.txtrec,'string',str);
+        if ~isempty(id)
+            set(DATA.txtrec,'value',2);
+        end
+        set(DATA.toplevel,'UserData',DATA);
+
+function DATA = ResetTextLst(DATA)       
+    DATA.completions = {};
+    set(DATA.txtrec,'string',DATA.oldtxt);
+    if nargout == 0
+        set(DATA.toplevel,'UserData',DATA);
+    end
+    
+function TextList(a,b)
+    DATA = GetDataFromFig(a);
+    line = get(a,'value');
+    s = get(a,'string');
+    if length(DATA.completions) >= line-1 && line > 1
+        set(DATA.txtui,'string',[DATA.completions{line-1} '=']);
+    elseif line ==1
+        ResetTextLst(DATA);
+    else
+        str = s(line,:);
+        id = strfind(str,'(');
+        if ~isempty(id)
+            str = deblank(str(1:id(1)-1));
+        end
+        id = strfind(str,'?');
+        if ~isempty(id)
+            str = deblank(str(2:id(2)-1));
+        end
+        set(DATA.txtui,'string',str);        
+    end
+    
 function TextEntered(a,b)
     
+    txt = get(a,'string');
     if get(gcf, 'currentcharacter') ~= 13 %return
         return;
     end
+    
     DATA = GetDataFromFig(a);
-txt = get(a,'string');
+    txt = get(a,'string');
+    cntrl_is_down = getappdata(DATA.toplevel,'cntrl_is_down');
+    if cntrl_is_down
+        DATA = ShowCompletions(DATA,txt);
+        return;
+    elseif ~isempty(DATA.completions)
+        DATA = ResetTextLst(DATA);
+        if isempty(strfind(txt,'='))  %User did not add to completion
+            set(DATA.toplevel,'UserData',DATA);
+            return;
+        end            
+%        return;
+    end
 if isempty(txt)
 return;
 end
@@ -3986,6 +4119,9 @@ elseif length(id)
     DATA.lastcmd = txt(1:id(1));
 end
 if DATA.outid > 0
+    if DATA.currentstim > 1
+        fprintf(DATA.outid,'mo=%s\n',DATA.stimlabels{DATA.currentstim});
+    end
     fprintf(DATA.outid,'%s\n',txt);
 end
 DATA = LogCommand(DATA, txt);
@@ -4067,7 +4203,11 @@ n = size(a,1);
 if length(str)
     txt = [txt '(' str ')  ' datestr(now,'HH:MM')];
 end
+if iscellstr(a)
+    a{n+1} = txt;
+else
 a(n+1,1:length(txt)) = txt;
+end
 for j = 1:length(xstr)
     a(n+1+j,1:length(xstr{j})) = xstr{j};
 end
