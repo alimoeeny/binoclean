@@ -76,7 +76,7 @@ if isempty(it)
     DATA = SetExptMenus(DATA);
     SetGui(DATA);
     tt = TimeMark(tt, 'Reset Interface');
-    cmdfile = ['/local/' DATA.binocstr.monkey '/binoccmdhistory'];
+    cmdfile = ['/local/' DATA.binoc{1}.monkey '/binoccmdhistory'];
     DATA.cmdfid = fopen(cmdfile,'a');
     fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
@@ -725,8 +725,8 @@ function DATA = ReadExptLines(DATA, strs, src)
             myprintf(DATA.frombinocfid,'%s file %s\n',datestr(now),tline);
         end
   %if filename set before monkey, set monkeyname first
-        if strncmp(tline,'uf=',3) && strcmp(DATA.binocstr.monkey,'none')
-            DATA.binocstr.monkey = GetMonkeyName(DATA.datafile);
+        if strncmp(tline,'uf=',3) && strcmp(DATA.binoc{1}.monkey,'none')
+            DATA.binoc{1}.monkey = GetMonkeyName(DATA.datafile);
             SendCode(DATA,'monkey');
         end
         if DATA.over
@@ -1178,7 +1178,7 @@ DATA.electrodestrings = {'Not Set'};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
 DATA.electrodestring = 'default';
-DATA.binocstr.monkey = 'none';
+DATA.binoc{1}.monkey = 'none';
 DATA.binocstr.lo = '';
 DATA.penid = 0;
 DATA.stimulusnames{1} = 'none';
@@ -1805,7 +1805,7 @@ function ShowHelp(a,b,file)
 
 function AddQuickMenu(a,b)
     DATA = GetDataFromFig(a);
-    [name, path] = uigetfile(['/local/' DATA.binocstr.monkey '/stims/*.*']);
+    [name, path] = uigetfile(['/local/' DATA.binoc{1}.monkey '/stims/*.*']);
     j = length(DATA.quickexpts)+1;
     DATA.quickexpts(j).name = name;
     DATA.quickexpts(j).filename = [path '/' name];
@@ -1845,7 +1845,7 @@ function MenuHit(a,b, arg)
         [a, prefix] = fileparts(DATA.binoc{1}.psychfile);
         prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');
         prefix = regexprep(prefix,'DATE$','');
-        system(['/bgc/bgc/perl/pipelog ' DATA.binocstr.monkey ' ' prefix ' &']);
+        system(['/bgc/bgc/perl/pipelog ' DATA.binoc{1}.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
         DATA = AddTextToGui(DATA,['Pipelog ' prefix]);
     elseif strcmp(arg,'setshake')
@@ -1900,7 +1900,7 @@ function DATA = LoadLastSettings(DATA, varargin)
         j = j+1;
     end
     
-        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
+        rfile = ['/local/' DATA.binoc{1}.monkey '/lean*.stm'];
         d = mydir(rfile);
         [a,id] = max([d.datenum]);
         d = d(id);
@@ -1929,7 +1929,7 @@ function RecoverFile(a, b, type)
     DATA = GetDataFromFig(a);
 %        fprintf('Recover called with %s\n',type);
     if strmatch(type,{'list'});
-        rfile = ['/local/' DATA.binocstr.monkey '/lean*.stm'];
+        rfile = ['/local/' DATA.binoc{1}.monkey '/lean*.stm'];
         d = dir(rfile);
 
         if strcmp(type,'list')
@@ -1947,8 +1947,8 @@ function RecoverFile(a, b, type)
             uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(5:end)});
         end
     elseif strmatch(type,{'eo.stm' 'eb.stm' '0.stm' '1.stm' '2.stm' '3.stm' '4.stm' '5.stm'})
-        rfile = ['/local/' DATA.binocstr.monkey '/lean' type];
-        dfile = ['/local/' DATA.binocstr.monkey '/lean.today'];
+        rfile = ['/local/' DATA.binoc{1}.monkey '/lean' type];
+        dfile = ['/local/' DATA.binoc{1}.monkey '/lean.today'];
         copyfile(rfile,dfile);
         ReadStimFile(DATA, dfile);
     elseif strcmp(type,'loadlast')
@@ -1960,7 +1960,7 @@ function RecoverFile(a, b, type)
     
 function ReadSlot(a,b,id)
     DATA = GetDataFromFig(a);
-    quickname = sprintf('/local/%s/q%dexp.stm', DATA.binocstr.monkey,id);
+    quickname = sprintf('/local/%s/q%dexp.stm', DATA.binoc{1}.monkey,id);
     DATA = ReadStimFile(DATA, quickname);
     set(DATA.toplevel,'UserData',DATA);
     
@@ -2019,7 +2019,7 @@ function SaveFile(a,b,type)
 
     DATA = GetDataFromFig(a);
     if ~isfield(DATA,'stimfilename')
-        DATA.stimfilename = ['/local/' DATA.binocstr.monkey '/stims/auto.stm'];
+        DATA.stimfilename = ['/local/' DATA.binoc{1}.monkey '/stims/auto.stm'];
     end
     if strcmp(type,'current')
         filename = DATA.stimfilename;
@@ -3765,7 +3765,7 @@ function OpenPenLog(a,b, varargin)
             fprintf(DATA.outid,'!openpen');
         end
     elseif strcmp(btn,'PlotPen')
-        name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.Pn);
+        name = sprintf('/local/%s/pen%d.log',DATA.binoc{1}.monkey,DATA.binoc{1}.Pn);
         GetFigure('Pen');
         hold off;
         PlotOnePen(name,'allcomments');
@@ -3775,7 +3775,7 @@ function OpenPenLog(a,b, varargin)
     if DATA.penid > 0
         fclose(DATA.penid);
     end
-    name = sprintf('/local/%s/pen%d.log',DATA.binocstr.monkey,DATA.binoc{1}.pe);
+    name = sprintf('/local/%s/pen%d.log',DATA.binoc{1}.monkey,DATA.binoc{1}.pe);
     DATA.penid = fopen(name,'a');
     fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc{1}.pe,DATA.binoc{1}.px,DATA.binoc{1}.py,datestr(now));
     fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);
