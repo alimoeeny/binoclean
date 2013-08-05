@@ -1456,12 +1456,20 @@ function DATA = InitInterface(DATA)
     nr = 19 + ceil(length(f)./tagc);
     cw = 0.99/nc;
     DATA.toplevel = cntrl_box;
-    lst = uicontrol(gcf, 'Style','edit','String', '',...
-        'HorizontalAlignment','left',...
-        'Callback', {@TextEntered}, 'Tag','NextButton',...
-        'units','norm', 'Position',[0.01 0.01 0.98 1./nr],...
-        'KeyPressFcn',@TextKey);
+    
+    lst = jcontrol(gcf,'javax.swing.JTextField',...
+                    'Units','normalized',...
+                    'Position',[0.01 0.01 0.98 1./nr]);
+
+    set(lst, 'KeyPressedCallback', {@jTextKey});
+%     set(lst, 'String', '',...            
+%         'HorizontalAlignment','left',...
+%         'Callback', {@TextEntered}, 'Tag','NextButton',...
+%         'units','norm', 'Position',[0.01 0.01 0.98 1./nr],...
+%          'KeyReleasedCallBack', @JtextKey);
     DATA.txtui = lst;
+%        'KeyPressFcn',@TextKey,
+    
     
     bp = [0.01 1.01./nr 3.5./nc 6/nr];
     lst = uicontrol(gcf, 'Style','list','String', 'Command History',...
@@ -3993,8 +4001,46 @@ function OtherToggles(a,b,flag)
     end        
     
     
-function TextKey(src,ks)
+function jTextKey(src, ev)    
     DATA = GetDataFromFig(src);
+    ks =get(ev);
+    if ks.KeyCode == 38  %up arrow
+        if ~isempty(DATA.completions)
+            x = get(DATA.txtrec,'value');
+            if x > 3
+                set(DATA.txtrec,'value',x-1);
+                src.Text = [DATA.completions{x-2} '='];
+            end
+        elseif DATA.commandctr > 1
+            DATA.commandctr = DATA.commandctr-1;
+            src.Text = DATA.commands{DATA.commandctr};
+            set(DATA.toplevel,'UserData',DATA);
+        end
+    elseif ks.KeyCode == 10  %return
+    elseif ks.KeyCode == 39  %right arrow
+    elseif ks.KeyCode == 40  %down arrow
+        if ~isempty(DATA.completions)
+            x = get(DATA.txtrec,'value');
+            if x <= length(DATA.completions)
+                set(DATA.txtrec,'value',x+1);
+                src.Text = [DATA.completions{x} '='];
+            end
+        elseif DATA.commandctr < length(DATA.commands)
+            DATA.commandctr = DATA.commandctr+1;
+            src.Text = DATA.commands{DATA.commandctr};
+            set(DATA.toplevel,'UserData',DATA);
+        end
+    elseif isempty(ks.KeyChar)
+    elseif ks.KeyChar == ' '
+        a = deblank(src.Text);
+        if isempty(strfind(a,'='))  %complete codes
+            DATA = ShowCompletions(DATA,a);
+        end
+    end
+        
+function TextKey(src,ev)
+    DATA = GetDataFromFig(src);
+    ks.Key = get(ev,'KeyChar');
     if strcmp(ks.Key,'downarrow')
         if ~isempty(DATA.completions)
             x = get(DATA.txtrec,'value');
@@ -4071,7 +4117,7 @@ function TextList(a,b)
     line = get(a,'value');
     s = get(a,'string');
     if length(DATA.completions) >= line-1 && line > 1
-        set(DATA.txtui,'string',[DATA.completions{line-1} '=']);
+        SetTextUI(DATA,[DATA.completions{line-1} '=']);
     elseif line ==1
         ResetTextLst(DATA);
     else
@@ -4084,9 +4130,17 @@ function TextList(a,b)
         if ~isempty(id)
             str = deblank(str(2:id(2)-1));
         end
-        set(DATA.txtui,'string',str);        
+        SetTextUI(DATA, str);
     end
-    
+  
+function SetTextUI(DATA, str)
+if 1
+    set(DATA.txtui,'Text', str);
+else
+    set(DATA.txtui,'string',str);        
+end
+
+
 function TextEntered(a,b)
     
     txt = get(a,'string');
