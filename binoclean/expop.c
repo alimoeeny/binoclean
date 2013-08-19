@@ -12444,10 +12444,12 @@ int ChangeFlag(char *s)
     b = strchr(s,'-');
     if (b == NULL && a == NULL)
         slen = strlen(s);
-    else if (a < b || b == NULL)
+    else if (a != NULL && (a < b || b == NULL))
         slen = a-s;
-    else if (b < a || a == NULL)
+    else if (b != NULL && (b < a || a == NULL))
         slen = b-s;
+    else
+        slen = strlen(s);
 
     i = 0;
     while(togglestrings[i].code!= NULL)

@@ -117,11 +117,14 @@ function [DATA, codetype] = InterpretLine(DATA, line, varargin)
 setlist = 0;  %% don't update gui for every line read.
 codetype = 0;
 frombinoc = 0;
+sendtobinoc =0;
 src = 'unknown';
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'from',4)
         src = varargin{j};
+    elseif strncmpi(varargin{j},'tobinoc',4)
+        sendtobinoc = 1;
     end
     j = j+1;
 end
@@ -147,6 +150,10 @@ for j = 1:length(strs{1})
     end
     if DATA.verbose && strcmp(src,'frombinoc')
             fprintf('%s**\n',strs{1}{j});
+    end
+    if sendtobinoc && DATA.outid > 0
+        tline = CheckLineForBinoc(strs{1}{j});
+        fprintf(DATA.outid,'%s\n',tline);
     end
     
     if length(s) == 0
@@ -732,12 +739,7 @@ function DATA = ReadExptLines(DATA, strs, src)
         if DATA.over
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
-            if strncmp(tline,'op',2)
-                tline = strrep(tline,'+2a','+afc');
-            end
-            tline = strrep(tline,'\','\\');
-            tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
-            tline = strrep(tline,'\s+\n','\n');
+            tline = CheckLineForBinoc(tline);
             fprintf(DATA.outid,[tline '\n']);
         end
     end
@@ -754,7 +756,17 @@ function DATA = ReadExptLines(DATA, strs, src)
         end
         DATA = SetExptMenus(DATA);
     end
+    
+function line = CheckLineForBinoc(tline)
+    if strncmp(tline,'op',2)
+        tline = strrep(tline,'+2a','+afc');
+    end
+    tline = strrep(tline,'\','\\');
+    tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
+    line = strrep(tline,'\s+\n','\n');
 
+    
+    
 function DATA = ReadSetupFile(DATA, name, varargin)
 fid = fopen(name,'r');
 if fid > 0
@@ -829,7 +841,7 @@ end
 
 function DATA = ReadVergFile(DATA, name, varargin)
 %Read file htat only affects verg, not binoc (e.g. layout)
-   
+%so these lines are not send on to binoc   
     setall = 0;
     j = 1;
     while j <= length(varargin)
@@ -1920,7 +1932,7 @@ function DATA = LoadLastSettings(DATA, varargin)
             id = find(strncmp(s,txt,length(s{1})));
             if ~isempty(id)
                 cprintf('blue','Setting %s from %s\n',txt{id(1)},d.name);
-                DATA = InterpretLine(DATA, txt{id(1)});
+                DATA = InterpretLine(DATA, txt{id(1)},'tobinoc');
             end
             end
         end
@@ -2096,10 +2108,7 @@ function SendManualVals(a, b)
 function StimulusSelectMenu(a,b, fcn)
     DATA = GetDataFromFig(a);
     txt = ['mo=' fcn];
-    DATA = InterpretLine(DATA, txt);
-    if DATA.outid > 0
-         fprintf(DATA.outid,'%s\n',txt);
-    end
+    DATA = InterpretLine(DATA, txt,'tobinoc');
     SetGui(DATA);
     set(DATA.toplevel,'UserData',DATA);
     
@@ -2269,7 +2278,7 @@ function MenuGui(a,b)
              DATA.stimtype(2) = strmatch(str,DATA.stimulusnames);
              set(DATA.toplevel,'UserData',DATA);
          case 'uf'
-             DATA = InterpretLine(DATA, ['uf=' str],'fromgui');
+             DATA = InterpretLine(DATA, ['uf=' str],'fromgui','tobinoc');
              set(DATA.toplevel,'UserData',DATA);
          otherwise
              DATA.binoc{DATA.currentstim}.(type) = str2num(str);
@@ -2280,6 +2289,8 @@ function MenuGui(a,b)
      end
              
  function outprintf(DATA,varargin)
+ %send to binoc.  ? reomve comments  like in expt read? 
+ 
      if DATA.outid
          fprintf(DATA.outid,varargin{:});
      end

@@ -227,10 +227,10 @@ function DATA = SetDefaults(DATA)
 DATA.position = 0;
 DATA.step = 0;
 DATA.customstep = 0;
-DATA.stepscale = 2.9;
+DATA.stepscale = 29.0;
 DATA.motorspeed = 5;
 DATA.customspeed = 1;
-DATA.motorid = 1;
+DATA.motorid = -1; %< 0 means dont set id
 DATA.alldepths = [];
 DATA.alltimes = [];
 if ~isfield(DATA,'ttyname')
@@ -245,7 +245,11 @@ end
 
 function SetHomePosition(DATA, pos)
 
+if DATA.motorid >= 0
 	fprintf(DATA.sport,sprintf('%dHO%.0f\n', DATA.motorid, pos .* DATA.stepscale));
+else
+	fprintf(DATA.sport,sprintf('HO%.0f\n', pos .* DATA.stepscale));
+end
     set(DATA.setdepth,'string',sprintf('%.0f',pos));
     set(DATA.depthlabel,'string',sprintf('%.0f',pos));
     
@@ -266,7 +270,12 @@ while j <= length(varargin)
     j = j+1;
 end
 
+if DATA.motorid >= 0
 fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
+else
+fprintf(DATA.sport,sprintf('POS\n'));
+end
+%fprintf(DATA.sport,sprintf('0POS\n'));
 pause(0.01);
 s = ReadLine(DATA.sport);
 d = sscanf(s,'%d');
@@ -277,41 +286,72 @@ end
 
 function StopMotor(a,b)
 DATA = GetDataFromFig(a);
+if DATA.motorid >= 0
 fprintf(DATA.sport,'%dDI\n',DATA.motorid);
-
+else
+fprintf(DATA.sport,'DI\n');
+end
 
 function DATA = SetNewPosition(DATA, pos)
 
 newpos = pos .* DATA.stepscale;
 pause(0.01);
-fprintf(DATA.sport,'%dPOS\n',DATA.motorid);
-pause(0.01);
+
+
+if DATA.motorid >= 0
+    fprintf(DATA.sport,'%dPOS\n',DATA.motorid);
+else
+    fprintf(DATA.sport,'POS\n');
+end
+    pause(0.01);
 s = ReadLine(DATA.sport);
 d = sscanf(s,'%d');
-edur = 20 .* abs(newpos-d) ./DATA.motorspeed; %estimated duration
+edur = 0.2 .* abs(newpos-d) ./DATA.motorspeed; %estimated duration
+if edur > 10
+    edur = 10;
+end
+if isempty(edur)
+    edur = 1;
+end
 fprintf('Requesting %.0f->%.0f (~%.2f sec)\n',d,newpos,edur);
+if DATA.motorid >= 0
 fprintf(DATA.sport,'%dEN\n',DATA.motorid);
 fprintf(DATA.sport,sprintf('%dLA%.0f\n',DATA.motorid,newpos));
 pause(0.01);
 fprintf(DATA.sport,'%dM\n',DATA.motorid);
+else
+fprintf(DATA.sport,'EN\n');
+fprintf(DATA.sport,sprintf('LA%.0f\n',newpos));
+pause(0.01);
+fprintf(DATA.sport,'M\n');
+end
 pause(0.01);
 ts = now;
 npost = 0;
 newd(1) = d;
 j = 2;
 while npost < 2
+    if DATA.motorid >= 0
     fprintf(DATA.sport,sprintf('%dPOS\n',DATA.motorid));
+    else
+        fprintf(DATA.sport,sprintf('POS\n'));
+    end
     s = ReadLine(DATA.sport);
     if strcmp(s,'OK')
+        fprintf('Returned %s\n',s);
         s = ReadLine(DATA.sport);
     end
     ts(j) = now;
     if ~isempty(s)
-        newd(j) = sscanf(s,'%d');
-        set(DATA.depthlabel,'string',sprintf('%.0f uM',newd(j)./DATA.stepscale));
-        poserr = abs(newd(j)-newpos);
-        if poserr < 2
-            npost = npost+1;
+        try
+            newd(j) = sscanf(s,'%d');
+            set(DATA.depthlabel,'string',sprintf('%.0f uM',newd(j)./DATA.stepscale));
+            poserr = abs(newd(j)-newpos);
+            if poserr < 2
+                npost = npost+1;
+            end
+        catch
+            fprintf('Returned %s\n',s);
         end
     else
         newd(j) = 0;
@@ -328,7 +368,11 @@ end
 dur = (ts(end)-ts(1)).*(24 * 60 *60);
 fprintf('End pos %s took %.2f (%.2f) rate %.2f\n',s,dur,edur,(newd(end)-newd(1))/dur);
 
-fprintf(DATA.sport,'%dDI\n',DATA.motorid);
+if DATA.motorid >= 0
+    fprintf(DATA.sport,'%dDI\n',DATA.motorid);
+else
+    fprintf(DATA.sport,'DI\n');
+end
 pause(0.01);
 
 DATA.newtimes = ts;
@@ -357,6 +401,10 @@ plot(DATA.alltimes, DATA.alldepths);
 set(gca,'xtick',[],'ytick',[]);
 xl = [min(DATA.alltimes) max(DATA.alltimes)];
 yl = [min(DATA.alldepths) max(DATA.alldepths)];
+end
+
+if diff(yl) <= 0
+    return;
 end
 tdur = diff(xl).*24; %hours
 tlabel = 'hr';
@@ -388,8 +436,9 @@ end
 
 function s = ReadLine(port)
 
+waitforbytes = 0;
 ts = now;
-while get(port,'BytesAvailable') == 0
+while get(port,'BytesAvailable') == 0 && waitforbytes
     pause(0.001);
 end
 s = fscanf(port,'%s');
@@ -404,12 +453,22 @@ DATA.sport = serial(DATA.ttyname,'BaudRate',9600);
 fopen(DATA.sport);
 fprintf(DATA.sport,'ANSW1\n');
 fprintf(DATA.sport,'SOR0\n');
-fprintf(DATA.sport,'NET1\n');
+fprintf(DATA.sport,'NET0\n');
 fprintf(DATA.sport,'BAUD%d\n',9600);
 fprintf(DATA.sport,'SP%d\n',DATA.motorspeed.*DATA.stepscale);
-fprintf(DATA.sport,'LL0\n');
+fprintf(DATA.sport,'SP10000\n');
+
+fprintf(DATA.sport,'APL1\n');
+fprintf(DATA.sport,'LL-150000\n');
 fprintf(DATA.sport,'LL%d\n',150000);
 fprintf(DATA.sport,'APL1\n');
-fprintf(DATA.sport,'%dEN\n',DATA.motorid);
+if DATA.motorid >= 0
+    fprintf(DATA.sport,'%dEN\n',DATA.motorid);
+else
+    fprintf(DATA.sport,'EN\n');
+end
+
+
 GetCurrentPosition(DATA,'show');
+fprintf(DATA.sport,'DI\n');
 set(DATA.toplevel,'UserData',DATA);

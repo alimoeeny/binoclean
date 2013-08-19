@@ -2992,6 +2992,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             if(laststimtype[1] == STIM_RDS)
                 laststimtype[1] = st->next->type;
         }
+        if (st->framectr == 0)
+            setblank = 0;
 	}
     
 	if(val == INTERLEAVE_EXPT_UNCORR){
@@ -9784,7 +9786,8 @@ int GotChar(char c)
                 else
                     sign = 0;
 
-                
+                if (!(option2flag & PSYCHOPHYSICS_BIT))//Print psych line for Monkey. Humans done in ButtonResponse()
+                    PrintPsychLine(presult, sign);
                 if(seroutfile != NULL)
                 {
                     if(c == WURTZ_OK || c == WURTZ_OK_W){
