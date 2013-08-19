@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+
+@list = glob("$ARGV[0]/*.[ch]");
+$lastdate = -M "$ARGV[0]/binoclean-Info.plist";
+
+$nf = 0;
+foreach $f (@list) {
+	if (-M $f < $lastdate) {
+	print "$f modified\n";
+	$nf++;
+}
+}
+
+if ($nf > 0){
+    print "New\n";
+}
+else{
+    print "UpToDate\n";
+}
+exit($nf);
