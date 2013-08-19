@@ -9788,6 +9788,8 @@ int GotChar(char c)
 
                 if (!(option2flag & PSYCHOPHYSICS_BIT))//Print psych line for Monkey. Humans done in ButtonResponse()
                     PrintPsychLine(presult, sign);
+                
+                
                 if(seroutfile != NULL)
                 {
                     if(c == WURTZ_OK || c == WURTZ_OK_W){
