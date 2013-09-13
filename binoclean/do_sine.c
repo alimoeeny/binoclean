@@ -340,6 +340,9 @@ int SetGratingFrequencies(Stimulus *st)
     double x,minf,maxf,f2;
     int i;
     
+    if(st->freqmode == MANUAL_FREQ)
+        return(0);
+    
     f2 = st->left->ptr->sf2;
     if(expt.stimmode == RANDOM_ONOFF_LOG || expt.stimmode == INDEP_ONOFF_LOG
        || expt.stimmode == BINOC_INDEP_ONOFF_LOG){

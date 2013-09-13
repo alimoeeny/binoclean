@@ -3224,6 +3224,11 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
              per second, converted to radians per frame*/
             if(st->type == STIM_CYLINDER)
                 st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
+            if(st->type == STIM_GRATINGN){
+                for (i = 0; i < st->nfreqs; i++)
+                    st->left->incrs[i] = val * st->freqs[i] * M_PI * 2/mon.framerate;
+                st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
+            }
             if(st->type == STIM_RDS || st->type == STIM_RLS){
                 tf = val * st->pos.sf;
 //                st->incr = (val *M_PI *2)/(mon.framerate);
@@ -4212,7 +4217,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 i = 0;
             if(optionflag & CONTRAST_REVERSE_BIT && expt.mode != TF && st->incr > 0)
                 pos->contrast_phase = M_PI_2;
-            else if (optionflag & CONTRAST_REVERSE_BIT && expt.vals[ALTERNATE_STIM_MODE] == QUICK_CAL)
+            else if (optionflag & CONTRAST_REVERSE_BIT && expt.vals[GRIDSIZE] > 0.1)
                 pos->contrast_phase = val; //Not really phase. this %nstims = greylevel
             else
                 pos->contrast_phase = 0;
@@ -4222,7 +4227,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 st->right->pos.phase = pos->phase;
                 st->left->pos.phase = pos->phase;
             }
-		    
+            for(i = 0; i < st->nfreqs; i++)
+                st->phases[i] = pos->phase;
             if(st->type == STIM_GRATING2)
 		    {
                 psine = (OneStim *)(st->left->ptr);
@@ -4665,9 +4671,12 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             break;
         case NCOMPONENTS:
             st->nfreqs = (int)val;
+            st->freqmode = AUTO_FREQ;
             a = StimulusProperty(st,SF2);
             for(i = 0; i < st->nfreqs; i++){
-                st->freqs[i] = st->f + (a - st->f) * (i - floor(st->nfreqs/2));
+//  why + and - freqs here?  Changed Sep 2013
+//                st->freqs[i] = st->f + (a - st->f) * (i - floor(st->nfreqs/2));
+                st->freqs[i] = st->f + (a - st->f) * (i);
             }
             break;
         case START_PHASE:
@@ -5330,8 +5339,10 @@ float SetRandomPhase( Stimulus *st,     Locator *pos)
         pos->phase = (iphase * 2 * M_PI)/st->nphases;
         pos->phase2 = (myrnd_i() %st->nphases);
         pos->phase2 *= (2 * M_PI/st->nphases);
-        for(i = 0; i < st->nfreqs; i++)
-            st->phases[i] = (myrnd_i() %st->nphases) * 2 *  M_PI/st->nphases;
+            for(i = 0; i < st->nfreqs; i++){
+                if(st->componentjumps[i])
+                    st->phases[i] = (myrnd_i() %st->nphases) * 2 *  M_PI/st->nphases;
+            }
         }
     }
     frameiseqp[expt.framesdone] = iphase;
@@ -5718,8 +5729,10 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 		if(optionflags[RANDOM_PHASE] && st->nphases > 0){
             /* make sure these phases come from this seed so can be reconstructed*/
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
-            myrnd_init(st->left->baseseed);
-            SetRandomPhase(st, pos);
+                myrnd_init(st->left->baseseed);
+                SetRandomPhase(st, pos);
+                mode |= STIMCHANGE_FRAME;
+
             }
             else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
                 pos->phase += st->incr;
@@ -6238,7 +6251,7 @@ int next_frame(Stimulus *st)
             gettimeofday(&lastmonkeycheck,NULL);
             fflush(seroutfile);
         }
-        if(ltime->tm_hour > 18 || ltime->tm_hour < 1){ //between 8pm and 1am
+        if(ltime->tm_hour > 17 || ltime->tm_hour < 1){ //between 8pm and 1am
             printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
             if(seroutfile)
                 fprintf(seroutfile,"#Calling monkeywarn\n");
@@ -10233,13 +10246,12 @@ void chessboard(float w, float h)
         if (seroutfile){
             fprintf(seroutfile,"#Lum%.3f at %s",expt.vals[TIMEOUT_CONTRAST],ctime(&now));
         }
-
     }
     lastc = c;
-    if (option2flag & PSYCHOPHYSICS_BIT) //set this to get full screen
+    if (option2flag & PSYCHOPHYSICS_BIT || optionflag & SEARCH_MODE_BIT) //set this to get full screen
         b = a;
     
-    for (i = -x; i < x; i++) {
+    for (i = -x-1; i < x; i++) {
         for (j = -y; j < y; j++) {
             if (ODD(i + j))
                 SetColor(a,1);
@@ -10261,6 +10273,8 @@ void printString(char *s, int size)
 
 void printStringOnMonkeyView(char *s, int size)
 {
+    if (expt.vals[SETCLEARCOLOR] == 0  && optionflags[FEEDBACK] == 0)
+        return;
     glColor4f(1.0,1.0,1.0,1.0); //white text
     glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
     displayOnMonkeyView(s, -500, -450);

@@ -212,6 +212,7 @@ float deg2pixy(float val)
 
 Stimulus *NewStimulus(Stimulus *st)
 {
+    int i;
     Stimulus *new = (Stimulus *)malloc(sizeof(Stimulus));
     if(st != NULL)
     {
@@ -272,6 +273,8 @@ Stimulus *NewStimulus(Stimulus *st)
     else{
         new->right->id[1] = new->left->id[1] = '1';
     }
+    for(i = 0; i < MAXFREQS; i++)
+        new->componentjumps[i] = 1; //default is for jump to apply to all
     return(new);
 }
 

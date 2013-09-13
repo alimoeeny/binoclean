@@ -78,7 +78,7 @@ if isempty(it)
     tt = TimeMark(tt, 'Reset Interface');
     cmdfile = ['/local/' DATA.binoc{1}.monkey '/binoccmdhistory'];
     DATA.cmdfid = fopen(cmdfile,'a');
-    fprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
+    myprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
     if DATA.frombinocfid > 0
         TimeMark(tt,2);
@@ -156,6 +156,12 @@ for j = 1:length(strs{1})
         fprintf(DATA.outid,'%s\n',tline);
     end
     
+    if strcmp(src,'fromstim') %Check for some old strings and update
+        if strcmp(s,'immode=preload')
+            fprintf('Substituting imload for immode');
+            s = 'imload=preload';
+        end
+    end
     if length(s) == 0
     elseif strncmp(s,'!mat',4) && ~isempty(value)
         if strcmp(src,'fromstim')
@@ -490,7 +496,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'e3',2)
         DATA.exptype{3} = sscanf(s,'e3=%s');
         DATA.binoc{1}.(code) = value;
-    elseif strncmp(s,'nt',2)
+    elseif strncmp(s,'nt=',3)
         DATA.nstim(1) = sscanf(s,'nt=%d');
         DATA.binoc{1}.(code) = str2num(value);
     elseif strncmp(s,'n2',2)
@@ -1261,6 +1267,7 @@ DATA.binoc{1}.xo = 0;
 DATA.binoc{2}.xo = 0;
 DATA.binoc{1}.ePr = 0;
 DATA.binoc{1}.adapter = 'None';
+DATA.binoc{1}.uf = 'None';
 DATA.binoc{1}.ei = '0';
 DATA.binoc{1}.i2 = '0';
 DATA.binoc{1}.i3 = '0';
@@ -1326,7 +1333,9 @@ function strs = ReadHelp(DATA)
     txt = a{1};
     for j = 1:length(txt)
         code = regexprep(txt{j},'\s.*','');
+        if ~isempty(code)
         strs.(code) =  regexprep(txt{j},code,'');
+        end
     end
     end
     
@@ -1750,7 +1759,7 @@ function DATA = InitInterface(DATA)
     hm = uimenu(cntrl_box,'Label','Mark');
 
     
-    hm = uimenu(cntrl_box,'Label','Help','Tag','QuickMenu');
+    hm = uimenu(cntrl_box,'Label','Help','Tag','HelpMenu');
     BuildHelpMenu(DATA, hm);
 
     DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
@@ -1790,7 +1799,8 @@ function ShowHelp(a,b,file)
 
    function BuildHelpMenu(DATA, hm)
         
-   uimenu(hm,'Label','List Codes','Callback',{@CodesPopup, 'popup'},'accelerator','L');
+   uimenu(hm,'Label','List All Codes','Callback',{@CodesPopup, 'popup'},'accelerator','L');
+   uimenu(hm,'Label','List Codes with Help','Callback',{@CodesPopup, 'popuphelp'});
    for j = 1:length(DATA.helpfiles)
         uimenu(hm,'Label',DATA.helpfiles(j).label,'Callback',{@ShowHelp, DATA.helpfiles(j).filename});
     end
@@ -1914,6 +1924,9 @@ function DATA = LoadLastSettings(DATA, varargin)
     
         rfile = ['/local/' DATA.binoc{1}.monkey '/lean*.stm'];
         d = mydir(rfile);
+        if isempty(d)
+            return;
+        end
         [a,id] = max([d.datenum]);
         d = d(id);
         go  = 0;
@@ -1944,6 +1957,9 @@ function RecoverFile(a, b, type)
         rfile = ['/local/' DATA.binoc{1}.monkey '/lean*.stm'];
         d = dir(rfile);
 
+        if isempty(d)
+            return;
+        end
         if strcmp(type,'list')
         hm = get(a,'parent');
         else
@@ -2008,19 +2024,28 @@ function AddTodayMenu(DATA, id,label)
     end
     
 function CheckForUpdate(DATA)
-    src = [DATA.netmatdir '/verg.m'];
-    tgt = [DATA.localmatdir '/verg.m'];
+    CheckFileUpdate([DATA.netmatdir '/verg.m'],[DATA.localmatdir '/verg.m']);
+    CheckFileUpdate([DATA.netmatdir '/helpstrings.txt'],[DATA.localmatdir '/helpstrings.txt']);
+    CheckFileUpdate([DATA.netmatdir '/DownArrow.mat'],[DATA.localmatdir '/DownArrow.mat']);
+    
+ function CheckFileUpdate(src, tgt)
     a = dir(src);
     b = dir(tgt);
-    
-    
-    
+    if isempty(b) %target does not exist - just copy
+            try  %This often produces permission error
+                copyfile(src,tgt);
+            catch ME
+                cprintf('errors',ME.message);
+                fprintf('Error copying %s\n',tgt);
+            end
+    end
     if ~isempty(a) && ~isempty(b) && a.datenum > b.datenum
         yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check','Yes','No','Yes');
         if strcmp(yn,'Yes')
             try  %This will produce and error becuase verg.m is in use. But the copy succeeds
                 copyfile(src,tgt);
             catch ME
+                cprintf('errors',ME.message);
                 fprintf('possible error copying %s\n',tgt);
             end
         end
@@ -2296,7 +2321,7 @@ function MenuGui(a,b)
      end
      
  function myprintf(fid,varargin)
-     if fid
+     if fid > 0
          fprintf(fid,varargin{:});
      end
      
@@ -2906,7 +2931,7 @@ end
 function CodesPopup(a,b, type)  
 
   DATA = GetDataFromFig(a);
-  
+  src = a;
   if isnumeric(type) | strmatch(type,{'bycode' 'bylabel' 'bygroup' 'numeric' 'printcodes' 'byhelp'},'exact')
       lst = findobj(get(get(a,'parent'),'parent'),'Tag','CodeListString');
       if isnumeric(type)
@@ -2920,6 +2945,9 @@ function CodesPopup(a,b, type)
       elseif strcmp(type,'printcodes')
           F = get(a,'parent');
          [outname, path] = uiputfile([DATA.localmatdir '/BinocCodes.txt'], 'Save Binoc Codes');
+         if ~ischar(outname) %user cancelled
+             return;
+         end
          it = findobj(F,'tag','CodeListString');
          txt = get(it,'String');
          fid = fopen(outname,'w');
@@ -3004,7 +3032,7 @@ function CodesPopup(a,b, type)
       %set(lst,'uicontextmenu',cmenu);    
       
   end
-  if ~strcmp(type,'popup')
+  if ~strncmp(type,'popup',5)
       return;
   end
   cntrl_box = findobj('Tag',DATA.windownames{4},'type','figure');
@@ -3025,6 +3053,7 @@ function CodesPopup(a,b, type)
     sm = uimenu(hm,'Label','Psych/Reward','callback',{@CodesPopup, 8 });
     sm = uimenu(hm,'Label','Numerical','callback',{@CodesPopup, 'numeric'});
     sm = uimenu(hm,'Label','Help','callback',{@CodesPopup, 'byhelp'});
+    helpmenu = sm;
     hm = uimenu(cntrl_box,'Label','Print','callback',{@CodesPopup, 'printcodes'});
     
     uicontrol(gcf,'style','pop','string','Search|Codes|Labels|Help','tag','SearchMode',...
@@ -3049,6 +3078,9 @@ for j = 1:length(DATA.comcodes)
     a(j,1:length(s)) = s;
 end
 set(lst,'string',a);
+if strcmp(type,'popuphelp')
+    CodesPopup(helpmenu,b,'byhelp');
+end
    
 function SearchList(a,b)
 
@@ -4090,6 +4122,9 @@ SetGui(DATA);
 
 
 function DATA = AddTextToGui(DATA, txt)
+    if ~isfield(DATA,'txtrec') || ~ishandle(DATA.txtrec)
+        return;
+    end
 a =  get(DATA.txtrec,'string');
 n = size(a,1);
 DATA = LogCommand(DATA, txt);

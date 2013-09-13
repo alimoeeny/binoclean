@@ -190,6 +190,7 @@ extern float framehold;
 extern int testmode;
 FILE *cmdhistory;
 int onlineversion = 10000; // always > any version #
+int psychlogparams[10] = {0};
 
 FILE *rcfd = NULL,*spikefd = 0;
 int rcctr = 0,onlinedat = 0;
@@ -2683,6 +2684,17 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         case COMMAND_FILE:
             expt.cmdinfile = myscopy(expt.cmdinfile,s);
             nonewline(expt.cmdinfile);
+            break;
+        case PSYCHMON_VARS:
+            expt.strings[flag] = myscopy(expt.strings[flag],s);
+            i = 0;
+            while((t = strchr(s,',')) != NULL && i < 9){
+                *t = 0;
+                psychlogparams[i++] = FindCode(s);
+                s = t+1;
+            }
+            psychlogparams[i++] = FindCode(s);
+            psychlogparams[i] = -1;
             break;
         default:
             expt.strings[flag] = myscopy(expt.strings[flag],s);
@@ -7185,7 +7197,7 @@ void InitExpt()
         ts = binocTimeString();
         ts[3] = '.';
         ts[6] = 0;
-        fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[5] * expt.nreps);
+        fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[6]);
         fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
     }
     if(psychfilelog){
@@ -10695,7 +10707,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         frameiseqp[i] = 0;
     if(optionflags[RANDOM_PHASE] || optionflags[RANDOM_INITIAL_PHASE]){
         phase = SetRandomPhase(expt.st, &(expt.st->pos));
-        expt.vals[START_PHASE] = val;
+        expt.vals[START_PHASE] = phase;
         SerialSend(SETPHASE);
     }
     
@@ -12661,8 +12673,10 @@ int ReadMonitorSetup(char *name)
             sscanf(++s,"%lf",&expt.mon->gamma);
         else if (!strncmp(buf,"winsize",6) && s){
             sscanf(++s,"%d %d",&w,&h);
-            expt.winsiz[0] = w/2;
-            expt.winsiz[1] = h/2;
+            if(w/2 != expt.winsiz[0] || w/2 != expt.winsiz[0]){
+                sprintf(buf,"%s: Can't Change winsize after startup in binoclean. Edit binoc.setup",name);
+                acknowledge(buf,NULL);
+            }
         }
         else if (!strncmp(buf,"name",4) && s) 
             expt.mon->name = myscopy(expt.mon->name,++s);
@@ -12780,7 +12794,7 @@ int ReadConjPos(Expt*ex, char *line)
 int InterpretLine(char *line, Expt *ex, int frompc)
 {
     int i,n,len,ival,total,j,vals[MAXBINS],k,code,icode,oldmode,x,y;
-    int bins,prebins,postbins,chan;
+    int bins,prebins,postbins,chan, iin[100];
     char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ],outbuf[BUFSIZ];
     float val,fval, addval = 0,in[10],aval,bval;
     Stimulus *TheStim = expt.st;
@@ -13330,7 +13344,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(line[0] == 'E' && line[1] == 'B' && isdigit(line[2]))
     {
-        sscanf(&line[2],"%d",&i);
+        sscanf(&line[2],"%f",&i);
         s = strchr(line,'=');
         if(i < expt.nstim[1] && s != NULL)
         {
@@ -13343,12 +13357,32 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
+        case JUMP_SF_COMPONENTS:
+            n = sscanf(s,"%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+                       &iin[0],&iin[1],&iin[2],&iin[3],&iin[4],&iin[5],&iin[6],&iin[7],&iin[8],&iin[9],&iin[10],&iin[11],&iin[12],&iin[13],&iin[14],&iin[15]);
+            for(i = 0; i < n; i++)
+                expt.st->componentjumps[i] = iin[i];
+            break;
+        case SET_SF_COMPONENTS:
+            n = sscanf(s,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+                       &in[0],&in[1],&in[2],&in[3],&in[4],&in[5],&in[6],&in[7],&in[8],&in[9],&in[10],&in[11],&in[12],&in[13],&in[14],&in[15]);
+            for(i = 0; i < n; i++)
+                expt.st->freqs[i] = in[i];
+            if (n > 0)
+                expt.st->freqmode = MANUAL_FREQ;
+            break;
+        case SET_TF_COMPONENTS:
+            n = sscanf(s,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+                       &in[0],&in[1],&in[2],&in[3],&in[4],&in[5],&in[6],&in[7],&in[8],&in[9],&in[10],&in[11],&in[12],&in[13],&in[14],&in[15]);
+            for(i = 0; i < n; i++)
+                expt.st->left->incrs[i] = in[i] * M_2_PI/mon.framerate;
+            break;
 
         case USENEWDIRS:
             sscanf(s,"%d",&usenewdirs);
             break;
         case FIXCOLORS:
-            n = sscanf(++s,"%f %f %f %f",&in[0],&in[1],&in[2],&in[3]);
+            n = sscanf(s,"%f %f %f %f",&in[0],&in[1],&in[2],&in[3]);
                 for(i = 0; i < n; i++)
                     expt.st->fix.fixcolors[i] = in[i];
             break;

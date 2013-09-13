@@ -18,7 +18,7 @@ stimvals{3} = [0];
 stimvals{2} = [0];
 stimvals{1} = [403004 419002 433008 434005 435002 503002 505006 511007 562001 572001];
 distvals = -0.2:0.05:0.2;
-ntrials = 6;
+ntrials = 2;
 rpts = 1; %5 number of times to show each exact sequence
 flipsaccade = 0;
 
@@ -63,6 +63,7 @@ seedoffset = round(rand(1,1) .*10000);
 distw = length(distvals);
 S.stimno = 0;
 S.sl = 0;
+stimvals{2} = [1 2 4];
 nstim = [length(stimvals{1}) length(stimvals{2}) length(stimvals{3}) ntrials/rpts];
 ssign = 2.*(round(rand(ntrials.*rpts,1)) -0.5);
 sgn = 1;
@@ -99,6 +100,7 @@ for k = 1:nstim(2)
         S.se = 1000 + seedoffset + S.stimno .*200;
         S.dx = stimvals{3}(m);
         S.Fa = S.or+90.*sgn;
+        S.wi = stimvals{2}(k);
         S.signal = stimvals{1}(j) .* sign(S.dx);
         WriteStim(S);
         
@@ -134,8 +136,9 @@ fprintf(fid,'xo=0.34\n');
 fprintf(fid,'or=%.1f\n',S.or);
 fprintf(fid,'Fa=%.1f\n',S.Fa);
 fprintf(fid,'se=%d\n',S.se);
+fprintf(fid,'wi=%d\n',S.wi);
 fprintf(fid,'imi=%d\n',S.imi);
-fprintf(fid,'exvals%.2f %.2f %.2f\n',S.imi,0,0);
+fprintf(fid,'exvals%.2f %.2f %.2f\n',S.imi,S.wi,0);
 types = {'imx' 'imy'};
 for k = 1:length(S.types)
     fprintf(fid,'%s:',S.types{k});

@@ -437,7 +437,11 @@
 #define SIGNALFRAME_P MAXSERIALCODES+163
 #define COMMAND_FILE MAXSERIALCODES+164
 #define NPHASES MAXSERIALCODES+165
-#define MAXSAVECODES MAXSERIALCODES+166 //364
+#define JUMP_SF_COMPONENTS MAXSERIALCODES+166
+#define SET_SF_COMPONENTS MAXSERIALCODES+167
+#define SET_TF_COMPONENTS MAXSERIALCODES+169
+#define PSYCHMON_VARS MAXSERIALCODES+170
+#define MAXSAVECODES MAXSERIALCODES+171 //364
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -1251,6 +1255,10 @@ ValueCode valstrings[] = {
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
+    {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
+    {  "nsf", "SF Components", SET_SF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
+    {  "psychmon", "Psych Mon Vars", PSYCHMON_VARS, 0, 'C', 3, SEND_EXPLICIT},
+    {"impref", "prefix for image files", IMAGELOAD_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {"electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},
     {"onlineprefix", "Folder for online files on Mac", ONLINEPREFIX, 0, 'C', 0, SEND_NEVER},
     {"cmdfile", "File for remote commands", COMMAND_FILE, 0, 'C', 0, SEND_NEVER},

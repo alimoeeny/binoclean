@@ -499,6 +499,7 @@ GLenum glReportError (void)
   	glLoadIdentity ();
     //glOrtho((GLdouble)(-winsiz[0]) , (GLdouble)(winsiz[0]) , (GLdouble)(-winsiz[1]) , (GLdouble)(winsiz[1]) , 0, 0);
     glOrtho(-winsiz[0],winsiz[0],-winsiz[1],winsiz[1],-1.0,1.0);
+//    glOrtho(winsiz[0],-winsiz[0],-winsiz[1],winsiz[1],-1.0,1.0);
 	// model view and projection matricies already set
     
     //	drawCube (1.5f); // draw scene
