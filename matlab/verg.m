@@ -4010,6 +4010,7 @@ function jTextKey(src, ev)
             if x > 3
                 set(DATA.txtrec,'value',x-1);
                 src.Text = [DATA.completions{x-2} '='];
+                src.CaretPosition = length(src.Text);
             end
         elseif DATA.commandctr > 1
             DATA.commandctr = DATA.commandctr-1;
@@ -4017,6 +4018,7 @@ function jTextKey(src, ev)
             set(DATA.toplevel,'UserData',DATA);
         end
     elseif ks.KeyCode == 10  %return
+        TextEntered(src, ev);
     elseif ks.KeyCode == 39  %right arrow
     elseif ks.KeyCode == 40  %down arrow
         if ~isempty(DATA.completions)
@@ -4024,6 +4026,7 @@ function jTextKey(src, ev)
             if x <= length(DATA.completions)
                 set(DATA.txtrec,'value',x+1);
                 src.Text = [DATA.completions{x} '='];
+                src.CaretPosition = length(src.Text);
             end
         elseif DATA.commandctr < length(DATA.commands)
             DATA.commandctr = DATA.commandctr+1;
@@ -4134,22 +4137,31 @@ function TextList(a,b)
     end
   
 function SetTextUI(DATA, str)
-if 1
+if sum(strncmp(class(DATA.txtui),{'javahandle' 'jcontrol'},8))
     set(DATA.txtui,'Text', str);
 else
     set(DATA.txtui,'string',str);        
 end
 
+    function yn = isjava(a)
+        yn = 0;
+        if isfield(a,'uipanel')
+            yn = 1;
+        end
+        
 
 function TextEntered(a,b)
     
-    txt = get(a,'string');
     if get(gcf, 'currentcharacter') ~= 13 %return
         return;
     end
     
     DATA = GetDataFromFig(a);
-    txt = get(a,'string');
+    if strncmp(class(a),'javahandle',8)
+        txt = a.Text;
+    else
+        txt = get(a,'string');
+    end
     cntrl_is_down = getappdata(DATA.toplevel,'cntrl_is_down');
     if cntrl_is_down
         DATA = ShowCompletions(DATA,txt);
@@ -4200,7 +4212,7 @@ else
     end
 end
 
-set(a,'string','');
+SetTextUI(DATA,'');
 if txt(end) ~= '='
     DATA = InterpretLine(DATA,txt);
 end
