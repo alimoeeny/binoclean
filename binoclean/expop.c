@@ -111,10 +111,10 @@ extern int debug,timeout_type;
 extern double olddisp,oldvelocity;
 extern int imageseed[],stimflag;
 extern int DIOval;
-extern int rewardall,check_for_monkey;
+extern int rewardall;
 extern int freeToGo;
 extern int lastbutton;
-
+extern float monkeyhour;
 double fakestim =0;
 
 int usenewdirs=0;
@@ -1894,6 +1894,9 @@ char *ReadManualStim(char *file){
                 manualprop[nprop] = FindCode(&inbuf[pos]);
                 propmodifier[nprop] = modifier;
             }
+            else if (strncmp(inbuf,"maxexval",7) == NULL){ //just send to SPike2
+                SerialString(inbuf,0);
+            }
             else{
                 manualprop[nprop] = FindCode(inbuf);
                 propmodifier[nprop] = 0;
@@ -1930,7 +1933,7 @@ char *ReadManualStim(char *file){
     }
     manualprop[nprop] = -1;
     fclose(fin);
-    if (expt.st->preload){
+    if (expt.st->preload && expt.st->next->type == STIM_IMAGE){
         st = expt.st;
         for (j = 0; j < nframes; j++){
             expt.st->next->xyshift[1] = imy[j];
@@ -4198,7 +4201,7 @@ int ReadCommand(char *s)
         sprintf(command_result,"mimic %s",mimic_fixation ? "On":"Off");
     }
     else if(!strncasecmp(s,"nomonkey",7)){
-        check_for_monkey = 0;
+        monkeyhour = 0;
         printf("Not Checking for running without monkey\n");
     }
     else if(!strncmp(s,"test",4)){
@@ -5179,12 +5182,17 @@ int ReadStimOrder(char *file)
     if (fd != NULL){
         while(fgets(buf, BUFSIZ, fd) != NULL){
             s = buf;
+            if (strncmp(s,"manexp",6) == NULL){
+                SerialString(s,0);
+            }
+            else{
             while(s){
                 sscanf(s,"%d",&ival);
                 stimorder[nt++] = ival;
                 t = s;
                 if((s = strchr(t,' ')) != NULL)
                     s++;
+            }
             }
         }
     
@@ -11279,8 +11287,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
             if(optionflags[CHECK_FRAMECOUNTS] < 2){
                 sprintf(buf,"Only completed %d/%d frames. op-CN to stop Checking",framesdone,n);
-                if(!confirm_yes(buf,NULL) )
-                    optionflags[CHECK_FRAMECOUNTS] = 0;
+                acknowledge(buf,NULL);
             }
             else if (stimno ==  0){
                 sprintf(buf,"Only completed %d/%d frames. Will not Check again.",framesdone,n);
@@ -12804,7 +12811,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     MenuItem *new_menu = NULL;
     char *newnames = NULL;
     char *stimname = NULL;
-    int flag = 0,ok,nq=0,found = 0,ret = -1;
+    int flag = 0,ok,nq=0,found = 0,ret = -1,charoff = 0;;
     FILE *fd;
     char *sublabel,qlabel[BUFSIZ],qpath[BUFSIZ],qname[BUFSIZ];
     PGM *pgm;
@@ -13269,7 +13276,14 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     if(*line == '#' || strlen(line) < 3)
         return(-1);
     
-    code = FindCode(line);
+    if (strncmp(line,"Back",4) == NULL){
+        code = FindCode(&line[4]);
+        TheStim = expt.st->next;
+        charoff = 4;
+    }
+    else
+        code = FindCode(line);
+    
 
     
     /* 
@@ -13285,11 +13299,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     if(code >= 0){
         icode = valstringindex[code];
-        s = &line[strlen(valstrings[icode].code)];
+        s = &line[strlen(valstrings[icode].code)+charoff];
     }
     else{
         icode = -1;
-        s = &line[2];
+        s = &line[2+charoff];
     }
     
     while(*s != 0 && (isspace(*s) || *s == '='))

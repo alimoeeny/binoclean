@@ -175,7 +175,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'confirm',7)
         yn = questdlg(s(8:end),'Update Check');
         if strcmp(yn,'Yes')
-            fprintf(DATA.outid,'confirm1\n');
+            fprintf(DATA.outid,'confirmpopup\n');
         end
     elseif s(1) == '#' %defines stim code/label
         [a,b] = sscanf(s,'#%d %s');
@@ -767,10 +767,16 @@ function line = CheckLineForBinoc(tline)
     if strncmp(tline,'op',2)
         tline = strrep(tline,'+2a','+afc');
     end
-    tline = strrep(tline,'\','\\');
+% more recent Spike2 seems not to need this
+%But matlab needs it for writing to serial line
+    if strncmp(tline,'uf',2)
+        tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
+        tline = regexprep(tline,'\','\\\');
+        tline = regexprep(tline,'/','\\\');
+    end
     tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
     line = strrep(tline,'\s+\n','\n');
-
+    
     
     
 function DATA = ReadSetupFile(DATA, name, varargin)
@@ -1941,7 +1947,7 @@ function DATA = LoadLastSettings(DATA, varargin)
         end
         if go
             txt = scanlines(d.name);
-            for s = {'id' 'se' 'ed' 'Rx' 'Ry' 'Ro' 'Rw' 'Rh'}
+            for s = {'id' 'se' 'ed' 'Rx' 'Ry' 'Ro' 'Rw' 'Rh' 'Xp' 'Yp' 'Pn' 'Electrode'}
             id = find(strncmp(s,txt,length(s{1})));
             if ~isempty(id)
                 cprintf('blue','Setting %s from %s\n',txt{id(1)},d.name);
@@ -2655,6 +2661,7 @@ function DATA = RunButton(a,b, type)
         if type == 1
             if DATA.inexpt == 0 %sarting a new one. Increment counter
                 if DATA.optionflags.exm && ~isempty(DATA.matexpt)
+                    fprintf('Running %s\n',DATA.matexpt);
                     eval(DATA.matexpt);
                 end
                 if DATA.listmodified(1)
@@ -3192,6 +3199,10 @@ for j = line:length(str)
 % before binoc calls back with settings
         if firstline > 1
             uipause(now, DATA.binoc{1}.seqpause,'Fixed Sequence Pause');
+        end
+        if DATA.optionflags.exm && ~isempty(DATA.matexpt)
+            fprintf('Running %s\n',DATA.matexpt);
+            eval(DATA.matexpt);
         end
         myprintf(DATA.cmdfid,'!expt line %d',j);
         DATA.nexpts = DATA.nexpts+1;
@@ -3803,7 +3814,7 @@ function OpenPenLog(a,b, varargin)
         DATA.binoc{1}.hemi = Menu2Str(findobj(F,'Tag','hemisphere'));
         DATA.binoc{1}.ui = Menu2Str(findobj(F,'Tag','Experimenter'));
         DATA.binoc{1}.coarsemm = Menu2Str(findobj(F,'Tag','coarsemm'));
-        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'electrode' 'adapter' 'eZ' 'ePr' 'hemi' 'coarsemm'});
+        SendCode(DATA,{'Pn' 'Xp' 'Yp' 'ui' 'Electrode' 'adapter' 'eZ' 'ePr' 'hemi' 'coarsemm'});
         if DATA.outid
             fprintf(DATA.outid,'!openpen');
         end
