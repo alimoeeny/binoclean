@@ -437,7 +437,11 @@
 #define SIGNALFRAME_P MAXSERIALCODES+163
 #define COMMAND_FILE MAXSERIALCODES+164
 #define NPHASES MAXSERIALCODES+165
-#define MAXSAVECODES MAXSERIALCODES+166 //364
+#define JUMP_SF_COMPONENTS MAXSERIALCODES+166
+#define SET_SF_COMPONENTS MAXSERIALCODES+167
+#define SET_TF_COMPONENTS MAXSERIALCODES+169
+#define PSYCHMON_VARS MAXSERIALCODES+170
+#define MAXSAVECODES MAXSERIALCODES+171 //364
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -802,7 +806,7 @@ ToggleCode togglestrings[] = {
     {"Fix Sepn",    "fs",  0, FIXED_BARSEP, 3},
     {"Record RLS",    "srls",  0, SAVE_RLS, 3},
     {"Manual Expt",    "exm",  0, MANUAL_EXPT, 3},
-    {"Reverse Back Contrast",    "exm",  0, MANUAL_EXPT, 3},
+    {"Reverse Back Contrast",    "bac",  0, MANUAL_EXPT, 3},
     //   {"Auto Plot",    "ap", 0, AUTO_PLOT, 1},
     //   {"PreBack",    "pb", 0, BACKGROUND_IN_PREPERIOD, 1},
     //   {"Show Val",    "pw", 0, PLOT_WURTZ_BIT, 1},
@@ -916,7 +920,7 @@ ValueCode valstrings[] = {
   {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N' ,2, SEND_NON_ZERO},
   {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"bt",     "BW Time",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"Bc",     "Background Contrast",BACK_CONTRAST, 64 , 'N' ,4, SEND_EXPT},
+  {"Bc",     "Background Contrast",BACK_CONTRAST, 4+INDIRECT, 'N' ,3, SEND_EXPT},
   {"ei",     "Expt incr", EXPT_INCR, 16 , 'N' ,5, SEND_EXPT},
   {"em",     "Expt Mean", EXPT_MEAN, 16 , 'N' ,5, SEND_EXPT},
   {"is",     "ISI", ISI_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
@@ -1251,7 +1255,12 @@ ValueCode valstrings[] = {
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
-    {"electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},
+    {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
+    {  "nsf", "SF Components", SET_SF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
+    {  "ntf", "TF Components", SET_TF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
+    {  "psychmon", "Psych Mon Vars", PSYCHMON_VARS, 0, 'C', 3, SEND_EXPLICIT},
+    {"impref", "prefix for image files", IMAGELOAD_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
+    {"Electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},
     {"onlineprefix", "Folder for online files on Mac", ONLINEPREFIX, 0, 'C', 0, SEND_NEVER},
     {"cmdfile", "File for remote commands", COMMAND_FILE, 0, 'C', 0, SEND_NEVER},
     {"psychfile", "Psych results file", PSYCHFILE, 0, 'C', 0, SEND_NEVER},

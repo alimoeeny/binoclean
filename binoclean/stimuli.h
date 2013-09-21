@@ -266,6 +266,7 @@ struct STIMULUS{
     double dlength,dwidth;
     double phases[MAXFREQS];
     double freqs[MAXFREQS];
+    double freqmode; //0 = automatic,1 = manual
     float ucgap;
     double rolldisp;
     char *imprefix, *imname,*builddate;
@@ -289,6 +290,7 @@ struct STIMULUS{
     float envelope;
     int modifier;
     int nphases;
+    int componentjumps[MAXFREQS]; //Apply phase jump or not
 };
 
 typedef struct STIMULUS Stimulus;

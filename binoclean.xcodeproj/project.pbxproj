@@ -199,10 +199,6 @@
 		41520B7013A25BF6006CE4A7 /* drawInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawInfo.h; sourceTree = "<group>"; };
 		41536F8615349D41002D0F9D /* u3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = u3.c; sourceTree = "<group>"; };
 		41536F8715349D41002D0F9D /* u3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = u3.h; sourceTree = "<group>"; };
-		4156A61113C5FDD2002DC9AA /* GetDataFromFig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetDataFromFig.m; sourceTree = "<group>"; };
-		4156A61213C5FDD2002DC9AA /* isfigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = isfigure.m; sourceTree = "<group>"; };
-		4178897913C75EEA00EE70C6 /* mytoc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mytoc.m; sourceTree = "<group>"; };
-		4178897A13C75EEA00EE70C6 /* CloseTag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloseTag.m; sourceTree = "<group>"; };
 		417AEA8113DE21BB006F7A77 /* playButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playButton.png; sourceTree = "<group>"; };
 		417AEA8213DE21BB006F7A77 /* playButtonSilver.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playButtonSilver.png; sourceTree = "<group>"; };
 		417AEA8313DE21BB006F7A77 /* playsweet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playsweet.png; sourceTree = "<group>"; };
@@ -296,6 +292,8 @@
 		C91697121695DF6000D740F7 /* Ping.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = Ping.aiff; sourceTree = "<group>"; };
 		C9308B7D14F82EF50054C963 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = binoclean/TODO.txt; sourceTree = "<group>"; };
 		C937651417AABED800B0D590 /* liblabjackusb-2.5.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "liblabjackusb-2.5.1.dylib"; path = "../../../usr/local/lib/liblabjackusb-2.5.1.dylib"; sourceTree = "<group>"; };
+		C940330317EC684A00F125BA /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = verg.m; path = matlab/verg.m; sourceTree = SOURCE_ROOT; };
+		C940330517EC687D00F125BA /* ServoDrive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServoDrive.m; path = matlab/ServoDrive.m; sourceTree = SOURCE_ROOT; };
 		C94CF80313C8B69E00985271 /* filetypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filetypes.c; path = binoclean/filetypes.c; sourceTree = "<group>"; };
 		C969F832150D233A00D7A5A7 /* lempsy110 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lempsy110; sourceTree = "<group>"; };
 		C969F833150D233A00D7A5A7 /* bwlatest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bwlatest; sourceTree = "<group>"; };
@@ -387,7 +385,6 @@
 		C969F889150D233B00D7A5A7 /* rdsopos */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdsopos; sourceTree = "<group>"; };
 		C969F88A150D233B00D7A5A7 /* rdssine */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rdssine; sourceTree = "<group>"; };
 		C9AA959F177385D0003E9841 /* servostepper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = servostepper.c; sourceTree = "<group>"; };
-		C9BE961C13BBD1F300180D36 /* verg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = verg.m; sourceTree = "<group>"; };
 		C9FE34861799BFFC0088ED4C /* MTRandom64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTRandom64.h; sourceTree = "<group>"; };
 		C9FE34871799BFFC0088ED4C /* MTRandom64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTRandom64.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -511,11 +508,8 @@
 		4156A61613C5FDDB002DC9AA /* Matlab */ = {
 			isa = PBXGroup;
 			children = (
-				4178897913C75EEA00EE70C6 /* mytoc.m */,
-				4178897A13C75EEA00EE70C6 /* CloseTag.m */,
-				4156A61113C5FDD2002DC9AA /* GetDataFromFig.m */,
-				4156A61213C5FDD2002DC9AA /* isfigure.m */,
-				C9BE961C13BBD1F300180D36 /* verg.m */,
+				C940330517EC687D00F125BA /* ServoDrive.m */,
+				C940330317EC684A00F125BA /* verg.m */,
 			);
 			name = Matlab;
 			sourceTree = "<group>";

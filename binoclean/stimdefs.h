@@ -544,6 +544,8 @@ float pix2degy(float val);
 #define IFNEEDED 0
 #define FORCE 1
 
+#define MANUAL_FREQ 1
+#define AUTO_FREQ 0
 
 #define isastim(x) (x != NULL && x->type != STIM_NONE)
 #define isadotstim(x) (x != NULL && x->type == STIM_RDS || x->type == STIM_RLS || x->type == STIM_CORRUG || x->type == STIM_SQCORRUG)

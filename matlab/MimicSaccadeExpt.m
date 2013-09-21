@@ -12,13 +12,15 @@ function varargout = BuildExpt(varargin)
 stimno= 1;
 nf = 400;
 j = 1;
+sacsize=3;
 S.types = {'imx'};
 S.or = 0;
 stimvals{3} = [0];
 stimvals{2} = [0];
 stimvals{1} = [403004 419002 433008 434005 435002 503002 505006 511007 562001 572001];
 distvals = -0.2:0.05:0.2;
-ntrials = 2;
+ntrials = 2; %number of times to repeat set
+
 rpts = 1; %5 number of times to show each exact sequence
 flipsaccade = 0;
 
@@ -43,6 +45,9 @@ while j <= length(varargin)
         stimvals{3} = varargin{j};
     elseif strncmpi(varargin{j},'flip',5)
         flipsaccade = 1;
+    elseif strncmpi(varargin{j},'size',3)
+        j = j+1;
+        sacsize=varargin{j};
     elseif strncmpi(varargin{j},'yshift',5)
         S.types = {'imy'};
         S.or = 90;
@@ -57,13 +62,15 @@ end
 load('Emavg.mat');
 eml = length(em);
 em = (em - em(1));
-em = em .* 3./max(abs(em));
+S.str = sprintf('MeanSaccade=%s\n',sprintf('%.3f',em));
+em = em .* sacsize./max(abs(em));
 trueem = em;
 seedoffset = round(rand(1,1) .*10000);
 distw = length(distvals);
 S.stimno = 0;
 S.sl = 0;
-stimvals{2} = [1 2 4];
+S.Fs = sacsize;
+stimvals{2} = [-90 0 90 180];
 nstim = [length(stimvals{1}) length(stimvals{2}) length(stimvals{3}) ntrials/rpts];
 ssign = 2.*(round(rand(ntrials.*rpts,1)) -0.5);
 sgn = 1;
@@ -71,9 +78,19 @@ for t = 1:nstim(4)
 for m = 1:nstim(3)
 for k = 1:nstim(2)
     for j = 1:nstim(1)
+        S.Fa = stimvals{2}(k);
+        if ismember(S.Fa,[0 180])
+            S.types = {'imx'};
+        else
+            S.types = {'imy'};
+        end
         imx = zeros(1,nf);
         imy = zeros(1,nf);
-        sgn = sgn.*-1;
+        if ismember(S.Fa,[180 -90])
+            sgn = -1;
+        else
+            sgn = 1;
+        end
         em = trueem .* sgn;
         imx(70:70+eml-1) = em;
         imx(70+eml:140) = em(end);
@@ -98,10 +115,7 @@ for k = 1:nstim(2)
         S.vals{2}(101:200) = 1;
         S.imi = stimvals{1}(j);
         S.se = 1000 + seedoffset + S.stimno .*200;
-        S.dx = stimvals{3}(m);
-        S.Fa = S.or+90.*sgn;
-        S.wi = stimvals{2}(k);
-        S.signal = stimvals{1}(j) .* sign(S.dx);
+        S.signal = stimvals{1}(j);
         WriteStim(S);
         
         AllS(S.stimno+1) = S;
@@ -132,13 +146,14 @@ j = 1;
 
 sname = ['/local/manstim/stim' num2str(S.stimno)];
 fid = fopen(sname,'w');
+fprintf(fid,'%s',S.str);
 fprintf(fid,'xo=0.34\n');
 fprintf(fid,'or=%.1f\n',S.or);
 fprintf(fid,'Fa=%.1f\n',S.Fa);
+fprintf(fid,'Fs=%.1f\n',S.Fs);
 fprintf(fid,'se=%d\n',S.se);
-fprintf(fid,'wi=%d\n',S.wi);
 fprintf(fid,'imi=%d\n',S.imi);
-fprintf(fid,'exvals%.2f %.2f %.2f\n',S.imi,S.wi,0);
+fprintf(fid,'exvals%.2f %.2f %.2f\n',S.imi,S.Fa,0);
 types = {'imx' 'imy'};
 for k = 1:length(S.types)
     fprintf(fid,'%s:',S.types{k});

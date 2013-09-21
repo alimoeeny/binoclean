@@ -103,9 +103,7 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
     
 	if(ndots * 4 * nrect > sst->iimlen || sst->iim == NULL) /* need new memory */
 	{
-#ifdef DEBUG
-        printf("%d dots %d %d\n",ndots,sst->iim,sst->xpos);
-#endif
+        printf("%d dots %d %d (%d,%d)\n",ndots * 4 * nrect,sst->iimlen,sst->im,sst->mode,st->splane);
         sst->iimlen = ndots *4 * nrect;
         if(sst->iim != NULL)
             free(sst->iim);
@@ -1125,6 +1123,8 @@ void paint_rls(Stimulus *st, int mode)
     
     p = sst->iim;
     end = (sst->iim+sst->npaint);
+    if (sst->npaint < 0)
+        sst->npaint = sst->ndots;
     x = sst->xpos;
     y = sst->ypos;
     i = 0;

@@ -75,3 +75,8 @@ Things that need fixing:
 * For manual expts make a useful statusline
 -if manual list of exp stims, verg doesn't send to binoc when reopen pipes
 -last stim in an expt does not get a reward.....
+-History search/arrow navigation should read in from binoccmd histroy too
+-add et,e2,e3 to R4 lines, so that PsychMon can see expts. 
+-!mat commands only if not run from sequnce loop
+-have reset expt done by a file read from disk.
+-handle more expts than 3 in manual expts.

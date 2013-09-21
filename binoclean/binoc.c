@@ -67,7 +67,6 @@ static float pursued = 0;
 int lastbutton = -1000;
 int renderoff;
 
-int check_for_monkey = 1;
 static int track_resets[] = {XPOS, YPOS, FIXPOS_X, FIXPOS_Y, -1};
 float pursuedir = -1;
 float totalreward = 0;
@@ -138,6 +137,7 @@ int totalchrs = 0, conjctr;
 int leftmask = GL_TRUE, rightmask = GL_TRUE, cycmask = GL_FALSE, alphamask = GL_FALSE;
 int monkeypress;
 double pmatrix[16];
+float monkeyhour = 19; //8pm
 
 static int sliderflag = ORIENTATION, ntrialstim;
 static float zoom = 1.0, wsum = 0.0;
@@ -508,7 +508,7 @@ void ShowTime()
             sprintf(buf,"%s: Expt Pausing (%.1f)",binocTimeString(),timediff(&now,&endexptime));
         else if(states[EXPT_PAUSED])
             sprintf(buf,"%s: Expt Paused",binocTimeString());
-        else if(check_for_monkey == 0)
+        else if(monkeyhour == 0)
             sprintf(buf,"%s: Not Checking Monkey",binocTimeString());
         else
             sprintf(buf,"%s",binocTimeString());
@@ -623,6 +623,8 @@ void initial_setup()
     Locator *pos;
     int i;
     long mtype;
+    FILE *fd;
+    char *s,buf[BUFSIZ*10];
     
 	setgamma(1.22);
 	defaultflags[COLLAPSE_EXPT3] = 1;
@@ -743,161 +745,15 @@ void initial_setup()
     gettimeofday(&now,NULL);
     ExptInit(&expt, TheStim, &mon);
 //ExptInit now sets up codesend and nfplaces from valstrings
-    return;
-	for(i = 0; i < MAXSERIALCODES; i++)
-	    switch(i)
+
+    if((fd = fopen("/local/binoc.setup","r")) != NULL)
     {
-		case STIMID:
-		case SET_SEED:
-		case OPTION_CODE:
-		case RC_SEED:
-		case STIMULUS_VERSION:
-        case CORRELATION:
-        case MONOCULARITY_EXPT:
-            codesend[i] = SEND_STIMULUS;
-            break;
-        case UPLOAD_CODE:
-        case UFF_PREFIX:
-        case UFF_COMMENT:
-        case ELECTRODE_DEPTH:
-        case QUERY_STATE:
-        case SEND_CLEAR:
-            codesend[i] = SEND_USER_ONLY;
-            break;
-        case STIMULUS_MODE:
-        case STIMULUS_TYPE_CODE:
-        case DISP_X:
-        case DISP_Y:
-        case STIM_WIDTH:
-		case STIM_HEIGHT:
-		case SF:
-		case TF:
-		case ORIENTATION:
-        case SET_SEEDLOOP:
-		case STATIC_VERGENCE:
-		case UNIT_BINWIDTH:
-		case DISP_BACK:
-        case SETZXOFF:
-        case SETZYOFF:
-        case EXPTYPE_CODE:
-        case EXPTYPE_CODE2:
-        case EXPTYPE_CODE3:
-        case EXPT2_INCR:
-        case EXPT2_MEAN:
-        case EXPT2_NSTIM:
-        case EXPT_INCR:
-        case EXPT_MEAN:
-        case NTRIALS_CODE:
-        case DOT_DENSITY:
-        case DOT_SIZE:
-        case VERSION_CODE:
-        case FRAMEREPEAT:
-        case NFRAMES_CODE:
-        case START_PHASE:
-        case ISI_CODE:
-        case FRAMERATE_CODE:
-        case NEXTRAS_CODE:
-        case BACKSTIM_TYPE:
-        case BACK_CONTRAST:
-        case BACK_ORI:
-        case BACK_SIZE:
-        case BACK_TF:
-        case BACK_CORRELATION:
-        case TRIAL_START_BLANK:
-        case DISTRIBUTION_WIDTH:
-        case RC1INC:
-        case DISTRIBUTION_MEAN:
-        case VIEWD_CODE:
-        case XPIXEL_CODE:
-        case YPIXEL_CODE:
-        case RF_ANGLE:
-        case JDEATH:
-        case STANDING_DISP:
-        case PURSUIT_INCREMENT:
-        case INITIAL_APPLY_MAX:
-        case FP_MOVE_DIR:
-        case REWARD_BIAS:
-        case IMAGEJUMPS:
-            codesend[i] = SEND_EXPT;
-            break;
-        case PULSE_WIDTH:
-            codesend[i] = SEND_EXPT_NONZERO;
-            break;
-		case NCOMPONENTS:
-		case SF2:
-        case TF2:
-        case PHASE2:
-            codesend[i] = SEND_GRATING2;
-            break;
-        case FP_MOVE_SIZE:
-            codesend[i] = SEND_NON_ZERO;
-            break;
-        default:
-            codesend[i] = SEND_EXPLICIT;
-            break;
-    }
-	for(i = 0; i < MAXTOTALCODES; i++)
-    {
-	    switch(i)
-        {
-            case TRAPEZOIDAL_SCALING:
-                nfplaces[i] = 7;
-                break;
-            case OPPOSITE_DELAY:
-            case INITIAL_APPLY_MAX:
-            case DISP_X:
-            case TWOCYL_DISP:
-            case DISP_P:
-            case EXPT_MEAN:
-            case EXPT2_MEAN:
-            case EXPT_INCR:
-            case EXPT2_INCR:
-            case XPIXEL_CODE:
-            case YPIXEL_CODE:
-                nfplaces[i] = 5;
-                break;
-            case DISP_BACK:
-            case STANDING_DISP:
-            case DOT_SIZE:
-            case DISP_Y:
-            case CORRELATED_DISPARITY:
-            case ANTICORRELATED_DISPARITY:
-            case FP_MOVE_SIZE:
-            case DEPTH_MOD:
-            case SETCONTRAST:
-            case CONTRAST_LEFT:
-            case CONTRAST_RIGHT:
-            case CONTRAST_DIFF:
-            case STIM_WIDTH:
-            case STIM_HEIGHT:
-            case VDISP_MOD:
-            case CORRELATION:
-            case SF:
-            case SF_DIFF:
-            case SF2:
-            case INITIAL_DISPARITY:
-            case PURSUIT_INCREMENT:
-            case JDEATH:
-            case FAKESTIM_SIGNAL:
-            case PLAID_RATIO:
-                nfplaces[i] = 4;
-                break;
-            case EXPT2_NSTIM:
-            case NTRIALS_CODE:
-            case SET_SEED:
-            case SET_SEEDLOOP:
-            case RC_SEED:
-            case SEEDOFFSET:
-            case EXPTYPE_NONE:
-                nfplaces[i] = 0;
-                break;
-            default:
-                nfplaces[i] = 2;
-                break;
+	    while(fgets(buf, BUFSIZ, fd) != NULL){
+            if (strncmp(buf,"default:",8) ==NULL)
+                InterpretLine(&buf[8],&expt,3);
         }
     }
-	codesend[UPLOAD_CODE] = SEND_USER_ONLY;
-	codesend[UFF_PREFIX] = SEND_USER_ONLY;
+
 }
 
 
@@ -1000,6 +856,9 @@ char **argv;
             else if(!strncmp(buf,"stepperid",8) && s){
                 sscanf(++s,"%d",&i);
                 SetMotorId(i-1); 
+            }
+            else if(!strncmp(buf,"monkeyhour",8) && s){
+                sscanf(++s,"%d",&monkeyhour);
             }
             else if(!strncmp(buf,"electrode",8) && s){
                 strcpy(estring,++s);
@@ -2992,6 +2851,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             if(laststimtype[1] == STIM_RDS)
                 laststimtype[1] = st->next->type;
         }
+        if (st->framectr == 0)
+            setblank = 0;
 	}
     
 	if(val == INTERLEAVE_EXPT_UNCORR){
@@ -3222,6 +3083,11 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
              per second, converted to radians per frame*/
             if(st->type == STIM_CYLINDER)
                 st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
+            if(st->type == STIM_GRATINGN){
+                for (i = 0; i < st->nfreqs; i++)
+                    st->left->incrs[i] = val * st->freqs[i] * M_PI * 2/mon.framerate;
+                st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
+            }
             if(st->type == STIM_RDS || st->type == STIM_RLS){
                 tf = val * st->pos.sf;
 //                st->incr = (val *M_PI *2)/(mon.framerate);
@@ -4210,7 +4076,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 i = 0;
             if(optionflag & CONTRAST_REVERSE_BIT && expt.mode != TF && st->incr > 0)
                 pos->contrast_phase = M_PI_2;
-            else if (optionflag & CONTRAST_REVERSE_BIT && expt.vals[ALTERNATE_STIM_MODE] == QUICK_CAL)
+            else if (optionflag & CONTRAST_REVERSE_BIT && expt.vals[GRIDSIZE] > 0.1)
                 pos->contrast_phase = val; //Not really phase. this %nstims = greylevel
             else
                 pos->contrast_phase = 0;
@@ -4220,7 +4086,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 st->right->pos.phase = pos->phase;
                 st->left->pos.phase = pos->phase;
             }
-		    
+            for(i = 0; i < st->nfreqs; i++)
+                st->phases[i] = pos->phase;
             if(st->type == STIM_GRATING2)
 		    {
                 psine = (OneStim *)(st->left->ptr);
@@ -4663,9 +4530,12 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             break;
         case NCOMPONENTS:
             st->nfreqs = (int)val;
+            st->freqmode = AUTO_FREQ;
             a = StimulusProperty(st,SF2);
             for(i = 0; i < st->nfreqs; i++){
-                st->freqs[i] = st->f + (a - st->f) * (i - floor(st->nfreqs/2));
+//  why + and - freqs here?  Changed Sep 2013
+//                st->freqs[i] = st->f + (a - st->f) * (i - floor(st->nfreqs/2));
+                st->freqs[i] = st->f + (a - st->f) * (i);
             }
             break;
         case START_PHASE:
@@ -5237,8 +5107,10 @@ int change_frame()
         if (Frames2DIO)
 	    DIOWriteBit(3,1);
 #endif
-	    if(!(mode & STIMCHANGE_FRAME))
-            glFinishRenderAPPLE(); /* block until buffer swapped */
+//Need to draw something AND call glFinishRnderApple (after swapbuffer above) to block CPU
+        glRectf(winsiz[0],winsiz[0]-1,winsiz[1],winsiz[1]-1);
+        glFinishRenderAPPLE(); /* block until buffer swapped */
+//	    if(!(mode & STIMCHANGE_FRAME))
         gettimeofday(&changeframetime,NULL);
 	    WriteSignal();
 	    if(c == END_STIM){
@@ -5328,8 +5200,10 @@ float SetRandomPhase( Stimulus *st,     Locator *pos)
         pos->phase = (iphase * 2 * M_PI)/st->nphases;
         pos->phase2 = (myrnd_i() %st->nphases);
         pos->phase2 *= (2 * M_PI/st->nphases);
-        for(i = 0; i < st->nfreqs; i++)
-            st->phases[i] = (myrnd_i() %st->nphases) * 2 *  M_PI/st->nphases;
+            for(i = 0; i < st->nfreqs; i++){
+                if(st->componentjumps[i])
+                    st->phases[i] = (myrnd_i() %st->nphases) * 2 *  M_PI/st->nphases;
+            }
         }
     }
     frameiseqp[expt.framesdone] = iphase;
@@ -5716,8 +5590,10 @@ void increment_stimulus(Stimulus *st, Locator *pos)
 		if(optionflags[RANDOM_PHASE] && st->nphases > 0){
             /* make sure these phases come from this seed so can be reconstructed*/
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
-            myrnd_init(st->left->baseseed);
-            SetRandomPhase(st, pos);
+                myrnd_init(st->left->baseseed+st->framectr);
+                SetRandomPhase(st, pos);
+                mode |= STIMCHANGE_FRAME;
+
             }
             else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
                 pos->phase += st->incr;
@@ -6227,7 +6103,7 @@ int next_frame(Stimulus *st)
     }
     }
     t2 = timediff(&now,&endstimtime);
-    if(t2 > 3600 && !(option2flag & PSYCHOPHYSICS_BIT) && check_for_monkey) /* 1hr sec gone with no trial */
+    if(t2 > 3600 && !(option2flag & PSYCHOPHYSICS_BIT) && monkeyhour > 0) /* 1hr sec gone with no trial */
     {
         time(&t);
         ltime = localtime(&t);
@@ -6236,7 +6112,7 @@ int next_frame(Stimulus *st)
             gettimeofday(&lastmonkeycheck,NULL);
             fflush(seroutfile);
         }
-        if(ltime->tm_hour > 18 || ltime->tm_hour < 1){ //between 8pm and 1am
+        if(ltime->tm_hour > monkeyhour || ltime->tm_hour < 1){ //between 8pm and 1am
             printf("Warning - no stimuli completed for 1hour  at %2d:%2d\n",ltime->tm_hour,ltime->tm_min);
             if(seroutfile)
                 fprintf(seroutfile,"#Calling monkeywarn\n");
@@ -9035,6 +8911,8 @@ void SaveExptFile(char *filename,int flag)
 		if(flag == SAVE_STATE){
             for(i = 0; i < rfctr; i++)
                 fprintf(ofd,"oldrf %.2f %.2f %d %d %.2f\n",oldrfs[i].pos[0],oldrfs[i].pos[1],oldrfs[i].size[0],oldrfs[i].size[1],oldrfs[i].angle);
+            s = DescribeStim(expt.st);
+            fprintf(ofd,"%s",s);
 		}
 
 		if(expt.st->type == STIM_IMAGE){
@@ -9653,7 +9531,7 @@ int GotChar(char c)
                 intended = (float)(duration)/mon.framerate;
                 if((option2flag & EXPT_INTERACTIVE))
                     SetStimulus(TheStim,90.0,SETPHASE,NOEVENT);
-                else
+                else if(!(expt.st->mode & EXPTPENDING))
                     SetStimulus(TheStim,TheStim->vals[START_PHASE],SETPHASE,NOEVENT);
                 //			framesdone=0;
                 drag = 0;
@@ -9784,6 +9662,9 @@ int GotChar(char c)
                 else
                     sign = 0;
 
+                if (!(option2flag & PSYCHOPHYSICS_BIT))//Print psych line for Monkey. Humans done in ButtonResponse()
+                    PrintPsychLine(presult, sign);
+                
                 
                 if(seroutfile != NULL)
                 {
@@ -10228,13 +10109,12 @@ void chessboard(float w, float h)
         if (seroutfile){
             fprintf(seroutfile,"#Lum%.3f at %s",expt.vals[TIMEOUT_CONTRAST],ctime(&now));
         }
-
     }
     lastc = c;
-    if (option2flag & PSYCHOPHYSICS_BIT) //set this to get full screen
+    if (option2flag & PSYCHOPHYSICS_BIT || optionflag & SEARCH_MODE_BIT) //set this to get full screen
         b = a;
     
-    for (i = -x; i < x; i++) {
+    for (i = -x-1; i < x; i++) {
         for (j = -y; j < y; j++) {
             if (ODD(i + j))
                 SetColor(a,1);
@@ -10256,6 +10136,8 @@ void printString(char *s, int size)
 
 void printStringOnMonkeyView(char *s, int size)
 {
+    if (expt.vals[SETCLEARCOLOR] == 0  && optionflags[FEEDBACK] == 0)
+        return;
     glColor4f(1.0,1.0,1.0,1.0); //white text
     glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
     displayOnMonkeyView(s, -500, -450);

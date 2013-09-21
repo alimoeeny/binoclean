@@ -319,7 +319,7 @@ int  processUIEvents()
         
         [[monkeyWindow contentView] enterFullScreenMode:[[NSScreen screens] objectAtIndex:fullscreenmode - 1] withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], NSFullScreenModeAllScreens, [NSNumber numberWithBool:NO], NSFullScreenModeApplicationPresentationOptions, nil]]; 
         NSRect screenFrame = [[[NSScreen screens] objectAtIndex:fullscreenmode -1] frame];
-    //    NSLog(@"%@",screenFrame);
+//        NSLog(@"%@",screenFrame);
     }
         
     mainTimer = [NSTimer scheduledTimerWithTimeInterval:0.0100 target:self selector:@selector(mainTimerFire:) userInfo:nil repeats:YES];
