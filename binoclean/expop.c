@@ -1896,6 +1896,7 @@ char *ReadManualStim(char *file){
             }
             else if (strncmp(inbuf,"maxexval",7) == NULL){ //just send to SPike2
                 SerialString(inbuf,0);
+                SerialString("\n",0);
             }
             else{
                 manualprop[nprop] = FindCode(inbuf);
@@ -1922,8 +1923,10 @@ char *ReadManualStim(char *file){
             nprop++;
         }
         else{
+            SerialString(inbuf,0);
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             InterpretLine(inbuf,&expt,3);
+            notify(inbuf);
             if (strncmp(inbuf,"exvals",5) != NULL){
                 strcat(cbuf, inbuf);
                 strcat(cbuf, " ");
@@ -6145,6 +6148,30 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     icode = valstringindex[code];
     switch(code)
     {
+        case SET_SF_COMPONENTS:
+            sprintf(cbuf,"%s=",serial_strings[code]);
+            for (i = 0; i < st->left->nfreqs; i++){
+                sprintf(temp,"%.3f ",st->freqs[i]);
+                strcat(cbuf,temp);
+            }
+            strcat(cbuf,"\n\0");
+            break;
+        case SET_TF_COMPONENTS:
+            sprintf(cbuf,"%s=",serial_strings[code]);
+            for (i = 0; i < st->left->nfreqs; i++){
+                sprintf(temp,"%.3f ",st->left->incrs[i]*mon.framerate/M_2_PI);
+                strcat(cbuf,temp);
+            }
+            strcat(cbuf,"\n\0");
+            break;
+        case JUMP_SF_COMPONENTS:
+            sprintf(cbuf,"%s=",serial_strings[code]);
+            for (i = 0; i < st->left->nfreqs; i++){
+                sprintf(temp,"%.0f ",expt.st->componentjumps[i]);
+                strcat(cbuf,temp);
+            }
+            strcat(cbuf,"\n\0");
+            break;
         case USENEWDIRS:
             sprintf(cbuf,"%s=%d",serial_strings[code],usenewdirs);
             break;
@@ -7126,6 +7153,11 @@ void InitExpt()
             else
                 sprintf(cbuf,"%s=noback\n",serial_strings[UFF_COMMENT]);
             SerialString(cbuf,0);
+        }
+        if (expt.st->nfreqs > 1){
+            SerialSend(SET_SF_COMPONENTS);
+            SerialSend(SET_TF_COMPONENTS);
+            SerialSend(JUMP_SF_COMPONENTS);
         }
         SerialSend(ELECTRODE_DEPTH);
         SerialSend(USENEWDIRS);
@@ -13382,6 +13414,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                        &in[0],&in[1],&in[2],&in[3],&in[4],&in[5],&in[6],&in[7],&in[8],&in[9],&in[10],&in[11],&in[12],&in[13],&in[14],&in[15]);
             for(i = 0; i < n; i++)
                 expt.st->freqs[i] = in[i];
+            expt.st->left->nfreqs = n;
             if (n > 0)
                 expt.st->freqmode = MANUAL_FREQ;
             break;
@@ -14032,10 +14065,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 if((t = strchr(s,' ')) != NULL && *(++t))
                     InterpretLine(t, ex,0);
                 break;
+/*
+ * Any lines that can have > 1 number need to be in this list to avoid recursive calls
+ */
             case SOFTOFF_CODE:
             case QUERY_STATE:
             case UFF_PREFIX:
             case CYBER_CHANNELS:
+            case JUMP_SF_COMPONENTS:
+            case SET_SF_COMPONENTS:
+            case SET_TF_COMPONENTS:
                 break;
         }
     }
