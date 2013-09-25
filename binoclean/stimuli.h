@@ -429,6 +429,7 @@ struct EXPERIMENT{
     char cwd[BUFSIZ*2];
     int expseed;
     char *username;
+    int codesent;
 };
 
 typedef struct EXPERIMENT Expt;

@@ -2840,6 +2840,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 	int oldoptionflag = optionflag,icode;
 	static int laststimtype[2] = {STIM_NONE};
 	static int setblank = 0, setuc = 0, setleft = 0, setright = 0;
+    int notsent = 0;
     
 	
 	psine = (OneStim *)(st->left->ptr);
@@ -4617,6 +4618,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         if(st->flag != oldflag || optionflag != oldoptionflag)
             SerialSend(OPTION_CODE);
         SerialSend(code);
+        expt.codesent = 1;
 	}
 	else if(st->prev != NULL && event != NOEVENT && !noserialout
             && !(inexptstim && optionflags[FAST_SEQUENCE])){
@@ -4636,7 +4638,11 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             case TF:
                 SerialSend(BACK_TF);
                 break;
+            default: // code not sent
+                notsent = 1;
         }
+        if (notsent == 0)
+            expt.codesent=1;
 	}
 	return(0);
 }

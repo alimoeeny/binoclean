@@ -41,6 +41,9 @@ if isempty(it)
 % Otherwise read from binoc
     if length(varargin) && exist(varargin{1},'file')
         DATA = OpenPipes(DATA, 0);
+        if DATA.togglecodesreceived == 0
+            cprintf('red','Binoclean did not send Toggle Codes\n');
+        end
         tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
@@ -77,6 +80,14 @@ if isempty(it)
     SetGui(DATA);
     tt = TimeMark(tt, 'Reset Interface');
     cmdfile = ['/local/' DATA.binoc{1}.monkey '/binoccmdhistory'];
+    DATA.oldcmds = scanlines(cmdfile);
+    id = strncmp('Cancel',DATA.oldcmds,5);
+    xid = find(strncmp('Reopen',DATA.oldcmds,5));
+    id(xid) =1;
+    xid = find(strncmp('?',DATA.oldcmds,1));
+    id(xid) =1;
+    DATA.oldcmds = DATA.oldcmds(~id);
+    
     DATA.cmdfid = fopen(cmdfile,'a');
     myprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
     set(DATA.toplevel,'UserData',DATA);
@@ -167,6 +178,7 @@ for j = 1:length(strs{1})
         if strcmp(src,'fromstim')
             DATA.matexpt = value;
         else
+            fprintf('Calling %s from %d\n',value,src); 
             eval(value);
         end
     elseif strncmp(s,'ACK:',4)
@@ -175,7 +187,8 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'confirm',7)
         yn = questdlg(s(8:end),'Update Check');
         if strcmp(yn,'Yes')
-            fprintf(DATA.outid,'confirmpopup\n');
+            fprintf('Confirm Yes\n');
+            fprintf(DATA.outid,'confirmpopup=1\n');
         end
     elseif s(1) == '#' %defines stim code/label
         [a,b] = sscanf(s,'#%d %s');
@@ -214,6 +227,8 @@ for j = 1:length(strs{1})
         DATA.userstrings = {DATA.userstrings{:} estr};
     elseif strncmp(s,'layout',6)
         DATA.layoutfile = value;
+    elseif strncmp(s,'TOGGLEEND',9)
+        DATA = CheckToggleCodes(DATA);
     elseif strncmp(s,'TOGGLE',6)
         id = strfind(s,' ');
         cc = s(id(1)+1:id(2)-1);
@@ -431,28 +446,45 @@ for j = 1:length(strs{1})
         f = fields(DATA.optionflags);
         stimf = fields(DATA.stimflags{1});
         nflag = 1;
-        DATA.showflagseq = {};
+        if strncmp(s,'pf=0',4) %% reset list, rather than add
+            DATA.showflagseq = {};
+            nflag = 1;
+        else
+            nflag = length(DATA.showflagseq)+1;
+        end
         codetype = 1;
         for k= 1:length(id)-1
-            code = strmatch(s(id(k)+1:id(k+1)-1),f);
+            newcode = s(id(k)+1:id(k+1)-1);
+            code = find(strcmp(newcode,f));
+            isshown = sum(strcmp(newcode,DATA.showflagseq));
             if s(id(k)) == ':'
                 codetype = 2;
             elseif codetype == 2 %need to look for these in stimglags
-                code = strmatch(s(id(k)+1:id(k+1)-1),stimf);
-            elseif isempty(code)
+                code = strmatch(newcode,stimf);
+            elseif id(k+1) < id(k)+2
+                fprintf('Code too short %s\n',s(id(k):end));
+            elseif isempty(code) && DATA.togglecodesreceived == 0
+                DATA.showflags.(newcode) = 1;
+                if ~isshown
+                    DATA.showflagseq{nflag} = newcode;
+                    nflag = nflag+1;
+                end
                 if DATA.togglecodesreceived
                 fprintf('No Code for %s\n,',s(id(k):end));
                 end
-            elseif id(k+1) < id(k)+2
-                fprintf('Code too short %s\n',s(id(k):end));
             elseif s(id(k)) == '+' && id(k+1)
                 DATA.showflags.(f{code}) = 1;
+                if ~isshown
                DATA.showflagseq{nflag} = f{code};
                nflag = nflag+1;
+                end
             else
+                if ~isempty(code)
                 DATA.showflags.(f{code}) = 0;
+                end
             end
         end
+        DATA.binoc{1}.pf = ShowFlagString(DATA);
     elseif strncmp(s,'helpfile=',9)
         s = s(10:end);
         id = strfind(s,'"');
@@ -643,7 +675,7 @@ for j = 1:length(strs{1})
             end
             codetype = DATA.comcodes(cid(1)).group;
         end    
-    elseif s(1) == 'E'  %don't let this catch other codes starting with E
+    elseif s(1) == 'E'  && isempty(code)%don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
             DATA.nextras(2) = 0;
@@ -682,8 +714,12 @@ for j = 1:length(strs{1})
                     end
                 end
             end
-        else
-            n = sscanf(s(2:end),'%d');
+        elseif isempty(code)
+            if s(2) == 'A'  % new way to do is so that Can use codes beginning with E
+                n = sscanf(s(3:end),'%d');
+            else
+                n = sscanf(s(2:end),'%d');
+            end
             if n < 0 && isempty(DATA.exptstimlist{1})
                 DATA.nextras(1) = abs(n(1));
             end
@@ -700,6 +736,8 @@ for j = 1:length(strs{1})
             if strncmp(s,'ECLEAR',5)
                 DATA.exptstimlist{1} = {};
             end
+        else
+            
         end
     else
         id = strfind(s,'=');
@@ -747,6 +785,28 @@ function [code, codeid] = FindCode(DATA, s)
         end
     end
         
+function str =  ShowFlagString(DATA)    
+    str = 'pf=';
+    for j = 1:length(DATA.showflagseq)
+        f = DATA.showflagseq{j};
+        if DATA.showflags.(f)
+            str = [str '+' f];
+        end
+    end
+    
+function DATA = CheckToggleCodes(DATA)    
+    f = fields(DATA.showflags);
+    of = fields(DATA.optionflags);
+    
+    for j = 1:length(f)
+        if sum(strcmp(f{j},of)) == 0
+            fprintf('Option %s Not supported\n',f{j});
+            DATA.showflags = rmfield(DATA.showflags,f{j});
+            id = find(strcmp(f{j},DATA.showflagseq));
+            id = setdiff(1:length(DATA.showflagseq),id);
+            DATA.showflagseq = DATA.showflagseq(id);
+        end
+    end
 
 function DATA = ReadExptLines(DATA, strs, src)
 
@@ -1333,6 +1393,7 @@ DATA.exptype{2} = 'e0';
 DATA.exptype{3} = 'e0';
 DATA.stimtype(1) = 1;
 DATA.stimtype(2) = 1;
+DATA.nextras = [0 0 0];
 
 DATA.electrodeid = 1;
 DATA.mean = [0 0 0];
@@ -2733,7 +2794,7 @@ function DATA = RunButton(a,b, type)
             else
                 DATA.rptexpts = 0;
                 fprintf(DATA.outid,'\\ecancel\n');
-                DATA = AddTextToGui(DATA,'Cancelled');
+                DATA = AddTextToGui(DATA,'Cancelled','norec');
                 if DATA.nexpts > 0
                 DATA.Expts{DATA.nexpts}.last = DATA.Trial.Trial;
                 DATA.Expts{DATA.nexpts}.End = now;
@@ -3249,7 +3310,7 @@ for j = line:length(str)
         if firstline > 1
             uipause(now, DATA.binoc{1}.seqpause,'Fixed Sequence Pause');
         end
-        if DATA.optionflags.exm && ~isempty(DATA.matexpt)
+        if DATA.optionflags.exm && ~isempty(DATA.matexpt) && matlabwasrun == 0
             fprintf('Running %s\n',DATA.matexpt);
             eval(DATA.matexpt);
         end
@@ -4058,6 +4119,7 @@ function OtherToggles(a,b,flag)
 function jTextKey(src, ev)    
     DATA = GetDataFromFig(src);
     ks =get(ev);
+    newchar = 0;
     if ks.KeyCode == 38  %up arrow
         if ~isempty(DATA.completions)
             x = get(DATA.txtrec,'value');
@@ -4067,12 +4129,25 @@ function jTextKey(src, ev)
                 src.CaretPosition = length(src.Text);
             end
         elseif DATA.commandctr > 1
-            DATA.commandctr = DATA.commandctr-1;
-            src.Text = DATA.commands{DATA.commandctr};
+            if DATA.newchar 
+                DATA.completestr = src.Text;
+            end
+            if isempty(DATA.completestr)
+                DATA.commandctr = DATA.commandctr-1;
+                src.Text = DATA.commands{DATA.commandctr};
+            else
+                fprintf('History with %s\n',DATA.completestr);
+                id = find(strncmp(DATA.completestr,DATA.commands,length(DATA.completestr)));
+                id = id(id < DATA.commandctr);
+                if ~isempty(id)
+                    DATA.commandctr = id(end);
+                    src.Text = DATA.commands{id(end)};
+                end                
+            end
             set(DATA.toplevel,'UserData',DATA);
         end
     elseif ks.KeyCode == 10  %return
-        TextEntered(src, ev);
+        DATA = TextEntered(src, ev);
     elseif ks.KeyCode == 39  %right arrow
     elseif ks.KeyCode == 40  %down arrow
         if ~isempty(DATA.completions)
@@ -4093,7 +4168,17 @@ function jTextKey(src, ev)
         if isempty(strfind(a,'='))  %complete codes
             DATA = ShowCompletions(DATA,a);
         end
+    elseif ks.KeyChar == ' '
+        a = deblank(src.Text);
+        if isempty(strfind(a,'='))  %complete codes
+            DATA = ShowCompletions(DATA,a);
+        end
+    else
+        newchar = 1;
+        DATA.completestr = '';
     end
+    DATA.newchar = newchar; %something types
+    set(DATA.toplevel,'UserData',DATA);
         
 function TextKey(src,ev)
     DATA = GetDataFromFig(src);
@@ -4129,6 +4214,7 @@ function TextKey(src,ev)
             DATA = ShowCompletions(DATA,a);
         end
     elseif strcmp(ks.Key,'tab')
+        fprintf('Hit Tab');
     elseif strcmp(ks.Key,'control')
         setappdata(DATA.toplevel,'cntrl_is_down',1);
     else
@@ -4204,7 +4290,7 @@ end
         end
         
 
-function TextEntered(a,b)
+function DATA = TextEntered(a,b)
     
     if get(gcf, 'currentcharacter') ~= 13 %return
         return;
@@ -4338,13 +4424,13 @@ set(DATA.toplevel,'UserData',DATA);
 SetGui(DATA);
 
 
-function DATA = AddTextToGui(DATA, txt)
+function DATA = AddTextToGui(DATA, txt, varargin)
     if ~isfield(DATA,'txtrec') || ~ishandle(DATA.txtrec)
         return;
     end
 a =  get(DATA.txtrec,'string');
 n = size(a,1);
-DATA = LogCommand(DATA, txt);
+DATA = LogCommand(DATA, txt, varargin{:});
 txt  = [txt ' ' datestr(now,'HH:MM')];
 a(n+1,1:length(txt)) = txt;
 set(DATA.txtrec,'string',a);

@@ -146,6 +146,8 @@ static char *helpfiles[MAXHELPFILES] = {NULL};
 static char *helplabels[MAXHELPFILES] = {NULL};
 static int nhelpfiles = 0;
 static int longnames[100] = {MIXAC, EXPT1_MAXSIG, FAKESTIM_SIGNAL, HIGHXTYPE, MONKEYNAME, 0};
+char confirmcmd[BUFSIZ *10] = {0};
+char noconfirmcmd[BUFSIZ *10] = {0};
 
 FILE *imoutfd = NULL;
 int command_pending;
@@ -1490,6 +1492,7 @@ int SendToggleCodesToGui()
         notify(buf);
         i++;
     }
+    notify("TOGGLEEND\n");
     for (i = 0; i < N_STIMULUS_TYPES; i++){
         sprintf(buf,"STIMTYPE %d %s\n",i,stimulus_names[i]);
         notify(buf);
@@ -1923,7 +1926,10 @@ char *ReadManualStim(char *file){
         }
         else{
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
+            expt.codesent = 0;
             InterpretLine(inbuf,&expt,3);
+            if (expt.codesent == 0)
+                SerialString(inbuf,0);
             if (strncmp(inbuf,"exvals",5) != NULL){
                 strcat(cbuf, inbuf);
                 strcat(cbuf, " ");
@@ -2071,7 +2077,7 @@ void ListQuickExpts()
         sprintf(buf,"qe=%s\n",quicknames[i]);
         notify(buf);
     }
-    if (expt.showflags != NULL){
+    if (expt.showflags != NULL){  // in case added by a quickexpt ? do this in verg
         sprintf(buf,"pf=%s\n",expt.showflags);
         notify(buf);
     }
@@ -2447,6 +2453,9 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
         return(0);
     switch(flag)
     {
+        case SHOWFLAGS_CODE:
+            expt.showflags = myscopy(expt.showflags,s);           
+            break;
         case IMAGELOAD_PREFIX:
             expt.st->imprefix = myscopy(expt.st->imprefix,nonewline(s));
         
@@ -6752,13 +6761,15 @@ int confirm_no(char *s, *help)
     return(1);   
 }
 
-int confirm_yes(char *s, *help)
+int confirm_yes(char *s, char *yescmd, char *nocmd, char *help)
 {
     char buf[BUFSIZ*10];
     int j;
     float timeout = 10.0,tdiff;
     struct timeval a,b;
     
+    strcpy(confirmcmd,yescmd);
+    strcpy(noconfirmcmd,nocmd);
     if (popup_confirmed >= 0)
         return(popup_confirmed);
     acknowledge(s,help);
@@ -11296,7 +11307,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
             if(optionflags[CHECK_FRAMECOUNTS] < 2){
                 sprintf(buf,"Only completed %d/%d frames. op-CN to stop Checking",framesdone,n);
-                acknowledge(buf,NULL);
+                confirm_yes(buf,"op=+CN","op=-CN",NULL);
             }
             else if (stimno ==  0){
                 sprintf(buf,"Only completed %d/%d frames. Will not Check again.",framesdone,n);
@@ -11310,10 +11321,10 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      * also check if frames all done, but took too long (in case forcing all frames
      */
     if(optionflags[CHECK_FRAMECOUNTS] && retval != BAD_TRIAL && 
-       frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){ 
+       frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){
         if(optionflags[CHECK_FRAMECOUNTS] < 2){
             sprintf(buf,"%d frames took %.1f.  op-CN to stop Checking",framesdone,frametimes[framesdone-1]);
-            acknowledge(buf,NULL);
+            confirm_yes(buf,"op=+CN","op=-CN", NULL);
                 optionflags[CHECK_FRAMECOUNTS] = 0;
         }
         else if (stimno == 0){
@@ -12565,7 +12576,7 @@ int str2code(char *s)
 float readval(char *s, 	Stimulus *TheStim)
 {
     float val,fval, addval = 0;
-    int ok;
+    int ok,code;
     char *p;
     ok = 1;
     if(!isanumber(*s)){
@@ -12652,6 +12663,13 @@ float readval(char *s, 	Stimulus *TheStim)
                     break;
             }
             
+        }
+        else{
+            code = FindCode(s);
+            if (code < 0)
+                ok = 0;
+            else
+                val = addval+GetProperty(&expt,expt.st, code) * val;            
         }
     }
     else
@@ -12849,10 +12867,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 
 
     s = strchr(line, '=');
-    if(!strncmp(line,"confirmpopup",10) && s != NULL){
-        sscanf(++s,&popup_confirmed);
-        if(popup_confirmed)
-            InterpretLine(lastline,ex, 0);
+    if(!strncmp(line,"confirmpopup",10)){
+        code = -1;
+        if(s != NULL){
+            sscanf(++s,"%d",&popup_confirmed);
+            if(popup_confirmed)
+                code = InterpretLine(confirmcmd,ex, 0);
+            else
+                code = InterpretLine(noconfirmcmd,ex, 0);
+        }
+        return(code);
     }
     lastline = line;
     if((t = strchr(line,015))  != NULL){
@@ -13646,10 +13670,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                     j++;
             }
             break;
-        case SHOWFLAGS_CODE:
-            expt.showflags = myscopy(expt.showflags,s);
-            
-            break;
+
         case OPTION_CODE:
             if(isdigit(s[0])){
                 sscanf(s,"%ld",&optionflag);
