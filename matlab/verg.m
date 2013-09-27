@@ -1139,8 +1139,6 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.vergversion=vergversion();
-
-
 DATA.plotexpts = [];
 DATA.netmatdir='/Volumes/bgc5/bgc/c/binoclean/matlab';
 DATA.localmatdir='/local/matlab';
