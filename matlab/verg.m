@@ -29,6 +29,7 @@ while j <= length(varargin)
 end
 
 
+
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
     tt = TimeMark([], 'Start');
