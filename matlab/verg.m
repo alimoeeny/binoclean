@@ -166,6 +166,9 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'!mat',4) && ~isempty(value)
         if strcmp(src,'fromstim')
             DATA.matexpt = value;
+            if strncmp(s,'!matnow',7)
+                eval(value);
+            end
         else
             eval(value);
         end
