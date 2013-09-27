@@ -13813,9 +13813,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case UFF_PREFIX: //don't send to Spike2 when get new name. Wait for Open button
             SetExptString(ex, TheStim, code, s);
             break;
+        case CHANNEL_CODE: //just relay these from verg. don't send all channels'
+            SerialString(line,0);
+            break;
         case PENETRATION_TEXT:
         case LOGFILE_CODE:
-        case CHANNEL_CODE:
         case USERID:
         case BACKGROUND_IMAGE: 
         case MONKEYNAME:

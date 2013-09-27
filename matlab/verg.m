@@ -33,10 +33,11 @@ end
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
     tt = TimeMark([], 'Start');
-    DATA.name = 'Binoc';
     DATA.tag.top = 'Binoc';
     ts = now;
     DATA = SetDefaults(DATA);
+    DATA.name = strrep(DATA.vergversion,'verg.','Verg Ver ');
+
 %open pipes to binoc 
 % if a file is named in teh command line, then take all setting from there.
 % Otherwise read from binoc
@@ -45,6 +46,7 @@ if isempty(it)
         tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
+        SendCode(DATA,'vve'); %send verg version
         tt = TimeMark(tt, 'Read');
         DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
         if exist(DATA.binocstr.lo,'file')
@@ -962,6 +964,7 @@ function SendState(DATA, varargin)
             fprintf(DATA.outid,'qe=%s\n',DATA.quickexpts(j).filename);
         end
     end
+    SendCode(DATA,'vve');
     SendCode(DATA,'optionflag');
     SendCode(DATA,'expts');
     if DATA.electrodeid > 0
@@ -1433,6 +1436,9 @@ end
 if status >0
 fprintf('%s\n',s);
 end
+
+
+
 function DATA = InitInterface(DATA)
 
     scrsz = get(0,'Screensize');
@@ -1815,6 +1821,7 @@ function ShowHelp(a,b,file)
    for j = 1:length(DATA.helpfiles)
         uimenu(hm,'Label',DATA.helpfiles(j).label,'Callback',{@ShowHelp, DATA.helpfiles(j).filename});
     end
+   uimenu(hm,'Label',sprintf('Version %s',strrep(DATA.vergversion,'verg.','')));
  
         
   function BuildQuickMenu(DATA, hm)
@@ -3950,6 +3957,8 @@ if strcmp(code,'optionflag')
         s = [s sprintf('e3=%s\ni3=%s\nm3=%.6f\nn3=%d',DATA.exptype{3},DATA.binoc{1}.i3,DATA.mean(3),DATA.nstim(3))];
     elseif strcmp(code,'st')
         s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
+    elseif strcmp(code,'vve')
+        s = sprintf('vve=%s',DATA.vergversion);
     elseif strcmp(code,'pf')
         s = 'pf=';
         f = fields(DATA.showflags);
