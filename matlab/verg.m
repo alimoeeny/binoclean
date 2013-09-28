@@ -29,13 +29,15 @@ while j <= length(varargin)
 end
 
 
+
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
     tt = TimeMark([], 'Start');
-    DATA.name = 'Binoc';
     DATA.tag.top = 'Binoc';
     ts = now; 
     DATA = SetDefaults(DATA);
+    DATA.name = strrep(DATA.vergversion,'verg.','Verg Ver ');
+
 %open pipes to binoc 
 % if a file is named in teh command line, then take all setting from there.
 % Otherwise read from binoc
@@ -48,6 +50,7 @@ if isempty(it)
         DATA.stimfilename = varargin{1};
         SendState(DATA); %params loaded from verg.setup etc
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
+        SendCode(DATA,'vve'); %send verg version
         tt = TimeMark(tt, 'Read');
         DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
         if exist(DATA.binoc{1}.lo,'file')
@@ -184,6 +187,9 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'!mat',4) && ~isempty(value)
         if strcmp(src,'fromstim')
             DATA.matexpt = value;
+            if strncmp(s,'!matnow',7)
+                eval(value);
+            end
         else
             fprintf('Calling %s from %d\n',value,src); 
             eval(value);
@@ -1067,6 +1073,7 @@ function SendState(DATA, varargin)
             fprintf(DATA.outid,'qe=%s\n',DATA.quickexpts(j).filename);
         end
     end
+    SendCode(DATA,'vve');
     SendCode(DATA,'optionflag');
     SendCode(DATA,'expts');
     if DATA.electrodeid > 0
@@ -1247,6 +1254,7 @@ end
 function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
+DATA.vergversion=vergversion();
 DATA.plotexpts = [];
 DATA.completions = {};
 DATA.newchar = 0;
@@ -1551,6 +1559,9 @@ end
 if status >0
 fprintf('%s\n',s);
 end
+
+
+
 function DATA = InitInterface(DATA)
 
     scrsz = get(0,'Screensize');
@@ -1942,6 +1953,7 @@ function ShowHelp(a,b,file)
    for j = 1:length(DATA.helpfiles)
         uimenu(hm,'Label',DATA.helpfiles(j).label,'Callback',{@ShowHelp, DATA.helpfiles(j).filename});
     end
+   uimenu(hm,'Label',sprintf('Version %s',strrep(DATA.vergversion,'verg.','')));
  
         
   function BuildQuickMenu(DATA, hm)
@@ -2165,6 +2177,7 @@ function CheckForUpdate(DATA)
     CheckFileUpdate([DATA.netmatdir '/verg.m'],[DATA.localmatdir '/verg.m']);
     CheckFileUpdate([DATA.netmatdir '/helpstrings.txt'],[DATA.localmatdir '/helpstrings.txt']);
     CheckFileUpdate([DATA.netmatdir '/DownArrow.mat'],[DATA.localmatdir '/DownArrow.mat']);
+    CheckFileUpdate([DATA.netmatdir '/vergversion.m'],[DATA.localmatdir '/vergversion.m']);
     
  function CheckFileUpdate(src, tgt)
     a = dir(src);
@@ -4081,6 +4094,8 @@ if strcmp(code,'optionflag')
         s = AddCustomStim(DATA,s,1);
     elseif strcmp(code,'st')
         s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
+    elseif strcmp(code,'vve')
+        s = sprintf('vve=%s',DATA.vergversion);
     elseif strcmp(code,'pf')
         s = 'pf=';
         f = fields(DATA.showflags);
