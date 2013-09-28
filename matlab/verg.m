@@ -34,7 +34,7 @@ if isempty(it)
     tt = TimeMark([], 'Start');
     DATA.name = 'Binoc';
     DATA.tag.top = 'Binoc';
-    ts = now;
+    ts = now; 
     DATA = SetDefaults(DATA);
 %open pipes to binoc 
 % if a file is named in teh command line, then take all setting from there.
@@ -46,6 +46,7 @@ if isempty(it)
         end
         tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
+        SendState(DATA); %params loaded from verg.setup etc
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
         tt = TimeMark(tt, 'Read');
         DATA.rptexpts = 0;  %can't set this in startup files, only quickmenus
@@ -83,10 +84,16 @@ if isempty(it)
     DATA.oldcmds = scanlines(cmdfile);
     id = strncmp('Cancel',DATA.oldcmds,5);
     xid = find(strncmp('Reopen',DATA.oldcmds,5));
+    if ~isempty(xid)
+        lastopenstr = strrep(DATA.oldcmds{xid(end)},'Reopened ','');
+    else
+        lastopenstr = 'No date';
+    end
     id(xid) =1;
     xid = find(strncmp('?',DATA.oldcmds,1));
     id(xid) =1;
     DATA.oldcmds = DATA.oldcmds(~id);
+    DATA.oldcmds{end+1} = sprintf('History from file (%s)',lastopenstr);
     
     DATA.cmdfid = fopen(cmdfile,'a');
     myprintf(DATA.cmdfid,'Reopened %s\n',datestr(now));
@@ -746,11 +753,16 @@ for j = 1:length(strs{1})
             if isempty(strmatch(code, {'1t' '2t' '3t' '4t'})) %illegal names
                 code = deblank(code);
             val = sscanf(s(id(1)+1:end),'%f');
-            DATA.binoc{DATA.currentstim}.(code) = val;
+            if ~isempty(val)
+                DATA.binoc{DATA.currentstim}.(code) = val;
+            else
+                DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
             end
         end
     end
+    end
 end
+
 
 function DATA = CheckCustomStim(DATA, s, n)
     if s(end) == '*'
@@ -906,6 +918,13 @@ function DATA = ReadStimFile(DATA, name, varargin)
         end
         j = j+1;
     end
+%if this is the first load since running an expt, Call the reset
+%file
+if DATA.newexptdef == 0 && isfield(DATA.binoc{1},'ereset')
+    fprintf('Resetting Expt with %s\n',DATA.binoc{1}.ereset);
+    DATA.newexptdef = 1;
+    DATA = ReadStimFile(DATA, DATA.binoc{1}.ereset);
+end
 outprintf(DATA,'#qe%s\n',name);
 
 fid = fopen(name,'r');
@@ -938,7 +957,7 @@ end
 if setall
     DATA = ReadVergFile(DATA, DATA.layoutfile);
 end
-
+DATA.newexptdef = 1;
 
 
 function DATA = ReadVergFile(DATA, name, varargin)
@@ -1058,6 +1077,9 @@ function SendState(DATA, varargin)
 
     
 function SendChoiceTargets(fid, DATA)
+    if length(DATA.stimtype) < 3
+        return;
+    end
     if DATA.stimtype(3)
         fprintf(fid,'mo=ChoiceU\n');
         fprintf(fid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(3)});
@@ -1227,7 +1249,9 @@ function DATA = SetDefaults(DATA)
 scrsz = get(0,'Screensize');
 DATA.plotexpts = [];
 DATA.completions = {};
-DATA.netmatdir='/bgc/bgc/c/binoclean/matlab';
+DATA.newchar = 0;
+DATA.newexptdef = 1;  %when load 1st file, don't do any resets
+DATA.netmatdir='/Volumes/bgc5/bgc/c/binoclean/matlab';
 DATA.localmatdir='/local/matlab';
 DATA.pausetime = 0;
 DATA.readpause = 0;
@@ -1287,7 +1311,8 @@ DATA = SetField(DATA,'togglecodesreceived',0);
 DATA = SetField(DATA,'autoreopen', 0);;
 
 DATA.commands = {};
-DATA.commandctr = 0;
+DATA.commandctr = 1;
+DATA.historyctr = 0;
 DATA.inexpt = 0;
 DATA.datafile = [];
 DATA.electrodestrings = {'Not Set'};
@@ -2325,7 +2350,7 @@ function EditText(a,b)
          c(1) = 0;
          set(a,'UserData',[c(1) (id-1)]);
          sendvals = 1;
-     elseif length(b.Character)
+     elseif ~isempty(b.Character)
              if strcmp(b.Key,'backspace')
                  str{id} = ' ';
              else
@@ -2768,6 +2793,7 @@ function Expt = ExptSummary(DATA)
 function DATA = RunButton(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
+        DATA.newexptdef = 0;
         if type == 1
             if DATA.inexpt == 0 %sarting a new one. Increment counter
                 if DATA.optionflags.exm && ~isempty(DATA.matexpt)
@@ -3364,7 +3390,7 @@ function DATA = LogCommand(DATA, str, varargin)
 
     if reccmd
     DATA.commands = {DATA.commands{:} str};
-    DATA.commandctr = length(DATA.commands);
+    DATA.commandctr = length(DATA.commands)+1;
     end
     
     if DATA.cmdfid > 0
@@ -4114,7 +4140,80 @@ function OtherToggles(a,b,flag)
     elseif strcmp(flag,'XYB')
         fprintf(DATA.outid,'ch12%c\n',c);
     end        
+
     
+    
+function [DATA, txt] = PrevCommand(DATA, src, step)
+    txt = '';
+    
+    if DATA.newchar
+        DATA.completestr = src.Text;
+    end
+    
+    if (DATA.commandctr > 1 && step == -1) || (DATA.commandctr < length(DATA.commands) && step == 1 && DATA.historyctr == length(DATA.oldcmds)+1)
+        if isempty(DATA.completestr)
+            DATA.commandctr = DATA.commandctr+step;
+        else
+            %                fprintf('History with %s\n',DATA.completestr);
+            id = find(strncmp(DATA.completestr,DATA.commands,length(DATA.completestr)));
+            if step < 0
+                id = id(id < DATA.commandctr);
+                if ~isempty(id)
+                    DATA.commandctr = id(end);
+                else 
+                    DATA.commandctr = 0;
+                end
+            else
+                id = id(id > DATA.commandctr);
+                if ~isempty(id)
+                    DATA.commandctr = id(1);
+                end
+            end
+        end
+%        fprintf('Step Command %d\n',step);
+        DATA.historyctr = length(DATA.oldcmds)+1;
+        if DATA.commandctr == 0
+            txt = DATA.oldcmds{end};
+            DATA.commandctr = 1;
+            DATA.historyctr = length(DATA.oldcmds);
+        else
+            txt = DATA.commands{DATA.commandctr};
+        end
+    elseif DATA.commandctr == 1 && (step < 0 || DATA.historyctr <= length(DATA.oldcmds))
+        if DATA.historyctr == length(DATA.oldcmds) && step == 1
+            DATA.historyctr = length(DATA.oldcmds)+1;
+            txt = DATA.commands{1};
+        elseif DATA.historyctr > 1
+            if isempty(DATA.completestr) || DATA.historyctr == length(DATA.oldcmds)+1
+                DATA.historyctr = DATA.historyctr+step;
+            else
+                id = find(strncmp(DATA.completestr,DATA.oldcmds,length(DATA.completestr)));
+                if step < 0
+                    id = id(id < DATA.historyctr);
+                    if ~isempty(id)
+                        DATA.historyctr = id(end);
+                    end
+                else
+                    id = id(id > DATA.historyctr);
+                    if ~isempty(id)
+                        DATA.historyctr = id(1);
+                    else
+                        DATA.historyctr = 0;
+                    end
+                end
+            end
+            if DATA.historyctr == 0
+                txt = 'Todays Commands';
+                DATA.historyctr = length(DATA.oldcmds)+1;
+                DATA.commandctr = 0;
+            else
+                txt = DATA.oldcmds{DATA.historyctr};
+            end
+        end
+    else
+        txt = src.Text;
+    end
+
     
 function jTextKey(src, ev)    
     DATA = GetDataFromFig(src);
@@ -4123,31 +4222,24 @@ function jTextKey(src, ev)
     if ks.KeyCode == 38  %up arrow
         if ~isempty(DATA.completions)
             x = get(DATA.txtrec,'value');
-            if x > 3
+            if x > 2
                 set(DATA.txtrec,'value',x-1);
                 src.Text = [DATA.completions{x-2} '='];
                 src.CaretPosition = length(src.Text);
             end
-        elseif DATA.commandctr > 1
-            if DATA.newchar 
-                DATA.completestr = src.Text;
-            end
-            if isempty(DATA.completestr)
-                DATA.commandctr = DATA.commandctr-1;
-                src.Text = DATA.commands{DATA.commandctr};
-            else
-                fprintf('History with %s\n',DATA.completestr);
-                id = find(strncmp(DATA.completestr,DATA.commands,length(DATA.completestr)));
-                id = id(id < DATA.commandctr);
-                if ~isempty(id)
-                    DATA.commandctr = id(end);
-                    src.Text = DATA.commands{id(end)};
-                end                
-            end
-            set(DATA.toplevel,'UserData',DATA);
+        else
+            [DATA, src.Text] = PrevCommand(DATA, src, -1);
         end
     elseif ks.KeyCode == 10  %return
+        if ~isempty(DATA.completions)
+            DATA = ResetTextLst(DATA);
+            if isempty(strfind(src.Text,'='))  %User did not add to completion
+                set(DATA.toplevel,'UserData',DATA);
+            return;
+            end
+        else
         DATA = TextEntered(src, ev);
+        end
     elseif ks.KeyCode == 39  %right arrow
     elseif ks.KeyCode == 40  %down arrow
         if ~isempty(DATA.completions)
@@ -4157,10 +4249,8 @@ function jTextKey(src, ev)
                 src.Text = [DATA.completions{x} '='];
                 src.CaretPosition = length(src.Text);
             end
-        elseif DATA.commandctr < length(DATA.commands)
-            DATA.commandctr = DATA.commandctr+1;
-            src.Text = DATA.commands{DATA.commandctr};
-            set(DATA.toplevel,'UserData',DATA);
+        else
+            [DATA, src.Text] = PrevCommand(DATA, src, 1);
         end
     elseif isempty(ks.KeyChar)
     elseif ks.KeyChar == ' '
@@ -4292,15 +4382,15 @@ end
 
 function DATA = TextEntered(a,b)
     
-    if get(gcf, 'currentcharacter') ~= 13 %return
-        return;
-    end
     
     DATA = GetDataFromFig(a);
     if strncmp(class(a),'javahandle',8)
         txt = a.Text;
     else
         txt = get(a,'string');
+        if get(gcf, 'currentcharacter') ~= 13 %return
+            return;
+        end
     end
     cntrl_is_down = getappdata(DATA.toplevel,'cntrl_is_down');
     if cntrl_is_down

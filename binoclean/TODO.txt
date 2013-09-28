@@ -80,3 +80,4 @@ Things that need fixing:
 -!mat commands only if not run from sequnce loop
 -have reset expt done by a file read from disk.
 -handle more expts than 3 in manual expts.
+*backgr contrast should not be 0 at start time

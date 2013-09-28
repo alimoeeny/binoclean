@@ -1926,12 +1926,12 @@ char *ReadManualStim(char *file){
             nprop++;
         }
         else{
-            SerialString(inbuf,0);
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             expt.codesent = 0;
             InterpretLine(inbuf,&expt,3);
             if (expt.codesent == 0)
                 SerialString(inbuf,0);
+            notify(inbuf);
             if (strncmp(inbuf,"exvals",5) != NULL){
                 strcat(cbuf, inbuf);
                 strcat(cbuf, " ");

@@ -441,7 +441,8 @@
 #define SET_SF_COMPONENTS MAXSERIALCODES+167
 #define SET_TF_COMPONENTS MAXSERIALCODES+169
 #define PSYCHMON_VARS MAXSERIALCODES+170
-#define MAXSAVECODES MAXSERIALCODES+171 //364
+#define EXPTRESET_FILE MAXSERIALCODES+171
+#define MAXSAVECODES MAXSERIALCODES+172 //364
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -984,7 +985,7 @@ ValueCode valstrings[] = {
   {"rd",     "Relative Disparity",RELDISP, 512+1 , 'N' ,2, SEND_EXPLICIT},
   {"oL",     "ORI_LEFT",ORI_LEFT, 512+5 , 'N' ,2, SEND_EXPLICIT},
   {"oR",     "ORI_RIGHT",ORI_RIGHT, 512+5 , 'N' ,2, SEND_EXPLICIT},
-  {"ve",     "Version",VERSION_CODE, 32 , 'C' ,2, SEND_EXPT},
+  {"ve",     "Version",VERSION_CODE, 512+32 , 'C' ,2, SEND_EXPT}, //512 means verg does not set this
   {"cb",     "Backround Correlation",BACK_CORRELATION, 64+INDIRECT , 'N' ,2, SEND_EXPT},
   {"sd",     "Seed Delay",SEED_DELAY, 5 , 'N' ,0, SEND_EXPLICIT},
   {"xx",     "Trigger 1",TRIGGER_LEVEL1, 0 , 'N' ,2, SEND_EXPLICIT},
@@ -1268,6 +1269,7 @@ ValueCode valstrings[] = {
     {"immode", "image mode", IMAGELOAD_MODE, 0, 'C', 0, SEND_EXPLICIT},
     {"imload", "image load type", IMAGELOAD_TYPE,  0, 'C', 0, SEND_EXPLICIT},
     {"monitor","Monitor Filename",  MONITOR_FILE, 0, 'C', 0, SEND_EXPLICIT},
+    {"ereset","File To run for Reset between Expts",  EXPTRESET_FILE, 0, 'C', 0, SEND_EXPLICIT},
     {"seqpause","Pause between computer repeated blocks",  SEQUENCE_PAUSE, VERGONLY, 'N', 2, SEND_NEVER},
     { NULL, NULL, -1, -1 ,0 ,0, 0},
 };

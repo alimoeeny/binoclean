@@ -226,6 +226,8 @@ Stimulus *NewStimulus(Stimulus *st)
     new->stimversion = 0;
     new->next = NULL;
     new->prev = st;
+    new->correlation=1;
+    new->pos.contrast_amp = 1;
     new->left = (Substim *)malloc(sizeof(Substim));
     new->left->id[0] = 'L';
     
@@ -233,8 +235,10 @@ Stimulus *NewStimulus(Stimulus *st)
     new->left->ptr = (OneStim *) (malloc(sizeof(OneStim)));
 
     new->left->pos.perimeter = 0;
+    new->left->pos.contrast_amp = 1;
     new->right = (Substim *)malloc(sizeof(Substim));
     new->right->ptr = (OneStim *) (malloc(sizeof(OneStim)));
+    new->right->pos.contrast_amp = 1;
     new->right->pos.perimeter = 0;
     new->right->id[0] = 'R';
     new->last = (Substim *)malloc(sizeof(Substim));
