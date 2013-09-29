@@ -1735,6 +1735,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->vals[COVARIATE]  = SETZXOFF;
     ex->vals[FORCE_CHOICE_ANGLE] = -1000; //off
     
+    ex->strings[EXPT_PREFIX] = myscopy(ex->strings[EXPT_PREFIX],"/local/manstim");
     for(i = 2; i < ex->bwptr->nchans; i++)
         ex->bwptr->colors[i] = 1 + ((i+1)%15);
     
@@ -5197,10 +5198,11 @@ int ReadStimOrder(char *file)
  
     if (expt.strings[EXPT_PREFIX] != NULL){
         sprintf(buf,"%s/stimorder",expt.strings[EXPT_PREFIX]);
-        fd = fopen(file,"r");
     }
-    else
-        fd = fopen(file,"r");
+    else{
+        sprintf(buf,"%s/stimorder",file);
+    }
+    fd = fopen(buf,"r");
     if (fd != NULL){
         while(fgets(buf, BUFSIZ, fd) != NULL){
             s = buf;
@@ -5217,7 +5219,7 @@ int ReadStimOrder(char *file)
             }
             }
         }
-    
+        fclose(fd);
     }
     return(nt-1);
 }
@@ -5279,7 +5281,7 @@ void setstimulusorder(int warnings)
     baseseed = expt.st->left->baseseed & 0x1;
     
     if (optionflags[MANUAL_EXPT]){
-        expt.nstim[6] = ReadStimOrder("/local/manstim/stimorder");
+        expt.nstim[6] = ReadStimOrder(expt.strings[EXPT_PREFIX]);
         return;  // order set in matlab
     }
     maxrpts = 3;
@@ -7258,6 +7260,16 @@ void InitExpt()
         ts[6] = 0;
         fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[6]);
         fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
+        fprintf(psychfile,"R4 %s=%s %s=%s %s=%s",
+                serial_strings[EXPTYPE_CODE],serial_strings[expt.mode],
+                serial_strings[EXPTYPE_CODE2],serial_strings[expt.type2],
+                serial_strings[EXPTYPE_CODE3],serial_strings[expt.type3]);
+        tval = RunTime();
+        ts = binocTimeString();
+        ts[3] = '.';
+        ts[6] = 0;
+        fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[6]);
+        fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
     }
     if(psychfilelog){
         tstart = time(NULL);
@@ -8308,7 +8320,7 @@ int PrepareExptStim(int show, int caller)
     expt.allstimid++;
 
     if (optionflags[MANUAL_EXPT]){
-        sprintf(ebuf,"/local/manstim/stim%d",stimorder[stimno]);
+        sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
         code = afc_s.sign = (int)(val/fabs(val));
@@ -12971,7 +12983,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         return(0);
     }
     else if(!strncmp(line,"stimorderfile",13)){
-        expt.nstim[6] = ReadStimOrder("/local/manstim/stimorder");
+        expt.nstim[6] = ReadStimOrder(expt.strings[EXPT_PREFIX]);
         return(0);
     }
     else if(!strncmp(line,"stimorder",8)){

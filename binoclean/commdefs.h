@@ -270,8 +270,7 @@
 #define NBARS (LAST_STIMULUS_CODE+169)
 #define VERGVERSION_CODE (LAST_STIMULUS_CODE+170)
 
-
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+170)/* 211 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+171)/* 202 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -986,8 +985,9 @@ ValueCode valstrings[] = {
   {"rd",     "Relative Disparity",RELDISP, 512+1 , 'N' ,2, SEND_EXPLICIT},
   {"oL",     "ORI_LEFT",ORI_LEFT, 512+5 , 'N' ,2, SEND_EXPLICIT},
   {"oR",     "ORI_RIGHT",ORI_RIGHT, 512+5 , 'N' ,2, SEND_EXPLICIT},
-  {"ve",     "Version",VERSION_CODE, 512+32 , 'C' ,2, SEND_EXPT}, //512 means verg does not set this
-  {"cb",     "Backround Correlation",BACK_CORRELATION, 64+INDIRECT , 'N' ,2, SEND_EXPT},
+  {"ve",     "Version",VERSION_CODE, 32 , 'C' ,2, SEND_EXPT},
+  {"vve",     "Verg Version",VERGVERSION_CODE, 32 , 'C' ,2, SEND_EXPT},
+  {"cb",     "Backround Correlation",BACK_CORRELATION, 64+INDIRECT, 'N' ,2 , SEND_EXPT},
   {"sd",     "Seed Delay",SEED_DELAY, 5 , 'N' ,0, SEND_EXPLICIT},
   {"xx",     "Trigger 1",TRIGGER_LEVEL1, 0 , 'N' ,2, SEND_EXPLICIT},
   {"xx",     "Trigger 2",TRIGGER_LEVEL2, 0 , 'N' ,2, SEND_EXPLICIT},

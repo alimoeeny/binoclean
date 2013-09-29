@@ -1,4 +1,4 @@
-function varargout = BuildNsineGamma(varargin)
+function result = BuildNsineGamma(varargin)
 %AllS = BuildRPExpt(...  Makes stimulus description file for binoc
 %For interleaving gratings, RLS, drifinting/dynamic steppein
 stimno= 1;
@@ -10,7 +10,10 @@ stimvals{1} = [0 1 2 4 8.3 16.7]; %tf
 distvals = -0.2:0.05:0.2;
 ntrials = 1;
 preframes = 100;
+teststim = 0;
 rpts = 8;
+stimdir = '/local/expts/NsineGamma';
+
 
 while j <= length(varargin)
     if strncmpi(varargin{j},'stimno',5)
@@ -34,11 +37,14 @@ while j <= length(varargin)
     elseif strncmpi(varargin{j},'signals',5)
         j = j+1;
         stimvals{1} = varargin{j};
+    elseif strncmpi(varargin{j},'teststim',7)
+        j = j+1;
+        teststim = varargin{j};
     end
     j = j+1;
 end
 
-
+mkdir(stimdir);
 
 n = 1;
 speed=0.1;
@@ -95,30 +101,28 @@ for j = 1:length(AllS)
     end
     fprintf('\n');
     AllS(j).stimno = j-1;
-    WriteStim(AllS(j));
+    WriteStim(stimdir, AllS(j));
 end
 
-
-stimorder = repmat([0:nstim-1],rpts);
+if teststim
+    stimorder = repmat(teststim,rpts);
+else
+    stimorder = repmat([0:nstim-1],rpts);
+end
 stimorder = stimorder(randperm(length(stimorder)));
-if nargout > 0
-    varargout{1} = AllS;
-end
-if nargout > 1
-    varargout{2} = stimorder;
-end
-
-fid = fopen('/local/manstim/stimorder','w');
+result.stims = AllS;
+result.stimdir = stimdir;
+fid = fopen([stimdir '/stimorder'],'w');
 fprintf(fid,'%d ',stimorder); 
 fprintf(fid,'\n');
 fclose(fid);
 
-function WriteStim(S)
+function WriteStim(stimdir, S)
 stimno= 1;
 j = 1;
 
 
-sname = ['/local/manstim/stim' num2str(S.stimno)];
+sname = [stimdir '/stim' num2str(S.stimno)];
 fid = fopen(sname,'w');
 
 fprintf(fid,'tf=%.1f\n',S.tf);

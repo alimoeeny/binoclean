@@ -185,15 +185,18 @@ for j = 1:length(strs{1})
     end
     if length(s) == 0
     elseif strncmp(s,'!mat',4) && ~isempty(value)
+        DATA.matexpres = [];
         if strcmp(src,'fromstim')
             DATA.matexpt = value;
             if strncmp(s,'!matnow',7)
-                eval(value);
+                DATA.matexpres = eval(value);                
             end
         else
             fprintf('Calling %s from %d\n',value,src); 
-            eval(value);
+            DATA.matexpres = eval(value);
+            DATA.matlabwasrun = 1;
         end
+        SendCode(DATA, 'exp');
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
         msgbox(s(5:end),'Binoc Warning','warn');
@@ -345,8 +348,9 @@ for j = 1:length(strs{1})
         DATA.inexpt = 1;
         tic; PsychMenu(DATA); 
         tic; SetGui(DATA,'set'); 
-    elseif strncmp(s,'EXPTOVER',8)
+    elseif strncmp(s,'EXPTOVER',8) %called at end or cancel
         DATA.inexpt = 0;
+        DATA.matlabwasrun = 0;
         if DATA.nexpts > 0  %may be 0 here if verg is fired up after a crash
         DATA.Expts{DATA.nexpts}.End = now;
         DATA.Expts{DATA.nexpts}.last = length(DATA.Trials);
@@ -1255,6 +1259,8 @@ function DATA = SetDefaults(DATA)
 
 scrsz = get(0,'Screensize');
 DATA.vergversion=vergversion();
+DATA.matlabwasrun=0;
+DATA.matexpres = [];
 DATA.plotexpts = [];
 DATA.completions = {};
 DATA.newchar = 0;
@@ -2807,11 +2813,13 @@ function DATA = RunButton(a,b, type)
         DATA = GetDataFromFig(a);
         fprintf('Run Hit Inexpt %d, type %d\n',DATA.inexpt,type);
         DATA.newexptdef = 0;
+        DATA.matexpres = [];
         if type == 1
             if DATA.inexpt == 0 %sarting a new one. Increment counter
                 if DATA.optionflags.exm && ~isempty(DATA.matexpt)
                     fprintf('Running %s\n',DATA.matexpt);
-                    eval(DATA.matexpt);
+                    DATA.matexpres = eval(DATA.matexpt);
+                    SendCode(DATA,'exp');
                 end
                 if DATA.listmodified(1)
                     SendManualVals(DATA,'Expt1StimList');
@@ -3313,6 +3321,7 @@ set(DATA.toplevel,'UserData',DATA);
 function DATA = RunExptSequence(DATA, str, line)
 
     nread = 0;
+    DATA.matlabwasrun = 0;
     runlines = find(strncmp('!expt',str,5));
     if isempty(runlines)
         warndlg('Sequence must contain !expt','Sequence file error');
@@ -3349,9 +3358,13 @@ for j = line:length(str)
         if firstline > 1
             uipause(now, DATA.binoc{1}.seqpause,'Fixed Sequence Pause');
         end
-        if DATA.optionflags.exm && ~isempty(DATA.matexpt) && matlabwasrun == 0
+%if mat was called in the sequence file, don't want it overridden by the matept file        
+        if DATA.optionflags.exm && ~isempty(DATA.matexpt) && DATA.matlabwasrun == 0
             fprintf('Running %s\n',DATA.matexpt);
-            eval(DATA.matexpt);
+            DATA.matexpres = [];
+            DATA.matexpres = eval(DATA.matexpt);
+            DATA.matlabwasrun = 1;
+            SendCode(DATA,'exp');
         end
         myprintf(DATA.cmdfid,'!expt line %d',j);
         DATA.nexpts = DATA.nexpts+1;
@@ -3359,7 +3372,7 @@ for j = line:length(str)
         DATA.seqline = j;
         set(DATA.toplevel,'UserData',DATA);
         outprintf(DATA,'#From RunSequence\n');
-        outprintf(DATA,'%s\n',str{j});
+        outprintf(DATA,'%s\n',str{j}); %this runs expt in binoc
         return;
     end
     if DATA.outid > 0
@@ -4042,6 +4055,10 @@ function SendCode(DATA, code)
         elseif DATA.electrodeid > 0
             fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
         end
+    elseif strcmp(code,'exp')
+        if isfield(DATA.matexpres,'stimdir')
+            fprintf(DATA.outid,'exp=%s\n',DATA.matexpres.stimdir);
+        end
     else
         s = CodeText(DATA, code);
         if length(s)
@@ -4240,11 +4257,11 @@ function jTextKey(src, ev)
             if x > 2
                 set(DATA.txtrec,'value',x-1);
                 src.Text = [DATA.completions{x-2} '='];
-                src.CaretPosition = length(src.Text);
             end
         else
             [DATA, src.Text] = PrevCommand(DATA, src, -1);
         end
+        src.CaretPosition = length(src.Text);
     elseif ks.KeyCode == 10  %return
         if ~isempty(DATA.completions)
             DATA = ResetTextLst(DATA);
@@ -4267,6 +4284,7 @@ function jTextKey(src, ev)
         else
             [DATA, src.Text] = PrevCommand(DATA, src, 1);
         end
+        src.CaretPosition = length(src.Text);
     elseif isempty(ks.KeyChar)
     elseif ks.KeyChar == ' '
         a = deblank(src.Text);

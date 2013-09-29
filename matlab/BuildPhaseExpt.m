@@ -1,4 +1,4 @@
-function varargout = BuildExpt(varargin)
+function result = BuildExpt(varargin)
 %AllS = BuildExpt(...  Makes stimulus description file for binoc
 %This version does disparity/correlation subspace stimuli
 %   ...,'dxvals', [dx],   give the list of dx vals for the subspace map
@@ -18,8 +18,10 @@ stimvals{1} = [0];
 distvals = -0.2:0.05:0.2;
 ntrials = 10;
 preframes = 100;
+stimdir = '/local/expts/GammaPhase';
 rpts = 2;
 
+mkdir(stimdir);
 while j <= length(varargin)
     if strncmpi(varargin{j},'stimno',5)
         j = j+1;
@@ -57,7 +59,7 @@ for k = 1:nstim(2)
     for j = 1:nstim(1)
         S.ph = stimvals{1}(j);
         S.backph = stimvals{2}(k);
-        WriteStim(S);        
+        WriteStim(stimdir, S);        
         AllS(S.stimno+1) = S;
         S.stimno = S.stimno+1;
     end
@@ -67,25 +69,23 @@ end
 
 stimorder = repmat([0:S.stimno-1],rpts);
 stimorder = stimorder(randperm(length(stimorder)));
-if nargout > 0
-    varargout{1} = AllS;
-end
-if nargout > 1
-    varargout{2} = stimorder;
-end
+result.stims = AllS;
+result.stimorder = stimorder;
+result.stimdir = stimdir;
 
-fid = fopen('/local/manstim/stimorder','w');
+
+fid = fopen([stimdir '/stimorder'],'w');
 fprintf(fid,'%d ',stimorder); 
 fprintf(fid,'\n');
 fprintf(fid,'manexpts=sz ph Backph backor\n');
 fclose(fid);
 
-function WriteStim(S)
+function WriteStim(stimdir, S)
 stimno= 1;
 j = 1;
 
 
-sname = ['/local/manstim/stim' num2str(S.stimno)];
+sname = [stimdir '/stim' num2str(S.stimno)];
 fid = fopen(sname,'w');
 fprintf(fid,'ph=%.1f\n',S.ph);
 fprintf(fid,'Backph=%.1f\n',S.backph);
