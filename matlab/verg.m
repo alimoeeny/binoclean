@@ -1591,7 +1591,11 @@ function DATA = InitInterface(DATA)
                     'Units','normalized',...
                     'Position',[0.01 0.01 0.98 1./nr]);
 
-    set(lst, 'KeyPressedCallback', {@jTextKey});
+    lst.setFocusable(true);
+    lst.setFocusTraversalKeysEnabled(false)
+    lst.KeyPressedCallback = @jTextKey
+    lst.setBackground(java.awt.Color(1,1,1))
+%    set(lst, 'KeyPressedCallback', {@jTextKey});
 %     set(lst, 'String', '',...            
 %         'HorizontalAlignment','left',...
 %         'Callback', {@TextEntered}, 'Tag','NextButton',...
@@ -4286,7 +4290,7 @@ function jTextKey(src, ev)
         end
         src.CaretPosition = length(src.Text);
     elseif isempty(ks.KeyChar)
-    elseif ks.KeyChar == ' '
+    elseif ks.KeyChar == 9 %Tab
         a = deblank(src.Text);
         if isempty(strfind(a,'='))  %complete codes
             DATA = ShowCompletions(DATA,a);
@@ -4365,7 +4369,7 @@ function DATA = ShowCompletions(DATA, a)
             DATA.oldtxt = get(DATA.txtrec,'string');
         end
         DATA.completions = {DATA.comcodes(id).code};
-        set(DATA.txtrec,'string',str);
+        set(DATA.txtrec,'string',str,'foregroundcolor',[1 0 0]);
         if ~isempty(id)
             set(DATA.txtrec,'value',2);
         end
@@ -4373,7 +4377,7 @@ function DATA = ShowCompletions(DATA, a)
 
 function DATA = ResetTextLst(DATA)       
     DATA.completions = {};
-    set(DATA.txtrec,'string',DATA.oldtxt);
+    set(DATA.txtrec,'string',DATA.oldtxt,'foregroundcolor',[0 0 0]);
     if nargout == 0
         set(DATA.toplevel,'UserData',DATA);
     end
