@@ -81,3 +81,5 @@ Things that need fixing:
 -have reset expt done by a file read from disk.
 -handle more expts than 3 in manual expts.
 *backgr contrast should not be 0 at start time
+ack if there is a monitor read error.
+check comments are transmitted properly
