@@ -14058,6 +14058,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case UFF_COMMENT:
             SerialString(line,NULL);
+            SerialString("\n",NULL);
             if(penlog){
                 fprintf(penlog,"%s %s\n",binocTimeString(),line);
                 fflush(penlog);

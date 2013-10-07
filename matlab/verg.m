@@ -885,6 +885,8 @@ function line = CheckLineForBinoc(tline)
         tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
         tline = regexprep(tline,'\','\\\');
         tline = regexprep(tline,'/','\\\');
+    else
+        tline = regexprep(tline,'\','/');
     end
     tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
     line = strrep(tline,'\s+\n','\n');
@@ -1593,9 +1595,9 @@ function DATA = InitInterface(DATA)
 
     lst.setFocusable(true);
     lst.setFocusTraversalKeysEnabled(false)
-    lst.KeyPressedCallback = @jTextKey
+%    lst.KeyPressedCallback = @jTextKey
     lst.setBackground(java.awt.Color(1,1,1))
-%    set(lst, 'KeyPressedCallback', {@jTextKey});
+    set(lst, 'KeyPressedCallback', {@jTextKey});
 %     set(lst, 'String', '',...            
 %         'HorizontalAlignment','left',...
 %         'Callback', {@TextEntered}, 'Tag','NextButton',...
