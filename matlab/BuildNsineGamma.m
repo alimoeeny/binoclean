@@ -9,8 +9,9 @@ stimvals{2} = [0 1]; %random or drifting
 stimvals{1} = [0 1 2 4 8.3 16.7]; %tf
 distvals = -0.2:0.05:0.2;
 ntrials = 1;
+teststim = 8;
 preframes = 100;
-rpts = 8;
+rpts = 3;
 
 while j <= length(varargin)
     if strncmpi(varargin{j},'stimno',5)
@@ -41,7 +42,7 @@ end
 
 
 n = 1;
-speed=0.1;
+speed=5;
 AllS(n).tf=0.1;
 AllS(n).jv=speed;
 AllS(n).sl=50;
@@ -101,6 +102,9 @@ end
 
 stimorder = repmat([0:nstim-1],rpts);
 stimorder = stimorder(randperm(length(stimorder)));
+if teststim > 0
+    stimorder(1:length(stimorder)) = teststim;
+end
 if nargout > 0
     varargout{1} = AllS;
 end

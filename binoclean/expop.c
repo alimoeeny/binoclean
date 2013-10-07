@@ -13404,6 +13404,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else switch(code)
     {
         case JUMP_SF_COMPONENTS:
+            for(i = 0; i < expt.st->nfreqs; i++)
+                expt.st->componentjumps[i] = 1;
             n = sscanf(s,"%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
                        &iin[0],&iin[1],&iin[2],&iin[3],&iin[4],&iin[5],&iin[6],&iin[7],&iin[8],&iin[9],&iin[10],&iin[11],&iin[12],&iin[13],&iin[14],&iin[15]);
             for(i = 0; i < n; i++)
@@ -13414,6 +13416,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                        &in[0],&in[1],&in[2],&in[3],&in[4],&in[5],&in[6],&in[7],&in[8],&in[9],&in[10],&in[11],&in[12],&in[13],&in[14],&in[15]);
             for(i = 0; i < n; i++)
                 expt.st->freqs[i] = in[i];
+            expt.st->nfreqs = n;
             expt.st->left->nfreqs = n;
             if (n > 0)
                 expt.st->freqmode = MANUAL_FREQ;
@@ -14015,6 +14018,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case UFF_COMMENT:
             SerialString(line,NULL);
+            SerialString("\n",NULL);
             if(penlog){
                 fprintf(penlog,"%s %s\n",binocTimeString(),line);
                 fflush(penlog);
