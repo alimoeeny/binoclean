@@ -702,7 +702,7 @@ for j = 1:length(strs{1})
             end
             codetype = DATA.comcodes(cid(1)).group;
         end    
-    elseif s(1) == 'E'  && isempty(code)%don't let this catch other codes starting with E
+    elseif regexp(s,'^E[A-C][0-9,C]') %don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
             DATA.nextras(2) = 0;
@@ -711,7 +711,7 @@ for j = 1:length(strs{1})
             DATA.exptstimlist{3} = {};
             DATA.nextras(3) = 0;
             DATA = CheckCustomStim(DATA,s,3);
-        elseif strncmp(s,'ECLEAR',5)
+        elseif strncmp(s,'EACLEAR',5)
             DATA.exptstimlist{1} = {};
             DATA.nextras(1) = 0;
             DATA = CheckCustomStim(DATA,s,1);
@@ -741,12 +741,8 @@ for j = 1:length(strs{1})
                     end
                 end
             end
-        elseif isempty(code)
-            if s(2) == 'A'  % new way to do is so that Can use codes beginning with E
-                n = sscanf(s(3:end),'%d');
-            else
-                n = sscanf(s(2:end),'%d');
-            end
+        elseif s(2) == 'A'
+            n = sscanf(s(3:end),'%d');
             if n < 0 && isempty(DATA.exptstimlist{1})
                 DATA.nextras(1) = abs(n(1));
             end
@@ -760,7 +756,7 @@ for j = 1:length(strs{1})
                     end
                 end
             end
-            if strncmp(s,'ECLEAR',5)
+            if strncmp(s,'EACLEAR',5)
                 DATA.exptstimlist{1} = {};
             end
         else
