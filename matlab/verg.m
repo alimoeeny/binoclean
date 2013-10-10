@@ -3231,6 +3231,8 @@ function CodesPopup(a,b, type)
     sm = uimenu(hm,'Label','Help','callback',{@CodesPopup, 'byhelp'});
     helpmenu = sm;
     hm = uimenu(cntrl_box,'Label','Print','callback',{@CodesPopup, 'printcodes'});
+    hm = uimenu(cntrl_box,'Label','Search');
+    sm = uimenu(hm,'Label','Ignore case','callback',{@SearchList, 'IgnoreCase'},'Tag','IgnoreCase');
     
     uicontrol(gcf,'style','pop','string','Search|Codes|Labels|Help','tag','SearchMode',...
         'units','norm', 'Position',[0 0.01 0.3 0.08]);
@@ -3257,9 +3259,22 @@ set(lst,'string',a);
 if strcmp(type,'popuphelp')
     CodesPopup(helpmenu,b,'byhelp');
 end
-   
-function SearchList(a,b)
 
+function ToggleCheck(a)
+    if strcmp(get(a,'checked'),'off')
+        set(a,'checked','on');
+    else
+        set(a,'checked','off');
+    end
+
+function SearchList(a,b, varargin)
+
+    
+    tag = get(a,'tag');
+    if strcmp(tag,'IgnoreCase')
+        ToggleCheck(a);
+        return;
+    end
     pttn = get(a,'string');
     lastpttn = get(a,'UserData');
     set(a,'UserData',pttn);    
@@ -3272,6 +3287,11 @@ function SearchList(a,b)
         findn = findn+1;
     end
     
+    ignorecase = 0;
+    it = findobj(F,'tag','IgnoreCase');
+    if strcmp(get(it,'checked'),'on')
+        ignorecase = 1;
+    end
     sm = findobj(F,'tag','SearchMode');
     searchmode = get(sm,'value');
     it = findobj(F,'tag','CodeListString');
@@ -3291,8 +3311,12 @@ function SearchList(a,b)
         else
             s = txt(j,:);
         end
-        x = findstr(pttn,s);
-        if ~isempty(findstr(pttn,s))
+        if ignorecase
+            x = strfind(lower(s),lower(pttn));
+        else
+            x = strfind(s,pttn);
+        end
+        if ~isempty(x)
             found(j) = 1;
         end
     end
@@ -4387,7 +4411,8 @@ function TextKey(src,ev)
     
 function DATA = ShowCompletions(DATA, a)
     DATA.completestr = a;
-        id = find(strncmp(a,{DATA.comcodes.code},length(a)));
+    xid = find(~strcmp('xx',{DATA.comcodes.code}));
+        id = xid(find(strncmp(a,{DATA.comcodes(xid).code},length(a))));
         fprintf('Completing %s\n',a);
         str{1} = sprintf('%d Possible Completions for %s  (Return or Click here to cancel)',length(id),a);
         for j = 1:length(id)

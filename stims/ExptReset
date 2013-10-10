@@ -1,4 +1,13 @@
-op=-exm-fS
-co=1
-ce=1
-Fr=1
+op=-exm-fS-bf-xy-hX-hq-I0
+co=1  #contrast
+ce=1  #correlation
+Fr=1   #Fastseq repeat
+e3=e0   #expt3 off
+e2=e0   #expt2 off
+sM=0    #special modes
+As=0   #Alternate Stim
+Ff=0   #fp move frame
+ic=0   #interocular contrast difference
+od=0   #orientation disparity
+rb=0   #reward bias
+ap=0.5 #afc proportion
