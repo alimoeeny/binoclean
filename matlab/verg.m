@@ -1591,11 +1591,11 @@ function DATA = InitInterface(DATA)
                     'Units','normalized',...
                     'Position',[0.01 0.01 0.98 1./nr]);
 
+    set(lst, 'KeyPressedCallback', {@jTextKey});
     lst.setFocusable(true);
     lst.setFocusTraversalKeysEnabled(false)
-    lst.KeyPressedCallback = @jTextKey
+%    lst.KeyPressedCallback = @jTextKey
     lst.setBackground(java.awt.Color(1,1,1))
-%    set(lst, 'KeyPressedCallback', {@jTextKey});
 %     set(lst, 'String', '',...            
 %         'HorizontalAlignment','left',...
 %         'Callback', {@TextEntered}, 'Tag','NextButton',...
@@ -4114,7 +4114,7 @@ if strcmp(code,'optionflag')
         s = [s sprintf('e3=%s\ni3=%s\nm3=%.6f\nn3=%d\n',DATA.exptype{3},DATA.binoc{1}.i3,DATA.mean(3),DATA.nstim(3))];
         s = AddCustomStim(DATA,s,1);
     elseif strcmp(code,'st')
-        s = sprintf('st=%s',DATA,stimulusnames{DATA.stimtype(cstim)});
+        s = sprintf('st=%s',DATA.stimulusnames{DATA.stimtype(cstim)});
     elseif strcmp(code,'vve')
         s = sprintf('vve=%s',DATA.vergversion);
     elseif strcmp(code,'pf')

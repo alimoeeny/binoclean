@@ -47,7 +47,7 @@ end
 mkdir(stimdir);
 
 n = 1;
-speed=0.1;
+speed=5;
 AllS(n).tf=0.1;
 AllS(n).jv=speed;
 AllS(n).sl=50;
