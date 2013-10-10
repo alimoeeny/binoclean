@@ -12732,6 +12732,8 @@ int ReadMonitorSetup(char *name)
     if((fd = fopen(name,"r")) == NULL)
     {
         fprintf(stderr,"Can't Read Monitor %s\n",name);
+        sprintf(buf,"Can't Read Monitor %s\n",name);
+        acknowledge(buf, NULL);
         return(0);
     }
     expt.mon->loaded = 0;
