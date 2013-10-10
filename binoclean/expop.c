@@ -1930,8 +1930,10 @@ char *ReadManualStim(char *file){
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             expt.codesent = 0;
             InterpretLine(inbuf,&expt,3);
-            if (expt.codesent == 0)
+            if (expt.codesent == 0){
                 SerialString(inbuf,0);
+                SerialString("\n",0);
+            }
             notify(inbuf);
             if (strncmp(inbuf,"exvals",5) != NULL){
                 strcat(cbuf, inbuf);
