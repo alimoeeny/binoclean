@@ -885,6 +885,8 @@ function line = CheckLineForBinoc(tline)
         tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
         tline = regexprep(tline,'\','\\\');
         tline = regexprep(tline,'/','\\\');
+    else
+        tline = regexprep(tline,'\','/');
     end
     tline = regexprep(tline,'\s+\#.*\n','\n'); %remove comments
     line = strrep(tline,'\s+\n','\n');
@@ -1081,7 +1083,7 @@ function SendState(DATA, varargin)
     SendCode(DATA,'optionflag');
     SendCode(DATA,'expts');
     if DATA.electrodeid > 0
-        fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
+        fprintf(DATA.outid,'Electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
     end
     
     fprintf(DATA.outid,'\neventcontinue\n');
@@ -2000,7 +2002,7 @@ function SetElectrode(a,b, ei)
     DATA = GetDataFromFig(a);
     DATA.electrodeid = ei;
     SetMenuCheck(a,[], ei);
-    SendCode(DATA, 'electrode');
+    SendCode(DATA, 'Electrode');
     set(DATA.toplevel,'UserData',DATA);
     
 function MenuHit(a,b, arg)
