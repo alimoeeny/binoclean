@@ -13869,6 +13869,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case CHANNEL_CODE: //just relay these from verg. don't send all channels'
             SerialString(line,0);
+            SerialString("\n",0);
             break;
         case PENETRATION_TEXT:
         case LOGFILE_CODE:

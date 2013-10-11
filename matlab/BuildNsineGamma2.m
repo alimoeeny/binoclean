@@ -12,7 +12,10 @@ ntrials = 1;
 teststim = 0;
 preframes = 100;
 rpts = 3;
-stimdir = '/local/manstim'
+stimdir = '/local/expts/NSineGamma2';
+if ~exist(stimdir)
+    mkdir(stimdir);
+end
 
 while j <= length(varargin)
     if strncmpi(varargin{j},'stimno',5)
@@ -40,13 +43,14 @@ while j <= length(varargin)
     j = j+1;
 end
 
+X.exptvars = {'tf' 'sf' 'st' 'nsf' 'jv'};
 
 
 n = 1;
 speed= [0.5 1 2];
 tfs = [1 2 4];
-AllS(n).st = 'nsine';
-AllS(n).stimtype = 14;
+AllS(n).st = 'nsines';
+AllS(n).stimtype = 19;
 
 AllS(n).tf=tfs(1);
 AllS(n).jv=0;
@@ -77,7 +81,7 @@ AllS(n).tf = 0;
 
 n = n+1; AllS(n) = AllS(n-1);
 AllS(n).st = 'rls';
-AllS(n).stimtype = 11;
+AllS(n).stimtype = 16;
 AllS(n).jv = 0;
 n = n+1; AllS(n) = AllS(n-1);
 AllS(n).jv = 2;
@@ -91,6 +95,7 @@ AllS(n).tf = 4;
 
 n = n+1; AllS(n) = AllS(n-1);
 AllS(n).st = 'grating';
+AllS(n).stimtype = 3;
 AllS(n).sf = 1;
 AllS(n).jv=0;
 AllS(n).tf=1;
@@ -126,7 +131,7 @@ AllS(n).tf=0;
 
 n = n+1; AllS(n) = AllS(n-1);
 AllS(n).st = 'grating';
-AllS(n).stimtype = 1;
+AllS(n).stimtype = 3;
 AllS(n).sf = [4];
 AllS(n).jv=0;
 AllS(n).tf=1;
@@ -176,15 +181,10 @@ fid = fopen(sname,'w');
 
 fprintf(fid,'st=%s\n',S.st);
 fprintf(fid,'tf=%.1f\n',S.tf);
-fprintf(fid,'sl=%d\n',S.sl);
-if S.sl == 0
-    fprintf(fid,'nph=0\n');
-else
-    fprintf(fid,'nph=360\n');
-end
-if strcmp(S.st,'nsine')
+if strcmp(S.st,'nsines')
     fprintf(fid,'nsf=%s\n',sprintf('%.0f ',S.nsf));
     fprintf(fid,'jv=%.1f\n',S.jv);
+    S.sf = S.nsf(1);
 elseif strcmp(S.st,'grating')
     fprintf(fid,'sf=%.1f\n',S.sf);
 elseif strcmp(S.st,'rls')
@@ -196,7 +196,7 @@ else
 end
     
     
-fprintf(fid,'exvals%.2f %.2f %.2f %.0f\n',S.tf,S.jv,S.sl,S.stimtype);
+fprintf(fid,'exvals%.1f %.1f %.2f %.0f\n',S.tf,S.jv,S.sf,S.stimtype);
 fclose(fid);
 x = scanlines(sname);
 for j = 1:length(x)
