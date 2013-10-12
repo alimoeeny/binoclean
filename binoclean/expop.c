@@ -989,7 +989,7 @@ void write_expvals(FILE *ofd, int flag)
     
     if(optionflags[CUSTOM_EXPVAL])
         for(i = 0; i < expt.nstim[0]; i++)
-            fprintf(ofd,"E%d=%.3f\n",i,expval[i]);
+            fprintf(ofd,"EA%d=%.3f\n",i,expval[i]);
     if(optionflags[CUSTOM_EXPVALB])
         for(i = expt.nstim[0]; i < expt.nstim[0]+expt.nstim[1]; i++)
             fprintf(ofd,"EB%d=%.3f\n",i-expt.nstim[0],expval[i]);
@@ -1930,8 +1930,10 @@ char *ReadManualStim(char *file){
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             expt.codesent = 0;
             InterpretLine(inbuf,&expt,3);
-            if (expt.codesent == 0)
+            if (expt.codesent == 0){
                 SerialString(inbuf,0);
+                SerialString("\n",0);
+            }
             notify(inbuf);
             if (strncmp(inbuf,"exvals",5) != NULL){
                 strcat(cbuf, inbuf);
@@ -2096,14 +2098,14 @@ void ListExpStims(int w)
         return;
 
     if (optionflags[CUSTOM_EXPVAL])
-        notify("ECLEAR*\n");
+        notify("EACLEAR*\n");
     else
-        notify("ECLEAR\n");
+        notify("EACLEAR\n");
     
     for(i = 0; i < (expt.nstim[0]+expt.nstim[2]); i++)
     {
         MakePlotLabel(&expt, cbuf, i, 0);
-        sprintf(buf, "E%d=%s\n",i-expt.nstim[2],cbuf);
+        sprintf(buf, "EA%d=%s\n",i-expt.nstim[2],cbuf);
         notify(buf);
     }
     
@@ -13402,9 +13404,15 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         ShowTrialsNeeded();
     }
     
-    if(line[0] == 'E' && isdigit(line[1]))
+    if(line[0] == 'E' && (isdigit(line[1]) || line[1] == 'A'))
     {
-        sscanf(&line[1],"%d",&i);
+        if (line[1] == 'A')
+            sscanf(&line[2],"%d",&i);
+        else{
+            acknowledge("E[0-9]  should be changed to EA[0-9]",NULL);
+            sscanf(&line[1],"%d",&i);
+        }
+        
         s = strchr(line,'=');
         if(i < expt.nstim[0] && s != NULL)
         {
@@ -13861,6 +13869,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             break;
         case CHANNEL_CODE: //just relay these from verg. don't send all channels'
             SerialString(line,0);
+            SerialString("\n",0);
             break;
         case PENETRATION_TEXT:
         case LOGFILE_CODE:

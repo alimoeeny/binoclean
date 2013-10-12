@@ -79,7 +79,6 @@ Things that need fixing:
 -add et,e2,e3 to R4 lines, so that PsychMon can see expts. 
 -!mat commands only if not run from sequnce loop
 -have reset expt done by a file read from disk.
--handle more expts than 3 in manual expts.
 *backgr contrast should not be 0 at start time
 ack if there is a monitor read error.
 check comments are transmitted properly

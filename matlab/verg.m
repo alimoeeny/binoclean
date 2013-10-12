@@ -104,6 +104,7 @@ if isempty(it)
     if DATA.frombinocfid > 0
         TimeMark(tt,2);
     end
+    DATA = CheckStateAtStart(DATA);
 end
 end
 j = 1;
@@ -131,6 +132,15 @@ while j <= length(varargin)
     j = j+1;
 end
 
+
+
+function DATA = CheckStateAtStart(DATA)
+    if strcmp('NotSet',DATA.binoc{1}.ereset)
+        str = 'You Can define A "reset" stimfile that is Run before loading each new Expt. Put ereset=path in verg.setup or your stimfile';
+        msgbox(str);
+    end
+    
+    
 function [DATA, codetype] = InterpretLine(DATA, line, varargin)
 
     
@@ -692,7 +702,7 @@ for j = 1:length(strs{1})
             end
             codetype = DATA.comcodes(cid(1)).group;
         end    
-    elseif s(1) == 'E'  && isempty(code)%don't let this catch other codes starting with E
+    elseif regexp(s,'^E[A-C][0-9,C]') %don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
             DATA.nextras(2) = 0;
@@ -701,7 +711,7 @@ for j = 1:length(strs{1})
             DATA.exptstimlist{3} = {};
             DATA.nextras(3) = 0;
             DATA = CheckCustomStim(DATA,s,3);
-        elseif strncmp(s,'ECLEAR',5)
+        elseif strncmp(s,'EACLEAR',5)
             DATA.exptstimlist{1} = {};
             DATA.nextras(1) = 0;
             DATA = CheckCustomStim(DATA,s,1);
@@ -731,12 +741,8 @@ for j = 1:length(strs{1})
                     end
                 end
             end
-        elseif isempty(code)
-            if s(2) == 'A'  % new way to do is so that Can use codes beginning with E
-                n = sscanf(s(3:end),'%d');
-            else
-                n = sscanf(s(2:end),'%d');
-            end
+        elseif s(2) == 'A'
+            n = sscanf(s(3:end),'%d');
             if n < 0 && isempty(DATA.exptstimlist{1})
                 DATA.nextras(1) = abs(n(1));
             end
@@ -750,7 +756,7 @@ for j = 1:length(strs{1})
                     end
                 end
             end
-            if strncmp(s,'ECLEAR',5)
+            if strncmp(s,'EACLEAR',5)
                 DATA.exptstimlist{1} = {};
             end
         else
@@ -932,7 +938,7 @@ function DATA = ReadStimFile(DATA, name, varargin)
     end
 %if this is the first load since running an expt, Call the reset
 %file
-if DATA.newexptdef == 0 && isfield(DATA.binoc{1},'ereset')
+if DATA.newexptdef == 0 && isfield(DATA.binoc{1},'ereset') && ~strcmp('NotSet',DATA.binoc{1}.ereset);
     fprintf('Resetting Expt with %s\n',DATA.binoc{1}.ereset);
     DATA.newexptdef = 1;
     DATA = ReadStimFile(DATA, DATA.binoc{1}.ereset);
@@ -1312,10 +1318,8 @@ DATA.optionflags.ts = 0;
 DATA.optionstrings.ts = 'Wurtz Task';
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
-DATA.showflags.wt = 1;
 DATA.showflagseq{1} = 'ts';
 DATA.showflagseq{2} = 'cf';
-DATA.showflagseq{3} = 'wt';
 DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
 DATA.stimflagnames.nc = 'Black Dots';
@@ -1418,8 +1422,10 @@ DATA.binoc{1}.i3 = '0';
 DATA.binoc{1}.nr = 1;
 DATA.binoc{1}.rw = 0;
 DATA.binoc{1}.seqpause = 5;
+DATA.binoc{1}.ereset = 'NotSet';
 
 DATA.binocstr.monitor = '/local/monitors/Default';
+DATA.completestr = '';
 DATA.expts{1} = [];
 DATA.expts{2} = [];
 DATA.expts{3} = [];
@@ -1585,7 +1591,7 @@ function DATA = InitInterface(DATA)
     f = fields(DATA.showflags);
     nc = 5;
     tagc = 6;%# of columns for toggles
-    nr = 19 + ceil(length(f)./tagc);
+    nr = 19 + ceil((1+length(f))./tagc);
     cw = 0.99/nc;
     DATA.toplevel = cntrl_box;
     
@@ -1831,7 +1837,7 @@ function DATA = InitInterface(DATA)
         f = DATA.showflagseq;
         nrows = ceil(length(f)./tagc)./nr; %fraction of window height needed for tags
     else
-        nrows = 2;
+        nrows = 2/nr;
     end
     f = f(find(~strcmp('do',f)));
     ymin = 1-1./nr - nrows;
@@ -3225,6 +3231,8 @@ function CodesPopup(a,b, type)
     sm = uimenu(hm,'Label','Help','callback',{@CodesPopup, 'byhelp'});
     helpmenu = sm;
     hm = uimenu(cntrl_box,'Label','Print','callback',{@CodesPopup, 'printcodes'});
+    hm = uimenu(cntrl_box,'Label','Search');
+    sm = uimenu(hm,'Label','Ignore case','callback',{@SearchList, 'IgnoreCase'},'Tag','IgnoreCase');
     
     uicontrol(gcf,'style','pop','string','Search|Codes|Labels|Help','tag','SearchMode',...
         'units','norm', 'Position',[0 0.01 0.3 0.08]);
@@ -3251,9 +3259,22 @@ set(lst,'string',a);
 if strcmp(type,'popuphelp')
     CodesPopup(helpmenu,b,'byhelp');
 end
-   
-function SearchList(a,b)
 
+function ToggleCheck(a)
+    if strcmp(get(a,'checked'),'off')
+        set(a,'checked','on');
+    else
+        set(a,'checked','off');
+    end
+
+function SearchList(a,b, varargin)
+
+    
+    tag = get(a,'tag');
+    if strcmp(tag,'IgnoreCase')
+        ToggleCheck(a);
+        return;
+    end
     pttn = get(a,'string');
     lastpttn = get(a,'UserData');
     set(a,'UserData',pttn);    
@@ -3266,6 +3287,11 @@ function SearchList(a,b)
         findn = findn+1;
     end
     
+    ignorecase = 0;
+    it = findobj(F,'tag','IgnoreCase');
+    if strcmp(get(it,'checked'),'on')
+        ignorecase = 1;
+    end
     sm = findobj(F,'tag','SearchMode');
     searchmode = get(sm,'value');
     it = findobj(F,'tag','CodeListString');
@@ -3285,8 +3311,12 @@ function SearchList(a,b)
         else
             s = txt(j,:);
         end
-        x = findstr(pttn,s);
-        if ~isempty(findstr(pttn,s))
+        if ignorecase
+            x = strfind(lower(s),lower(pttn));
+        else
+            x = strfind(s,pttn);
+        end
+        if ~isempty(x)
             found(j) = 1;
         end
     end
@@ -4184,11 +4214,14 @@ function OtherToggles(a,b,flag)
 function [DATA, txt] = PrevCommand(DATA, src, step)
     txt = '';
     
-    if DATA.newchar
+    if DATA.newchar ==1  %if typed something, use this to complete commands with
         DATA.completestr = src.Text;
     end
     
-    if (DATA.commandctr > 1 && step == -1) || (DATA.commandctr < length(DATA.commands) && step == 1 && DATA.historyctr == length(DATA.oldcmds)+1)
+    if DATA.commandctr >= length(DATA.commands) && step == 1 && DATA.historyctr > length(DATA.oldcmds)
+        DATA.commandctr = length(DATA.commands)+1;
+        txt = '';
+    elseif (DATA.commandctr > 1 && step == -1) || (DATA.commandctr < length(DATA.commands) && step == 1 && DATA.historyctr == length(DATA.oldcmds)+1)
         if isempty(DATA.completestr)
             DATA.commandctr = DATA.commandctr+step;
         else
@@ -4216,6 +4249,7 @@ function [DATA, txt] = PrevCommand(DATA, src, step)
             DATA.historyctr = length(DATA.oldcmds);
         else
             txt = DATA.commands{DATA.commandctr};
+            set(DATA.txtrec,'value',DATA.commandctr);
         end
     elseif DATA.commandctr == 1 && (step < 0 || DATA.historyctr <= length(DATA.oldcmds))
         if DATA.historyctr == length(DATA.oldcmds) && step == 1
@@ -4251,7 +4285,7 @@ function [DATA, txt] = PrevCommand(DATA, src, step)
     else
         txt = src.Text;
     end
-
+ %   txt = StripComments(txt);
     
 function jTextKey(src, ev)    
     DATA = GetDataFromFig(src);
@@ -4267,10 +4301,12 @@ function jTextKey(src, ev)
         else
             [DATA, src.Text] = PrevCommand(DATA, src, -1);
         end
+        src.setForeground(java.awt.Color(0.6,0,0))
         src.CaretPosition = length(src.Text);
     elseif ks.KeyCode == 10  %return
         if ~isempty(DATA.completions)
             DATA = ResetTextLst(DATA);
+            src.setForeground(java.awt.Color(0,0,0));
             if isempty(strfind(src.Text,'='))  %User did not add to completion
                 set(DATA.toplevel,'UserData',DATA);
             return;
@@ -4290,7 +4326,13 @@ function jTextKey(src, ev)
         else
             [DATA, src.Text] = PrevCommand(DATA, src, 1);
         end
+        src.setForeground(java.awt.Color(0.6,0,0))
         src.CaretPosition = length(src.Text);
+    elseif ismember(ks.KeyCode,[8 127]) && strcmp(ks.ShiftDown,'on');  %shift delete
+        src.Text = '';
+    elseif ismember(ks.KeyCode,[8 127]) && strcmp(ks.ControlDown,'on');  %control-delete
+        src.Text = regexprep(src.Text,'=.*','=');
+        src.CaretPosition = length(src.Text);                        
     elseif isempty(ks.KeyChar)
     elseif ks.KeyChar == 9 %Tab
         a = deblank(src.Text);
@@ -4304,9 +4346,18 @@ function jTextKey(src, ev)
         end
     else
         newchar = 1;
+        if DATA.newchar == 0 %was loooking at history/completions
+            txt = StripComments(src.Text);
+            if ~strcmp(txt, src.Text)
+                src.Text = txt;
+                src.CaretPosition = length(src.Text);
+                newchar = 0; 
+            end
+            src.setForeground(java.awt.Color(0,0,0));
+        end
         DATA.completestr = '';
     end
-    DATA.newchar = newchar; %something types
+    DATA.newchar = newchar; %something typed
     set(DATA.toplevel,'UserData',DATA);
         
 function TextKey(src,ev)
@@ -4359,7 +4410,9 @@ function TextKey(src,ev)
     end
     
 function DATA = ShowCompletions(DATA, a)
-        id = find(strncmp(a,{DATA.comcodes.code},length(a)));
+    DATA.completestr = a;
+    xid = find(~strcmp('xx',{DATA.comcodes.code}));
+        id = xid(find(strncmp(a,{DATA.comcodes(xid).code},length(a))));
         fprintf('Completing %s\n',a);
         str{1} = sprintf('%d Possible Completions for %s  (Return or Click here to cancel)',length(id),a);
         for j = 1:length(id)
@@ -4379,7 +4432,7 @@ function DATA = ShowCompletions(DATA, a)
 
 function DATA = ResetTextLst(DATA)       
     DATA.completions = {};
-    set(DATA.txtrec,'string',DATA.oldtxt,'foregroundcolor',[0 0 0]);
+    set(DATA.txtrec,'string',DATA.oldtxt,'foregroundcolor',[0 0 0],'value',1);
     if nargout == 0
         set(DATA.toplevel,'UserData',DATA);
     end
@@ -4393,18 +4446,23 @@ function TextList(a,b)
     elseif line ==1
         ResetTextLst(DATA);
     else
-        str = s(line,:);
-        id = strfind(str,'(');
-        if ~isempty(id)
-            str = deblank(str(1:id(1)-1));
-        end
-        id = strfind(str,'?');
-        if ~isempty(id)
-            str = deblank(str(2:id(2)-1));
-        end
+        str = StripComments(s(line,:));
         SetTextUI(DATA, str);
     end
-  
+
+    
+function s = StripComments(str)
+    id = strfind(str,'(');
+    if ~isempty(id)
+        str = deblank(str(1:id(1)-1));
+    end
+    id = strfind(str,'?');
+    if ~isempty(id)
+        str = deblank(str(2:id(2)-1));
+    end
+    s = regexprep(str,'\s\#.*','');
+
+    
 function SetTextUI(DATA, str)
 if sum(strncmp(class(DATA.txtui),{'javahandle' 'jcontrol'},8))
     set(DATA.txtui,'Text', str);
