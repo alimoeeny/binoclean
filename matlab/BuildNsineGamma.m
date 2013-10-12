@@ -9,7 +9,6 @@ stimvals{2} = [0 1]; %random or drifting
 stimvals{1} = [0 1 2 4 8.3 16.7]; %tf
 distvals = -0.2:0.05:0.2;
 ntrials = 1;
-teststim = 8;
 preframes = 100;
 teststim = 8;
 rpts = 8;
