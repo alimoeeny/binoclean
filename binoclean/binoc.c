@@ -5039,6 +5039,8 @@ int change_frame()
 	char buf[BUFSIZ];
 	int lastframe,oldmode = mode;
 	static int framesswapped = 0;
+    int blockallframes = 0;
+    
 	vcoord x[2];
     
     
@@ -5107,7 +5109,7 @@ int change_frame()
         stimstate = POSTSTIMULUS;
 
 
-    if(mode & FRAME_BITS)
+    if((mode & FRAME_BITS) || blockallframes)
     {
 #ifdef FRAME_OUTPUT
         if (Frames2DIO)
@@ -5598,7 +5600,8 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
                 myrnd_init(st->left->baseseed+st->framectr);
                 SetRandomPhase(st, pos);
-                mode |= STIMCHANGE_FRAME;
+                if (st->left->seedloop > 1)
+                    mode |= STIMCHANGE_FRAME;
 
             }
             else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
@@ -9524,6 +9527,11 @@ int GotChar(char c)
                         i = 0;
                     sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
                             jumpstrings[i]);
+                    SerialString(buf,0);
+                }
+                else  if(expt.vals[SET_SEEDLOOP] > 1){
+                    sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
+                            serial_strings[SET_SEEDLOOP]);
                     SerialString(buf,0);
                 }
                 else if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
