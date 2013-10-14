@@ -78,7 +78,7 @@ Things that need fixing:
 -History search/arrow navigation should read in from binoccmd histroy too
 -add et,e2,e3 to R4 lines, so that PsychMon can see expts. 
 -!mat commands only if not run from sequnce loop
-*have reset expt done by a file read from disk.
+-have reset expt done by a file read from disk.
 *backgr contrast should not be 0 at start time
 \\ quoting from Office copy missing in master
 -handle more expts than 3 in manual expts.
