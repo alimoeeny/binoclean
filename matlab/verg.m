@@ -3056,8 +3056,15 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(1) = bp(1)-bp(3)-0.01;
     uicontrol(gcf,'style','pushbutton','string','Plot', ...
         'units', 'norm', 'position',bp,'value',1,'Tag','PlotPen','callback',@OpenPenLog);
+    hm = uimenu(gcf,'label','Mark');
+    uimenu(hm,'label','Entered Brain','callback',{@MarkComment 'Entered Brain'});
+   
     
 set(gcf,'CloseRequestFcn',{@CloseWindow, 9});
+
+function MarkComment(a,b,txt);
+    outprintf(DATA,'sm=%s\n',txt);
+        
 
 function OptionPopup(a,b)
   DATA = GetDataFromFig(a);
