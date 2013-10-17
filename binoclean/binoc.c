@@ -3408,24 +3408,17 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case TF2:
             if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL || st->type == STIM_GRATING)
             {
-                psine = (OneStim *)(st->left->ptr);
-                psine->incr = (val *M_PI *2)/(mon.framerate);
-                if(TheStim->swapinterval > 1)
-                    psine->incr *= TheStim->swapinterval;
-                fval = psine->incr;
-                psine = (OneStim *)(st->right->ptr);
-                psine->incr = fval;
+                st->left->incrs[1] = (val *M_PI *2)/(mon.framerate);
+                st->right->incrs[1] = (val *M_PI *2)/(mon.framerate);
             }
             break;
         case SF2:
             if(st->type == STIM_GRATING2)
             {
-                psine = (OneStim *)(st->left->ptr);
-                psine->sf2 = val;
-                psine->incr = st->incr * psine->sf2/st->f;
-                psine = (OneStim *)(st->right->ptr);
-                psine->sf2 = val;
-                psine->incr = st->incr * psine->sf2/st->f;
+                st->left->ptr->sf2 = val;
+                st->right->ptr->sf2 = val;
+                st->left->incrs[1] = st->incr * val/st->f;
+                st->right->incrs[1] = st->incr * val/st->f;
             }
             if(st->type == STIM_GRATINGN){
                 st->left->ptr->sf2 = val;
@@ -5621,7 +5614,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             pos->phase = M_PI/2;
 		else if (st->type == STIM_GRATING2 || st->type == STIM_GRATING)
         {
-		    pos->phase2 += psine->incr;
+		    pos->phase2 += st->left->incrs[1];
 		}
 		else if (st->type == STIM_GRATINGN)
         {
@@ -8125,10 +8118,9 @@ float StimulusProperty(Stimulus *st, int code)
                 value = 0.0;
             break;
         case TF2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL)
+            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL || st->type == STIM_GRATING)
             {
-                psine = (OneStim *)(st->left->ptr);
-                value = mon.framerate * psine->incr/(M_PI * 2);
+                value = mon.framerate * st->left->incrs[1]/(M_PI * 2);
                 if(TheStim->swapinterval > 1)
                     value /= TheStim->swapinterval;
             }

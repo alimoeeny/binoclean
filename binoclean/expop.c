@@ -5208,17 +5208,17 @@ int ReadStimOrder(char *file)
     if (fd != NULL){
         while(fgets(buf, BUFSIZ, fd) != NULL){
             s = buf;
-            if (strncmp(s,"manexp",6) == NULL){
-                SerialString(s,0);
+            if (isdigit(s[0])){
+                while(s){
+                    sscanf(s,"%d",&ival);
+                    stimorder[nt++] = ival;
+                    t = s;
+                    if((s = strchr(t,' ')) != NULL)
+                        s++;
+               }
             }
-            else{
-            while(s){
-                sscanf(s,"%d",&ival);
-                stimorder[nt++] = ival;
-                t = s;
-                if((s = strchr(t,' ')) != NULL)
-                    s++;
-            }
+            else{ // send all other lines to serial file
+                    SerialString(s,0);
             }
         }
         fclose(fd);

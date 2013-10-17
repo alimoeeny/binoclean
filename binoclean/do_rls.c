@@ -458,7 +458,10 @@ void calc_rls(Stimulus *st, Substim *sst)
                     *q = BLACKMODE;
             }
         if ((*rp & 0xff) < pblank){
-            *p = 0;
+            if(st->dotdist == WHITENOISE16)
+                *p = 8;
+            else
+                *p = 0;
             *pi = 1;
         }
         
@@ -1033,7 +1036,7 @@ void paint_rls(Stimulus *st, int mode)
     int dotmode = 0;
     Substim *sst = st->left;
     Locator *pos = &st->pos;
-    float angle,cosa,sina,val,valsum = 0;
+    float angle,cosa,sina,val,valsum = 0,cscale;
     vcoord rect[8],crect[8];
     
     
@@ -1046,6 +1049,7 @@ void paint_rls(Stimulus *st, int mode)
         paint_rls_polygons(st, mode);
         return;
     }
+    
     
     angle = rad_deg(pos->angle);
     /*
@@ -1094,6 +1098,7 @@ void paint_rls(Stimulus *st, int mode)
             vcolor[i] = fcol;
         }
     }
+    cscale = sst->pos.contrast/0xf;
         
     glRotatef(angle,0.0,0.0,1.0);
     
@@ -1160,7 +1165,7 @@ void paint_rls(Stimulus *st, int mode)
         lasty = *y;
         
         if(st->dotdist == WHITENOISE16){
-            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+            val = 0.5 + (((float)(*p & 0xf)/0xe) -0.5) * sst->pos.contrast;  //0 ->1, not 0 ->15/16
             valsum += val;
             n++;
             glColor3f(val,val,val);
@@ -1199,7 +1204,7 @@ void paint_rls(Stimulus *st, int mode)
         lasty = *y;
         
         if(st->dotdist == WHITENOISE16){
-            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+            val = 0.5 + (((float)(*p & 0xf)/0xe) -0.5) * sst->pos.contrast;  //0 ->1, not 0 ->15/16
             valsum += val;
             n++;
             glColor3f(val,val,val);
@@ -1240,6 +1245,7 @@ void paint_rls_plaid(Stimulus *st, int mode)
     Locator *pos = &st->pos;
     float angle,cosa,sina,val,valsum = 0,alpha=1.0;
     vcoord rect[8],crect[8];
+    float cscale;
     
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
     {
@@ -1283,7 +1289,7 @@ void paint_rls_plaid(Stimulus *st, int mode)
         bcolor[1] = bcolor[2] = bcolor[0] = sst->lum[1];
     }
     glRotatef(angle,0.0,0.0,1.0);
-    
+    cscale = sst->pos.contrast/0xf;
     mycolor(vcolor);
     w = sst->dotsiz[0]/2;
     h = sst->dotsiz[1]/2;
@@ -1345,8 +1351,8 @@ void paint_rls_plaid(Stimulus *st, int mode)
         lasty = *y;
         
         if(st->dotdist == WHITENOISE16){
-            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
-            valsum += val;
+            val = 0.5 + (((float)(*p & 0xf)/0xe) -0.5) * sst->pos.contrast;  //0 ->1, not 0 ->15/16
+           valsum += val;
             n++;
             glColor4f(val,val,val,alpha);
         }
@@ -1385,8 +1391,9 @@ void paint_rls_plaid(Stimulus *st, int mode)
             lasty = *y;
             
             if(st->dotdist == WHITENOISE16){
-                val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
-                valsum += val;
+                val = (float)(*p & 0xf)*cscale;  //0 ->1, not 0 ->15/16
+                val = 0.5 + (((float)(*p & 0xf)/0xe) -0.5) * sst->pos.contrast;  //0 ->1, not 0 ->15/16
+              valsum += val;
                 n++;
                 glColor3f(val,val,val);
             }
@@ -1438,8 +1445,8 @@ void paint_rls_plaid(Stimulus *st, int mode)
         lasty = *y;
         
         if(st->dotdist == WHITENOISE16){
-            val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
-            valsum += val;
+            val = 0.5 + (((float)(*p & 0xf)/0xe) -0.5) * sst->pos.contrast;  //0 ->1, not 0 ->15/16
+         valsum += val;
             n++;
             glColor4f(val,val,val, alpha);
         }
@@ -1474,7 +1481,7 @@ void paint_rls_plaid(Stimulus *st, int mode)
             lasty = *y;
             
             if(st->dotdist == WHITENOISE16){
-                val = (float)(*p & 0xf)/0xe;  //0 ->1, not 0 ->15/16
+                val = 0.5 + (((float)(*p & 0xf)/0xe) -0.5) * sst->pos.contrast;  //0 ->1, not 0 ->15/16
                 valsum += val;
                 n++;
                 glColor3f(val,val,val);
