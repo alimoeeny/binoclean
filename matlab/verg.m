@@ -702,7 +702,7 @@ for j = 1:length(strs{1})
             end
             codetype = DATA.comcodes(cid(1)).group;
         end    
-    elseif regexp(s,'^E[A-C][0-9,C]') %don't let this catch other codes starting with E
+    elseif regexp(s,'^E[A-C][0-9,\-,C]') %don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
             DATA.exptstimlist{2} = {};
             DATA.nextras(2) = 0;

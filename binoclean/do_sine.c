@@ -703,7 +703,7 @@ void paint_grating(Substim *sst, int mode, int shift)
     q = p;
     if(pos->ss[1] <= 1.1) /* line spacing same as pixels */
     {
-        if(optionflag & ANTIALIAS_BIT){
+        if(optionflag & ANTIALIAS_BIT || fabs(gb->plaid_angle) > 0.1){  //need blending for plaids
             glLineWidth(1.1);
             glEnable(GL_BLEND);
             glEnable(GL_LINE_SMOOTH);

@@ -8331,8 +8331,11 @@ int PrepareExptStim(int show, int caller)
         else
            afc_s.stimsign = code;
         
-        if (s == NULL) //Error setting stimulus
+        if (s == NULL){ //Error setting stimulus
+            sprintf(cbuf,"Error Setting Stimulus %s",ebuf);
+            acknowledge(cbuf,0);
             return(-1);
+        }
         stimulus_is_prepared = 1;
         sprintf(cbuf,"exvals %.4f %.4f %.4f %d\n",expt.currentval[0],expt.currentval[1],expt.currentval[2],stimorder[stimno]);
         SerialString(cbuf,0);
