@@ -266,6 +266,7 @@ struct STIMULUS{
     double dlength,dwidth;
     double phases[MAXFREQS];
     double freqs[MAXFREQS];
+    double contrasts[MAXFREQS];
     double freqmode; //0 = automatic,1 = manual
     float ucgap;
     double rolldisp;

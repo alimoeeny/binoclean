@@ -6175,6 +6175,14 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             }
             strcat(cbuf,"\n\0");
             break;
+        case SET_SF_CONTRASTS:
+            sprintf(cbuf,"%s=",serial_strings[code]);
+            for (i = 0; i < st->left->nfreqs; i++){
+                sprintf(temp,"%.3f ",st->contrasts[i]);
+                strcat(cbuf,temp);
+            }
+            strcat(cbuf,"\n\0");
+            break;
         case SET_TF_COMPONENTS:
             sprintf(cbuf,"%s=",serial_strings[code]);
             for (i = 0; i < st->left->nfreqs; i++){
@@ -7177,6 +7185,7 @@ void InitExpt()
         }
         if (expt.st->nfreqs > 1){
             SerialSend(SET_SF_COMPONENTS);
+            SerialSend(SET_SF_CONTRASTS);
             SerialSend(SET_TF_COMPONENTS);
             SerialSend(JUMP_SF_COMPONENTS);
         }
@@ -13466,12 +13475,20 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case SET_SF_COMPONENTS:
             n = sscanf(s,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
                        &in[0],&in[1],&in[2],&in[3],&in[4],&in[5],&in[6],&in[7],&in[8],&in[9],&in[10],&in[11],&in[12],&in[13],&in[14],&in[15]);
-            for(i = 0; i < n; i++)
+            for(i = 0; i < n; i++){
                 expt.st->freqs[i] = in[i];
+                expt.st->contrasts[i] = 1;
+            }
             expt.st->nfreqs = n;
             expt.st->left->nfreqs = n;
             if (n > 0)
                 expt.st->freqmode = MANUAL_FREQ;
+            break;
+        case SET_SF_CONTRASTS:
+            n = sscanf(s,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+                       &in[0],&in[1],&in[2],&in[3],&in[4],&in[5],&in[6],&in[7],&in[8],&in[9],&in[10],&in[11],&in[12],&in[13],&in[14],&in[15]);
+            for(i = 0; i < n; i++)
+                expt.st->contrasts[i] = in[i];
             break;
         case SET_TF_COMPONENTS:
             n = sscanf(s,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
@@ -14134,6 +14151,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             case JUMP_SF_COMPONENTS:
             case SET_SF_COMPONENTS:
             case SET_TF_COMPONENTS:
+            case SET_SF_CONTRASTS:
                 break;
         }
     }

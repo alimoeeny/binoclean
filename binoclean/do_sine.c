@@ -561,8 +561,15 @@ calc_gratingN(Stimulus *st, Substim *sst, float disp)
         ytest = exp(-sqr(y/sy));
     else
         ytest = 1.0;
-    
-    if(onlineversion < 434)
+
+    if(st->freqmode == MANUAL_FREQ){
+        tpower = 0;
+        for (i = 0; i < nc; i++){
+            sst->powers[i] = st->contrasts[i];
+            tpower += sst->powers[i];
+        }
+    }
+    else if(onlineversion < 434)
         tpower = SetFreqOnOff433(sst, nc);
     else
         tpower = SetFreqOnOff(sst, nc);

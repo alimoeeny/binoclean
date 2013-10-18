@@ -442,7 +442,8 @@
 #define SET_TF_COMPONENTS MAXSERIALCODES+169
 #define PSYCHMON_VARS MAXSERIALCODES+170
 #define EXPTRESET_FILE MAXSERIALCODES+171
-#define MAXSAVECODES MAXSERIALCODES+172 //364
+#define SET_SF_CONTRASTS MAXSERIALCODES+172
+#define MAXSAVECODES MAXSERIALCODES+173 //364
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -1260,6 +1261,7 @@ ValueCode valstrings[] = {
     {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
     {  "nsf", "SF Components", SET_SF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
     {  "ntf", "TF Components", SET_TF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
+    {  "nco", "Component Contrasts", SET_SF_CONTRASTS, 0, 'N', 3, SEND_EXPLICIT},
     {  "psychmon", "Psych Mon Vars", PSYCHMON_VARS, 0, 'C', 3, SEND_EXPLICIT},
     {"impref", "prefix for image files", IMAGELOAD_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {"Electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},
