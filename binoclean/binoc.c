@@ -3408,24 +3408,17 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case TF2:
             if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL || st->type == STIM_GRATING)
             {
-                psine = (OneStim *)(st->left->ptr);
-                psine->incr = (val *M_PI *2)/(mon.framerate);
-                if(TheStim->swapinterval > 1)
-                    psine->incr *= TheStim->swapinterval;
-                fval = psine->incr;
-                psine = (OneStim *)(st->right->ptr);
-                psine->incr = fval;
+                st->left->incrs[1] = (val *M_PI *2)/(mon.framerate);
+                st->right->incrs[1] = (val *M_PI *2)/(mon.framerate);
             }
             break;
         case SF2:
             if(st->type == STIM_GRATING2)
             {
-                psine = (OneStim *)(st->left->ptr);
-                psine->sf2 = val;
-                psine->incr = st->incr * psine->sf2/st->f;
-                psine = (OneStim *)(st->right->ptr);
-                psine->sf2 = val;
-                psine->incr = st->incr * psine->sf2/st->f;
+                st->left->ptr->sf2 = val;
+                st->right->ptr->sf2 = val;
+                st->left->incrs[1] = st->incr * val/st->f;
+                st->right->incrs[1] = st->incr * val/st->f;
             }
             if(st->type == STIM_GRATINGN){
                 st->left->ptr->sf2 = val;
@@ -5039,6 +5032,8 @@ int change_frame()
 	char buf[BUFSIZ];
 	int lastframe,oldmode = mode;
 	static int framesswapped = 0;
+    int blockallframes = 0;
+    
 	vcoord x[2];
     
     
@@ -5107,7 +5102,7 @@ int change_frame()
         stimstate = POSTSTIMULUS;
 
 
-    if(mode & FRAME_BITS)
+    if((mode & FRAME_BITS) || blockallframes)
     {
 #ifdef FRAME_OUTPUT
         if (Frames2DIO)
@@ -5598,7 +5593,8 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
                 myrnd_init(st->left->baseseed+st->framectr);
                 SetRandomPhase(st, pos);
-                mode |= STIMCHANGE_FRAME;
+                if (st->left->seedloop > 1)
+                    mode |= STIMCHANGE_FRAME;
 
             }
             else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
@@ -5618,7 +5614,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             pos->phase = M_PI/2;
 		else if (st->type == STIM_GRATING2 || st->type == STIM_GRATING)
         {
-		    pos->phase2 += psine->incr;
+		    pos->phase2 += st->left->incrs[1];
 		}
 		else if (st->type == STIM_GRATINGN)
         {
@@ -8122,10 +8118,9 @@ float StimulusProperty(Stimulus *st, int code)
                 value = 0.0;
             break;
         case TF2:
-            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL)
+            if(st->type == STIM_GRATING2 || st->type == STIM_RADIAL || st->type == STIM_GRATING)
             {
-                psine = (OneStim *)(st->left->ptr);
-                value = mon.framerate * psine->incr/(M_PI * 2);
+                value = mon.framerate * st->left->incrs[1]/(M_PI * 2);
                 if(TheStim->swapinterval > 1)
                     value /= TheStim->swapinterval;
             }
@@ -9524,6 +9519,11 @@ int GotChar(char c)
                         i = 0;
                     sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
                             jumpstrings[i]);
+                    SerialString(buf,0);
+                }
+                else  if(expt.vals[SET_SEEDLOOP] > 1){
+                    sprintf(buf,"%2s=%2s\n",serial_strings[STIMCHANGE_CODE],
+                            serial_strings[SET_SEEDLOOP]);
                     SerialString(buf,0);
                 }
                 else if(optionflags[RUN_SEQUENCE] && expt.stimpertrial > 2){
