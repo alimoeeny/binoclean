@@ -613,15 +613,15 @@ for j = 1:length(strs{1})
             DATA.optionflags.(f{code}) = 0;
             end
         end
-    elseif strncmp(s,'ch10',4)
+    elseif strncmp(s,'ch10',4) %Right eye XY
         DATA.showxy(1) = strfind('-+',s(5))-1;
         id = strfind(s,'fs');
         if length(id) == 1
             DATA.binoc{1}.xyfsd = sscanf(s(id(1)+2:end),'%f');
         end
-    elseif strncmp(s,'ch11',4)
+    elseif strncmp(s,'ch11',4) %L eye XY
         DATA.showxy(2) = strfind('-+',s(5))-1;
-    elseif strncmp(s,'ch12',4)
+    elseif strncmp(s,'ch12',4) %binoc XY
         DATA.showxy(3) = strfind('-+',s(5))-1;
     elseif regexp(s,'^ch[0-9]')
     elseif strncmp(s, 'stepperxy', 8)
@@ -789,7 +789,7 @@ function DATA = CheckCustomStim(DATA, s, n)
     
 function s = AddCustomStim(DATA, s, n)
     
-    pre = {'E' 'EB' 'EC'};
+    pre = {'EA' 'EB' 'EC'};
     o = 1+DATA.nextras(n);
     if DATA.customstimlist(n)
         for j = o:length(DATA.exptstimlist{n})
@@ -1033,14 +1033,14 @@ function SendState(DATA, varargin)
     end
     fprintf(DATA.outid,'uf=%s\n',DATA.datafile);
     
-    if DATA.showxy(2)
-        fprintf(DATA.outid,'ch12+\n');
-    end
-    if DATA.showxy(3)
-        fprintf(DATA.outid,'ch11+\n');
-    end
     if DATA.showxy(1)
         fprintf(DATA.outid,'ch10+\n');
+    end
+    if DATA.showxy(2)
+        fprintf(DATA.outid,'ch11+\n');
+    end
+    if DATA.showxy(3)
+        fprintf(DATA.outid,'ch12+\n');
     end
 
     if length(DATA.binoc) > 1 && isstruct(DATA.binoc{2})
@@ -1311,7 +1311,7 @@ DATA.exptype = [];
 DATA.nexpts = 0;
 DATA.Expts = {};
 DATA.Trials = [];
-DATA.showxy = [1 1 1]; %XY L, R, Conjugate crosses
+DATA.showxy = [1 1 1]; %XY R, L, Conjugate crosses
 DATA.currentstim = 1;  %foregr/backgre/Choice Targest
 DATA.xyfsdvals = [1 2 5 10 20 40];
 DATA.optionflags.ts = 0;
@@ -2293,7 +2293,7 @@ function SendManualVals(a, b)
         if size(str,2) > DATA.nt
             yn = questdlg('Nstim mismatch','That will Change N stims','OK','Cancel','OK');
         end
-        c = 'E';
+        c = 'EA';
     end
 
     for j = o:length(str)
@@ -2398,7 +2398,7 @@ if sendvals
     elseif strcmp(tag,'Expt3StimList')
         c = 'EC';
     else
-        c = 'E';
+        c = 'EA';
     end
 
     for j = 1:length(str)
@@ -4197,18 +4197,21 @@ function OtherToggles(a,b,flag)
     DATA = GetDataFromFig(a);
     v= get(a,'value');
     if v
-       c = '+';
-        else
+        c = '+';
+    else
       c = '-';
     end
-    if strcmp(flag,'XYL')
-        fprintf(DATA.outid,'ch11%c\n',c);
-    elseif strcmp(flag,'XYR')
+    if strcmp(flag,'XYR')
+        DATA.showxy(1) = v;
         fprintf(DATA.outid,'ch10%c\n',c);
+    elseif strcmp(flag,'XYL')
+        DATA.showxy(2) = v;
+        fprintf(DATA.outid,'ch11%c\n',c);
     elseif strcmp(flag,'XYB')
+        DATA.showxy(3) = v;
         fprintf(DATA.outid,'ch12%c\n',c);
     end        
-
+    set(DATA.toplevel,'UserData',DATA);
     
     
 function [DATA, txt] = PrevCommand(DATA, src, step)

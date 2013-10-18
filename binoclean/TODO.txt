@@ -83,4 +83,5 @@ Things that need fixing:
 ack if there is a monitor read error.
 check comments are transmitted properly
 check \\ quoting in verg
-
+\\ quoting from Office copy missing in master
+-handle more expts than 3 in manual expts.

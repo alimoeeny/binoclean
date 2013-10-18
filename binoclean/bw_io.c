@@ -61,13 +61,16 @@ char *getfilename(char *path)
 //
 //
 //
-int SetBWChannel(int chan, char *s)
+int SetBWChannel(char *s)
 {
     char *r,*t;
     int i,ival,onoff=0;
+    int chan = 0;
     
+    if((r = strchr(s,'+')) == NULL && (r = strchr(s,'-')) == NULL)
+        return(0);
+    sscanf(s,"%d",&chan);
     
-    r = s;
     if(*r == '+'){
         expt.bwptr->cflag |= (1<<chan);
         onoff = 1;

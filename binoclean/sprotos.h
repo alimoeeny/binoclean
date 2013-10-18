@@ -262,7 +262,7 @@ char *EyeCoilString(void);
 void SetWPanel();
 char *getfilename(char *path);
 void SetBWPanel();
-int SetBWChannel(int chan, char *s);
+int SetBWChannel(char *s);
 void SetAPanel();
 stair_hist_s newstairstruct();
 int PrintToggles(FILE *ofd);
