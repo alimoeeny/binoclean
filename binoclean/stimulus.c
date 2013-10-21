@@ -51,7 +51,9 @@ extern float cmarker_size;
 extern OneStim *thecorrug;
 extern int freezestimulus;
 int nrndcalls = 0;
-
+extern int neyevals,demomode,stimstate;
+extern float *eyexvals,*eyeyvals;\
+extern struct timeval frametime, zeroframetime;
 
 int *RecordImage(int frame, Stimulus *st){
     int *p,j;
@@ -374,8 +376,8 @@ void draw_conjpos(vcoord fixw, float color)
     vcoord x[2],off[2];
     float linw;
     short vcolor[3];
-    float fixwin;
-    
+    float fixwin,tval;
+    int frame;
     
     
     if(fixw <= 0 || !(optionflag & SHOW_CONJUG_BIT))
@@ -399,6 +401,22 @@ void draw_conjpos(vcoord fixw, float color)
     x[0] = oldpos[0] + fixw/2;
     myvx(x);
     glEnd();
+    
+    
+    if (demomode && neyevals > 0){
+        if (stimstate == WAIT_FOR_RESPONSE){
+            tval = timediff(&frametime, &zeroframetime);
+            frame = (int)((tval * mon.framerate) +0.1);
+        }
+        else{
+            frame = expt.st->framectr;
+        }
+        if (frame < neyevals){
+            conjpos[0] = deg2pix(eyexvals[frame]);
+            conjpos[1] = deg2pix(eyeyvals[frame]);
+        }
+    }
+    
     SetColor(color, 0);
     glBegin(GL_LINES);
     x[0] = conjpos[0] + fixw/2;
@@ -1267,7 +1285,8 @@ void calc_stimulus(Stimulus *st)
             else
                 st->nimseed = 1000;
             calc_image(st, st->left);
-            calc_image(st, st->right);
+            if (st->flag & UNCORRELATE)
+                calc_image(st, st->right);
             break;
         case STIM_SQUARE:
             st->left->pos.xy[0] += disp;

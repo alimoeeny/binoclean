@@ -499,6 +499,8 @@ for j = 1:length(strs{1})
                 if DATA.togglecodesreceived
                 fprintf('No Code for %s\n,',s(id(k):end));
                 end
+            elseif isempty(code)
+%                fprintf('No Code for %s\n,',s(id(k):end));                
             elseif s(id(k)) == '+' && id(k+1)
                 DATA.showflags.(f{code}) = 1;
                 if ~isshown
@@ -507,7 +509,7 @@ for j = 1:length(strs{1})
                 end
             else
                 if ~isempty(code)
-                DATA.showflags.(f{code}) = 0;
+                    DATA.showflags.(f{code}) = 0;
                 end
             end
         end

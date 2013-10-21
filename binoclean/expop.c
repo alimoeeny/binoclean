@@ -209,6 +209,8 @@ extern int fixstate, stimstate;
 char *expname = NULL;
 /* Ali Cursor */ int thecursor;
 extern int optionflags[],defaultflags[],states[],testflags[],oldoptionflags[];
+extern float *eyexvals, *eyeyvals;
+extern int neyevals;
 
 #define NSAVES 5
 static float savevals[NSAVES][MAXTOTALCODES+1];
@@ -1809,6 +1811,8 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         rcrfreqs[i] = (float *)malloc(MAXFRAMES * sizeof(float));
         rcdps[i] = (int *)malloc(MAXFRAMES * sizeof(int));
     }
+    eyexvals =(float *)malloc(MAXFRAMES * sizeof(float));
+    eyeyvals =(float *)malloc(MAXFRAMES * sizeof(float));
     
     rcstimxy = (int **)malloc(2 * sizeof(float *));
     for(i = 0; i < 2; i++)
@@ -4075,7 +4079,7 @@ int SaveImage(Stimulus *st, int type)
     GLubyte *pix;
     FILE *ofd;
     char imname[BUFSIZ];
-    int x,y,w,h,i,done = 0,n = 0;
+    int x,y,w,h,i=0,done = 0,n = 0;
     static int imstimid = 0;
     char eyec[3] = "LR";
     Stimulus *rst = st;
@@ -4094,7 +4098,24 @@ int SaveImage(Stimulus *st, int type)
     w = w + 4-(w%4);
     h = h + 4-(h%4);
     
-    if(type & 1){  
+    if (type == 0){
+        sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
+        h = expt.winsiz[1]*2;
+        w = expt.winsiz[0]*2;
+        if((pix = GetStimImage(0,0, w, h,eyec[i])) != NULL){
+            if((ofd = fopen(imname,"w")) == NULL)
+                fprintf(stderr,"Can't write image to %s\n",imname);
+            else{
+                fprintf(ofd,"P5 %d %d 255\n",w,h);
+                fwrite(pix, sizeof(GLubyte), w*h, ofd);
+                done++;
+                fclose(ofd);
+                fprintf(stderr,"Seed %d,%d written to %s (dx%.3f)\n",st->left->baseseed,st->left->seed,imname,st->disp);
+            }
+        }
+    
+    }
+    if(type & 1){
         for(i = 0; i < 2; i++){
             sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
             if((pix = GetStimImage(x, y, h, w,eyec[i])) != NULL){
@@ -4258,6 +4279,12 @@ int ReadCommand(char *s)
     else if(!strncasecmp(s,"debug",4)){
         sscanf(s,"%*s %d",&debug);
         sprintf(command_result,"debug %d",debug);
+    }
+    else if(!strncasecmp(s,"savemovie",8)){ // toggle on/off saving screen images
+        if (testflags[SAVE_IMAGES] == 0)
+            testflags[SAVE_IMAGES] = 10;
+        else
+            testflags[SAVE_IMAGES] = 0;
     }
     else if(!strncasecmp(s,"saveim",6)){
         if(!testflags[PLAYING_EXPT]){
@@ -9981,7 +10008,7 @@ int ExpStimOver(int retval, int lastchar)
         expt.st->mode |= EXPT_OVER;
     CheckFix(); /* if was a bad trial, set the timeout */
     
-    if(!(optionflag & FIXATION_CHECK) && !(optionflag & WAIT_FOR_BW_BIT))
+    if(!(optionflag & FIXATION_CHECK) && !(optionflag & WAIT_FOR_BW_BIT) && demomode == 0) 
         fixstate = RESPONDED;
     /*
      * If this is a re-run of an expt file on disk, read in some more from
@@ -12527,6 +12554,9 @@ int ChangeFlag(char *s)
     int oldval;
     
     s++;
+    a = strchr(s,'\n');
+    if(a != NULL)
+        *a = 0;
     a = strchr(s,'+');
     b = strchr(s,'-');
     if (b == NULL && a == NULL)
@@ -12825,11 +12855,22 @@ int KeyPressed(char c)
                 ReadExptFile(NULL, 0, 0 , 0);
             break;
         case 5: // F2
-            RunOneTrial();
+            if (demomode && stimstate == WAIT_FOR_RESPONSE){
+//                stimstate = RESPONDED;
+                fixstate = RESPONDED;
+            }
+            else
+                RunOneTrial();
+//            if (demomode)
+//                stimstate = PREFIXATION;
             break;
         case 6: // F3
             if (demomode > 0)
                 runexpt(NULL,NULL,NULL);
+            break;
+        case 7: // F4
+            if (demomode > 0)
+                StopGo(-1);
             break;
         case 9: //F6
             SerialSignal(FREE_REWARD);
@@ -12948,11 +12989,36 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strcmp(line,"whatsup")){
         sendNotification();
     }
+    else if(!strncmp(line,"demomode",8)){
+        demomode = 2;
+    }
     else if(!strncmp(line,"bar",3) && s != NULL){
         sscanf(&line[3],"%f",&expt.st->modifier);
         i = FindCode(&line[3]);
         sscanf(&line[4],"%f",&val);
         SetStimulus(expt.st, val, i, NOEVENT);
+    }
+    else if(!strncmp(line,"emx:",3) && s != NULL){
+        t = s;
+        j = 0;
+        while(t != NULL && j < MAXFRAMES){
+            sscanf(++t,"%f",&val);
+            eyexvals[j++] = val;
+            s = strchr(t,' ');
+            t = s;
+        }
+        neyevals = j;
+    }
+    else if(!strncmp(line,"emy:",3) && s != NULL){
+        t = s;
+        j = 0;
+        while(t != NULL && j < MAXFRAMES){
+            sscanf(++t,"%f",&val);
+            eyeyvals[j++] = val;
+            s = strchr(t,' ');
+            t = s;
+        }
+        neyevals = j;
     }
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));
