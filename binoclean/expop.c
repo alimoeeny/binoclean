@@ -8474,7 +8474,8 @@ int PrepareExptStim(int show, int caller)
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
-        code = afc_s.sign = (int)(val/fabs(val));
+        if (fabs(val) > 0.00001)
+            code = afc_s.sign = (int)(val/fabs(val));
         if (val == 0)
                 afc_s.stimsign = (drand48() > 0.5);
         else
@@ -12137,6 +12138,7 @@ int ReadExptFile(char *name, int new, int show, int reset)
             if(!setseed && expt.st->left->baseseed < 1001)
                 NewSeed(expt.st);
             if(new == 2){
+                stillreading = 0;
                 fclose(exfd);
                 exfd = NULL;
             }
@@ -12148,6 +12150,8 @@ int ReadExptFile(char *name, int new, int show, int reset)
         else if(!strncmp(mssg,"Stimulus",7)){
         }
         else{
+            if (stillreading && demomode)
+                statusline(mssg);
             if(verbose)
                 puts(mssg);
             code = InterpretLine(mssg, &expt,0);
@@ -12881,20 +12885,25 @@ int KeyPressed(char c)
         case 6: // F3
             if (demomode > 0){
                 if (expt.st->mode & EXPTPENDING){
+                    statusline("Ending Expt");
                     stimstate = 0;
                     expt_over(1);
                 }
-                else
+                else{
+                    statusline("Running Expt Expt");
                     runexpt(NULL,NULL,NULL);
+                }
             }
             break;
         case 7: // F4
-            if (demomode > 0)
+            if (demomode > 0){
                 StopGo(-1);
+                statusline("Go ON");
+            }
             break;
         case 8: //F5
             if (demomode)
-                ReadExptFile(expt.loadfile,2,0,1);
+                ReadExptFile(expt.loadfile,1,0,1);
             break;
         case 9: //F6
             SerialSignal(FREE_REWARD);
@@ -12910,6 +12919,7 @@ int KeyPressed(char c)
             case '\r':
             case '\n':
             InterpretLine(instring, &expt, 0);
+            statusline(instring);
             sctr = 0;
             break;
         default:

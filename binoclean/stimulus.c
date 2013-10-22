@@ -388,6 +388,7 @@ void draw_conjpos(vcoord fixw, float color)
     vcolor[0] = vcolor[1] = vcolor[2] = expt.st->gammaback;
     mycolor(vcolor);
     setmask(OVERLAY);
+ // First paint out old cross (in case screen not wiped)
     glBegin(GL_LINES);
     x[0] = oldpos[0] + fixw/2;
     x[1] = oldpos[1] + fixw/2;

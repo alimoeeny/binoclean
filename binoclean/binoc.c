@@ -6305,7 +6305,7 @@ int next_frame(Stimulus *st)
                 stimstate=PREFIXATION;
                 break;
             }
-            if (demomode && TheStim->mode & ANIMATE_BIT){
+            if (demomode && mode & ANIMATE_BIT){
                 stimstate=PREFIXATION;
                 break;
             }
