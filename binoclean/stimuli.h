@@ -430,6 +430,7 @@ struct EXPERIMENT{
     int expseed;
     char *username;
     int codesent;
+    char *loadfile;
 };
 
 typedef struct EXPERIMENT Expt;

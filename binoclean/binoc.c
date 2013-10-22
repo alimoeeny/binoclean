@@ -232,7 +232,7 @@ void end_timeout();
 
 float *eyexvals = NULL, *eyeyvals = NULL;
 int neyevals = 0;
-
+float videocapture[4] = {0, 0, 1280, 1024};
 
 long optionflag;
 long option2flag = PRETRIAL_BRIGHT;
@@ -846,6 +846,9 @@ char **argv;
             else if(!strncmp(buf,"fullscreen",6) && s){
                 sscanf(++s,"%d",&fullscreenmode);
             }
+            else if(!strncmp(buf,"videocapture",8) && s){
+                sscanf(++s,"%f %f %f %f",&videocapture[0],&videocapture[1],&videocapture[2],&videocapture[3]);
+            }
             else if(!strncmp(buf,"tty1",4) && s){
                 sscanf(++s,"%s",theport);
             }
@@ -1215,6 +1218,7 @@ char **argv;
         
 	}
     
+    expt.loadfile = loadfiles[0];
     
 	gettimeofday(&timeb,NULL);
 	if(verbose)
@@ -6858,7 +6862,7 @@ int next_frame(Stimulus *st)
                 else if(val > TheStim->fix.rt){
                     fixstate = RESPONDED;
                 }
-                
+                expt.st->framectr++;
             }
             else if(val > TheStim->fix.rt)
             {
@@ -10232,6 +10236,9 @@ void expt_over(int flag)
     TrialOver();
     gettimeofday(&endexptime,NULL);
     pursuedir = 1;
+    if (demomode)
+        testflags[SAVE_IMAGES] = 0;
+
     StimulusType(expt.st, expt.stimtype); /* reset stim type */
     if(mode & MORE_PENDING && mode & AUTO_NEXT_EXPT)
     {
@@ -10338,7 +10345,7 @@ void expt_over(int flag)
         }
         sprintf(timeoutstring,"Expt Over");
     }
-    if(demomode = 0){
+    if(demomode == 0){
         SetStopButton(STOP);
         clear_display(1);
     }

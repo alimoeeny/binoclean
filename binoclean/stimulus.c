@@ -404,9 +404,9 @@ void draw_conjpos(vcoord fixw, float color)
     
     
     if (demomode && neyevals > 0){
+        glLineWidth(4.0);
         if (stimstate == WAIT_FOR_RESPONSE){
-            tval = timediff(&frametime, &zeroframetime);
-            frame = (int)((tval * mon.framerate) +0.1);
+            frame = expt.st->framectr;
         }
         else{
             frame = expt.st->framectr;
@@ -415,9 +415,12 @@ void draw_conjpos(vcoord fixw, float color)
             conjpos[0] = deg2pix(eyexvals[frame]);
             conjpos[1] = deg2pix(eyeyvals[frame]);
         }
+        vcolor[1] = vcolor[2] = 0;
+        vcolor[0] = 1;
+        mycolor(vcolor);
     }
-    
-    SetColor(color, 0);
+    else
+        SetColor(color, 0);
     glBegin(GL_LINES);
     x[0] = conjpos[0] + fixw/2;
     x[1] = conjpos[1] + fixw/2;
@@ -431,8 +434,9 @@ void draw_conjpos(vcoord fixw, float color)
     x[0] = conjpos[0] + fixw/2;
     myvx(x);
     glEnd();
-    
+
     glLineWidth(1);
+    
     
     if(expt.bwptr->cflag & SHOW_FIXWIN){
         SetColor(1.0-color, 0);
