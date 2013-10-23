@@ -637,7 +637,7 @@ for j = 1:length(strs{1})
         if length(id) == 1
         DATA.stimtype(DATA.currentstim) = id;
         DATA.binocstr.st = deblank(s(4:end));
-        DATA.binoc{1}.st = deblank(s(4:end));
+        DATA.binoc{DATA.currentstim}.st = deblank(s(4:end));
         end
     elseif sum(strcmp(code,{DATA.strcodes.code}))
         id = strfind(s,'=');
@@ -1062,7 +1062,7 @@ function SendState(DATA, varargin)
     SendChoiceTargets(DATA.outid,DATA);
     fprintf(DATA.outid,'mo=fore\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
-    f = fields(DATA.binoc{1});
+    f = setdiff(fields(DATA.binoc{1},{'st'}));
     for j = 1:length(f)
         if isfield(DATA.codeids,f{j})
             cid = DATA.codeids.(f{j});
