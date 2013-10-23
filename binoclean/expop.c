@@ -209,6 +209,8 @@ extern int fixstate, stimstate;
 char *expname = NULL;
 /* Ali Cursor */ int thecursor;
 extern int optionflags[],defaultflags[],states[],testflags[],oldoptionflags[];
+extern float *eyexvals, *eyeyvals,videocapture[];
+extern int neyevals;
 
 #define NSAVES 5
 static float savevals[NSAVES][MAXTOTALCODES+1];
@@ -1809,6 +1811,8 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         rcrfreqs[i] = (float *)malloc(MAXFRAMES * sizeof(float));
         rcdps[i] = (int *)malloc(MAXFRAMES * sizeof(int));
     }
+    eyexvals =(float *)malloc(MAXFRAMES * sizeof(float));
+    eyeyvals =(float *)malloc(MAXFRAMES * sizeof(float));
     
     rcstimxy = (int **)malloc(2 * sizeof(float *));
     for(i = 0; i < 2; i++)
@@ -1935,7 +1939,7 @@ char *ReadManualStim(char *file){
                 SerialString("\n",0);
             }
             notify(inbuf);
-            if (strncmp(inbuf,"exvals",5) != NULL){
+            if (strncmp(inbuf,"exvals",5) != NULL && strlen(inbuf) < 100){
                 strcat(cbuf, inbuf);
                 strcat(cbuf, " ");
             }
@@ -4050,7 +4054,7 @@ GLubyte *GetStimImage(int x, int y, int w, int h, char eye)
      */
     
     if(pix == NULL){
-        size = expt.winsiz[0] * expt.winsiz[1] * 4 * sizeof(GLubyte);
+        size = videocapture[2] * videocapture[2] * sizeof(GLubyte);
         pix = (GLubyte *)malloc(size);
     }
     if(pix != NULL){
@@ -4073,7 +4077,7 @@ int SaveImage(Stimulus *st, int type)
     GLubyte *pix;
     FILE *ofd;
     char imname[BUFSIZ];
-    int x,y,w,h,i,done = 0,n = 0;
+    int x,y,w,h,i=0,done = 0,n = 0;
     static int imstimid = 0;
     char eyec[3] = "LR";
     Stimulus *rst = st;
@@ -4092,7 +4096,25 @@ int SaveImage(Stimulus *st, int type)
     w = w + 4-(w%4);
     h = h + 4-(h%4);
     
-    if(type & 1){  
+    if (type == 0){
+        i = 1;  //R eye image
+        sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
+        h = videocapture[3];
+        w = videocapture[2];
+        if((pix = GetStimImage(videocapture[0],videocapture[1], w, h,eyec[i])) != NULL){
+            if((ofd = fopen(imname,"w")) == NULL)
+                fprintf(stderr,"Can't write image to %s\n",imname);
+            else{
+                fprintf(ofd,"P5 %d %d 255\n",w,h);
+                fwrite(pix, sizeof(GLubyte), w*h, ofd);
+                done++;
+                fclose(ofd);
+                fprintf(stderr,"Seed %d,%d written to %s (dx%.3f)\n",st->left->baseseed,st->left->seed,imname,st->disp);
+            }
+        }
+    
+    }
+    if(type & 1){
         for(i = 0; i < 2; i++){
             sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
             if((pix = GetStimImage(x, y, h, w,eyec[i])) != NULL){
@@ -4256,6 +4278,12 @@ int ReadCommand(char *s)
     else if(!strncasecmp(s,"debug",4)){
         sscanf(s,"%*s %d",&debug);
         sprintf(command_result,"debug %d",debug);
+    }
+    else if(!strncasecmp(s,"savemovie",8)){ // toggle on/off saving screen images
+        if (testflags[SAVE_IMAGES] == 0)
+            testflags[SAVE_IMAGES] = 10;
+        else
+            testflags[SAVE_IMAGES] = 0;
     }
     else if(!strncasecmp(s,"saveim",6)){
         if(!testflags[PLAYING_EXPT]){
@@ -8290,6 +8318,127 @@ int SetFrameStim(int i, unsigned long long lrnd, double inc, Thisstim *stp, int 
 
 
 
+int PreLoadImages()
+{
+    struct timeval then;
+    int frpt = 1, i = 0,nv,rnd,laps,j = 0;
+    Stimulus *st = expt.st;
+    char cbuf[BUFSIZ];
+    
+    if((expt.st->type == STIM_IMAGE || expt.st->next->type == STIM_IMAGE) && expt.st->preload){
+        gettimeofday(&then,NULL);
+        expt.st->preloaded = 0;
+        
+        frpt = expt.vals[FAST_SEQUENCE_RPT];
+        if (optionflags[RAND_FP_DIR]){
+            expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
+            if(expt.st->jumps)
+                SerialSend(FP_MOVE_DIR);
+        }
+        
+        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0  && expt.st->immode != IMAGEMODE_ORBW)
+            frpt = 1;
+        for(i = 0; i < expt.st->nframes+1; i+=frpt){
+            if(optionflags[FAST_SEQUENCE]){
+                if(expt.fastbtype != EXPTYPE_NONE)
+                    SetStimulus(expt.st,frameseqb[i],expt.fastbtype,NOEVENT);
+                SetStimulus(expt.st,frameseq[i],expt.fasttype,NOEVENT);
+            }
+            else
+                frameseq[i] = 0;
+            if (expt.st->jumps > 0){
+                nv = expt.st->jumps/2;
+                if(optionflags[TILE_XY]){
+                    rnd = myrnd_i();
+                    rcstimxy[0][i] = (rnd & 0xffff) % expt.st->jumps;
+                    rcstimxy[0][i] = (rnd) % expt.st->jumps;
+                    rcstimxy[1][i] = (rnd>>16) % expt.st->jumps;
+                    expt.st->xyshift[0] = (rnd % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
+                    expt.st->xyshift[1] = ((rnd>>16) % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
+                }
+                else{
+                    laps = floor((i) / expt.st->jumps );
+                    if(optionflags[SIMULATE_FP_MOVE])
+                        laps = laps & 1;
+                    expt.st->xyshift[0] = laps * expt.vals[FP_MOVE_SIZE] * cos(expt.vals[FP_MOVE_DIR]);
+                    expt.st->xyshift[1] = laps * expt.vals[FP_MOVE_SIZE] * sin(expt.vals[FP_MOVE_DIR]);
+                    expt.st->next->xyshift[0] = expt.st->xyshift[0];
+                    expt.st->next->xyshift[1] = expt.st->xyshift[1];
+                    
+                    if(optionflags[SIMULATE_FP_MOVE] == 0){
+                        if ((i-expt.vals[FAST_SEQUENCE_RPT] > laps * expt.st->jumps) && expt.vals[FAST_SEQUENCE_RPT] > 0){
+                            expt.st->xstate = INTERLEAVE_EXPT_BLANK;
+                            frameseq[i] = INTERLEAVE_EXPT_BLANK;
+                        }
+                        else {
+                            expt.st->xstate = 0;
+                            frameseq[i] = 0;
+                        }
+                    }
+                }
+            }
+            expt.st->forceseed = 0;
+            st->framectr = i;
+            st->left->calculated = st->right->calculated = 0;
+            if (expt.st->type == STIM_IMAGE){
+                if((j = calc_image(expt.st,expt.st->left)) <0)
+                    return(-1);
+                if(expt.st->flag & UNCORRELATE)
+                    j = calc_image(expt.st,expt.st->right);
+                for (j = 1; j < frpt; j++){
+                    st->framectr = i+j;
+                    st->left->calculated = st->right->calculated = 0;
+                    if (expt.st->immode == IMAGEMODE_ORBW)
+                        expt.st->forceseed = expt.st->stimid;
+                    calc_image(expt.st,expt.st->left);
+                    imageseed[i+j] = imageseed[i];
+                    rcstimxy[0][i+j] = rcstimxy[0][i];
+                    rcstimxy[1][i+j] = rcstimxy[1][i];
+                }
+            }
+            if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE){
+                st->next->preloaded = 0;
+                st->next->left->baseseed = st->left->baseseed;
+                st->next->seedoffset = st->seedoffset;
+                st->next->imprefix = st->imprefix;
+                st->next->preload = st->preload;
+                st->next->imprefix = st->imprefix;
+                st->next->immode = st->immode;
+                st->next->jumps = st->jumps;
+                st->next->left->calculated = st->next->right->calculated = 0;
+                imageseed[i] = 0; //backgr seed sets frame
+                calc_image(expt.st->next,expt.st->next->left);
+            }
+        }
+        expt.st->preloaded = expt.st->nframes;
+        expt.st->xstate = 0;
+        if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE)
+            expt.st->next->preloaded = expt.st->nframes;
+        
+        expt.st->framectr = 0;
+        expt.st->next->framectr = 0;
+        gettimeofday(&now, NULL);
+        if(seroutfile)
+            fprintf(seroutfile,"preload took %.4f\n",timediff(&now,&then));
+        //Ali #ifdef macosx
+        sprintf(cbuf,"imve %.4f,%d %.4f %.4f %s %d\n",st->stimversion,st->seedoffset,st->pix2deg,timediff(&now,&then),st->builddate, st->envelopetype);
+        SerialString(cbuf,0);
+        seedoffsets[expt.stimid] = st->seedoffset;
+        expt.st->forceseed = 0;
+        //Ali #endif
+    }
+    else  if(expt.st->type == STIM_IMAGE){
+        expt.st->prepared = 0;
+        calc_stimulus(expt.st);
+        expt.st->prepared = 1;
+        //Ali #ifdef macosx
+        sprintf(cbuf,"imve %.4f,%d\n",st->stimversion,st->seedoffset);
+        SerialString(cbuf,0);
+        //Ali #endif
+    }
+
+}
+
 int PrepareExptStim(int show, int caller)
 {
     int i, stimres,cnt,j,nvals,nv,nstim[10],k,frpt,ncycles,drop,iperiod;
@@ -8332,7 +8481,8 @@ int PrepareExptStim(int show, int caller)
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
-        code = afc_s.sign = (int)(val/fabs(val));
+        if (fabs(val) > 0.00001)
+            code = afc_s.sign = (int)(val/fabs(val));
         if (val == 0)
                 afc_s.stimsign = (drand48() > 0.5);
         else
@@ -8350,6 +8500,8 @@ int PrepareExptStim(int show, int caller)
         statusline(cbuf);
         statusline(s);
         glstatusline(s,1);
+        PreLoadImages();
+        SetSacVal(psychval,expt.stimid);
         return(1);
     }
     if(expt.type2 == OPPOSITE_DELAY){
@@ -9639,118 +9791,8 @@ int PrepareExptStim(int show, int caller)
                 expt.st->next->flag &= (~UNCORRELATE);
         }
     }
-    if((expt.st->type == STIM_IMAGE || expt.st->next->type == STIM_IMAGE) && expt.st->preload){
-        gettimeofday(&then,NULL);
-        expt.st->preloaded = 0;
-
-        frpt = expt.vals[FAST_SEQUENCE_RPT];
-        if (optionflags[RAND_FP_DIR]){
-            expt.vals[FP_MOVE_DIR] = drand48() * M_PI * 2;
-            if(expt.st->jumps)
-                SerialSend(FP_MOVE_DIR);
-        }
-        
-        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0  && expt.st->immode != IMAGEMODE_ORBW)
-            frpt = 1;
-        for(i = 0; i < expt.st->nframes+1; i+=frpt){
-            if(optionflags[FAST_SEQUENCE]){
-                if(expt.fastbtype != EXPTYPE_NONE)
-                    SetStimulus(expt.st,frameseqb[i],expt.fastbtype,NOEVENT);
-                SetStimulus(expt.st,frameseq[i],expt.fasttype,NOEVENT);
-            }
-            else
-                frameseq[i] = 0;
-            if (expt.st->jumps > 0){
-                nv = expt.st->jumps/2;
-                if(optionflags[TILE_XY]){
-                    rnd = myrnd_i();
-                    rcstimxy[0][i] = (rnd & 0xffff) % expt.st->jumps;
-                    rcstimxy[0][i] = (rnd) % expt.st->jumps;
-                    rcstimxy[1][i] = (rnd>>16) % expt.st->jumps;
-                    expt.st->xyshift[0] = (rnd % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
-                    expt.st->xyshift[1] = ((rnd>>16) % expt.st->jumps - nv) * expt.vals[FP_MOVE_SIZE];
-                }
-                else{
-                    laps = floor((i) / expt.st->jumps );
-                    if(optionflags[SIMULATE_FP_MOVE])
-                        laps = laps & 1;
-                    expt.st->xyshift[0] = laps * expt.vals[FP_MOVE_SIZE] * cos(expt.vals[FP_MOVE_DIR]);
-                    expt.st->xyshift[1] = laps * expt.vals[FP_MOVE_SIZE] * sin(expt.vals[FP_MOVE_DIR]);
-                    expt.st->next->xyshift[0] = expt.st->xyshift[0];
-                    expt.st->next->xyshift[1] = expt.st->xyshift[1];
-                    
-                    if(optionflags[SIMULATE_FP_MOVE] == 0){
-                    if ((i-expt.vals[FAST_SEQUENCE_RPT] > laps * expt.st->jumps) && expt.vals[FAST_SEQUENCE_RPT] > 0){
-                        expt.st->xstate = INTERLEAVE_EXPT_BLANK; 
-                        frameseq[i] = INTERLEAVE_EXPT_BLANK;
-                    }
-                    else {
-                        expt.st->xstate = 0;
-                        frameseq[i] = 0;
-                    }
-                }
-                }
-            }
-            expt.st->forceseed = 0; 
-            st->framectr = i;
-            st->left->calculated = st->right->calculated = 0;
-            if (expt.st->type == STIM_IMAGE){
-                if((j = calc_image(expt.st,expt.st->left)) <0)
-                    return(-1);
-                if(expt.st->flag & UNCORRELATE)
-                    j = calc_image(expt.st,expt.st->right);
-                for (j = 1; j < frpt; j++){
-                st->framectr = i+j;
-                st->left->calculated = st->right->calculated = 0;
-                if (expt.st->immode == IMAGEMODE_ORBW)
-                    expt.st->forceseed = expt.st->stimid; 
-                calc_image(expt.st,expt.st->left); 
-                imageseed[i+j] = imageseed[i];
-                rcstimxy[0][i+j] = rcstimxy[0][i];
-                rcstimxy[1][i+j] = rcstimxy[1][i];
-            }
-            }
-            if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE){
-                st->next->preloaded = 0;
-                st->next->left->baseseed = st->left->baseseed;
-                st->next->seedoffset = st->seedoffset;
-                st->next->imprefix = st->imprefix;
-                st->next->preload = st->preload;
-                st->next->imprefix = st->imprefix;
-                st->next->immode = st->immode;
-                st->next->jumps = st->jumps;
-                st->next->left->calculated = st->next->right->calculated = 0;
-                imageseed[i] = 0; //backgr seed sets frame
-                calc_image(expt.st->next,expt.st->next->left);
-            }
-        }
-        expt.st->preloaded = expt.st->nframes;
-        expt.st->xstate = 0;
-        if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE)
-            expt.st->next->preloaded = expt.st->nframes;
-        
-        expt.st->framectr = 0;
-        expt.st->next->framectr = 0;
-        gettimeofday(&now, NULL);
-        if(seroutfile)
-            fprintf(seroutfile,"preload took %.4f\n",timediff(&now,&then));
-        //Ali #ifdef macosx
-        sprintf(cbuf,"imve %.4f,%d %.4f %.4f %s %d\n",st->stimversion,st->seedoffset,st->pix2deg,timediff(&now,&then),st->builddate, st->envelopetype);
-        SerialString(cbuf,0);
-        seedoffsets[expt.stimid] = st->seedoffset;
-        expt.st->forceseed = 0;
-        //Ali #endif
-    }
-    else  if(expt.st->type == STIM_IMAGE){
-        expt.st->prepared = 0;
-        calc_stimulus(expt.st);
-        expt.st->prepared = 1;
-        //Ali #ifdef macosx
-        sprintf(cbuf,"imve %.4f,%d\n",st->stimversion,st->seedoffset);
-        SerialString(cbuf,0);
-        //Ali #endif
-    }
-    else  if(expt.st->type == STIM_RDS){
+    PreLoadImages();
+    if(expt.st->type == STIM_RDS){
         if(optionflags[RANDOM_DEPTH_PHASE])
             SetDotDistribution();
         precalc_rds_disps(expt.st);
@@ -9988,7 +10030,7 @@ int ExpStimOver(int retval, int lastchar)
         expt.st->mode |= EXPT_OVER;
     CheckFix(); /* if was a bad trial, set the timeout */
     
-    if(!(optionflag & FIXATION_CHECK) && !(optionflag & WAIT_FOR_BW_BIT))
+    if(!(optionflag & FIXATION_CHECK) && !(optionflag & WAIT_FOR_BW_BIT) && demomode == 0) 
         fixstate = RESPONDED;
     /*
      * If this is a re-run of an expt file on disk, read in some more from
@@ -12103,6 +12145,7 @@ int ReadExptFile(char *name, int new, int show, int reset)
             if(!setseed && expt.st->left->baseseed < 1001)
                 NewSeed(expt.st);
             if(new == 2){
+                stillreading = 0;
                 fclose(exfd);
                 exfd = NULL;
             }
@@ -12114,6 +12157,8 @@ int ReadExptFile(char *name, int new, int show, int reset)
         else if(!strncmp(mssg,"Stimulus",7)){
         }
         else{
+            if (stillreading && demomode)
+                statusline(mssg);
             if(verbose)
                 puts(mssg);
             code = InterpretLine(mssg, &expt,0);
@@ -12534,6 +12579,9 @@ int ChangeFlag(char *s)
     int oldval;
     
     s++;
+    a = strchr(s,'\n');
+    if(a != NULL)
+        *a = 0;
     a = strchr(s,'+');
     b = strchr(s,'-');
     if (b == NULL && a == NULL)
@@ -12832,11 +12880,37 @@ int KeyPressed(char c)
                 ReadExptFile(NULL, 0, 0 , 0);
             break;
         case 5: // F2
-            RunOneTrial();
+            if (demomode && stimstate == WAIT_FOR_RESPONSE){
+//                stimstate = RESPONDED;
+                fixstate = RESPONDED;
+            }
+            else
+                RunOneTrial();
+//            if (demomode)
+//                stimstate = PREFIXATION;
             break;
         case 6: // F3
-            if (demomode > 0)
-                runexpt(NULL,NULL,NULL);
+            if (demomode > 0){
+                if (expt.st->mode & EXPTPENDING){
+                    statusline("Ending Expt");
+                    stimstate = 0;
+                    expt_over(1);
+                }
+                else{
+                    statusline("Running Expt Expt");
+                    runexpt(NULL,NULL,NULL);
+                }
+            }
+            break;
+        case 7: // F4
+            if (demomode > 0){
+                StopGo(-1);
+                statusline("Go ON");
+            }
+            break;
+        case 8: //F5
+            if (demomode)
+                ReadExptFile(expt.loadfile,1,0,1);
             break;
         case 9: //F6
             SerialSignal(FREE_REWARD);
@@ -12845,18 +12919,21 @@ int KeyPressed(char c)
             if (demomode != 0)
                 exit_program();
             break;
-            case '\x7f':
-            case '\b':
+        case '\x7f':
                 if (sctr > 0)
             instring[--sctr] = 0;
             break;
             case '\r':
             case '\n':
             InterpretLine(instring, &expt, 0);
+            statusline(instring);
             sctr = 0;
             break;
         default:
-            instring[sctr++] = c;
+            if(sctr ==0 && c == ' ' && demomode > 0)
+                        ReadExptFile(NULL, 0, 0 , 0);
+            else
+                instring[sctr++] = c;
             break;
     }
 }
@@ -12955,11 +13032,36 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strcmp(line,"whatsup")){
         sendNotification();
     }
+    else if(!strncmp(line,"demomode",8)){
+        demomode = 2;
+    }
     else if(!strncmp(line,"bar",3) && s != NULL){
         sscanf(&line[3],"%f",&expt.st->modifier);
         i = FindCode(&line[3]);
         sscanf(&line[4],"%f",&val);
         SetStimulus(expt.st, val, i, NOEVENT);
+    }
+    else if(!strncmp(line,"emxpos",3) && s != NULL){
+        t = s;
+        j = 0;
+        while(t != NULL && j < MAXFRAMES){
+            sscanf(++t,"%f",&val);
+            eyexvals[j++] = val;
+            s = strchr(t,' ');
+            t = s;
+        }
+        neyevals = j;
+    }
+    else if(!strncmp(line,"emypos",3) && s != NULL){
+        t = s;
+        j = 0;
+        while(t != NULL && j < MAXFRAMES){
+            sscanf(++t,"%f",&val);
+            eyeyvals[j++] = val;
+            s = strchr(t,' ');
+            t = s;
+        }
+        neyevals = j;
     }
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));

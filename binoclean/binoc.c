@@ -230,7 +230,9 @@ void set_test_loop();
 void expt_over(int flag);
 void end_timeout();
 
-
+float *eyexvals = NULL, *eyeyvals = NULL;
+int neyevals = 0;
+float videocapture[4] = {0, 0, 1280, 1024};
 
 long optionflag;
 long option2flag = PRETRIAL_BRIGHT;
@@ -753,7 +755,7 @@ void initial_setup()
                 InterpretLine(&buf[8],&expt,3);
         }
     }
-
+    
 }
 
 
@@ -843,6 +845,9 @@ char **argv;
             }
             else if(!strncmp(buf,"fullscreen",6) && s){
                 sscanf(++s,"%d",&fullscreenmode);
+            }
+            else if(!strncmp(buf,"videocapture",8) && s){
+                sscanf(++s,"%f %f %f %f",&videocapture[0],&videocapture[1],&videocapture[2],&videocapture[3]);
             }
             else if(!strncmp(buf,"tty1",4) && s){
                 sscanf(++s,"%s",theport);
@@ -1213,6 +1218,7 @@ char **argv;
         
 	}
     
+    expt.loadfile = loadfiles[0];
     
 	gettimeofday(&timeb,NULL);
 	if(verbose)
@@ -1506,6 +1512,10 @@ int TrialOver()
 void StopGo(int go)
 { 
     char buf[256];
+    if(go < 0) //toggle state
+    {
+        go = !stopgo;
+    }
     stopgo = go;
     
     if(go == GO)
@@ -4001,7 +4011,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             break;
         case XSAMPLES:/*j*/
             if(st->type == STIM_GRATING || st->type == STIM_GRATING2 || st->type == STIM_GABOR)
-                if(up)
+                if(up  && mode & RUNNING)
                 {
                     if(val > 1.1 && (optionflag & GORAUD_BIT))
                     {
@@ -5101,7 +5111,10 @@ int change_frame()
     if(oldmode & LAST_FRAME_BIT && !(mode & LAST_FRAME_BIT))
         stimstate = POSTSTIMULUS;
 
-
+    if (testflags[SAVE_IMAGES] ==10){ //save images of screen
+        SaveImage(expt.st,0);
+    }
+    
     if((mode & FRAME_BITS) || blockallframes)
     {
 #ifdef FRAME_OUTPUT
@@ -5824,7 +5837,8 @@ void wipescreen(float color)
 void paint_frame(int type, int showfix)
 {
     struct timeval atime,btime,ctime;
-    float r = 0;
+    float r = 0,tval;
+    int frame = 0;
     
     gettimeofday(&atime, NULL);
     // mode |= NEED_REPAINT;
@@ -5838,6 +5852,19 @@ void paint_frame(int type, int showfix)
     }
     setmask(ALLMODE);
     
+    if (demomode && neyevals > 0){
+        if (stimstate == WAIT_FOR_RESPONSE){
+            tval = timediff(&frametime, &zeroframetime);
+            frame = (int)((tval * mon.framerate) +0.1);
+        }
+        else{
+            frame = expt.st->framectr;
+        }
+        if (frame < neyevals){
+            conjpos[0] = deg2pix(eyexvals[frame]);
+            conjpos[1] = deg2pix(eyeyvals[frame]);
+        }
+    }
     
     if(testflags[TEST_RC] && expt.st->type != STIM_IMAGE){
         
@@ -6227,7 +6254,7 @@ int next_frame(Stimulus *st)
             }
             else
                 search_background();
-        draw_conjpos(cmarker_size,PLOT_COLOR);
+            draw_conjpos(cmarker_size,PLOT_COLOR);
             glSwapAPPLE();
             gettimeofday(&now,NULL);
             if ((optionflag & SHOW_CONJUG_BIT) && (val = timediff(&now,&lastsertime)) > 2){
@@ -6275,6 +6302,10 @@ int next_frame(Stimulus *st)
                     (t2 = timediff(&now, &goodfixtime)) > expt.vals[INTERTRIAL_MIN] &&
                     (demomode == 0 || (TheStim->mode & EXPTPENDING)))
             {
+                stimstate=PREFIXATION;
+                break;
+            }
+            if (demomode && mode & ANIMATE_BIT){
                 stimstate=PREFIXATION;
                 break;
             }
@@ -6543,7 +6574,8 @@ int next_frame(Stimulus *st)
                     }
                     
                     if(!(option2flag & PSYCHOPHYSICS_BIT) && !(optionflag & FIXATION_CHECK)){
-                        fixstate = RESPONDED;
+                        if (demomode == 0)
+                            fixstate = RESPONDED;
                         stimstate = WAIT_FOR_RESPONSE;
                         
                         gettimeofday(&endtrialtime, NULL);
@@ -6824,8 +6856,14 @@ int next_frame(Stimulus *st)
                 else 
                     GotChar(WURTZ_OK);
             }
-            else if(demomode)
-                ;  // in demo, hit F3 again to remove targets
+            else if(demomode){
+                if (TheStim->fix.rt ==0)
+                    ;  // in demo, hit F3 again to remove targets
+                else if(val > TheStim->fix.rt){
+                    fixstate = RESPONDED;
+                }
+                expt.st->framectr++;
+            }
             else if(val > TheStim->fix.rt)
             {
                 if(seroutfile)
@@ -10146,6 +10184,8 @@ void printStringOnMonkeyView(char *s, int size)
 {
     if (expt.vals[SETCLEARCOLOR] == 0  && optionflags[FEEDBACK] == 0)
         return;
+    if (optionflags[STIMULUS_IN_OVERLAY] && expt.vals[RF_HEIGHT] < 0.01)
+        return;
     glColor4f(1.0,1.0,1.0,1.0); //white text
     glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
     displayOnMonkeyView(s, -500, -450);
@@ -10196,6 +10236,9 @@ void expt_over(int flag)
     TrialOver();
     gettimeofday(&endexptime,NULL);
     pursuedir = 1;
+    if (demomode)
+        testflags[SAVE_IMAGES] = 0;
+
     StimulusType(expt.st, expt.stimtype); /* reset stim type */
     if(mode & MORE_PENDING && mode & AUTO_NEXT_EXPT)
     {
@@ -10302,7 +10345,7 @@ void expt_over(int flag)
         }
         sprintf(timeoutstring,"Expt Over");
     }
-    if(demomode = 0){
+    if(demomode == 0){
         SetStopButton(STOP);
         clear_display(1);
     }

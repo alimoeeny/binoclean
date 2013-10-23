@@ -51,7 +51,9 @@ extern float cmarker_size;
 extern OneStim *thecorrug;
 extern int freezestimulus;
 int nrndcalls = 0;
-
+extern int neyevals,demomode,stimstate;
+extern float *eyexvals,*eyeyvals;\
+extern struct timeval frametime, zeroframetime;
 
 int *RecordImage(int frame, Stimulus *st){
     int *p,j;
@@ -374,8 +376,8 @@ void draw_conjpos(vcoord fixw, float color)
     vcoord x[2],off[2];
     float linw;
     short vcolor[3];
-    float fixwin;
-    
+    float fixwin,tval;
+    int frame;
     
     
     if(fixw <= 0 || !(optionflag & SHOW_CONJUG_BIT))
@@ -386,6 +388,7 @@ void draw_conjpos(vcoord fixw, float color)
     vcolor[0] = vcolor[1] = vcolor[2] = expt.st->gammaback;
     mycolor(vcolor);
     setmask(OVERLAY);
+ // First paint out old cross (in case screen not wiped)
     glBegin(GL_LINES);
     x[0] = oldpos[0] + fixw/2;
     x[1] = oldpos[1] + fixw/2;
@@ -399,7 +402,26 @@ void draw_conjpos(vcoord fixw, float color)
     x[0] = oldpos[0] + fixw/2;
     myvx(x);
     glEnd();
-    SetColor(color, 0);
+    
+    
+    if (demomode && neyevals > 0){
+        glLineWidth(4.0);
+        if (stimstate == WAIT_FOR_RESPONSE){
+            frame = expt.st->framectr;
+        }
+        else{
+            frame = expt.st->framectr;
+        }
+        if (frame < neyevals){
+            conjpos[0] = deg2pix(eyexvals[frame]);
+            conjpos[1] = deg2pix(eyeyvals[frame]);
+        }
+        vcolor[1] = vcolor[2] = 0;
+        vcolor[0] = 1;
+        mycolor(vcolor);
+    }
+    else
+        SetColor(color, 0);
     glBegin(GL_LINES);
     x[0] = conjpos[0] + fixw/2;
     x[1] = conjpos[1] + fixw/2;
@@ -413,8 +435,9 @@ void draw_conjpos(vcoord fixw, float color)
     x[0] = conjpos[0] + fixw/2;
     myvx(x);
     glEnd();
-    
+
     glLineWidth(1);
+    
     
     if(expt.bwptr->cflag & SHOW_FIXWIN){
         SetColor(1.0-color, 0);
@@ -1267,7 +1290,8 @@ void calc_stimulus(Stimulus *st)
             else
                 st->nimseed = 1000;
             calc_image(st, st->left);
-            calc_image(st, st->right);
+            if (st->flag & UNCORRELATE)
+                calc_image(st, st->right);
             break;
         case STIM_SQUARE:
             st->left->pos.xy[0] += disp;
