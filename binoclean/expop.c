@@ -4078,7 +4078,7 @@ int SaveImage(Stimulus *st, int type)
     FILE *ofd;
     char imname[BUFSIZ];
     int x,y,w,h,i=0,done = 0,n = 0;
-    static int imstimid = 0;
+    static int imstimid = 0,pcode = 5;
     char eyec[3] = "LR";
     Stimulus *rst = st;
     
@@ -4096,6 +4096,15 @@ int SaveImage(Stimulus *st, int type)
     w = w + 4-(w%4);
     h = h + 4-(h%4);
     
+    if(mode & LAST_FRAME_BIT)
+        pcode = 3;
+    else if(mode & FIRST_FRAME_BIT)
+        pcode = 5;
+    else if (stimstate == INSTIMULUS)
+        pcode = 1;
+    else
+        pcode = 0;
+    
     if (type == 0){
         i = 1;  //R eye image
         sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
@@ -4109,7 +4118,7 @@ int SaveImage(Stimulus *st, int type)
                 fwrite(pix, sizeof(GLubyte), w*h, ofd);
                 done++;
                 fclose(ofd);
-                fprintf(stderr,"Seed %d,%d written to %s (dx%.3f)\n",st->left->baseseed,st->left->seed,imname,st->disp);
+                fprintf(stderr,"Seed %d,%d written to %s (dx%.3fP%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,pcode);
             }
         }
     
@@ -4121,7 +4130,7 @@ int SaveImage(Stimulus *st, int type)
                 if((ofd = fopen(imname,"w")) == NULL)
                     fprintf(stderr,"Can't write image to %s\n",imname);
                 else{
-                    fprintf(ofd,"P5 %d %d 255\n",h,w);
+                    fprintf(ofd,"P6 %d %d 255\n",h,w);
                     fwrite(pix, sizeof(GLubyte), w*h, ofd);
                     done++;
                     fclose(ofd);
@@ -4151,7 +4160,7 @@ int SaveImage(Stimulus *st, int type)
     
     if(done){
         if(imidxfd){
-            fprintf(imidxfd,"%d %d %d %d %d %d %d %d %d\n",expt.allstimid,imstimid,x,y,h,w,st->left->baseseed,n,seedoffset);
+            fprintf(imidxfd,"%d %d %d %d %d %d %d %d %d %d\n",pcode,expt.allstimid,imstimid,x,y,h,w,st->left->baseseed,n,seedoffset);
             fflush(imidxfd);
         }
         imstimid++;
@@ -4280,10 +4289,17 @@ int ReadCommand(char *s)
         sprintf(command_result,"debug %d",debug);
     }
     else if(!strncasecmp(s,"savemovie",8)){ // toggle on/off saving screen images
-        if (testflags[SAVE_IMAGES] == 0)
+        if (testflags[SAVE_IMAGES] == 0){
             testflags[SAVE_IMAGES] = 10;
-        else
+            sprintf(buf,"./%spgm.idx",expname);
+            imidxfd = fopen(buf,"a");
+        }
+        else{
             testflags[SAVE_IMAGES] = 0;
+            if (imidxfd != NULL)
+                fclose(imidxfd);
+        }
+
     }
     else if(!strncasecmp(s,"saveim",6)){
         if(!testflags[PLAYING_EXPT]){

@@ -199,7 +199,7 @@ for j = 1:length(strs{1})
         if strcmp(src,'fromstim')
             DATA.matexpt = value;
             if strncmp(s,'!matnow',7)
-                DATA.matexpres = eval(value);                
+                eval(value);                
             end
         else
             fprintf('Calling %s from %d\n',value,src); 
@@ -1343,6 +1343,7 @@ DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
 DATA.electrodestring = 'default';
 DATA.binoc{1}.monkey = 'none';
 DATA.binoc{1}.lo = '';
+DATA.binoc{1}.st = 'none'; % make sure this field comes early
 DATA.penid = 0;
 DATA.stimulusnames{1} = 'none';
 DATA.stimulusnames{4} = 'grating';
