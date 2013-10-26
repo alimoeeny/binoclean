@@ -49,6 +49,7 @@ if isempty(it)
         tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
         SendState(DATA); %params loaded from verg.setup etc
+        DATA = ReadStimFile(DATA, '/local/verg.setup'); %make sure these go to binoc
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
         SendCode(DATA,'vve'); %send verg version
         tt = TimeMark(tt, 'Read');
@@ -1062,7 +1063,6 @@ function SendState(DATA, varargin)
     SendChoiceTargets(DATA.outid,DATA);
     fprintf(DATA.outid,'mo=fore\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
-    f = setdiff(fields(DATA.binoc{1},{'st'}));
     for j = 1:length(f)
         if isfield(DATA.codeids,f{j})
             cid = DATA.codeids.(f{j});
