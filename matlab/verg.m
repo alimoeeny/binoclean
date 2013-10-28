@@ -2203,6 +2203,10 @@ function CheckForUpdate(DATA)
  function CheckFileUpdate(src, tgt)
     a = dir(src);
     b = dir(tgt);
+    if isempty(a)
+        fprintf('Missing %s - cant check update\n',src);
+        return;
+    end
     if isempty(b) %target does not exist - just copy
             try  %This often produces permission error
                 copyfile(src,tgt);
