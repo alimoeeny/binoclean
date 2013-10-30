@@ -4262,7 +4262,7 @@ function [DATA, txt] = PrevCommand(DATA, src, step)
             DATA.historyctr = length(DATA.oldcmds);
         else
             txt = DATA.commands{DATA.commandctr};
-            set(DATA.txtrec,'value',DATA.commandctr);
+            set(DATA.txtrec,'value',DATA.commandctr+1);
         end
     elseif DATA.commandctr == 1 && (step < 0 || DATA.historyctr <= length(DATA.oldcmds))
         if DATA.historyctr == length(DATA.oldcmds) && step == 1
@@ -4456,7 +4456,7 @@ function TextList(a,b)
     s = get(a,'string');
     if length(DATA.completions) >= line-1 && line > 1
         SetTextUI(DATA,[DATA.completions{line-1} '=']);
-    elseif line ==1
+    elseif line ==1 && isfield(DATA,'oldtxt')
         ResetTextLst(DATA);
     else
         str = StripComments(s(line,:));
