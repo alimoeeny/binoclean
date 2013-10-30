@@ -214,6 +214,11 @@ void calc_rls(Stimulus *st, Substim *sst)
         calc_rls_polys(st,  sst);
         return;
     }
+    if(expt.stimmode == RLS_TERMINATOR)
+    {
+        calc_rls_polys(st,  sst);
+        return;
+    }
     if(st->flag & ANTICORRELATE && sst->mode == RIGHTMODE)
         contrast = -pos->contrast;
     if(st->flag & CONTRAST_NEGATIVE)
@@ -701,7 +706,10 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     if(ndots > sst->ndots)
         init_rls(st,sst,sst->density);
     sst->ndots = ndots;
-    nrect = 1+ (pos->radius[0] * 2)/pos->ss[0];
+    if (pos->ss[0] > 0)
+        nrect = 1+ (pos->radius[0] * 2)/pos->ss[0];
+    else
+        nrect = 2;
     if(nrect > 20)
         xstep = pos->radius[0]/9;
     else
@@ -846,9 +854,15 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
         if(yp > h/2)
             yp -= h;
         ysq = (yp+dw) * (yp+dw);
-        eyb = exp(-(ysq/ysd));
+        if (ysd > 0){
+            eyb = exp(-(ysq/ysd));
+            ey = exp(-(ysq/ysd));
+        }
+        else{
+            eyb = 1;
+            ey = 1;
+        }
         ysq = yp * yp;
-        ey = exp(-(ysq/ysd));
         
         if(sst->corrdots == 0 && sst->mode == RIGHTMODE && !seedcall)
             myrnd_init(sst->seed+200),seedcall++;
@@ -925,8 +939,10 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                 *x = pos->radius[0];
                 xstart = *x;
                 *p |= (RIGHTDOT | LEFTDOT);
-                
-                ex = exp(-(xstart * xstart)/xsd);
+                if (xsd > 0)
+                    ex = exp(-(xstart * xstart)/xsd);
+                else
+                    ex =1;
                 nrect = 0;
                 for(xp = -xstart; xp < xstart; xp +=  xstep){
                     *x++ = xp; 
@@ -934,7 +950,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                     nx++;
                     exb = ex;	
                     xsq = (xp +xstep)* (xp+xstep);
-                    ex = exp(-(xsq/xsd));
+                    if(xsd > 0)
+                        ex = exp(-(xsq/xsd));
                     *pf++ =  0.5 + (dc-0.5) * ey * exb;
                     
                     *x++ = xp+xstep;
@@ -1049,7 +1066,10 @@ void paint_rls(Stimulus *st, int mode)
         paint_rls_polygons(st, mode);
         return;
     }
-    
+    if (expt.stimmode == RLS_TERMINATOR){
+        paint_rls_polygons(st, mode);
+        return;
+    }
     
     angle = rad_deg(pos->angle);
     /*
