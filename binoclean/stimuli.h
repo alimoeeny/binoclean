@@ -171,8 +171,8 @@ typedef struct ONESTIM{
     float radius,rsigma;
     int numdots, fixdots; 				        
     float dotsize[XY], olddotsize[XY];
-    float velocity; 
-    int direction_r; 
+    float velocity;
+    int direction_r;
     float front_intensity; 
     float back_intensity; 
     float deathchance; /* for each dot, range 0.0 - 1.0 */
@@ -230,6 +230,9 @@ typedef struct SUBSTIM{
     unsigned long bits[10]; //for recording 1-D noise pattern
     int npaint,nh,nw,nbars,npainta,imagei;
     float tf;
+    float boundarypos;
+    float boundaryV;
+
 } Substim;
 
 #define NSTIMFLAGS 1

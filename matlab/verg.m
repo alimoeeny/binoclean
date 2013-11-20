@@ -11,7 +11,7 @@ if length(varargin) & ishandle(varargin{1})
     varargin = varargin(3:end);
 else
     checkforrestart = 1;
-    TOPTAG = 'binoc';
+    TOPTAG = 'vergwindow';
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'autoreopen',6)
@@ -33,7 +33,7 @@ end
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
     tt = TimeMark([], 'Start');
-    DATA.tag.top = 'Binoc';
+    DATA.tag.top = 'vergwindow';
     ts = now; 
     DATA = SetDefaults(DATA);
     DATA.name = strrep(DATA.vergversion,'verg.','Verg Ver ');
@@ -106,6 +106,8 @@ if isempty(it)
         TimeMark(tt,2);
     end
     DATA = CheckStateAtStart(DATA);
+else
+    DATA = get(it,'UserData');
 end
 end
 j = 1;
@@ -128,6 +130,9 @@ while j <= length(varargin)
         DATA = AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
         DATA.optionflags.afc;
+        set(DATA.toplevel,'UserData',DATA);
+    elseif strcmp(varargin{j},'autoreopen')
+        DATA.autoreopen = 1;
         set(DATA.toplevel,'UserData',DATA);
     end
     j = j+1;
@@ -208,6 +213,10 @@ for j = 1:length(strs{1})
             DATA.matlabwasrun = 1;
         end
         SendCode(DATA, 'exp');
+    elseif strncmp(s,'NewBinoc',7)
+        if DATA.optionflags.do
+            fprintf(DATA.outid,'\\go\n');
+        end
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
         msgbox(s(5:end),'Binoc Warning','warn');
@@ -1063,6 +1072,7 @@ function SendState(DATA, varargin)
     SendChoiceTargets(DATA.outid,DATA);
     fprintf(DATA.outid,'mo=fore\n');
     fprintf(DATA.outid,'st=%s\n',DATA.stimulusnames{DATA.stimtype(1)});
+    f = fields(DATA.binoc{1});
     for j = 1:length(f)
         if isfield(DATA.codeids,f{j})
             cid = DATA.codeids.(f{j});
@@ -1318,6 +1328,8 @@ DATA.currentstim = 1;  %foregr/backgre/Choice Targest
 DATA.xyfsdvals = [1 2 5 10 20 40];
 DATA.optionflags.ts = 0;
 DATA.optionstrings.ts = 'Wurtz Task';
+DATA.optionflags.do = 0;
+DATA.optionstrings.do = 'Go';
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflagseq{1} = 'ts';
@@ -1368,7 +1380,7 @@ DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
-DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow' 'electrodewindow'};
+DATA.windownames = {'vergwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow' 'electrodewindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-680 400 50];  %options popup
 DATA.winpos{3} = [600 scrsz(4)-100 600 150]; %softoff
@@ -2699,6 +2711,9 @@ function CheckInput(a,b, fig, varargin)
      global rbusy;
      persistent lastts;
      
+     if isempty(lastts)
+         lastts = 0;
+     end
      verbose = DATA.verbose;
      autocall = 0;
      expecting = 0;
@@ -4291,6 +4306,7 @@ function [DATA, txt] = PrevCommand(DATA, src, step)
                     end
                 end
             end
+            set(DATA.txtrec,'value',1);
             if DATA.historyctr == 0
                 txt = 'Todays Commands';
                 DATA.historyctr = length(DATA.oldcmds)+1;

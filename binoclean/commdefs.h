@@ -95,7 +95,9 @@
 #define PHASE_AS_DISP 39
 #define CORRELATION 40
 #define DOT_SIZE 41
-#define LAST_STIMULUS_CODE 41
+#define BVELOCITY 42
+#define BPOSITION 43
+#define LAST_STIMULUS_CODE 43
 
 
 #define SETFIXCOLOR (LAST_STIMULUS_CODE+1)
@@ -876,6 +878,8 @@ ValueCode valstrings[] = {
   {"p2",     "Phase2", PHASE2, 1, 'N' ,2, SEND_EXPLICIT},
   {"a2",     "Plaid angle", PLAID_ANGLE, 1, 'N' ,2, SEND_EXPLICIT},
   {"jv",     "J velocity", JVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
+  {"bpos",     "Boundary Position", BPOSITION, 5, 'N' ,2, SEND_EXPLICIT},
+  {"bjv",     "Boundary velocity", BVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"fi",     "front intensity",JF_INTENSITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"bi",     "back intensity", JB_INTENSITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"jn",     "cyl num dots", JNUMDOTS, 5, 'N' ,2, SEND_EXPLICIT},

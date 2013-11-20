@@ -95,8 +95,8 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
      * = area of dot
      */
 	ndots = 1+(2 * pos->radius[1]/(sst->dotsiz[1]));
-	if(pos->ss[0] > 1)
-        nrect = 1+ (pos->radius[0] * 2)/pos->ss[0];
+	if(pos->ss[0] > 1 || expt.stimmode == RLS_TERMINATOR)
+        nrect = 3+ (pos->radius[0] * 2)/pos->ss[0]; // add 3 to allow for extras at each end
 	else
         nrect = 20;
 	
@@ -126,11 +126,12 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
             free(sst->xpos);
         sst->xpos = (vcoord *)malloc(sst->xpl * sizeof(vcoord));
 	}
-	if(ndots > sst->ndots || sst->ypos == NULL) /* need new memory */
+	if(ndots * 4 * nrect > sst->ypl || sst->ypos == NULL) /* need new memory */
 	{
+        sst->ypl = ndots *4*nrect;
         if(sst->ypos != NULL)
             free(sst->ypos);
-        sst->ypos = (vcoord *)malloc(sst->xpl * sizeof(vcoord));
+        sst->ypos = (vcoord *)malloc(sst->ypl * sizeof(vcoord));
 	}
 	if(ndots *4*nrect> sst->xpla || sst->xpos == NULL) /* need new memory */
 	{
@@ -666,19 +667,19 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
 {
     int i,j,partdisp,ndots,nx=0;
     float cval,f,sy,cm,deg,iscale[2],val[2];
-    float asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2];
+    float asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2],ysqb,xstarta,xa,nextxa;
     int *p,*q,*cend,yi,lastp,lastq;
     vcoord *x,*y,w,h,lastx,eh=0,lasty;
     int xshift[2],iw,ih;
     Locator *pos = &sst->pos;
     float phase,contrast = pos->contrast;
-    int pixmul = 1,seedcall = 0;
+    int pixmul = 1,seedcall = 0,nrects;
     vcoord yp,diff;
-    double drnd,aval;
-    int bit, nbit,k,nrect;
+    double drnd,aval,bval;
+    int bit, nbit,k,nrect,nboundary;
     long *rp,rnd;
-    float dc,xstart,xp,dw,*pf,ey,ex,ysd,xsd,eyb,exb,xstep;
-    
+    float dc,xstart,xp,dw,*pf,ey,ex,ysd,xsd,eyb,exb,xstep,nextx,nexty;
+    float xvals[4096],xps[4],yps[4],r[4],xv,boundaries[2048];
     
     if(st->flag & ANTICORRELATE && sst->mode == RIGHTMODE)
         contrast = -pos->contrast;
@@ -853,10 +854,10 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
         yp = -h/2 + i * sst->dotsiz[1] + xshift[1];
         if(yp > h/2)
             yp -= h;
-        ysq = (yp+dw) * (yp+dw);
+        ysqb = (yp+dw) * (yp+dw);
         if (ysd > 0){
-            eyb = exp(-(ysq/ysd));
-            ey = exp(-(ysq/ysd));
+            eyb = exp(-(ysqb/ysd));
+            ey = exp(-(ysqb/ysd));
         }
         else{
             eyb = 1;
@@ -924,18 +925,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
         }
         else /*always paint the dot */
         {
-            if(bsq > 0){
-                aval = 1 - (ysq)/bsq;
-                if(aval > 0)
-                    lastx = *x = pos->radius[0] * sqrt(aval);
-                else if (i == 0 || lastx > 0){
-                    *x = eh;
-                    lastx = 0;
-                }
-                else
-                    *x = 0;
-            }
-            else{
+
                 *x = pos->radius[0];
                 xstart = *x;
                 *p |= (RIGHTDOT | LEFTDOT);
@@ -943,84 +933,253 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                     ex = exp(-(xstart * xstart)/xsd);
                 else
                     ex =1;
+            exb = ex;
+                nexty = yp+dw;
+                if(bsq > 0 && 0){
+                    if (ysq > bsq)
+                        xstart = 0;
+                    else
+                        xstart = pos->radius[1] * sqrt(1-ysq/bsq);
+                        
+                    if (ysqb > bsq){
+                        xstarta = 0;
+                        nexty = pos->radius[0];
+                    }
+                   else
+                        xstarta = pos->radius[1] * sqrt(1-ysqb/bsq);
+                }
+                xa = -xstarta;
+                nextx = -xstart;
+                nrects = 0;
+                for(xp = -xstart; xp <= xstart; xp +=  xstep){
+                        xvals[nrects++] = xp;
+                }
+                xvals[nrects] = xp+xstep;
+                if (expt.stimmode == RLS_TERMINATOR){
+                    nrects = 0;
+                    nboundary = 1;
+                    xvals[nrects++] = -xstart;
+                    for (j = 0; j < nboundary; j++){
+                        boundaries[j] = sst->boundarypos - (j*50);
+                        if (boundaries[j] > xvals[nrects-1] && boundaries[j] < xstart)
+                            xvals[nrects++] = boundaries[j];
+                    }
+/*
+                    if (sst->boundarypos < 0){
+                        xvals[nrects++] = sst->boundarypos;
+                        xvals[nrects++] = 0;
+                    }
+                    else{
+                        xvals[nrects++] = 0;
+                        xvals[nrects++] = sst->boundarypos;
+                    }
+ */
+                    xvals[nrects] = xstart;
+                }
                 nrect = 0;
-                for(xp = -xstart; xp < xstart; xp +=  xstep){
-                    *x++ = xp; 
+            
+                for(j = 0; j < nrects; j++){
+                    xp = xvals[j];
+                        xsq = xp*xp;
+                    if (expt.stimmode == RLS_TERMINATOR && xp >= boundaries[j])
+                    {
+                        if (*rp & (1<<(j+1)))
+                            dc = 0;
+                        else
+                            dc = 1;
+                    }
+                    xps[0] = xps[3] = xvals[j];
+                    xps[1] = xps[2] = xvals[j+1];;
+                    yps[0] = yps[1] = yp;
+                    yps[2] = yps[3] = nexty;
+                    if(bsq > 0){
+                        for (k = 0; k < 4; k++)
+                            r[k] = sqr(xps[k])/asq + sqr(yps[k])/bsq;
+                        aval = r[0];
+                        if(aval <= 1)
+                            lastx = *x = pos->radius[0] * sqrt(1 -aval);
+                        else if (i == 0 || lastx > 0){
+                            *x = eh;
+//                            lastx = 0;
+                        }
+                        else
+                            *x = 0;
+                    }
+                    else{
+                        aval = 0;
+                        for (k = 0; k < 4; k++)
+                            r[k] = 0;
+                    }
+                    if (aval <= 1.001 || r[1] < 1.001 ||r[2] < 1 || r[3] < 1){
+                        nextx = xp+xstep;
+                        if (aval > 0.99 && bsq >0){
+                            if(xp <= 0){
+//                                xps[3] = -xstarta;
+                                if (ysqb > bsq){
+                                    xa = nextx;
+                                    nexty = sqrt(bsq - xa * xa/asq);
+                                }
+                                else{
+                                    xa = -xstarta;
+//                                    nextxa = nextx;
+                                }
+                            }
+                            else{
+//                                xps[3] = xstarta;
+                                xa = xp;
+                                nextxa = xstarta;
+                            }
+                        }
+                        else
+                            xa = xp;
+
+                        if (ysqb > bsq && bsq > 0){
+                            xa = nextx;
+                            nexty = sqrt(bsq - xa * xa/asq);
+                        }
+                    
+                        if (nextx >= xstart || nextx >= xstarta){
+                            nextxa = xstarta;
+                            nextx = xstart;
+                        }
+                        else
+                            nextxa = nextx;
+                        if(xa > nextxa)
+                            xa = nextxa;
+                        exb = ex;
+                        xsq = (xp +xstep)* (xp+xstep);
+                        if(xsd > 0)
+                            ex = exp(-(xsq/xsd));
+                        if (0){
+                    *x++ = xp;
                     *y++ = yp;
                     nx++;
-                    exb = ex;	
-                    xsq = (xp +xstep)* (xp+xstep);
-                    if(xsd > 0)
-                        ex = exp(-(xsq/xsd));
                     *pf++ =  0.5 + (dc-0.5) * ey * exb;
                     
-                    *x++ = xp+xstep;
+                    *x++ = nextx;
                     *y++ = yp;
                     nx++;
                     *pf++ =  0.5 + (dc-0.5) * ey * ex;
                     
-                    *x++ = xp+xstep; 
-                    *y++ = yp+dw;
+                    *x++ = nextxa;
+                    *y++ = nexty;
                     *pf++ =  0.5+(dc-0.5) *eyb * ex;
                     nx++;
                     
-                    *x++ = xp; 
-                    *y++ = yp+dw;
+                    *x++ = xa;
+                    *y++ = nexty;
                     *pf++ =  0.5+(dc-0.5) *eyb *exb;
                     nx++;
+                        }
+                    else{
+                        for(k = 0; k < 4; k++){
+                            if (r[k] > 1){
+                                xv = sqrt(asq * (1 - sqr(yps[k])/bsq));
+                                if(xps[k] < 0)
+                                    xps[k] = -xv;
+                                else
+                                    xps[k] = xv;
+                            }
+                        }
+                        *x++ = xps[0];
+                        *y++ = yps[0];
+                        *pf++ =  0.5 + (dc-0.5) * ey * exb;
+                        *x++ = xps[1];
+                        *y++ = yps[1];
+                        *pf++ =  0.5 + (dc-0.5) * ey * ex;
+                        *x++ = xps[2];
+                        *y++ = yps[2];
+                        *pf++ =  0.5+(dc-0.5) *eyb * ex;
+                        *x++ = xps[3];
+                        *y++ = yps[3];
+                        *pf++ =  0.5+(dc-0.5) *eyb *exb;
+                        nx += 4;
+                    }
                     sst->npaint++;  // # of polygons made
                     nrect++;
-                }
-            }
-            /*
-             * if its a circular patch, want a final triangle on the end
-             */
-            if(*(y-1) < lasty && i > 0 && bsq > 0){
-                if(lasty+1 < h/2){
-                    *y++ = h/2;
-                    if(optionflag & SQUARE_RDS)
-                        *x++ = pos->radius[0];
-                    else
-                        *x++ = 0;
-                    nx++;
-                    *p++ = lastp; // finish off last bar;
-                    sst->npaint++;
-                }
-                if(lasty+1 < h/2){
-                    *y++ = h/2;
-                    if(optionflag & SQUARE_RDS)
-                        *x++ = pos->radius[0];
-                    else
-                        *x++ = 0;
-                    nx++;
-                    *p++ = lastp; // finish off last bar;
-                    sst->npaint++;
-                }
-                if(*y > 1-h/2){
-                    lasty = *y;
-                    *y++ = -h/2;
-                    *y = lasty;
-                    if(optionflag & SQUARE_RDS){
-                        *x++ = pos->radius[0];
-                        *x = pos->radius[0];
+                        lastx = 0;
                     }
                     else{
-                        lastx = *x;
-                        *x++ = 0;
-                        *x = lastx;
+                        ex = exb;
                     }
-                    nx++;
-                    *(p+1) = *p;
-                    *p++;
-                    sst->npaint++;
                 }
-            } // end last y
+            if (bsq > 0 && xstart > nextx){//? shouldnt hapen
+                xp = xstart;
+                exb = ex;
+                *x++ = xp;
+                *y++ = yp;
+                *pf++ =  0.5 + (dc-0.5) * ey * exb;
+                *x++ = xstart;
+                *y++ = yp;
+                *pf++ =  0.5 + (dc-0.5) * ey * exb;
+                *x++ = xstart;
+                *y++ = yp+dw;
+                *pf++ =  0.5 + (dc-0.5) * ey * exb;
+                *x++ = xp;
+                *y++ = yp+dw;
+                *pf++ =  0.5 + (dc-0.5) * ey * exb;
+                nrect++;
+                sst->npaint++;  // # of polygons made
+            }
+            
+        
+//            /*
+//             * if its a circular patch, want a final triangle on the end
+//             */
+//            if(*(y-1) < lasty && i > 0 && bsq > 0){
+//                if(lasty+1 < h/2){
+//                    *y++ = h/2;
+//                    if(optionflag & SQUARE_RDS)
+//                        *x++ = pos->radius[0];
+//                    else
+//                        *x++ = 0;
+//                    nx++;
+//                    *p++ = lastp; // finish off last bar;
+//                    sst->npaint++;
+//                }
+//                if(lasty+1 < h/2){
+//                    *y++ = h/2;
+//                    if(optionflag & SQUARE_RDS)
+//                        *x++ = pos->radius[0];
+//                    else
+//                        *x++ = 0;
+//                    nx++;
+//                    *p++ = lastp; // finish off last bar;
+//                    sst->npaint++;
+//                }
+//                if(*y > 1-h/2){
+//                    lasty = *y;
+//                    *y++ = -h/2;
+//                    *y = lasty;
+//                    if(optionflag & SQUARE_RDS){
+//                        *x++ = pos->radius[0];
+//                        *x = pos->radius[0];
+//                    }
+//                    else{
+//                        lastx = *x;
+//                        *x++ = 0;
+//                        *x = lastx;
+//                    }
+//                    nx++;
+//                    *(p+1) = *p;
+//                    *p++;
+//                    sst->npaint++;
+//                }
+//            } // end last y
             lasty = *y;
             lastp = *p;
-
         }
         i++,rp++;
     }
+    ndots = x - sst->xpos; // acutal # ov vertices
+    ndots = y - sst->ypos; // acutal # ov vertices
+    ndots = pf - sst->imb; // acutal # ov vertices
+    x = sst->xpos;
+    for (i = 0; i < ndots; i++)
+        xvals[i] = *x++;
+    pf = sst->imb;
+    for (i = 0; i < ndots; i++)
+        xvals[i] = *pf++;
     if(seroutfile && option2flag & RANDOM){
         if(sst->mode == RIGHTMODE)
             fprintf(seroutfile,"R%d ",st->framectr);
@@ -1550,6 +1709,7 @@ void paint_rls_polygons(Stimulus *st, int mode)
     Locator *pos = &sst->pos;
     float angle,cosa,sina,val,valsum = 0;
     vcoord rect[8],crect[8];
+    int ndots = 0;
     
     
     angle = rad_deg(pos->angle);
@@ -1654,6 +1814,9 @@ void paint_rls_polygons(Stimulus *st, int mode)
         glEnd();
     }
     glPopMatrix();
+    ndots = x - sst->xpos; // acutal # ov vertices
+    ndots = y - sst->ypos; // acutal # ov vertices
+    ndots = pf - sst->imb; // acutal # ov vertic
     val = valsum/n;
 }
 
