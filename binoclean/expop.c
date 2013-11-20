@@ -2701,9 +2701,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
             }
             break;
         case CHANNEL_CODE:
-            sscanf(s,"%d",&chan);
-            if((t = strchr(s,'+')) != NULL || (t = strchr(s,'-')) != NULL)
-                SetBWChannel(chan,t);
+            SetBWChannel(s);
             sprintf(buf,"ch%s\n",s);
             SerialString(buf,NULL);
             t = strchr(s,',');
@@ -13081,6 +13079,17 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         }
         neyevals = j;
     }
+    else if(!strncasecmp(line,"xyfsd",5)){
+        sscanf(line,"xyfsd=%f",&val);
+        expt.bwptr->fsd[10] = val;
+        if(expt.bwptr->cflag & (1<<10))
+            c = '+';
+        else
+            c = '-';
+        sprintf(buf,"ch10%c,fs%.3f\n",c,val);
+        SerialString(buf,NULL);
+        return(0);
+    }
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));
         SetProperty(&expt,expt.st,SETZYOFF,GetProperty(&expt,expt.st,RF_Y));
@@ -13998,6 +14007,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             SetExptString(ex, TheStim, code, s);
             break;
         case CHANNEL_CODE: //just relay these from verg. don't send all channels'
+            SetBWChannel(s);
+            sprintf(buf,"ch%s\n",s);
+            SerialString(buf,NULL);
             SerialString(line,0);
             SerialString("\n",0);
             break;

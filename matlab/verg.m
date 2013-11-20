@@ -245,7 +245,8 @@ for j = 1:length(strs{1})
         else
             DATA.electrodeid = eid(1);
         end
-        DATA.electrodestring = estr;
+        DATA.binoc{1}.Electrode = estr;
+        
     elseif strncmp(s,'read',4) %read a set of instructions
         fid = fopen(value,'r');
     elseif strncmp(s,'user',4)
@@ -875,6 +876,7 @@ function DATA = ReadExptLines(DATA, strs, src)
     if DATA.outid > 0
         fprintf(DATA.outid,'\neventcontinue\nEDONE\n');
     end
+    DATA = ReadFromBinoc(DATA,'expect');
     for ex = 1:3
         if length(DATA.expts{ex})
             id = find(~ismember(DATA.expmenuvals{ex}, DATA.expts{ex}));
@@ -891,7 +893,8 @@ function line = CheckLineForBinoc(tline)
 %But matlab needs it for writing to serial line
     if strncmp(tline,'uf',2)
         tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
-        tline = regexprep(tline,'\','\\\');
+%using 2012b on my destktop, don't need this.  When is the escae seq a problem?          
+%        tline = regexprep(tline,'\','\\\');
         tline = regexprep(tline,'/','\\\');
     else
         tline = regexprep(tline,'\','/');
@@ -1035,14 +1038,14 @@ function SendState(DATA, varargin)
     end
     fprintf(DATA.outid,'uf=%s\n',DATA.datafile);
     
-    if DATA.showxy(2)
-        fprintf(DATA.outid,'ch12+\n');
-    end
     if DATA.showxy(3)
-        fprintf(DATA.outid,'ch11+\n');
+        fprintf(DATA.outid,'ch12+\n'); %R
+    end
+    if DATA.showxy(2)
+        fprintf(DATA.outid,'ch11+\n'); %L
     end
     if DATA.showxy(1)
-        fprintf(DATA.outid,'ch10+\n');
+        fprintf(DATA.outid,'ch10+\n'); %B
     end
 
     if length(DATA.binoc) > 1 && isstruct(DATA.binoc{2})
@@ -1340,7 +1343,7 @@ DATA.datafile = [];
 DATA.electrodestrings = {'Not Set'};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
-DATA.electrodestring = 'default';
+DATA.binoc{1}.Electrode = 'default';
 DATA.binoc{1}.monkey = 'none';
 DATA.binoc{1}.lo = '';
 DATA.binoc{1}.st = 'none'; % make sure this field comes early
@@ -2428,7 +2431,7 @@ function MenuGui(a,b)
      tag = get(a,'Tag');
      switch tag
          case 'ElectrodeType'
-             DATA.electrodestring = str;
+             DATA.binoc{1}.Electrode = str;
              DATA.electrodeid = val;
      end
      set(DATA.toplevel,'UserData',DATA);
@@ -2648,6 +2651,11 @@ end
        end
     ot = findobj('tag',DATA.windownames{3},'type','figure');
     SetSoftOffWindow(DATA,ot);
+    
+    [a,j] = min(abs(DATA.binoc{1}.xyfsd - DATA.xyfsdvals));
+    ot = findobj(DATA.toplevel,'tag','FSD','type','uicontrol');
+    set(ot,'value',j);
+
 
  function SetTextItem(top, tag, value, varargin)
  it = findobj(top,'Tag',tag);
@@ -4044,7 +4052,7 @@ function OpenPenLog(a,b, varargin)
     name = sprintf('/local/%s/pen%d.log',DATA.binoc{1}.monkey,DATA.binoc{1}.pe);
     DATA.penid = fopen(name,'a');
     fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc{1}.pe,DATA.binoc{1}.px,DATA.binoc{1}.py,datestr(now));
-    fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);
+    fprintf(DATA.penid,'Electrode %s\n',DATA.binoc{1}.Electrode);
     end
     set(DATA.toplevel,'UserData',DATA);
     
@@ -4099,11 +4107,11 @@ function SendCode(DATA, code)
         end
             return;
     end
-    if strncmp(code,'electrode',8)
-        if length(DATA.electrodestring)
-            fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestring);
+    if strncmp(code,'Electrode',8)
+        if length(DATA.binoc{1}.Electrode)
+            fprintf(DATA.outid,'Electrode=%s\n',DATA.binoc{1}.Electrode);
         elseif DATA.electrodeid > 0
-            fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
+            fprintf(DATA.outid,'Electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
         end
     elseif strcmp(code,'exp')
         if isfield(DATA.matexpres,'stimdir')
