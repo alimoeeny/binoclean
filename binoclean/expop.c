@@ -13080,9 +13080,6 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         neyevals = j;
     }
     else if(!strncasecmp(line,"xyfsd",5)){
-
-        
-        
         sscanf(line,"xyfsd=%f",&val);
         expt.bwptr->fsd[10] = val;
         if(expt.bwptr->cflag & (1<<10))
