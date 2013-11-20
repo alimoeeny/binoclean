@@ -2,7 +2,7 @@ function DATA = ServoDrive(varargin)
 figpos = [1400 400 350 350];
 tag = 'Servo Controller';
 DATA.verbose = 1;
-
+verbose = [];
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'callback',5)
@@ -13,9 +13,13 @@ while j <= length(varargin)
         figpos = varargin{j};
     elseif strncmpi(varargin{j},'quiet',5)
         DATA.verbose = 0;
+        verbose = 0;
     elseif strncmpi(varargin{j},'ttyname',3)
         j = j+1;
         DATA.ttyname = varargin{j};
+    elseif strncmpi(varargin{j},'verbose',5)
+        DATA.verbose = 1;
+        verbose = 1;
     end
     j = j+1;
 end
@@ -30,6 +34,9 @@ if isnew
     set(DATA.toplevel,'UserData',DATA);
 else 
     DATA = get(F,'UserData');
+    if ~isempty(verbose)
+        DATA.verbose = verbose;
+    end
 end
 
 %Things to do after startup
@@ -40,12 +47,15 @@ while j <= length(varargin)
         DATA.alldepths = [DATA.alldepths d];
         DATA.alltimes = [DATA.alltimes now];
         DATA.position = d;
+        set(DATA.toplevel,'UserData',DATA);
     end
     j = j+1;
 end
 
 function MoveMicroDrive(a,b,fcn)
 DATA = GetDataFromFig(a);
+
+EnableMoveButtons(DATA,'off');
 it = findobj(DATA.toplevel,'tag','StepSize');
 
 if strcmp(fcn,'moveto')
@@ -72,6 +82,7 @@ else
     end
     DATA = ChangePosition(DATA, step);
 end
+EnableMoveButtons(DATA,'on');
 set(DATA.toplevel,'UserData',DATA);
 
 
@@ -94,7 +105,7 @@ im.cdata(find(im.cdata > 0.96)) = mean(bcolor);
 bp = [0.1 0.7 0.3 0.2];
 uicontrol(gcf,'style','pushbutton','string','Up', ...
      'foregroundcolor','w', ...
-   'Callback', {@MoveMicroDrive, 'Up'}, 'Tag','upArrow',...
+   'Callback', {@MoveMicroDrive, 'Up'}, 'Tag','UpArrow',...
    'backgroundcolor',bcolor,...
         'units', 'norm', 'position',bp,'value',1,'cdata',im.cdata);
 
@@ -119,7 +130,7 @@ DATA.setdepth = uicontrol(gcf,'style','edit','string','0', ...
 bp(1) = bp(1)+bp(3);
 bp(3) = 0.2;
 uicontrol(gcf,'style','pushbutton','string','Move', ...
-   'Callback', {@MoveMicroDrive, 'moveto'}, 'Tag','DownArrow',...
+   'Callback', {@MoveMicroDrive, 'moveto'}, 'Tag','MoveButton',...
    'fontsize',18,'fontweight','bold',...
         'units', 'norm', 'position',bp,'value',1);
 % 
@@ -167,12 +178,29 @@ uimenu(sm,'Label','Very Slow (0.1 mm/s)','tag','VSlow','callback',@SetMotorSpeed
 uimenu(sm,'Label','Automatic','tag','Auto','callback',@SetMotorSpeed);
 uimenu(sm,'Label','Custom','tag','Custom','callback',@SetMotorSpeed);
 sm = uimenu(mn,'Label','Verbose','callback',@SetOption,'tag','verbose');
+sm = uimenu(mn,'Label','Show Buttons','callback',{@MenuOptions,'showbuttons'});
 if DATA.verbose
     set(sm,'checked','on');
 end
 
 set(gca,'position',[0.4 0.4 0.6 0.6],'xtick',[],'ytick',[]);
 set(DATA.toplevel,'UserData',DATA);
+
+function EnableMoveButtons(DATA,state)
+
+tags = {'DownArrow', 'UpArrow' 'MoveButton'};
+for j = 1:length(tags)
+    it = findobj(DATA.toplevel,'tag',tags{j});
+    if ~isempty(it)
+        set(it,'visible',state);
+    end
+end
+
+function MenuOptions(a,b,fcn)
+   DATA = GetDataFromFig(a);
+if strcmp(fcn,'showbuttons')
+    EnableMoveButtons(DATA,'on');
+end
 
 
 function SetOption(a,b)
@@ -346,7 +374,7 @@ function DATA = SetNewPosition(DATA, pos)
 
 newpos = pos .* DATA.stepscale;
 pause(0.01);
-
+d = NaN;
 
 if DATA.motorid >= 0
     fprintf(DATA.sport,'%dPOS\n',DATA.motorid);
@@ -355,7 +383,13 @@ else
 end
     pause(0.01);
 s = ReadLine(DATA.sport);
+if isempty(s)
+    uiwait(warndlg(sprintf('MicroDrive Not Responding'),'Microdrive Error','modal'));
+    return;
+end
 d = sscanf(s,'%d');
+margin = 20 * DATA.stepscale; %allow for up to 20uM of noise
+step = newpos-d;
 edur = 0.1 + 2 .* abs(newpos-d) ./(DATA.motorspeed .* DATA.stepscale); %estimated duration
 if edur > 600
     edur = 100;
@@ -408,6 +442,18 @@ pause(0.01);
 ts = now;
 npost = 0;
 newd(1) = d;
+
+%Determine a range of acceptable postions given
+%the step. So in case motor moves wrong way, or overshoots
+%final position without ever having a small error, it is stopped.
+startpos = d;
+if step < 0
+    minpos = startpos+step-margin;
+    maxpos = startpos+margin;
+else
+    minpos = startpos-margin;
+    maxpos = startpos+step+margin;
+end
 j = 2;
 while npost < 2
     if DATA.motorid >= 0
@@ -416,8 +462,10 @@ while npost < 2
         fprintf(DATA.sport,sprintf('POS\n'));
     end
     s = ReadLine(DATA.sport);
-    if strcmp(s,'OK')
-        fprintf('Returned %s\n',s);
+    if strcmp(s,'OK') %in case Controller is in verbose state
+        if DATA.verbose
+            fprintf('Returned %s\n',s);
+        end
         s = ReadLine(DATA.sport);
     end
     ts(j) = now;
@@ -429,6 +477,9 @@ while npost < 2
             poserr = abs(newd(j)-newpos);
             if poserr < 20
                 npost = npost+1;
+            end
+            if edur > 2
+                PlotDepths(DATA, ts, newd);
             end
         catch
             fprintf('Returned %s\n',s);
@@ -442,6 +493,16 @@ while npost < 2
        npost = 2;
        F = gcf;
        uiwait(warndlg(sprintf('Only Moved to %.3f',newd(end)./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
+       figure(F);
+    elseif newd(j) < minpos
+        fprintf(DATA.sport,'DI\n');
+       F = gcf;
+       uiwait(warndlg(sprintf('Postion %.3f min allowd %.3f',newd(end)./(DATA.stepscale.*1000),minpos./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
+       figure(F);
+    elseif newd(j) > maxpos
+        fprintf(DATA.sport,'DI\n');
+       F = gcf;
+       uiwait(warndlg(sprintf('Postion %.3f Max allowed %.3f',newd(end)./(DATA.stepscale.*1000),maxpos./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
        figure(F);
     else
         stop = get(stopui,'value');
@@ -474,21 +535,24 @@ else
     fprintf(DATA.sport,'DI\n');
 end
 pause(0.01);
-DATA.newtimes = ts;
-DATA.newdepths = newd./DATA.stepscale;
-DATA.alltimes = [DATA.alltimes ts];
-DATA.alldepths = [DATA.alldepths DATA.newdepths];
-PlotDepths(DATA);
+DATA = PlotDepths(DATA, ts, newd);
 
 if ~isempty(DATA.callback)
     feval(DATA.callback{:}, newd(end)./DATA.stepscale);
 end
 
 
-function PlotDepths(DATA)
+function DATA = PlotDepths(DATA, ts, newd)
 
-ts = DATA.newtimes;
-newd = DATA.newdepths;
+if nargin == 1
+    ts = DATA.newtimes;
+    newd = DATA.newdepths;
+elseif nargin == 3
+    DATA.newtimes = ts;
+    DATA.newdepths = newd./DATA.stepscale;
+    DATA.alltimes = [DATA.alltimes ts];
+    DATA.alldepths = [DATA.alldepths DATA.newdepths];    
+end
 
 if ~strcmp(DATA.plottype,'None')
     if strcmp(DATA.plottype,'LastMove')
@@ -527,13 +591,14 @@ if ~strcmp(DATA.plottype,'None')
         tdur = tdur .* 60;
         tlabel = 'sec';
     end
+    %N.B. ydir is reversed (deep == down)
     axis([xl yl]);
-    text(xl(2),yl(1),sprintf('%.1f%s',tdur,tlabel),'horizontalalignment','right','verticalalignment','bottom');
+    text(xl(2),yl(1),sprintf('%.1f%s',tdur,tlabel),'horizontalalignment','right','verticalalignment','top');
     if strcmp(DATA.plottype,'MoveSpeed')
-        text(xl(1),yl(2),sprintf('%.1fuM/sec',max(yl)),'horizontalalignment','left','verticalalignment','top');
-        text(xl(1),yl(1),sprintf('%.1fuM/sec',min(yl)),'horizontalalignment','left','verticalalignment','bottom');
+        text(xl(1),yl(2),sprintf('%.1fuM/sec',max(yl)),'horizontalalignment','left','verticalalignment','bottom');
+        text(xl(1),yl(1),sprintf('%.1fuM/sec',min(yl)),'horizontalalignment','left','verticalalignment','top');
     else
-        text(xl(1),yl(2),sprintf('%.1fuM',diff(yl)),'horizontalalignment','left','verticalalignment','top');
+        text(xl(1),yl(2),sprintf('%.1fuM',diff(yl)),'horizontalalignment','left','verticalalignment','bottom');
     end
 else
     delete(get(gca,'children'));

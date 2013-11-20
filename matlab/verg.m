@@ -2686,7 +2686,7 @@ end
 function CheckInput(a,b, fig, varargin)
     DATA = get(fig,'UserData');
     if DATA.servofig
-        ServoDrive('readposition');
+        ServoDrive('readposition','quiet');
     end
     ReadFromBinoc(DATA, 'auto');
     if DATA.verbose > 1

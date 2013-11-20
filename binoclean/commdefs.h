@@ -269,8 +269,13 @@
 #define IMAGEYPOS (LAST_STIMULUS_CODE+168)
 #define NBARS (LAST_STIMULUS_CODE+169)
 #define VERGVERSION_CODE (LAST_STIMULUS_CODE+170)
+#define EXPT_NAME (LAST_STIMULUS_CODE+171)
+#define STIMULUS_TAG (LAST_STIMULUS_CODE+172)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+171)/* 202 */
+//Add above here anything that needs to go to Spike2
+
+
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+173)/* 204 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -443,6 +448,8 @@
 #define PSYCHMON_VARS MAXSERIALCODES+170
 #define EXPTRESET_FILE MAXSERIALCODES+171
 #define MAXSAVECODES MAXSERIALCODES+172 //364
+//Add above here anything that needs to be saved to .stm files
+//Below here are temporary/convenience/state parameters that do not need savin
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -485,7 +492,7 @@
 #define IMAGELOAD_MODE (MAXSAVECODES+38)
 #define MONITOR_FILE  (MAXSAVECODES+39)
 #define SEQUENCE_PAUSE (MAXSAVECODES+40)
-#define MAXTOTALCODES (MAXSAVECODES+41)  //372
+#define MAXTOTALCODES (MAXSAVECODES+43)  //372
 
 
 /*
@@ -1255,6 +1262,8 @@ ValueCode valstrings[] = {
     {  "hemi", "HemiSphere", HEMISPHERE, 0, 'C', 0, SEND_EXPLICIT},
     {  "coarsemm", "Starting positino on Coarse drive", COARSEMM, 0, 'N', 0, SEND_EXPLICIT},
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
+    {  "expname", "Expt Name Label", EXPT_NAME, 0, 'C', 0, SEND_EXPT},
+    {  "stimtag", "Stimulus Tag (label)", STIMULUS_TAG, 0, 'C', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
     {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},

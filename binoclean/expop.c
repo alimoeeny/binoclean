@@ -1933,8 +1933,11 @@ char *ReadManualStim(char *file){
         else{
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             expt.codesent = 0;
-            InterpretLine(inbuf,&expt,3);
-            if (expt.codesent == 0){
+            i = InterpretLine(inbuf,&expt,3);
+            if (i == OPTION_CODE){
+                SerialSend(i);
+            }
+            else if (expt.codesent == 0){
                 SerialString(inbuf,0);
                 SerialString("\n",0);
             }
@@ -6810,9 +6813,9 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             else if (icode > 0){ // is recognized
                 if (valstrings[icode].ctype == 'C'){
                     if ((s = GetExptString(&expt,code)) != NULL)
-                        sprintf(cbuf,"%s%s%s",scode,temp,s);
+                        sprintf(cbuf,"%s=%s",scode,s); //always have '=' in strings
                     else
-                        sprintf(cbuf,"%s%sNotSet",scode,temp,s);
+                        sprintf(cbuf,"%s=NotSet",scode,s);
                 }
                     else
                 sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],expt.vals[code]);
@@ -7182,15 +7185,17 @@ void InitExpt()
     {
         if(!(optionflag & FRAME_ONLY_BIT))
         {
-            for(i = 0; i < expt.lastserialcode; i++)
+            for(i = 0; i < expt.totalcodes; i++)
             {
                 code = valstrings[i].icode;
+                if (code >= 0  && code < MAXSERIALCODES){
                 if(codesend[code] <= SEND_EXPT)
                     SerialSend(code);
                 else if(codesend[code] == SEND_EXPT_NONZERO && expt.vals[code] != 0)
                     SerialSend(code);
                 if(codesend[code] == SEND_GRATING2 && expt.st->type == STIM_GRATING2)
                     SerialSend(code);
+                }
             }
             if(expt.st->next != NULL && expt.st->next->type != STIM_NONE){
                 sprintf(cbuf,"%s=back=%s,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f",
@@ -8486,6 +8491,18 @@ int PrepareExptStim(int show, int caller)
     expt.laststimno = stimno;
     expt.allstimid++;
 
+    /*
+     * Badfix/Prem trials during psychophyics Need the stimulus order to be changed * so that monkey does not see the same stimulus twice. During the staircase,
+     * this is not necessary.
+     Do this before reasing manual stim, so that these get shuffled also
+     */
+    if(SACCREQD(afc_s) && !(option2flag & STAIRCASE))
+    {
+        if(afc_s.lasttrial == BAD_TRIAL || afc_s.lasttrial == SAC_BAD_TRIAL)
+            ShuffleStimulus(0); /* ? obsolete  BADFIX and Late already call this*/
+    }
+    
+    
     if (optionflags[MANUAL_EXPT]){
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf);
@@ -8593,15 +8610,7 @@ int PrepareExptStim(int show, int caller)
     expt.laststim = expt.stimno;
     
     
-    /*	
-     * Badfix/Prem trials during psychophyics Need the stimulus order to be changed * so that monkey does not see the same stimulus twice. During the staircase,
-     * this is not necessary.
-     */
-    if(SACCREQD(afc_s) && !(option2flag & STAIRCASE))
-    {
-        if(afc_s.lasttrial == BAD_TRIAL || afc_s.lasttrial == SAC_BAD_TRIAL)
-            ShuffleStimulus(0); /* ? obsolete  BADFIX and Late already call this*/
-    }
+
     
     expt.stimno = stimorder[stimno];
     expt.stimid = expt.stimno & (~ORDER_BITS);

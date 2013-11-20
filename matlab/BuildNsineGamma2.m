@@ -197,6 +197,7 @@ end
     
     
 fprintf(fid,'exvals%.1f %.1f %.2f %.0f\n',S.tf,S.jv,S.sf,S.stimtype);
+fprintf(fid,'stimtag=test%d\n',S.stimno);
 fclose(fid);
 x = scanlines(sname);
 for j = 1:length(x)

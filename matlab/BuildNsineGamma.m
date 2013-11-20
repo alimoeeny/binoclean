@@ -136,6 +136,7 @@ end
     
 fprintf(fid,'jcomp=%s\n',sprintf('%d ',S.cjump));
 fprintf(fid,'exvals%.2f %.2f %.2f\n',S.tf,S.jv,S.sl);
+fprintf(fid,'stimtag=test%d',S.stimno)
 fclose(fid);
 
 
