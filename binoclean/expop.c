@@ -13068,6 +13068,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         }
         neyevals = j;
     }
+    else if(!strncmp(line,"xyfsd",3) && s != NULL){
+    }
     else if(!strncmp(line,"emypos",3) && s != NULL){
         t = s;
         j = 0;
