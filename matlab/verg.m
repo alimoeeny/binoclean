@@ -867,7 +867,7 @@ function DATA = ReadExptLines(DATA, strs, src)
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
             tline = CheckLineForBinoc(tline);
-            fprintf(DATA.outid,[tline '\n']);
+            fprintf(DATA.outid,'%s\n',tline);
         end
     end
     if j >= length(DATA.exptlines)
@@ -892,10 +892,11 @@ function line = CheckLineForBinoc(tline)
 % more recent Spike2 seems not to need this
 %But matlab needs it for writing to serial line
     if strncmp(tline,'uf',2)
-        tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
-%using 2012b on my destktop, don't need this.  When is the escae seq a problem?          
-%        tline = regexprep(tline,'\','\\\');
-        tline = regexprep(tline,'/','\\\');
+%        tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
+%        tline = regexprep(tline,'\\','\'); %dont go '\\' -> '\\\\'
+%        tline = regexprep(tline,'\','\\');
+%beware fprintf('%s',tline) and fprintf(tline) behave differetnly with \\
+        tline = regexprep(tline,'/','\\'); %Spike 2 needs \ not /
     else
         tline = regexprep(tline,'\','/');
     end
@@ -1919,7 +1920,7 @@ function DATA = InitInterface(DATA)
     end
     sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     subm = uimenu(hm,'Label','&Software Offset');
-    uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'});
+    uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'},'accelerator','E');
     uimenu(subm,'Label','Edit','Callback',{@SoftoffPopup, 'popup'});
     uimenu(subm,'Label','Clear','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Run Sequence of expts','Callback',{@SequencePopup, 'popup'});
@@ -2200,10 +2201,14 @@ function AddTodayMenu(DATA, id,label)
 function CheckForUpdate(DATA)
     CheckFileUpdate([DATA.netmatdir '/verg.m'],[DATA.localmatdir '/verg.m']);
     CheckFileUpdate([DATA.netmatdir '/helpstrings.txt'],[DATA.localmatdir '/helpstrings.txt']);
-    CheckFileUpdate([DATA.netmatdir '/DownArrow.mat'],[DATA.localmatdir '/DownArrow.mat']);
+    CheckFileUpdate([DATA.netmatdir '/DownArrow.mat'],[DATA.localmatdir '/DownArrow.mat'],'new');
     CheckFileUpdate([DATA.netmatdir '/vergversion.m'],[DATA.localmatdir '/vergversion.m']);
+
     
- function CheckFileUpdate(src, tgt)
+ function CheckFileUpdate(src, tgt, chkmode)
+     if nargin < 3
+        chkmode = 'change';
+     end
     a = dir(src);
     b = dir(tgt);
     if isempty(a)
@@ -2217,6 +2222,9 @@ function CheckForUpdate(DATA)
                 cprintf('errors',ME.message);
                 fprintf('Error copying %s\n',tgt);
             end
+    end
+    if strncmp(chkmode,'new',3)         
+        return;
     end
     if ~isempty(a) && ~isempty(b) && a.datenum > b.datenum
         yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check','Yes','No','Yes');
@@ -3766,6 +3774,7 @@ bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(1)), ...
         'Callback', {@MonkeyLogPopup, 'offsetRH', 1},'Tag','offsetRH',...
         'units', 'norm', 'position',bp);
+    
    
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(2)), ...
@@ -3911,7 +3920,7 @@ bp(2) = bp(2)- 1./nr;
 
     uicontrol(gcf,'style','pushbutton','string','Null', ...
         'Callback', {@SoftoffPopup, 'null'} ,...
-        'units', 'norm', 'position',bp,'value',1);
+        'units', 'norm', 'position',bp,'value',1,'accelerator','E');
     
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','pushbutton','string','Clear', ...

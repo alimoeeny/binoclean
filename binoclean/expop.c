@@ -5241,7 +5241,7 @@ int ReadStimOrder(char *file)
 
     FILE *fd;
     char buf[BUFSIZ*10],*s,*t;
-    int ival,nt=0;
+    int ival,nt=0,imax = 0;
  
     if (expt.strings[EXPT_PREFIX] != NULL){
         sprintf(buf,"%s/stimorder",expt.strings[EXPT_PREFIX]);
@@ -5257,6 +5257,8 @@ int ReadStimOrder(char *file)
                 while(s){
                     sscanf(s,"%d",&ival);
                     stimorder[nt++] = ival;
+                    if (ival > imax)
+                        imax = ival;
                     t = s;
                     if((s = strchr(t,' ')) != NULL)
                         s++;
@@ -5268,6 +5270,7 @@ int ReadStimOrder(char *file)
         }
         fclose(fd);
     }
+    expt.nstim[5] = imax;
     return(nt-1);
 }
 
@@ -7770,7 +7773,7 @@ void ShuffleStimulus(int state)
 {
     int i, temp, trialsleft;
     int blklen = expt.nstim[3] * expt.blksize;
-    
+    char buf[BUFSIZ];
     if(seroutfile)
     {
         fprintf(seroutfile,"#Shuf stimno %d type %d (fix %d state %d,%d)\n",stimno, afc_s.lasttrial,fixstate,state,afc_s.loopstate);
@@ -7795,8 +7798,16 @@ void ShuffleStimulus(int state)
     }
     temp = stimorder[stimno];
     stimorder[stimno] = stimorder[stimno + i];
+    if (stimorder[stimno] > expt.nstim[5]){
+        sprintf(buf,"Swapfrom Stim %d larger that nstim",stimorder[stimno]);
+        acknowledge(buf, NULL);
+    }
     stimorder[stimno+i] = temp;
-    stimseq[trialctr].a = stimorder[stimno];  
+    if (temp > expt.nstim[5]){
+        sprintf(buf,"Swapto Stim %d larger that nstim",temp);
+        acknowledge(buf, NULL);
+    }
+    stimseq[trialctr].a = stimorder[stimno];
     stimseq[trialctr].b = stimorder[stimno+i];  
     temp = seedorder[stimno];
     seedorder[stimno] = seedorder[stimno + i];
@@ -14005,6 +14016,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 
         case UFF_PREFIX: //don't send to Spike2 when get new name. Wait for Open button
             SetExptString(ex, TheStim, code, s);
+            statusline(s);
             break;
         case CHANNEL_CODE: //just relay these from verg. don't send all channels'
             SetBWChannel(s);
