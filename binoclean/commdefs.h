@@ -451,6 +451,8 @@
 #define EXPTRESET_FILE MAXSERIALCODES+171
 #define SET_SF_CONTRASTS MAXSERIALCODES+172
 #define MAXSAVECODES MAXSERIALCODES+173 //364
+//Add above here anything that needs to be saved to .stm files
+//Below here are temporary/convenience/state parameters that do not need saving
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
