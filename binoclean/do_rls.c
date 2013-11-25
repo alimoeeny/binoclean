@@ -1217,6 +1217,9 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     ndots = y - sst->ypos; // acutal # ov vertices
     ndots = pf - sst->imb; // acutal # ov vertices
     x = sst->xpos;
+    ndots = 0;  // remove this line to look at xvals in debugger.
+    if (ndots > 4096) // dont exceed array on stack for testing
+        ndots = 4096;
     for (i = 0; i < ndots; i++)
         xvals[i] = *x++;
     pf = sst->imb;

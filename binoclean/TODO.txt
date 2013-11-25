@@ -85,4 +85,6 @@ Things that need fixing:
 *check \\ quoting in verg
 *\\ quoting from Office copy missing in master
 *handle more expts than 3 in manual expts.
+- terminator RLS nc >5 loses bottom pieces.  
+- " " when first boundary reaches edge, it jumpts need to track boundary offset and use this with setting color
 -last stim in an expt does not get a reward.....

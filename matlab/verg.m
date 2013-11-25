@@ -1889,7 +1889,7 @@ function DATA = InitInterface(DATA)
     sm = uimenu(hm,'Label','Preferences');
     uimenu(sm,'Label','Save Layout','Callback',{@SaveFile, 'layout'});
     uimenu(sm,'Label','Choose Font','Callback',{@MenuHit, 'choosefont'});
-    uimenu(sm,'Label','Update local Verg.m','Callback',{@SaveFile, 'update'});
+    uimenu(sm,'Label','Update local .m files','Callback',{@SaveFile, 'update'});
     sm = uimenu(hm,'Label','Today Slots');
     for j = 1:8
     uimenu(sm,'Label',['Expt' num2str(j)],'Callback',{@SaveSlot, j});
@@ -2270,7 +2270,7 @@ function SaveFile(a,b,type)
         end
         SaveExpt(DATA, filename);
     elseif strcmp(type,'update')
-        copyfile([DATA.netmatdir '/verg.m'],[DATA.localmatdir '/verg.m']);
+        CheckForUpdate(DATA)
     elseif strcmp(type,'layout')
         SaveLayout(DATA, DATA.layoutfile);
     elseif strcmp(type,'saveas')
