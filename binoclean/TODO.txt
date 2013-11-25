@@ -59,7 +59,8 @@ Things that need fixing:
 *fix color scheme for lines printed to monkey view
 -make sure setup file saving works.
 *allow verg to run a sequnce of experiments with changes. ? from a window or from a text file?  ? make it a qe type?
--could binoc write to pipe when started so that verg automatically reopens pipes? 
+*could binoc write to pipe when started so that verg automatically reopens pipes?
+*        sort of kludgeded. Touches /tmp/binocisnew and verg watches 
 *when verg connects to a running binoc which is mid expt, get vert to know and set Run button
 *stausline only on alternate frames in expt/ But thats ok
 *when rpt is on, make expts separte for the psych plot (currently all lumped into one)
@@ -73,12 +74,15 @@ Things that need fixing:
 * For james. Ecah vary orientation randomly by frame. Orthogonal.
 *    Allow multiple bars per frame. B or W.
 * For manual expts make a useful statusline
--if manual list of exp stims, verg doesn't send to binoc when reopen pipes
--last stim in an expt does not get a reward.....
--History search/arrow navigation should read in from binoccmd histroy too
+*if manual list of exp stims, verg doesn't send to binoc when reopen pipes
+*History search/arrow navigation should read in from binoccmd histroy too
 -add et,e2,e3 to R4 lines, so that PsychMon can see expts. 
--!mat commands only if not run from sequnce loop
+*!mat commands only if not run from sequnce loop
 -have reset expt done by a file read from disk.
 *backgr contrast should not be 0 at start time
-\\ quoting from Office copy missing in master
--handle more expts than 3 in manual expts.
+*ack if there is a monitor read error. Monitor file comes from verg..
+*check comments are transmitted properly
+*check \\ quoting in verg
+*\\ quoting from Office copy missing in master
+*handle more expts than 3 in manual expts.
+-last stim in an expt does not get a reward.....

@@ -11,7 +11,7 @@ if length(varargin) & ishandle(varargin{1})
     varargin = varargin(3:end);
 else
     checkforrestart = 1;
-    TOPTAG = 'binoc';
+    TOPTAG = 'vergwindow';
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'autoreopen',6)
@@ -33,7 +33,7 @@ end
 it = findobj('Tag',TOPTAG,'type','figure');
 if isempty(it)
     tt = TimeMark([], 'Start');
-    DATA.tag.top = 'Binoc';
+    DATA.tag.top = 'vergwindow';
     ts = now; 
     DATA = SetDefaults(DATA);
     DATA.name = strrep(DATA.vergversion,'verg.','Verg Ver ');
@@ -49,6 +49,7 @@ if isempty(it)
         tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
         SendState(DATA); %params loaded from verg.setup etc
+        DATA = ReadStimFile(DATA, '/local/verg.setup'); %make sure these go to binoc
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
         SendCode(DATA,'vve'); %send verg version
         tt = TimeMark(tt, 'Read');
@@ -105,6 +106,8 @@ if isempty(it)
         TimeMark(tt,2);
     end
     DATA = CheckStateAtStart(DATA);
+else
+    DATA = get(it,'UserData');
 end
 end
 j = 1;
@@ -127,6 +130,9 @@ while j <= length(varargin)
         DATA = AddTextToGui(DATA, ['qe=' varargin{j}]);
         SetGui(DATA);
         DATA.optionflags.afc;
+        set(DATA.toplevel,'UserData',DATA);
+    elseif strcmp(varargin{j},'autoreopen')
+        DATA.autoreopen = 1;
         set(DATA.toplevel,'UserData',DATA);
     end
     j = j+1;
@@ -207,6 +213,10 @@ for j = 1:length(strs{1})
             DATA.matlabwasrun = 1;
         end
         SendCode(DATA, 'exp');
+    elseif strncmp(s,'NewBinoc',7)
+        if DATA.optionflags.do
+            fprintf(DATA.outid,'\\go\n');
+        end
     elseif strncmp(s,'ACK:',4)
 %        t = regexprep(s(5:end),'([^''])''','$1'''''); %relace ' with '' for matlab
         msgbox(s(5:end),'Binoc Warning','warn');
@@ -616,15 +626,15 @@ for j = 1:length(strs{1})
             DATA.optionflags.(f{code}) = 0;
             end
         end
-    elseif strncmp(s,'ch10',4)
+    elseif strncmp(s,'ch10',4) %Right eye XY
         DATA.showxy(1) = strfind('-+',s(5))-1;
         id = strfind(s,'fs');
         if length(id) == 1
             DATA.binoc{1}.xyfsd = sscanf(s(id(1)+2:end),'%f');
         end
-    elseif strncmp(s,'ch11',4)
+    elseif strncmp(s,'ch11',4) %L eye XY
         DATA.showxy(2) = strfind('-+',s(5))-1;
-    elseif strncmp(s,'ch12',4)
+    elseif strncmp(s,'ch12',4) %binoc XY
         DATA.showxy(3) = strfind('-+',s(5))-1;
     elseif regexp(s,'^ch[0-9]')
     elseif strncmp(s, 'stepperxy', 8)
@@ -792,7 +802,7 @@ function DATA = CheckCustomStim(DATA, s, n)
     
 function s = AddCustomStim(DATA, s, n)
     
-    pre = {'E' 'EB' 'EC'};
+    pre = {'EA' 'EB' 'EC'};
     o = 1+DATA.nextras(n);
     if DATA.customstimlist(n)
         for j = o:length(DATA.exptstimlist{n})
@@ -1317,11 +1327,13 @@ DATA.exptype = [];
 DATA.nexpts = 0;
 DATA.Expts = {};
 DATA.Trials = [];
-DATA.showxy = [1 1 1]; %XY L, R, Conjugate crosses
+DATA.showxy = [1 1 1]; %XY R, L, Conjugate crosses
 DATA.currentstim = 1;  %foregr/backgre/Choice Targest
 DATA.xyfsdvals = [1 2 5 10 20 40];
 DATA.optionflags.ts = 0;
 DATA.optionstrings.ts = 'Wurtz Task';
+DATA.optionflags.do = 0;
+DATA.optionstrings.do = 'Go';
 DATA.showflags.ts = 1;
 DATA.showflags.cf = 1;
 DATA.showflagseq{1} = 'ts';
@@ -1372,7 +1384,7 @@ DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
 
 DATA.comcodes = [];
-DATA.windownames = {'mainwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow' 'electrodewindow'};
+DATA.windownames = {'vergwindow' 'optionwindow' 'softoffwindow'  'codelistwindow' 'statuswindow' 'logwindow' 'helpwindow' 'sequencewindow' 'penlogwindow' 'electrodewindow'};
 DATA.winpos{1} = [10 scrsz(4)-480 300 450];
 DATA.winpos{2} = [10 scrsz(4)-680 400 50];  %options popup
 DATA.winpos{3} = [600 scrsz(4)-100 600 150]; %softoff
@@ -1936,7 +1948,7 @@ function DATA = InitInterface(DATA)
     hm = uimenu(cntrl_box,'Label','Help','Tag','HelpMenu');
     BuildHelpMenu(DATA, hm);
 
-    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
+    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',1,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
@@ -2311,7 +2323,7 @@ function SendManualVals(a, b)
         if size(str,2) > DATA.nt
             yn = questdlg('Nstim mismatch','That will Change N stims','OK','Cancel','OK');
         end
-        c = 'E';
+        c = 'EA';
     end
 
     for j = o:length(str)
@@ -2416,7 +2428,7 @@ if sendvals
     elseif strcmp(tag,'Expt3StimList')
         c = 'EC';
     else
-        c = 'E';
+        c = 'EA';
     end
 
     for j = 1:length(str)
@@ -2714,7 +2726,12 @@ function CheckInput(a,b, fig, varargin)
  function DATA = ReadFromBinoc(DATA, varargin)
      global rbusy;
      persistent lastts;
+     persistent lasttnone;
      
+     if isempty(lastts)
+         lastts = 0;
+         lasttnone = 0;
+     end
      verbose = DATA.verbose;
      autocall = 0;
      expecting = 0;
@@ -2772,7 +2789,10 @@ function CheckInput(a,b, fig, varargin)
          lastts = ts;
      else
          s = char(a');
-         fprintf('No Bytes %s\n',s);
+         if ts - lasttnone > 5 /(24 * 60 * 60)
+             fprintf('No Bytes %s %s\n',s,datestr(ts));
+             lasttnone = ts;
+         end
          if length(s)
              id = strfind(s,'SENDING')
              if length(id)
@@ -4228,18 +4248,21 @@ function OtherToggles(a,b,flag)
     DATA = GetDataFromFig(a);
     v= get(a,'value');
     if v
-       c = '+';
-        else
+        c = '+';
+    else
       c = '-';
     end
-    if strcmp(flag,'XYL')
-        fprintf(DATA.outid,'ch11%c\n',c);
-    elseif strcmp(flag,'XYR')
+    if strcmp(flag,'XYR')
+        DATA.showxy(1) = v;
         fprintf(DATA.outid,'ch10%c\n',c);
+    elseif strcmp(flag,'XYL')
+        DATA.showxy(2) = v;
+        fprintf(DATA.outid,'ch11%c\n',c);
     elseif strcmp(flag,'XYB')
+        DATA.showxy(3) = v;
         fprintf(DATA.outid,'ch12%c\n',c);
     end        
-
+    set(DATA.toplevel,'UserData',DATA);
     
     
 function [DATA, txt] = PrevCommand(DATA, src, step)
@@ -4280,7 +4303,7 @@ function [DATA, txt] = PrevCommand(DATA, src, step)
             DATA.historyctr = length(DATA.oldcmds);
         else
             txt = DATA.commands{DATA.commandctr};
-            set(DATA.txtrec,'value',DATA.commandctr);
+            set(DATA.txtrec,'value',DATA.commandctr+1);
         end
     elseif DATA.commandctr == 1 && (step < 0 || DATA.historyctr <= length(DATA.oldcmds))
         if DATA.historyctr == length(DATA.oldcmds) && step == 1
@@ -4305,6 +4328,7 @@ function [DATA, txt] = PrevCommand(DATA, src, step)
                     end
                 end
             end
+            set(DATA.txtrec,'value',1);
             if DATA.historyctr == 0
                 txt = 'Todays Commands';
                 DATA.historyctr = length(DATA.oldcmds)+1;
@@ -4474,7 +4498,7 @@ function TextList(a,b)
     s = get(a,'string');
     if length(DATA.completions) >= line-1 && line > 1
         SetTextUI(DATA,[DATA.completions{line-1} '=']);
-    elseif line ==1
+    elseif line ==1 && isfield(DATA,'oldtxt')
         ResetTextLst(DATA);
     else
         str = StripComments(s(line,:));

@@ -167,6 +167,7 @@ X.stimdir = stimdir;
 X.stimorder = stimorder;
 
 fid = fopen([stimdir '/stimorder'],'w');
+fprintf(fid,'manexp=tf+sf+jv+st+nsf\n');
 fprintf(fid,'%d ',stimorder); 
 fprintf(fid,'\n');
 fclose(fid);
@@ -196,8 +197,7 @@ else
 end
     
     
-fprintf(fid,'exvals%.1f %.1f %.2f %.0f\n',S.tf,S.jv,S.sf,S.stimtype);
-fprintf(fid,'stimtag=test%d\n',S.stimno);
+fprintf(fid,'exvals=%.1f %.1f %.2f %.0f\n',S.tf,S.jv,S.sf,S.stimtype);
 fclose(fid);
 x = scanlines(sname);
 for j = 1:length(x)

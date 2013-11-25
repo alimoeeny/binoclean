@@ -95,7 +95,9 @@
 #define PHASE_AS_DISP 39
 #define CORRELATION 40
 #define DOT_SIZE 41
-#define LAST_STIMULUS_CODE 41
+#define BVELOCITY 42
+#define BPOSITION 43
+#define LAST_STIMULUS_CODE 43
 
 
 #define SETFIXCOLOR (LAST_STIMULUS_CODE+1)
@@ -447,9 +449,10 @@
 #define SET_TF_COMPONENTS MAXSERIALCODES+169
 #define PSYCHMON_VARS MAXSERIALCODES+170
 #define EXPTRESET_FILE MAXSERIALCODES+171
-#define MAXSAVECODES MAXSERIALCODES+172 //364
+#define SET_SF_CONTRASTS MAXSERIALCODES+172
+#define MAXSAVECODES MAXSERIALCODES+173 //364
 //Add above here anything that needs to be saved to .stm files
-//Below here are temporary/convenience/state parameters that do not need savin
+//Below here are temporary/convenience/state parameters that do not need saving
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -882,6 +885,8 @@ ValueCode valstrings[] = {
   {"p2",     "Phase2", PHASE2, 1, 'N' ,2, SEND_EXPLICIT},
   {"a2",     "Plaid angle", PLAID_ANGLE, 1, 'N' ,2, SEND_EXPLICIT},
   {"jv",     "J velocity", JVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
+  {"bpos",     "Boundary Position", BPOSITION, 5, 'N' ,2, SEND_EXPLICIT},
+  {"bjv",     "Boundary velocity", BVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"fi",     "front intensity",JF_INTENSITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"bi",     "back intensity", JB_INTENSITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"jn",     "cyl num dots", JNUMDOTS, 5, 'N' ,2, SEND_EXPLICIT},
@@ -908,7 +913,7 @@ ValueCode valstrings[] = {
   {"pr",     "PREPERIOD", PREPERIOD_CODE, 16, 'N' ,2, SEND_EXPLICIT}, 
   {"et",     "Expt1 Type",  EXPTYPE_CODE, 16 , 'C' ,2, SEND_EXPT},
   {"fz",     "FRAMERATE",  FRAMERATE_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"du",     "STIMULUS DURATION", STIMULUS_DURATION_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"du",     "Stimulus Duration", STIMULUS_DURATION_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"vc",     "CLAMP_DISPARITY", CLAMP_DISPARITY_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"po",     "POSTPERIOD", POSTPERIOD_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"mo",     "Mode",MODE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
@@ -981,7 +986,7 @@ ValueCode valstrings[] = {
   {"ac",     "ANTICORRELATED_DISPARITY",ANTICORRELATED_DISPARITY, 3+INDIRECT , 'N' ,4, SEND_EXPLICIT},
   {"cd",     "CORRELATED_DISPARITY",CORRELATED_DISPARITY, 3+INDIRECT, 'N' ,4, SEND_EXPLICIT},
   {"Dm",     "Distribution Mean",DISTRIBUTION_MEAN, 3 , 'N' ,2, SEND_EXPLICIT},
-  {"np",     "NPLANES",NPLANES , 3 , 'N' ,2, SEND_EXPLICIT},
+  {"np",     "N Planes",NPLANES , 3 , 'N' ,2, SEND_EXPLICIT},
   {"me",     "MONOCULARITY_EXPT",MONOCULARITY_EXPT, 128 , 'N' ,0, SEND_STIMULUS},
   {"cv",     "VERGENCE_CORRECTION",VERGENCE_CORRECTION, 8 , 'N' ,2, SEND_EXPLICIT},
   {"fh",     "FIXATION_SURROUND",FIXATION_SURROUND, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1021,7 +1026,7 @@ ValueCode valstrings[] = {
   {"vm",     "Vdisp mod",VDISP_MOD, 3 , 'N' ,4, SEND_EXPLICIT},
   {"hd",     "Length Disparity",LENGTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
   {"wd",     "Width Disparity",WIDTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
-  {"nc",     "N Components",NCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"nc",     "N Components/Boundaries",NCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
   {"id",     "Stim ID",STIMID, 1 , 'N' ,0, SEND_STIMULUS},
   {"O2",     "Ori 2",ORI2, 1 , 'N' ,2, SEND_EXPLICIT},
   {"n3",     "Nstim 3",EXPT3_NSTIM, 16 , 'N' ,0, SEND_EXPT},
@@ -1269,6 +1274,7 @@ ValueCode valstrings[] = {
     {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
     {  "nsf", "SF Components", SET_SF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
     {  "ntf", "TF Components", SET_TF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
+    {  "nco", "Component Contrasts", SET_SF_CONTRASTS, 0, 'N', 3, SEND_EXPLICIT},
     {  "psychmon", "Psych Mon Vars", PSYCHMON_VARS, 0, 'C', 3, SEND_EXPLICIT},
     {"impref", "prefix for image files", IMAGELOAD_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {"Electrode", "Electrode Decsription", ELECTRODE_TYPE, 0, 'C', 0, SEND_EXPLICIT},

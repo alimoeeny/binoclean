@@ -2408,7 +2408,7 @@ int event_loop(float delay)
 	float val;
 	Expstim *es,*esp;
 	Locator *pos = &TheStim->pos;
-	int statectr = 0,tc;
+	int statectr = 0,tc,firstcall = 0;
 	static int testlaps = 0;
     struct timeval then;
     
@@ -2417,6 +2417,9 @@ int event_loop(float delay)
     
     tc = 0;
     gettimeofday(&then,NULL);
+    if (nftime.tv_sec == 0)
+        firstcall = 1;
+
     val = timediff(&then,&nftime); //time since next frame exited
 //    if (stimstate == POSTSTIMINTRIAL || stimstate == POSTPOSTSTIMULUS)
 //        fprintf(stdout,"loop delay %.5f\n",val);
@@ -2428,6 +2431,7 @@ int event_loop(float delay)
         }
     }
     gettimeofday(&now,NULL);
+    
     val = timediff(&now,&then); //time since next frame exited
     if(!window_is_mapped) //first call
         mon.framerate = GetFrameRate();
@@ -2441,8 +2445,7 @@ int event_loop(float delay)
             cleartime.tv_sec = 0;
         }
     }
-    if (nftime.tv_sec == 0) //first call
-        system("touch /tmp/binocisnew");
+
     
     if(!(mode & RUNNING) && window_is_mapped)
     {
@@ -2503,6 +2506,10 @@ int event_loop(float delay)
         ReadExptFile(NULL, 0, 0,0);
     }
     ctr++;
+    if (firstcall ==1){ //first call
+        system("touch /tmp/binocisnew");
+        notify("NewBinoc\n");
+    }
     gettimeofday(&nftime,NULL);
     return(stimstate);
 }
@@ -3088,6 +3095,12 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         case JDEATH:
             if(st->type == STIM_CYLINDER)
                 st->left->ptr->deathchance = val;
+            break;
+        case BPOSITION:
+            st->left->boundarypos = deg2pix(val);
+            break;
+        case BVELOCITY:
+            st->left->boundaryV = deg2pix(val)/mon.framerate;
             break;
         case JVELOCITY:
             /*  Cylinder velocity is in degrees of rotation
@@ -5363,6 +5376,11 @@ void increment_stimulus(Stimulus *st, Locator *pos)
      * to make a static RDS change seed after a certain number of frames, set RANDOM_PHASE and
      * CHANGE_SEED. That way CHANGE_SEED can be used to do iniial dispaity expts with RDS
      */
+    
+    st->left->boundarypos += st->left->boundaryV;
+    if (st->left->boundarypos > st->pos.radius[0])
+        st->left->boundarypos =  -st->pos.radius[0];
+    st->right->boundarypos = st->left->boundarypos;
     
     if((optionflags[RANDOM_PHASE] || st->left->seedloop == 0)&& 
        (st->type == STIM_RDS || st->type == STIM_RLS || st->type == STIM_CHECKER))
@@ -8021,6 +8039,12 @@ float StimulusProperty(Stimulus *st, int code)
             break;
         case FRAME_DISPLACEMENT:
             value = pix2deg(st->posinc);
+            break;
+        case BPOSITION:
+            value = pix2deg(st->left->boundarypos);
+            break;
+        case BVELOCITY:
+            value = pix2deg(st->left->boundaryV) * mon.framerate;
             break;
         case JVELOCITY:
             if(st->type == STIM_CYLINDER)
