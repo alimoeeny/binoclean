@@ -104,7 +104,7 @@ int SetBWChannel(char *s)
         t = r;
         r = strchr(t,',');
         if(r)
-            r++; 
+            r++;
         
         return(onoff);
     }

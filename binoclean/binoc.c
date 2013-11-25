@@ -6264,7 +6264,12 @@ int next_frame(Stimulus *st)
                 }
                 else{
                     setmask(FORCEBOTH);
-                    glClearColor(0,0,0,0);
+                    if (optionflags[GREY_MONOC]){
+                        val = expt.st->background;
+                        glClearColor(val,val,val,val);
+                    }
+                    else
+                        glClearColor(0,0,0,0);
                     glClear(GL_COLOR_BUFFER_BIT);
                     setmask(BOTHMODE);
                     chessboard(deg2pix(expt.vals[GRIDSIZE]), deg2pix(expt.vals[GRIDSIZE]));
