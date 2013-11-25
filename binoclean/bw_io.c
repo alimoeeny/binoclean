@@ -61,6 +61,7 @@ char *getfilename(char *path)
 //
 //
 //
+
 int SetBWChannel(char *s)
 {
     char *r,*t;
@@ -104,7 +105,7 @@ int SetBWChannel(char *s)
         t = r;
         r = strchr(t,',');
         if(r)
-            r++; 
+            r++;
         
         return(onoff);
     }

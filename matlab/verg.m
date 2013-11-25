@@ -255,7 +255,8 @@ for j = 1:length(strs{1})
         else
             DATA.electrodeid = eid(1);
         end
-        DATA.electrodestring = estr;
+        DATA.binoc{1}.Electrode = estr;
+        
     elseif strncmp(s,'read',4) %read a set of instructions
         fid = fopen(value,'r');
     elseif strncmp(s,'user',4)
@@ -876,7 +877,7 @@ function DATA = ReadExptLines(DATA, strs, src)
             DATA.overcmds = {DATA.overcmds{:} tline};
         elseif DATA.outid > 0
             tline = CheckLineForBinoc(tline);
-            fprintf(DATA.outid,[tline '\n']);
+            fprintf(DATA.outid,'%s\n',tline);
         end
     end
     if j >= length(DATA.exptlines)
@@ -885,6 +886,7 @@ function DATA = ReadExptLines(DATA, strs, src)
     if DATA.outid > 0
         fprintf(DATA.outid,'\neventcontinue\nEDONE\n');
     end
+    DATA = ReadFromBinoc(DATA,'expect');
     for ex = 1:3
         if length(DATA.expts{ex})
             id = find(~ismember(DATA.expmenuvals{ex}, DATA.expts{ex}));
@@ -900,9 +902,11 @@ function line = CheckLineForBinoc(tline)
 % more recent Spike2 seems not to need this
 %But matlab needs it for writing to serial line
     if strncmp(tline,'uf',2)
-        tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
-        tline = regexprep(tline,'\','\\\');
-        tline = regexprep(tline,'/','\\\');
+%        tline = regexprep(tline,'\\\','\'); %dont go '\\' -> '\\\\'
+%        tline = regexprep(tline,'\\','\'); %dont go '\\' -> '\\\\'
+%        tline = regexprep(tline,'\','\\');
+%beware fprintf('%s',tline) and fprintf(tline) behave differetnly with \\
+        tline = regexprep(tline,'/','\\'); %Spike 2 needs \ not /
     else
         tline = regexprep(tline,'\','/');
     end
@@ -1045,14 +1049,14 @@ function SendState(DATA, varargin)
     end
     fprintf(DATA.outid,'uf=%s\n',DATA.datafile);
     
-    if DATA.showxy(1)
-        fprintf(DATA.outid,'ch10+\n');
+    if DATA.showxy(3)
+        fprintf(DATA.outid,'ch12+\n'); %R
     end
     if DATA.showxy(2)
-        fprintf(DATA.outid,'ch11+\n');
+        fprintf(DATA.outid,'ch11+\n'); %L
     end
-    if DATA.showxy(3)
-        fprintf(DATA.outid,'ch12+\n');
+    if DATA.showxy(1)
+        fprintf(DATA.outid,'ch10+\n'); %B
     end
 
     if length(DATA.binoc) > 1 && isstruct(DATA.binoc{2})
@@ -1352,7 +1356,7 @@ DATA.datafile = [];
 DATA.electrodestrings = {'Not Set'};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
-DATA.electrodestring = 'default';
+DATA.binoc{1}.Electrode = 'default';
 DATA.binoc{1}.monkey = 'none';
 DATA.binoc{1}.lo = '';
 DATA.binoc{1}.st = 'none'; % make sure this field comes early
@@ -1928,7 +1932,7 @@ function DATA = InitInterface(DATA)
     end
     sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     subm = uimenu(hm,'Label','&Software Offset');
-    uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'});
+    uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'},'accelerator','E');
     uimenu(subm,'Label','Edit','Callback',{@SoftoffPopup, 'popup'});
     uimenu(subm,'Label','Clear','Callback',{@SendStr, '\clearsoftoff'});
     uimenu(hm,'Label','Run Sequence of expts','Callback',{@SequencePopup, 'popup'});
@@ -1944,7 +1948,7 @@ function DATA = InitInterface(DATA)
     hm = uimenu(cntrl_box,'Label','Help','Tag','HelpMenu');
     BuildHelpMenu(DATA, hm);
 
-    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
+    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',1,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
@@ -2209,10 +2213,14 @@ function AddTodayMenu(DATA, id,label)
 function CheckForUpdate(DATA)
     CheckFileUpdate([DATA.netmatdir '/verg.m'],[DATA.localmatdir '/verg.m']);
     CheckFileUpdate([DATA.netmatdir '/helpstrings.txt'],[DATA.localmatdir '/helpstrings.txt']);
-    CheckFileUpdate([DATA.netmatdir '/DownArrow.mat'],[DATA.localmatdir '/DownArrow.mat']);
+    CheckFileUpdate([DATA.netmatdir '/DownArrow.mat'],[DATA.localmatdir '/DownArrow.mat'],'new');
     CheckFileUpdate([DATA.netmatdir '/vergversion.m'],[DATA.localmatdir '/vergversion.m']);
+
     
- function CheckFileUpdate(src, tgt)
+ function CheckFileUpdate(src, tgt, chkmode)
+     if nargin < 3
+        chkmode = 'change';
+     end
     a = dir(src);
     b = dir(tgt);
     if isempty(a)
@@ -2226,6 +2234,9 @@ function CheckForUpdate(DATA)
                 cprintf('errors',ME.message);
                 fprintf('Error copying %s\n',tgt);
             end
+    end
+    if strncmp(chkmode,'new',3)         
+        return;
     end
     if ~isempty(a) && ~isempty(b) && a.datenum > b.datenum
         yn = questdlg(sprintf('%s is newer. Copy to %s?',src,tgt),'Update Check','Yes','No','Yes');
@@ -2440,7 +2451,7 @@ function MenuGui(a,b)
      tag = get(a,'Tag');
      switch tag
          case 'ElectrodeType'
-             DATA.electrodestring = str;
+             DATA.binoc{1}.Electrode = str;
              DATA.electrodeid = val;
      end
      set(DATA.toplevel,'UserData',DATA);
@@ -2660,6 +2671,11 @@ end
        end
     ot = findobj('tag',DATA.windownames{3},'type','figure');
     SetSoftOffWindow(DATA,ot);
+    
+    [a,j] = min(abs(DATA.binoc{1}.xyfsd - DATA.xyfsdvals));
+    ot = findobj(DATA.toplevel,'tag','FSD','type','uicontrol');
+    set(ot,'value',j);
+
 
  function SetTextItem(top, tag, value, varargin)
  it = findobj(top,'Tag',tag);
@@ -2698,7 +2714,7 @@ end
 function CheckInput(a,b, fig, varargin)
     DATA = get(fig,'UserData');
     if DATA.servofig
-        ServoDrive('readposition');
+        ServoDrive('readposition','quiet');
     end
     ReadFromBinoc(DATA, 'auto');
     if DATA.verbose > 1
@@ -2710,9 +2726,11 @@ function CheckInput(a,b, fig, varargin)
  function DATA = ReadFromBinoc(DATA, varargin)
      global rbusy;
      persistent lastts;
+     persistent lasttnone;
      
      if isempty(lastts)
          lastts = 0;
+         lasttnone = 0;
      end
      verbose = DATA.verbose;
      autocall = 0;
@@ -2771,7 +2789,10 @@ function CheckInput(a,b, fig, varargin)
          lastts = ts;
      else
          s = char(a');
-         fprintf('No Bytes %s\n',s);
+         if ts - lasttnone > 5 /(24 * 60 * 60)
+             fprintf('No Bytes %s %s\n',s,datestr(ts));
+             lasttnone = ts;
+         end
          if length(s)
              id = strfind(s,'SENDING')
              if length(id)
@@ -3773,6 +3794,7 @@ bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(1)), ...
         'Callback', {@MonkeyLogPopup, 'offsetRH', 1},'Tag','offsetRH',...
         'units', 'norm', 'position',bp);
+    
    
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','edit','string',num2str(DATA.Coil.offset(2)), ...
@@ -3918,7 +3940,7 @@ bp(2) = bp(2)- 1./nr;
 
     uicontrol(gcf,'style','pushbutton','string','Null', ...
         'Callback', {@SoftoffPopup, 'null'} ,...
-        'units', 'norm', 'position',bp,'value',1);
+        'units', 'norm', 'position',bp,'value',1,'accelerator','E');
     
 bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','pushbutton','string','Clear', ...
@@ -4059,7 +4081,7 @@ function OpenPenLog(a,b, varargin)
     name = sprintf('/local/%s/pen%d.log',DATA.binoc{1}.monkey,DATA.binoc{1}.pe);
     DATA.penid = fopen(name,'a');
     fprintf(DATA.penid,'Penetration %d at %.1f,%.1f Opened %s\n',DATA.binoc{1}.pe,DATA.binoc{1}.px,DATA.binoc{1}.py,datestr(now));
-    fprintf(DATA.penid,'Electrode %s\n',DATA.electrodestring);
+    fprintf(DATA.penid,'Electrode %s\n',DATA.binoc{1}.Electrode);
     end
     set(DATA.toplevel,'UserData',DATA);
     
@@ -4114,11 +4136,11 @@ function SendCode(DATA, code)
         end
             return;
     end
-    if strncmp(code,'electrode',8)
-        if length(DATA.electrodestring)
-            fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestring);
+    if strncmp(code,'Electrode',8)
+        if length(DATA.binoc{1}.Electrode)
+            fprintf(DATA.outid,'Electrode=%s\n',DATA.binoc{1}.Electrode);
         elseif DATA.electrodeid > 0
-            fprintf(DATA.outid,'electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
+            fprintf(DATA.outid,'Electrode=%s\n',DATA.electrodestrings{DATA.electrodeid});
         end
     elseif strcmp(code,'exp')
         if isfield(DATA.matexpres,'stimdir')

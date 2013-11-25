@@ -1933,8 +1933,11 @@ char *ReadManualStim(char *file){
         else{
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             expt.codesent = 0;
-            InterpretLine(inbuf,&expt,3);
-            if (expt.codesent == 0){
+            i = InterpretLine(inbuf,&expt,3);
+            if (i == OPTION_CODE){
+                SerialSend(i);
+            }
+            else if (expt.codesent == 0){
                 SerialString(inbuf,0);
                 SerialString("\n",0);
             }
@@ -5238,7 +5241,7 @@ int ReadStimOrder(char *file)
 
     FILE *fd;
     char buf[BUFSIZ*10],*s,*t;
-    int ival,nt=0;
+    int ival,nt=0,imax = 0;
  
     if (expt.strings[EXPT_PREFIX] != NULL){
         sprintf(buf,"%s/stimorder",expt.strings[EXPT_PREFIX]);
@@ -5254,6 +5257,8 @@ int ReadStimOrder(char *file)
                 while(s){
                     sscanf(s,"%d",&ival);
                     stimorder[nt++] = ival;
+                    if (ival > imax)
+                        imax = ival;
                     t = s;
                     if((s = strchr(t,' ')) != NULL)
                         s++;
@@ -5265,6 +5270,7 @@ int ReadStimOrder(char *file)
         }
         fclose(fd);
     }
+    expt.nstim[5] = imax;
     return(nt-1);
 }
 
@@ -6816,9 +6822,9 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
             else if (icode > 0){ // is recognized
                 if (valstrings[icode].ctype == 'C'){
                     if ((s = GetExptString(&expt,code)) != NULL)
-                        sprintf(cbuf,"%s%s%s",scode,temp,s);
+                        sprintf(cbuf,"%s=%s",scode,s); //always have '=' in strings
                     else
-                        sprintf(cbuf,"%s%sNotSet",scode,temp,s);
+                        sprintf(cbuf,"%s=NotSet",scode,s);
                 }
                     else
                 sprintf(cbuf,"%s%s%.*f",scode,temp,nfplaces[code],expt.vals[code]);
@@ -7188,15 +7194,17 @@ void InitExpt()
     {
         if(!(optionflag & FRAME_ONLY_BIT))
         {
-            for(i = 0; i < expt.lastserialcode; i++)
+            for(i = 0; i < expt.totalcodes; i++)
             {
                 code = valstrings[i].icode;
+                if (code >= 0  && code < MAXSERIALCODES){
                 if(codesend[code] <= SEND_EXPT)
                     SerialSend(code);
                 else if(codesend[code] == SEND_EXPT_NONZERO && expt.vals[code] != 0)
                     SerialSend(code);
                 if(codesend[code] == SEND_GRATING2 && expt.st->type == STIM_GRATING2)
                     SerialSend(code);
+                }
             }
             if(expt.st->next != NULL && expt.st->next->type != STIM_NONE){
                 sprintf(cbuf,"%s=back=%s,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f,%s=%.2f",
@@ -7774,7 +7782,7 @@ void ShuffleStimulus(int state)
 {
     int i, temp, trialsleft;
     int blklen = expt.nstim[3] * expt.blksize;
-    
+    char buf[BUFSIZ];
     if(seroutfile)
     {
         fprintf(seroutfile,"#Shuf stimno %d type %d (fix %d state %d,%d)\n",stimno, afc_s.lasttrial,fixstate,state,afc_s.loopstate);
@@ -7799,8 +7807,16 @@ void ShuffleStimulus(int state)
     }
     temp = stimorder[stimno];
     stimorder[stimno] = stimorder[stimno + i];
+    if (stimorder[stimno] > expt.nstim[5]){
+        sprintf(buf,"Swapfrom Stim %d larger that nstim",stimorder[stimno]);
+        acknowledge(buf, NULL);
+    }
     stimorder[stimno+i] = temp;
-    stimseq[trialctr].a = stimorder[stimno];  
+    if (temp > expt.nstim[5]){
+        sprintf(buf,"Swapto Stim %d larger that nstim",temp);
+        acknowledge(buf, NULL);
+    }
+    stimseq[trialctr].a = stimorder[stimno];
     stimseq[trialctr].b = stimorder[stimno+i];  
     temp = seedorder[stimno];
     seedorder[stimno] = seedorder[stimno + i];
@@ -8493,6 +8509,18 @@ int PrepareExptStim(int show, int caller)
     expt.laststimno = stimno;
     expt.allstimid++;
 
+    /*
+     * Badfix/Prem trials during psychophyics Need the stimulus order to be changed * so that monkey does not see the same stimulus twice. During the staircase,
+     * this is not necessary.
+     Do this before reasing manual stim, so that these get shuffled also
+     */
+    if(SACCREQD(afc_s) && !(option2flag & STAIRCASE))
+    {
+        if(afc_s.lasttrial == BAD_TRIAL || afc_s.lasttrial == SAC_BAD_TRIAL)
+            ShuffleStimulus(0); /* ? obsolete  BADFIX and Late already call this*/
+    }
+    
+    
     if (optionflags[MANUAL_EXPT]){
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf);
@@ -8600,15 +8628,7 @@ int PrepareExptStim(int show, int caller)
     expt.laststim = expt.stimno;
     
     
-    /*	
-     * Badfix/Prem trials during psychophyics Need the stimulus order to be changed * so that monkey does not see the same stimulus twice. During the staircase,
-     * this is not necessary.
-     */
-    if(SACCREQD(afc_s) && !(option2flag & STAIRCASE))
-    {
-        if(afc_s.lasttrial == BAD_TRIAL || afc_s.lasttrial == SAC_BAD_TRIAL)
-            ShuffleStimulus(0); /* ? obsolete  BADFIX and Late already call this*/
-    }
+
     
     expt.stimno = stimorder[stimno];
     expt.stimid = expt.stimno & (~ORDER_BITS);
@@ -13081,6 +13101,17 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         }
         neyevals = j;
     }
+    else if(!strncasecmp(line,"xyfsd",5)){
+        sscanf(line,"xyfsd=%f",&val);
+        expt.bwptr->fsd[10] = val;
+        if(expt.bwptr->cflag & (1<<10))
+            c = '+';
+        else
+            c = '-';
+        sprintf(buf,"ch10%c,fs%.3f\n",c,val);
+        SerialString(buf,NULL);
+        return(0);
+    }
     else if(!strncmp(line,"centerstim",8)){
         SetProperty(&expt,expt.st,SETZXOFF,GetProperty(&expt,expt.st,RF_X));
         SetProperty(&expt,expt.st,SETZYOFF,GetProperty(&expt,expt.st,RF_Y));
@@ -14004,6 +14035,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 
         case UFF_PREFIX: //don't send to Spike2 when get new name. Wait for Open button
             SetExptString(ex, TheStim, code, s);
+            statusline(s);
             break;
         case CHANNEL_CODE: //just relay these from verg. don't send all channels'
             SetBWChannel(s);

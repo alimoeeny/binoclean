@@ -271,8 +271,13 @@
 #define IMAGEYPOS (LAST_STIMULUS_CODE+168)
 #define NBARS (LAST_STIMULUS_CODE+169)
 #define VERGVERSION_CODE (LAST_STIMULUS_CODE+170)
+#define EXPT_NAME (LAST_STIMULUS_CODE+171)
+#define STIMULUS_TAG (LAST_STIMULUS_CODE+172)
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+171)/* 202 */
+//Add above here anything that needs to go to Spike2
+
+
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+173)/* 204 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -446,6 +451,8 @@
 #define EXPTRESET_FILE MAXSERIALCODES+171
 #define SET_SF_CONTRASTS MAXSERIALCODES+172
 #define MAXSAVECODES MAXSERIALCODES+173 //364
+//Add above here anything that needs to be saved to .stm files
+//Below here are temporary/convenience/state parameters that do not need saving
 
 #define ASPECT_RATIO MAXSAVECODES
 #define HIDDEN_OPTIONS MAXSAVECODES+1
@@ -488,7 +495,7 @@
 #define IMAGELOAD_MODE (MAXSAVECODES+38)
 #define MONITOR_FILE  (MAXSAVECODES+39)
 #define SEQUENCE_PAUSE (MAXSAVECODES+40)
-#define MAXTOTALCODES (MAXSAVECODES+41)  //372
+#define MAXTOTALCODES (MAXSAVECODES+43)  //372
 
 
 /*
@@ -906,7 +913,7 @@ ValueCode valstrings[] = {
   {"pr",     "PREPERIOD", PREPERIOD_CODE, 16, 'N' ,2, SEND_EXPLICIT}, 
   {"et",     "Expt1 Type",  EXPTYPE_CODE, 16 , 'C' ,2, SEND_EXPT},
   {"fz",     "FRAMERATE",  FRAMERATE_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"du",     "STIMULUS DURATION", STIMULUS_DURATION_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
+  {"du",     "Stimulus Duration", STIMULUS_DURATION_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"vc",     "CLAMP_DISPARITY", CLAMP_DISPARITY_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"po",     "POSTPERIOD", POSTPERIOD_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"mo",     "Mode",MODE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
@@ -979,7 +986,7 @@ ValueCode valstrings[] = {
   {"ac",     "ANTICORRELATED_DISPARITY",ANTICORRELATED_DISPARITY, 3+INDIRECT , 'N' ,4, SEND_EXPLICIT},
   {"cd",     "CORRELATED_DISPARITY",CORRELATED_DISPARITY, 3+INDIRECT, 'N' ,4, SEND_EXPLICIT},
   {"Dm",     "Distribution Mean",DISTRIBUTION_MEAN, 3 , 'N' ,2, SEND_EXPLICIT},
-  {"np",     "NPLANES",NPLANES , 3 , 'N' ,2, SEND_EXPLICIT},
+  {"np",     "N Planes",NPLANES , 3 , 'N' ,2, SEND_EXPLICIT},
   {"me",     "MONOCULARITY_EXPT",MONOCULARITY_EXPT, 128 , 'N' ,0, SEND_STIMULUS},
   {"cv",     "VERGENCE_CORRECTION",VERGENCE_CORRECTION, 8 , 'N' ,2, SEND_EXPLICIT},
   {"fh",     "FIXATION_SURROUND",FIXATION_SURROUND, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1019,7 +1026,7 @@ ValueCode valstrings[] = {
   {"vm",     "Vdisp mod",VDISP_MOD, 3 , 'N' ,4, SEND_EXPLICIT},
   {"hd",     "Length Disparity",LENGTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
   {"wd",     "Width Disparity",WIDTH_DISP, 3 , 'N' ,4, SEND_EXPLICIT},
-  {"nc",     "N Components",NCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"nc",     "N Components/Boundaries",NCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
   {"id",     "Stim ID",STIMID, 1 , 'N' ,0, SEND_STIMULUS},
   {"O2",     "Ori 2",ORI2, 1 , 'N' ,2, SEND_EXPLICIT},
   {"n3",     "Nstim 3",EXPT3_NSTIM, 16 , 'N' ,0, SEND_EXPT},
@@ -1260,6 +1267,8 @@ ValueCode valstrings[] = {
     {  "hemi", "HemiSphere", HEMISPHERE, 0, 'C', 0, SEND_EXPLICIT},
     {  "coarsemm", "Starting positino on Coarse drive", COARSEMM, 0, 'N', 0, SEND_EXPLICIT},
     {  "psyv", "Psych Value", PSYCH_VALUE, 0, 'N', 0, SEND_EXPLICIT},
+    {  "expname", "Expt Name Label", EXPT_NAME, 0, 'C', 0, SEND_EXPT},
+    {  "stimtag", "Stimulus Tag (label)", STIMULUS_TAG, 0, 'C', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
     {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
