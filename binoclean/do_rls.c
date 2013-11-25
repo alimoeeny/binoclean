@@ -665,7 +665,7 @@ void calc_rls(Stimulus *st, Substim *sst)
 
 void calc_rls_polys(Stimulus *st, Substim *sst)
 {
-    int i,j,partdisp,ndots,nx=0;
+    int i,j,partdisp,ndots,nx=0,b;
     float cval,f,sy,cm,deg,iscale[2],val[2];
     float asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2],ysqb,xstarta,xa,nextxa;
     int *p,*q,*cend,yi,lastp,lastq;
@@ -676,10 +676,10 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     int pixmul = 1,seedcall = 0,nrects;
     vcoord yp,diff;
     double drnd,aval,bval;
-    int bit, nbit,k,nrect,nboundary;
+    int bit, nbit,k,nrect,nboundary,nneg;
     long *rp,rnd;
     float dc,xstart,xp,dw,*pf,ey,ex,ysd,xsd,eyb,exb,xstep,nextx,nexty;
-    float xvals[4096],xps[4],yps[4],r[4],xv,boundaries[2048];
+    float xvals[4096],xps[4],yps[4],r[4],xv,boundaries[2048],bw,yv;
     
     if(st->flag & ANTICORRELATE && sst->mode == RIGHTMODE)
         contrast = -pos->contrast;
@@ -842,11 +842,30 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
         sst->bits[i] = 0;
     }
     
+    nboundary = st->nfreqs;
+    bw = 2.*pos->radius[0]/nboundary;
+    nneg = 0;
+    for (j = 0; j < nboundary; j++){
+        boundaries[j] = sst->boundarypos + (j*bw);
+        if (boundaries[j] > pos->radius[0]){
+            boundaries[j] -= (pos->radius[0] * 2);
+            nneg++;
+        }
+    }
+    for (j = 0; j < nboundary; j++){
+        i = (j + nneg)%nboundary;
+        xvals[i] = boundaries[j];
+    }
+    for (j = 0; j < nboundary; j++){
+        boundaries[j] = xvals[j];
+    }
+
     sst->npaint = 0;
     ysd = deg2pix(sst->ptr->sx);
     ysd = 2 * ysd * ysd;
     xsd = deg2pix(sst->ptr->sy);
     xsd = 2 * xsd * xsd;
+    
     for(i = 0; i < sst->ndots; )
     {
         *x = 0;
@@ -935,6 +954,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                     ex =1;
             exb = ex;
                 nexty = yp+dw;
+                if (bsq > 0 && nexty > pos->radius[0])
+                    nexty = pos->radius[0];
                 if(bsq > 0 && 0){
                     if (ysq > bsq)
                         xstart = 0;
@@ -957,10 +978,11 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                 xvals[nrects] = xp+xstep;
                 if (expt.stimmode == RLS_TERMINATOR){
                     nrects = 0;
-                    nboundary = 1;
                     xvals[nrects++] = -xstart;
                     for (j = 0; j < nboundary; j++){
-                        boundaries[j] = sst->boundarypos - (j*50);
+                        // make sure there is a vertex at zero to make sure polygon is painted
+                        if (boundaries[j] >0 && xvals[nrects-1] < 0)
+                            xvals[nrects++] = 0;
                         if (boundaries[j] > xvals[nrects-1] && boundaries[j] < xstart)
                             xvals[nrects++] = boundaries[j];
                     }
@@ -974,16 +996,21 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                         xvals[nrects++] = sst->boundarypos;
                     }
  */
+                    if (xvals[nrects-1] < 0)
+                        xvals[nrects++] = 0;
                     xvals[nrects] = xstart;
                 }
                 nrect = 0;
             
+                b = 0;
                 for(j = 0; j < nrects; j++){
                     xp = xvals[j];
                         xsq = xp*xp;
-                    if (expt.stimmode == RLS_TERMINATOR && xp >= boundaries[j])
+                    if (expt.stimmode == RLS_TERMINATOR)
                     {
-                        if (*rp & (1<<(j+1)))
+                        if(xp >= boundaries[b]-0.0001 && b < nboundary)
+                            b++;
+                        if (*rp & (1<<b))
                             dc = 0;
                         else
                             dc = 1;
@@ -1075,11 +1102,26 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                         for(k = 0; k < 4; k++){
                             if (r[k] > 1){
                                 xv = sqrt(asq * (1 - sqr(yps[k])/bsq));
+// first polygon at bottom is tricky to fix. Leave it for now
+                                if(0){
+                                    if(yps[k] <= -pos->radius[0]){
+                                        
+                                    if (abs(xps[k]) >= pos->radius[1]*0.99){
+                                    yps[k]  = (yps[0] + yps[2])/2;
+                                    xv = sqrt(asq * (1 - sqr(yps[k])/bsq));
+                                    }
+                                    else{
+                                        yv = sqrt(bsq * (1 - sqr(xps[k])/asq));
+                                        yps[k] = -yv;
+                                    }
+                                    }
+                                }
                                 if(xps[k] < 0)
                                     xps[k] = -xv;
                                 else
                                     xps[k] = xv;
-                            }
+                                }
+
                         }
                         *x++ = xps[0];
                         *y++ = yps[0];

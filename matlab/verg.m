@@ -1944,7 +1944,7 @@ function DATA = InitInterface(DATA)
     hm = uimenu(cntrl_box,'Label','Help','Tag','HelpMenu');
     BuildHelpMenu(DATA, hm);
 
-    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',2,'executionmode','fixedspacing');
+    DATA.timerobj = timer('timerfcn',{@CheckInput, DATA.toplevel},'period',1,'executionmode','fixedspacing');
     
     set(DATA.toplevel,'UserData',DATA);
     start(DATA.timerobj);
@@ -2710,9 +2710,11 @@ function CheckInput(a,b, fig, varargin)
  function DATA = ReadFromBinoc(DATA, varargin)
      global rbusy;
      persistent lastts;
+     persistent lasttnone;
      
      if isempty(lastts)
          lastts = 0;
+         lasttnone = 0;
      end
      verbose = DATA.verbose;
      autocall = 0;
@@ -2771,7 +2773,10 @@ function CheckInput(a,b, fig, varargin)
          lastts = ts;
      else
          s = char(a');
-         fprintf('No Bytes %s\n',s);
+         if ts - lasttnone > 5 /(24 * 60 * 60)
+             fprintf('No Bytes %s %s\n',s,datestr(ts));
+             lasttnone = ts;
+         end
          if length(s)
              id = strfind(s,'SENDING')
              if length(id)
