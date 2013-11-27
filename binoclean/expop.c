@@ -132,7 +132,7 @@ static PGM backims[MAXBACKIM+1];
 static int backloaded = 0;
 static int flips[2] = {0};
 float *manualstimvals[100];
-int manualprop[100];
+int manualprop[100] = {-1};
 int propmodifier[100];
 
 int seedoffsets[100] = {0};
@@ -1931,9 +1931,16 @@ char *ReadManualStim(char *file){
             nprop++;
         }
         else{
+            notify(inbuf);
             inbuf[strlen(inbuf)-1] = 0; // remove '\n';
             expt.codesent = 0;
             i = InterpretLine(inbuf,&expt,3);
+            if (i == expt.mode)
+                expt.currentval[0] = GetProperty(&expt, expt.st, i);
+            if (i == expt.type2)
+                expt.currentval[1] = GetProperty(&expt, expt.st, i);
+            if (i == expt.type3)
+                expt.currentval[2] = GetProperty(&expt, expt.st, i);
             if (i == OPTION_CODE){
                 SerialSend(i);
             }
@@ -1941,7 +1948,6 @@ char *ReadManualStim(char *file){
                 SerialString(inbuf,0);
                 SerialString("\n",0);
             }
-            notify(inbuf);
             if (strncmp(inbuf,"exvals",5) != NULL && strlen(inbuf) < 100){
                 strcat(cbuf, inbuf);
                 strcat(cbuf, " ");
@@ -1988,6 +1994,7 @@ int SetManualStim(int frame)
 {
     int i,p = 0,code;
     float val;
+    
     while(manualprop[p] >= 0){
         val = manualstimvals[p][frame];
         expt.st->modifier = propmodifier[p];
@@ -8554,6 +8561,7 @@ int PrepareExptStim(int show, int caller)
         SetSacVal(val,expt.stimid);
         return(1);
     }
+    manualprop[0] = -1;  //not a manaul stim
     if(expt.type2 == OPPOSITE_DELAY){
         SetProperty(&expt, expt.st, SEED_DELAY, expt.stimvals[SEED_DELAY]);
     }
@@ -13067,15 +13075,19 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else if(line[0] == '\\' || line[0] == '\!'){
         ReadCommand(&line[1]);
+        return(-1);
     }
     else if(line[0] == '\$'){
         ReadConjPos(ex,line);
+        return(-1);
     }
     else if(!strcmp(line,"whatsup")){
         sendNotification();
+        return(-1);
     }
     else if(!strncmp(line,"demomode",8)){
         demomode = 2;
+        return(-1);
     }
     else if(!strncmp(line,"bar",3) && s != NULL){
         sscanf(&line[3],"%f",&expt.st->modifier);

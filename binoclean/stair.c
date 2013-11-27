@@ -1,4 +1,4 @@
-#include <math.h>
+ #include <math.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include "stimdefs.h"
@@ -111,11 +111,18 @@ void nullify(char *s, int length)
 }
 
 /********************************************************************************/
-int find_direction(float expval)
+int find_direction(float expval, int sign)
 {
+/* 
+ * if given afc_s.sign, this takes precedance
+ */
     int direction =0;
-    if(expval < 0.00001 && expval > -0.00001)
+    if(expval < 0.00001 && expval > -0.00001 && sign == 0)
         direction = AMBIGUOUS;
+    else if (sign < 0)
+        direction = JONLEFT;
+    else if (sign > 0)
+        direction = JONRIGHT;
     else if(expval < 0.0){
         direction = JONRIGHT;
     }
@@ -136,9 +143,9 @@ int monkey_direction(int response, AFCstructure afc_s)
     if(afc_s.newdirs)
         direction = -afc_s.stimsign;
     else if(fabs(sacval[0]) > fabs(sacval[1]))
-        direction = find_direction(sacval[0] * afc_s.abssac[0] * afc_s.sign);
+        direction = find_direction(sacval[0] * afc_s.abssac[0],afc_s.sign);
     else
-        direction = find_direction(sacval[1] * afc_s.abssac[1] * afc_s.sign);
+        direction = find_direction(sacval[1] * afc_s.abssac[1],afc_s.sign);
     
     switch(direction){
         case JONRIGHT:
@@ -436,8 +443,8 @@ void performance_string(float expval, int response, int state,  char **s1, char 
     static float lastexpval=-999;
     char buf[100];
     
-    direction = find_direction(expval);
-    ambig_direction = find_direction(sacval);
+    direction = find_direction(expval, afc_s.sign);
+    ambig_direction = find_direction(sacval, 0);
     
     if(*((*s1))==NULL) /* if s1 has been nullified(cleared) then point to first element */
         counter = 0;

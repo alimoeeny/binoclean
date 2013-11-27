@@ -4394,7 +4394,7 @@ function jTextKey(src, ev)
         if isempty(strfind(a,'='))  %complete codes
             DATA = ShowCompletions(DATA,a);
         end
-    elseif ks.KeyChar == ' '
+    elseif 0 && ks.KeyChar == ' ' %%now tab works, treat space normally
         a = deblank(src.Text);
         if isempty(strfind(a,'='))  %complete codes
             DATA = ShowCompletions(DATA,a);
@@ -4883,6 +4883,8 @@ function DATA = PlotPsych(DATA)
             axis('tight');
         else
         np = sum(abs([Expt.Trials.RespDir]) ==1); %psych trials
+        Expt = FillTrials(Expt,Expt.Stimvals.et);
+        Expt = FillTrials(Expt,Expt.Stimvals.e2);
         eargs = {};
         if np > 1
             if strcmp(Expt.Stimvals.e2,'od') && isfield(Expt.Stimvals,'or')

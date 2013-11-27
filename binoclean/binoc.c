@@ -9903,7 +9903,7 @@ int GotChar(char c)
                             stim_direction = AMBIGUOUS;
                     }
                     else
-                        stim_direction = find_direction(afc_s.jlaststairval * afc_s.sign);/*j finds if should have been left or right. NB -1 is up/right*/
+                        stim_direction = find_direction(afc_s.jlaststairval, afc_s.sign);/*j finds if should have been left or right. NB -1 is up/right*/
                     if (expt.vals[TARGET_RATIO] > 0.99)
                         trueafc = 1;
                     monkey_dir = monkey_direction(jonresult, afc_s);

@@ -244,7 +244,7 @@ void OpenStaircaseLog();
 int greg_setstair(int result, AFCstructure *afc);
 void reset_afc_counters();
 void nullify(char *s, int length);
-int find_direction(float expval);
+int find_direction(float expval, int sign);
 int monkey_direction(int response, AFCstructure afc_s);
 int loopstate_counters(int direction, int response);
 int set_loop_state();

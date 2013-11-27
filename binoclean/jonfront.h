@@ -93,7 +93,6 @@ typedef struct{
 #define SACCREQD(x) (x.abssac[0] != 0 || x.abssac[1] != 0)
 
 /* stair.c prototypes */
-int find_direction(float expval);
 AFC_tots afccounters(int direction, int response);
 int set_loop_state();
 float set_stair_level(float lastval, int response, int state, float stairfactor, float maxval, float minval, stair_hist_s *shist);
