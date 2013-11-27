@@ -1008,9 +1008,13 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                         xsq = xp*xp;
                     if (expt.stimmode == RLS_TERMINATOR)
                     {
-                        if(xp >= boundaries[b]-0.0001 && b < nboundary)
+                        if(xp >= boundaries[b]-0.0001 && b <= nboundary)
                             b++;
-                        if (*rp & (1<<b))
+                        if (nboundary > 0)
+                            k = (nboundary+b-nneg)%(nboundary);
+                        else
+                            k = b;
+                        if (*rp & (1<<k))
                             dc = 0;
                         else
                             dc = 1;
