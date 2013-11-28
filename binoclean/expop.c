@@ -7881,8 +7881,8 @@ void SetSacVal(float stimval, int index)
             val = 0;
         
         rewardall = 0;
-// if afc_s.sign has been set, this takes precedence in assigning correct choice direction
-        if (val < 0.00001 && val > -0.00001 && afc_s.sign == 0){ // zero signal N.B.  may not get here when EXP_PSCHVAL is set to +/-1 in getexpval
+// afc_s.sign -1 reverses the choice directions (for icon flipping).
+        if (val < 0.00001 && val > -0.00001){ // zero signal N.B.  may not get here when EXP_PSCHVAL is set to +/-1 in getexpval
             if(afc_s.loopstate == CORRECTION_LOOP)
                 afc_s.sacval[0] = afc_s.sacval[0];  //don't change'
             else if ( (d = mydrand()) >= afc_s.proportion)
@@ -7923,14 +7923,6 @@ void SetSacVal(float stimval, int index)
                     rewardall = 1;
                 }
             }
-        }
-        else if (afc_s.sign < 0){
-            afc_s.sacval[0] = -afc_s.abssac[0];
-            afc_s.sacval[1] = -afc_s.abssac[1];
-        }
-        else if (afc_s.sign > 0){
-            afc_s.sacval[0] = afc_s.abssac[0];
-            afc_s.sacval[1] = afc_s.abssac[1];
         }
         else if (val > 0)
         {

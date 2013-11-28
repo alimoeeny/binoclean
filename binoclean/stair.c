@@ -114,19 +114,15 @@ void nullify(char *s, int length)
 int find_direction(float expval, int sign)
 {
 /* 
- * if given afc_s.sign, this takes precedance
+ *  afc_s.sign indicates reversed targets, not correct choice direction
  */
     int direction =0;
-    if(expval < 0.00001 && expval > -0.00001 && sign == 0)
+    if(expval < 0.00001 && expval > -0.00001)
         direction = AMBIGUOUS;
-    else if (sign < 0)
-        direction = JONLEFT;
-    else if (sign > 0)
-        direction = JONRIGHT;
-    else if(expval < 0.0){
+    else if(expval * sign< 0.0){
         direction = JONRIGHT;
     }
-    else if(expval > 0.0){
+    else if(expval * sign  > 0.0){
         direction = JONLEFT;
     }
 	

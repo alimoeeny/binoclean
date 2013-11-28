@@ -19,7 +19,12 @@ while j <= length(varargin)
     elseif strcmp(varargin{j},'new')
         checkforrestart = 0;
     elseif strcmp(varargin{j},'verbose')
-        DATA.verbose = 2; 
+        if length(varargin) > j && isnumeric(varargin{j+1})
+            j = j+1;
+            DATA.verbose = varargin{j};
+        else
+        DATA.verbose = ones(size(DATA.verbose)); 
+        end
         DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
     elseif strcmp(varargin{j},'monitor')
         DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
@@ -171,7 +176,7 @@ if nargin < 2 || isempty(line)
 end
 strs = textscan(line,'%s','delimiter','\n');
 
-if DATA.verbose && length(strs{1}) > 1
+if DATA.verbose(1) && length(strs{1}) > 1
     fprintf('Reading %d lines\n',length(strs{1}));
 end
 
@@ -185,7 +190,7 @@ for j = 1:length(strs{1})
     else
         code = s;
     end
-    if DATA.verbose && strcmp(src,'frombinoc')
+    if DATA.verbose(2) && strcmp(src,'frombinoc')
             fprintf('%s**\n',strs{1}{j});
     end
     if sendtobinoc && DATA.outid > 0
@@ -438,8 +443,8 @@ for j = 1:length(strs{1})
         if length(id) > 1
             DATA.Trial.id = sscanf(s(id(2)+1:end),'%d');
         end
-        if DATA.verbose
-            fprintf('t%dR%d\n',DATA.nt,DATA.Trial.RespDir);
+        if DATA.verbose(3)
+            fprintf('%s t%dR%d\n',s,DATA.nt,DATA.Trial.RespDir);
         end
         if isfield(DATA.Trial,'RespDir')
             DATA = PlotPsych(DATA);
@@ -1342,7 +1347,9 @@ DATA.stimflags{1}.pc = 1;
 DATA.stimflags{1}.nc = 1;
 DATA.stimflagnames.nc = 'Black Dots';
 DATA.stimflagnames.pc = 'White Dots';
-DATA = SetField(DATA,'verbose',0);
+if ~isfield(DATA,'verbose')
+    DATA.verbose = [0 0 0 0];
+end
 DATA = SetField(DATA,'matexpt','');
 DATA = SetField(DATA,'perfmonitor',0);
 DATA = SetField(DATA,'togglecodesreceived',0);
@@ -1926,10 +1933,17 @@ function DATA = InitInterface(DATA)
     uimenu(subm,'Label','NewStart','Callback',{@ReadIO, 3});
     uimenu(subm,'Label','Stop Timer','Callback',{@ReadIO, 4});
     sm = uimenu(subm,'Label','Start Timer','Callback',{@ReadIO, 5},'foregroundcolor',[0 0 0.5]);
-    sm = uimenu(subm,'Label','Quiet Pipes','Callback',{@ReadIO, 7});
-    if DATA.verbose == 0
-        set(sm,'Label','verbose pipes');
-    end
+    sm = uimenu(subm,'Label','Verbose');
+    xm = uimenu(sm,'Label','To Binoc', 'Callback', {@SetVerbose, 1});
+    SetMenuCheck(xm, DATA.verbose(1));
+    xm = uimenu(sm,'Label','From Binoc','Callback', {@SetVerbose, 2})
+    SetMenuCheck(xm, DATA.verbose(2));
+    xm = uimenu(sm,'Label','Trial Data', 'Callback',{@SetVerbose, 3})
+    SetMenuCheck(xm, DATA.verbose(3));
+    xm = uimenu(sm,'Label','verg', 'Callback',{@SetVerbose, 4})
+    SetMenuCheck(xm, DATA.verbose(4));
+    xm = uimenu(sm,'Label', 'All Off', 'Callback', {@SetVerbose, 0})
+
     sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     subm = uimenu(hm,'Label','&Software Offset');
     uimenu(subm,'Label','&Null','Callback',{@SendStr, 'sonull'},'accelerator','E');
@@ -2564,9 +2578,9 @@ function MenuGui(a,b)
         DATA = ReadFromBinoc(DATA,'verbose2','expect');   
         start(DATA.timerobj);
         
-     elseif flag == 7
-         if DATA.verbose > 0
-             DATA.verbose = 0;
+     elseif flag == 7 %obsolete
+         if DATA.verbose(1) > 0
+             DATA.verbose(1) = 0;
              set(a,'Label','verbose pipes');
          else
              DATA.verbose = 2;
@@ -2576,7 +2590,7 @@ function MenuGui(a,b)
              end
 
          end
-         fprintf(DATA.outid,'verbose=%d\n',DATA.verbose);
+         fprintf(DATA.outid,'verbose=%d\n',DATA.verbose(2));
          set(DATA.toplevel,'UserData',DATA);
      elseif flag == 8
         DATA = ReadFromBinoc(DATA,'reset','verbose2');
@@ -2586,6 +2600,22 @@ function MenuGui(a,b)
      end
         CheckTimer(DATA);
 
+function SetVerbose(a,b, flag)
+     DATA = GetDataFromFig(a);
+
+     if flag == 0
+         DATA.verbose = zeros(size(DATA.verbose));
+         SetMenuCheck(a,'exclusive', 1);
+     else
+         DATA.verbose(flag) = ~DATA.verbose(flag);
+         if DATA.verbose(flag)
+             set(a,'checked','on');
+         else
+             set(a,'checked','off');
+         end             
+     end
+     set(DATA.toplevel,'UserData',DATA);
+        
  function DATA = CheckExptMenus(DATA)
      new = 0;
      for j = 1:3
@@ -2717,7 +2747,7 @@ function CheckInput(a,b, fig, varargin)
         ServoDrive('readposition','quiet');
     end
     ReadFromBinoc(DATA, 'auto');
-    if DATA.verbose > 1
+    if DATA.verbose(1) > 1
     fprintf('Timer read over at %s\n',datestr(now));
     end
     
@@ -2738,9 +2768,9 @@ function CheckInput(a,b, fig, varargin)
      j = 1;
      while j <= length(varargin)
          if strncmpi(varargin{j},'verbose',5)
-             verbose = 1;
+             verbose(1) = 1;
              if strncmpi(varargin{j},'verbose2',8)
-                 verbose = 2;
+                 verbose = ones(size(verbose));
              end
          elseif strncmpi(varargin{j},'auto',4)
              autocall = 1;
@@ -2763,13 +2793,13 @@ function CheckInput(a,b, fig, varargin)
      if DATA.outid <= 1
          return;
      end
-     if verbose >1
+     if verbose(2)
      fprintf('%s:',datestr(now,'HH:MM:SS.FFF'))
      end
      myprintf(DATA.frombinocfid,'ReadBinoc%s\n',datestr(now));
      fprintf(DATA.outid,'whatsup\n');
      a = fread(DATA.inid,14);
-     if verbose >1
+     if verbose(2)
          fprintf('OK\n');
      end
      if expecting && strcmp(char(a'),'SENDING000000')
@@ -2826,12 +2856,12 @@ function CheckInput(a,b, fig, varargin)
              end
          end
      end
-     if verbose > 1
+     if verbose(2)
      fprintf('Need %d bytes\n',nbytes);
      end
      if nbytes > 0
          a = fread(DATA.inid,nbytes);
-         if verbose
+         if verbose(2)
          fprintf('%s',char(a'));
          fprintf('Read %d bytes took %.2f\n',length(a),mytoc(ts));
          end
