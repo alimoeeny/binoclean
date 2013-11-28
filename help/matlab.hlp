@@ -1,0 +1,36 @@
+To build a manual experiment, the stim file needs:
+
+op=+exm
+exp=/local/path  # folder containing stimulus descriptions, stimorder
+
+the exp folder must contatin a file "stimorder" that contains a string of integers which determines the sequence of stimuli, 0 - N-1 for N stimuli.
+
+It must also contain files stim0, stim1 ... stimnN-1 each of which sets the stimulus parameters that need to be set for that trial.   N.B. binoc does not reset any parameters. If file stim0 sets tf to 0, then other stimxx files need to restet tf unless you want it to remain 0 after stim0 is found in stimorder.
+
+Note that the stm file that contains these lines can also set up any other stimulus parameters. The files describing individual stimuli for the experiment don't have to specify everything, only the things that change in this experiment. 
+
+Optional Lines in stim file
+
+expname=arbitrary  Gives an experiment name that will be used in combine
+!mat=BuildExpt   Names a .m file that generates the stim files and stimulusorder file.  
+If this is named, then verg will call eval with whateever follows the =.  
+!mat=BuildExpt('size',2)
+will send those argumnents to buildexot
+
+This is called every time the run button is hit, so if the matlab function re-caclulates stimorder, this will generate a new random order for each run. E.G. 
+
+Stim files
+
+These can conatin any lines settting the state of binoc, including stimulus properties or fixation controls. In addition there are two lines that are just passed on into the data file
+
+exvals1.0 3.0 4.0 15
+
+Any number of numbers can follow exvals, to identify the stimulus type. E.g. if and experiment is changing two parameters, the first two can encode the value.  The last number is intended to identify the stimulus number. You can put whatever numbers you like here. When the data file is parsed into matlab, each Expt.Trials will have a vector of these values.  
+
+stimtag=arbitray string
+
+a unique identifier for this stimulus.
+
+
+
+
