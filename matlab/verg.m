@@ -375,6 +375,9 @@ for j = 1:length(strs{1})
         tic; PsychMenu(DATA); 
         tic; SetGui(DATA,'set'); 
     elseif strncmp(s,'EXPTOVER',8) %called at end or cancel
+        if DATA.inexpt %in case reopen pipes mied expt
+            DATA.optionflags.do = 0;
+        end
         DATA.inexpt = 0;
         DATA.matlabwasrun = 0;
         if DATA.nexpts > 0  %may be 0 here if verg is fired up after a crash
@@ -444,7 +447,7 @@ for j = 1:length(strs{1})
             DATA.Trial.id = sscanf(s(id(2)+1:end),'%d');
         end
         if DATA.verbose(3)
-            fprintf('%s t%dR%d\n',s,DATA.nt,DATA.Trial.RespDir);
+            fprintf('%s t%dR%d Ex%s\n',s,DATA.nt,DATA.Trial.RespDir,sprintf(' %.3f',DATA.Trial.sv));
         end
         if isfield(DATA.Trial,'RespDir')
             DATA = PlotPsych(DATA);
@@ -465,7 +468,7 @@ for j = 1:length(strs{1})
         DATA.trialcounts = sscanf(s(7:end),'%f');
         if length(DATA.trialcounts) < 8
             DATA.trialcounts(8) = 0;
-        end
+        end     
         ShowStatus(DATA);
     elseif strncmp(s,'mo=fore',7)
         DATA.currentstim = 1;
@@ -534,7 +537,14 @@ for j = 1:length(strs{1})
         s = s(10:end);
         id = strfind(s,'"');
         if ~isempty(id)
-            n = length(DATA.helpfiles)+1;
+            n = [];
+            lbl = s(2:id(end)-1);
+            if isfield(DATA.helpfiles,'label')
+            n = find(strcmp(lbl,{DATA.helpfiles.label}));
+            end
+            if isempty(n)
+                n = length(DATA.helpfiles)+1;
+            end
             DATA.helpfiles(n).filename = s(id(end)+1:end);
             DATA.helpfiles(n).label = s(2:id(end)-1);
         end
@@ -1179,8 +1189,12 @@ function SaveExpt(DATA, name)
     end
     f = fields(DATA.binocstr);
     for j = 1:length(f)
-        id = find(strcmp(f{j},{DATA.strcodes.code}));
-        fprintf(fid,'%s=%s\t#%s\n', f{j}, DATA.binocstr.(f{j}),DATA.strcodes(id).label);
+        id = find(strcmp(f{j},{DATA.comcodes.code}));
+        if length(id) == 1
+            fprintf(fid,'%s=%s\t#%s\n', f{j}, DATA.binocstr.(f{j}),DATA.comcodes(id).label);
+        else
+            fprintf(fid,'#Error writing %s\n',f{j});
+        end
     end
     fprintf(fid,'%s\n',CodeText(DATA, 'optionflag'));
     fprintf(fid,'%s\n',CodeText(DATA, 'pf'));
@@ -1570,6 +1584,10 @@ end
 
 function ShowStatus(DATA)
 
+    persistent oldcount;
+    if isempty(oldcount)
+        oldcount = 0;
+    end
     status = 1;
     if DATA.inexpt  && DATA.nexpts > 0
         str = datestr(DATA.Expts{DATA.nexpts}.Start);
@@ -1596,10 +1614,12 @@ function ShowStatus(DATA)
 if isfield(DATA,'toplevel')
     set(DATA.toplevel,'Name',s);
 end
-if status >0
-fprintf('%s\n',s);
+if status >0 && DATA.trialcounts(8) ~= oldcount
+    fprintf('%s\n',s);
 end
-
+if isfield(DATA,'trialcounts')
+    oldcount = DATA.trialcounts(8);
+end
 
 
 function DATA = InitInterface(DATA)
@@ -1979,7 +1999,7 @@ function ShowHelp(a,b,file)
         set(cntrl_box,'DefaultUIControlFontName',DATA.font.FontName);
 
     
-    lst = uicontrol(gcf, 'Style','list','String', 'HelpText',...
+    lst = uicontrol(gcf, 'Style','edit','String', 'HelpText',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
         'Tag','HelpText',...

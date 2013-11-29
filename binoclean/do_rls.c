@@ -852,6 +852,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
             nneg++;
         }
     }
+    boundaries[j] = boundaries[j-1]+pos->radius[0];
     for (j = 0; j < nboundary; j++){
         i = (j + nneg)%nboundary;
         xvals[i] = boundaries[j];
@@ -1010,8 +1011,10 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                     {
                         if(xp >= boundaries[b]-0.0001 && b <= nboundary)
                             b++;
-                        if (nboundary > 0)
+                        if (nboundary > 1)
                             k = (nboundary+b-nneg)%(nboundary);
+                        else if (nboundary == 1)
+                            k = (nboundary+b-nneg)%(2);
                         else
                             k = b;
                         if (*rp & (1<<k))

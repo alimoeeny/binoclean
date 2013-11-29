@@ -8531,7 +8531,7 @@ int PrepareExptStim(int show, int caller)
         s = ReadManualStim(ebuf);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
         if (fabs(val) > 0.00001)
-            code = afc_s.sign = (int)(val/fabs(val));
+            code = afc_s.stimsign = (int)(val/fabs(val));
         if (val == 0)
                 afc_s.stimsign = (drand48() > 0.5);
         else

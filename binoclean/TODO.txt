@@ -70,7 +70,6 @@ Things that need fixing:
 *if a code is not recognized, verg should not echo its local value?
 * need to make cursor invisible in Red and Blue  !!!NB IMPORTANT FOR HUMAN PSYCH
 * allow polling to see if mouse events are in queue for human pshychophysics
-- find cocoa command to get current monitor icc info
 * For james. Ecah vary orientation randomly by frame. Orthogonal.
 *    Allow multiple bars per frame. B or W.
 * For manual expts make a useful statusline
@@ -78,13 +77,14 @@ Things that need fixing:
 *History search/arrow navigation should read in from binoccmd histroy too
 -add et,e2,e3 to R4 lines, so that PsychMon can see expts. 
 *!mat commands only if not run from sequnce loop
--have reset expt done by a file read from disk.
+*have reset expt done by a file read from disk.
 *backgr contrast should not be 0 at start time
 *ack if there is a monitor read error. Monitor file comes from verg..
 *check comments are transmitted properly
 *check \\ quoting in verg
 *\\ quoting from Office copy missing in master
 *handle more expts than 3 in manual expts.
-- terminator RLS nc >5 loses bottom pieces.  
-- " " when first boundary reaches edge, it jumpts need to track boundary offset and use this with setting color
+* terminator RLS nc >5 loses bottom pieces.
+-*ditto  when first boundary reaches edge, it jumpts need to track boundary offset and use this with setting color
 -last stim in an expt does not get a reward.....
+- find cocoa command to get current monitor icc info
