@@ -3107,11 +3107,13 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
              per second, converted to radians per frame*/
             if(st->type == STIM_CYLINDER)
                 st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
-            if(st->type == STIM_GRATINGN){
+            else if(st->type == STIM_GRATINGN){
                 for (i = 0; i < st->nfreqs; i++)
                     st->left->incrs[i] = val * st->freqs[i] * M_PI * 2/mon.framerate;
                 st->left->ptr->velocity = (val/(mon.framerate));
             }
+            else
+                st->left->ptr->velocity = (val/(mon.framerate*180/M_PI));
             if(st->type == STIM_RDS || st->type == STIM_RLS){
                 tf = val * st->pos.sf;
 //                st->incr = (val *M_PI *2)/(mon.framerate);

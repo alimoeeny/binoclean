@@ -1725,7 +1725,7 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.01;
     bp(4) = 1./nr;
     bp(3) = cw;
-        uicontrol(gcf,'style','pushbutton','string','Stop', ...
+        uicontrol(gcf,'style','pushbutton','string','Finish', ...
         'Callback', {@RunButton, 2}, 'Tag','StopButton',...
         'units', 'norm', 'position',bp,'value',1);
     bp(2) = 10./nr;
@@ -1956,13 +1956,13 @@ function DATA = InitInterface(DATA)
     sm = uimenu(subm,'Label','Verbose');
     xm = uimenu(sm,'Label','To Binoc', 'Callback', {@SetVerbose, 1});
     SetMenuCheck(xm, DATA.verbose(1));
-    xm = uimenu(sm,'Label','From Binoc','Callback', {@SetVerbose, 2})
+    xm = uimenu(sm,'Label','From Binoc','Callback', {@SetVerbose, 2});
     SetMenuCheck(xm, DATA.verbose(2));
-    xm = uimenu(sm,'Label','Trial Data', 'Callback',{@SetVerbose, 3})
+    xm = uimenu(sm,'Label','Trial Data', 'Callback',{@SetVerbose, 3});
     SetMenuCheck(xm, DATA.verbose(3));
-    xm = uimenu(sm,'Label','verg', 'Callback',{@SetVerbose, 4})
+    xm = uimenu(sm,'Label','verg', 'Callback',{@SetVerbose, 4});
     SetMenuCheck(xm, DATA.verbose(4));
-    xm = uimenu(sm,'Label', 'All Off', 'Callback', {@SetVerbose, 0})
+    xm = uimenu(sm,'Label', 'All Off', 'Callback', {@SetVerbose, 0});
 
     sm = uimenu(subm,'Label','Try Pipes','Callback',{@ReadIO, 8},'foregroundcolor','r');
     subm = uimenu(hm,'Label','&Software Offset');
