@@ -1725,7 +1725,7 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.01;
     bp(4) = 1./nr;
     bp(3) = cw;
-        uicontrol(gcf,'style','pushbutton','string','Finish', ...
+        uicontrol(gcf,'style','pushbutton','string','Stop', ...
         'Callback', {@RunButton, 2}, 'Tag','StopButton',...
         'units', 'norm', 'position',bp,'value',1);
     bp(2) = 10./nr;
@@ -3458,6 +3458,9 @@ function DATA = RunExptSequence(DATA, str, line)
 
     nread = 0;
     DATA.matlabwasrun = 0;
+    if ~iscellstr(str)
+        str = cellstr(str);
+    end
     runlines = find(strncmp('!expt',str,5));
     if isempty(runlines)
         warndlg('Sequence must contain !expt','Sequence file error');

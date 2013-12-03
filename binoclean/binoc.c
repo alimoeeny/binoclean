@@ -5403,8 +5403,9 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             rds->baseseed += 2;
         }
         else if(rds->seedloop > 1){
-            if(expt.framesdone%rds->seedloop == 0)
-                rds->baseseed += 2;
+            if(expt.framesdone%rds->seedloop == 0){
+                    rds->baseseed += 2;
+            }
         }
         
         /*
@@ -5414,9 +5415,9 @@ void increment_stimulus(Stimulus *st, Locator *pos)
          */
     }
     else if( isadotstim(st) && st->left->seedloop > 1) //seedloop now sets # of repeated frames
-    {
-        if(expt.framesdone%rds->seedloop == 0)
-            rds->baseseed += 2;
+    { //if RANDOM_PAHSE is off, this is sampled motion
+        if(expt.framesdone%rds->seedloop == 0 && rds->seedloop > 1)
+            pos->locn[0] += (st->posinc * rds->seedloop);
     }
     if(st->type == STIM_CYLINDER || st->type == STIM_RDS && st->left->seedloop == 1){
         if(realframecount == 0)
@@ -5641,7 +5642,8 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             else if (st->framectr % (int)st->left->seedloop == 0)
                 pos->phase += (st->incr * st->left->seedloop);
         }
-		pos->locn[0] += st->posinc;
+        if (st->left->seedloop == 1)
+            pos->locn[0] += st->posinc;
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
             pos->phase = M_PI/2;
