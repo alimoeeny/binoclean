@@ -1612,6 +1612,9 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         i++;
     }
 
+    for(i = 0; i < MAXTOTALCODES; i++)
+        valstringindex[i] = -1;
+
     i = 0;
     while((code = valstrings[i].icode) >= 0){
         codes[i] = 0;
@@ -1638,7 +1641,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 //            else
 //                valstrings[code].code = valstrings[i].code;
         if (valstrings[i].code != NULL){
-        valstringindex[code] = i; // The valstring element that has code icode in
+            valstringindex[code] = i; // The valstring element that has code icode in
   //      codes[code] = valstrings[i].code;
         serial_names[code] = valstrings[i].label;
         serial_strings[code] = valstrings[i].code;
@@ -1653,6 +1656,9 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         codesend[code] = valstrings[i].codesend;
         if(strlen(serial_strings[code]) > 2)
             longnames[j++] = code;
+        }
+        else{
+            valstringindex[code] = 0; // The valstring element that has code icode in
         }
         i++;
     }
@@ -2452,7 +2458,7 @@ char *GetExptString(Expt *exp, int code)
             s = psychfilename;
             break;
         default:
-            if (valstrings[icode].ctype == 'C'){
+            if (icode >= 0 && valstrings[icode].ctype == 'C'){
                 s = expt.strings[code];
             }
             break;
@@ -4980,6 +4986,8 @@ void setsecondexp(int w, int id, int val)
         default:
             i = 0;
             code = valstringindex[val];
+            if (code < 0)
+                break;
             if (valstrings[code].group & EXPT_NOT_ALLOWED){
                 expt.type2 = EXPTYPE_NONE;
                 optionflags[PLOTFLIP] = 0;
@@ -6222,6 +6230,8 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
     
     
     icode = valstringindex[code];
+    if (icode < 0)
+        return(-1);
     switch(code)
     {
         case SET_SF_COMPONENTS:
@@ -6952,6 +6962,8 @@ char *SerialSend(int code)
     int i;
     
     cbuf[0] = 0;
+    if(valstringindex[code] < 0)
+        return(cbuf);
     
     if((i = MakeString(code, cbuf, &expt, expt.st,0)) >= 0)
         strcat(cbuf,"\n\0");

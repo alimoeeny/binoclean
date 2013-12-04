@@ -85,7 +85,7 @@ Things that need fixing:
 *\\ quoting from Office copy missing in master
 *handle more expts than 3 in manual expts.
 * terminator RLS nc >5 loses bottom pieces.
--*ditto  when first boundary reaches edge, it jumpts need to track boundary offset and use this with setting color
+*ditto  when first boundary reaches edge, it jumpts need to track boundary offset and use this with setting color
 -last stim in an expt does not get a reward..... Maybe only if psych
 - find cocoa command to get current monitor icc info
-- saving to slot has extra xo=350 lines ?? tl??
+*saving to slot has extra xo=350 lines ?? tl??
