@@ -2968,7 +2968,6 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
         case HIGHSF:
         case HIGHTF:
         case HIGHX:
-        case EARLY_RWTIME:
         case STEPPER_PLOTLEN:
         case TIMEOUT_CONTRAST:
         case TRIAL_START_BLANK:
@@ -3010,6 +3009,9 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
         case INTERTRIAL_MIN:
         case PROTRUSION:
         case IMPEDANCE:
+            expt.vals[flag] = val;
+            break;
+        case EARLY_RWTIME:
             expt.vals[flag] = val;
             break;
         case NIMPLACES:
@@ -3684,7 +3686,6 @@ float ExptProperty(Expt *exp, int flag)
         case HIGHSF:
         case HIGHTF:
         case HIGHX:
-        case EARLY_RWTIME:
         case STEPPER_PLOTLEN:
         case REWARD_SIZE1:
         case REWARD_SIZE2:
@@ -3747,6 +3748,9 @@ float ExptProperty(Expt *exp, int flag)
         case PROTRUSION:
             val = expt.vals[flag];
             break;	
+        case EARLY_RWTIME:
+            val = expt.vals[flag];
+            break;
         case NIMPLACES:
             val = expt.st->nimplaces;
             break;	
@@ -14276,7 +14280,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 fflush(penlog);
             }
             break;
-        
+        case EARLY_RWTIME:
+            i = sscanf(s,"%f %f",&val,&fval);
+            SetProperty(ex, TheStim,code, val);
+            if (i > 1 && fval > 0)
+                expt.vals[EARLY_RWSIZE] = fval;
+            break;
         case TF:
             if(!strncmp(s,"tf",2)){
                 SetExptProperty(ex, TheStim,code, lasttf,0);

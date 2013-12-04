@@ -7,4 +7,4 @@ yn  For Gabors, size of grid rectangle in Y direction
 sl  sl=0 make RDS/RLS dynamic. sl=1 fixed seed, static/drifting (jv  > 0). sl=n pattern changed every nth frame, if n > 1
 f2 SF of second frequency component for compound gratings/plaids
 helpfile path to a text file with help. Syntax: helpfile="Label"filename  "Label" is shown on in help menu. Contents of filename will be displayed.
-
+cd Set correlation (ce) to +1 and sets disparity orthogonal to RF (dO) to the value given. Just for Conveneice - doesn't change other variables.
