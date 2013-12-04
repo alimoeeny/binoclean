@@ -2939,7 +2939,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
         init_bar(st,st->left);
         init_bar(st,st->right);
     }
-    if (setblank == 0){
+    if (setblank == 0 && icode >= 0){
 	switch(code)
 	{
         case NPHASES:
@@ -4629,7 +4629,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 break;
         }
     }
-	if(code >= MAXTOTALCODES)
+	if(code >= MAXTOTALCODES || icode < 0)
 		return(-1);
 	else if(event != NOEVENT && (!(optionflag & FRAME_ONLY_BIT)) && (mode & SERIAL_OK) && st->prev == NULL && !noserialout)
 	{
@@ -8859,7 +8859,7 @@ void SaveExptFile(char *filename,int flag)
 			go = 0;
             code = valstringindex[i];
             use = !(valstrings[code].group & 512);
-            if (use == 0)
+            if (code >= 0 && use == 0)
                 s = serial_strings[i];
 			if((j = MakeString(i, cbuf, &expt, TheStim,TO_FILE)) >= 0 && use){
                 switch(i){

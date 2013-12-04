@@ -1612,6 +1612,11 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         i++;
     }
 
+/*
+ * initialize valstringindex to -1. So >= 0 means that there is
+ * a matching valstring for a code
+ */
+    
     for(i = 0; i < MAXTOTALCODES; i++)
         valstringindex[i] = -1;
 
