@@ -7349,10 +7349,10 @@ void InitExpt()
         ts[6] = 0;
         fprintf(psychfile," %ld %s %d",now.tv_sec,ts,expt.nstim[6]);
         fprintf(psychfile," %s=%.2f %s=%.2f x=0 x=0 x=0 x=0\n",serial_strings[XPOS],GetProperty(&expt,expt.st,XPOS),serial_strings[YPOS],GetProperty(&expt,expt.st,YPOS));
-        fprintf(psychfile,"R4 %s=%s %s=%s %s=%s",
-                serial_strings[EXPTYPE_CODE],serial_strings[expt.mode],
-                serial_strings[EXPTYPE_CODE2],serial_strings[expt.type2],
-                serial_strings[EXPTYPE_CODE3],serial_strings[expt.type3]);
+        fprintf(psychfile,"R4 %s=NaN %s=NaN %s=NaN",
+                serial_strings[expt.mode],
+                serial_strings[expt.type2],
+                serial_strings[expt.type3]);
         tval = RunTime();
         ts = binocTimeString();
         ts[3] = '.';
