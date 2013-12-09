@@ -171,6 +171,7 @@
 #define LEFTDOT (1<<5)
 #define RIGHTDOT (1<<6)
 #define ACORRMODE (1<<7)
+#define GREYMODE (1<<8)
 
 #define COLOR8BIT 1
 #define COLOR6BIT 2

@@ -17,7 +17,7 @@ char * VERSION_NUMBER;
 
 
 int dispcounts[MAXDISPS];
-static int twod = 1;
+static int twod = 0;
 extern int option2flag;
 extern double gammaval;
 extern unsigned long *rndbuf;
@@ -914,7 +914,7 @@ void calc_rds_check(Stimulus *st, Substim *sst)
   double contrast = pos->contrast;
   double contrast2 = pos->contrast2;
   double xv[1024],yv[1024],yenv[1024],xenv[1024];
-  double ysd,r,xm, cscale = 2,xsd,xdisp;
+  double ysd,r,xm, cscale = 2,xsd,xdisp,val;
   double asq,bsq = 0,csq,dsq,xsq,ysq,pixdisp[2],offset[2],eh = 0;
   int disp; 
     
@@ -963,7 +963,8 @@ void calc_rds_check(Stimulus *st, Substim *sst)
     init_rds(st, sst, 0);
     
   myrnd_init(sst->baseseed);
-  rnd = myrnd_u();
+    srand48(sst->baseseed);
+    rnd = myrnd_u();
     
     
   if(!(optionflag & SQUARE_RDS))
@@ -1079,11 +1080,15 @@ void calc_rds_check(Stimulus *st, Substim *sst)
   else{
     for(i = 0; i < sst->nw; i++){
       for(j = 0; j < sst->nh; j++){
+          
 	if(bit++ > 30){
 	  bit = 0;
 	  rnd = myrnd_u();
 	}
-	if(rnd & (1L<<bit))
+    val = mydrand();
+    if (val > sst->density/100)
+        *p = GREYMODE;
+	else if(rnd & (1L<<bit))
 	  *p = WHITEMODE;
 	else
 	  *p = BLACKMODE;
@@ -1583,7 +1588,8 @@ void paint_rds(Stimulus *st, int mode)
     Locator *pos = &(st->pos);
     wcolor[0] = wcolor[1] = wcolor[2] = 1.0;
     bcolor[0] = bcolor[1] = bcolor[2] = 0.0;
-        
+      pcolor[0] = pcolor[1] = pcolor[2] = 0.5;
+      
     glPushMatrix();
     angle = rad_deg(pos->angle);
     if(sst->mode == LEFTMODE)
@@ -1657,6 +1663,8 @@ void paint_rds(Stimulus *st, int mode)
 	a[0] = c[0] = 0;
 	if(*p & WHITEMODE)
 	  mycolor(wcolor);
+    else if(*p & GREYMODE)
+        mycolor(pcolor);
 	else
 	  mycolor(bcolor);
 	myvx(a);
@@ -1666,6 +1674,8 @@ void paint_rds(Stimulus *st, int mode)
 	  b[0] = d[0] = (j+1) * sst->dotsiz[0] -fh;
 	  if(*p & WHITEMODE)
 	    mycolor(wcolor);
+      else if(*p & GREYMODE)
+          mycolor(pcolor);
 	  else
 	    mycolor(bcolor);
 	  myvx(a);

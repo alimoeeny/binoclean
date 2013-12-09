@@ -7439,7 +7439,7 @@ void InitExpt()
     
     //	if(optionflags[RUN_SEQUENCE]){
     // Don't need this any more now we use spike2
-    if (optionflags[SAVE_RLS] && expt.st->type == STIM_RLS){
+    if (optionflags[SAVE_RLS] && (expt.st->type == STIM_RLS || expt.st->type == STIM_CHECKER)){
         sprintf(buf,"%s/%s",datprefix,expname);        
         if(!isdir(buf)){
             sprintf(buf,"mkdir %s/%s",datprefix,expname);
@@ -11522,7 +11522,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     if(stimstate == INSTIMULUS)
         stimstate = POSTSTIMULUS;
   
-    if (expt.st->type == STIM_RLS && optionflags[SAVE_RLS] && rcfd){
+    if ((expt.st->type == STIM_RLS || expt.st->type == STIM_CHECKER) && optionflags[SAVE_RLS] && rcfd){
         gettimeofday(&timea, NULL);
         StimStringRecord(buf, expt.st);
         j = strlen(buf);

@@ -56,9 +56,9 @@ extern float *eyexvals,*eyeyvals;\
 extern struct timeval frametime, zeroframetime;
 
 int *RecordImage(int frame, Stimulus *st){
-    int *p,j;
+    int *p,j,ldot,rdot;
     
-    if(st->type == STIM_RLS){
+    if(st->type == STIM_RLS || st->type == STIM_CHECKER){
     if(frame > MAXFRAMES-1)
         frame = 0;
     
@@ -66,9 +66,19 @@ int *RecordImage(int frame, Stimulus *st){
         imagerec[frame] = (int *)malloc(sizeof(int) * 4096); //MAX # bars......
     }
     p=imagerec[frame];
-    for (j = 0; j < st->left->ndots; j++) {
-        *p++ = st->left->iimb[j] | (st->right->iimb[j] << 2);
-    }
+        if(st->type == STIM_RLS){
+            for (j = 0; j < st->left->ndots; j++) {
+                *p++ = st->left->iimb[j] | (st->right->iimb[j] << 2);
+            }
+        }
+        else if  (st->type == STIM_CHECKER){
+            for (j = 0; j < st->left->ndots; j++) {
+                ldot =(st->left->iim[j] & (BLACKMODE|WHITEMODE)) >> 3;
+                rdot =(st->right->iim[j] & (BLACKMODE|WHITEMODE)) >> 3;
+                *p++ = ldot | (rdot << 2);
+            }
+            
+        }
     }
 }
 
