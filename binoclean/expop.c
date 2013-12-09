@@ -7825,7 +7825,7 @@ void ShuffleStimulus(int state)
         return;
     if(afc_s.loopstate == CORRECTION_LOOP || !(SACCREQD(afc_s)))
         return;
-    if((trialsleft = (expt.nstim[5] * expt.nreps) - stimno) > blklen && blklen > 0)
+    if((trialsleft = expt.nstim[6] - stimno) > blklen && blklen > 0)
         i = random() % blklen;
     else if(trialsleft > 0)
         i = random() % trialsleft;
