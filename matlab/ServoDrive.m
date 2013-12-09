@@ -305,6 +305,7 @@ DATA.motorspeed = round(DATA.customspeed.* DATA.speedscale.*DATA.stepscale/1000)
 DATA.motorid = -1; %< 0 means dont set id
 DATA.alldepths = [];
 DATA.alltimes = [];
+DATA.offidx = []; %keep  track of when motor cut
 if ~isfield(DATA,'ttyname')
     DATA.ttyname = '/dev/tty.USA49Wfa1212P1.1';
 end
@@ -475,7 +476,7 @@ while npost < 2
             set(DATA.depthlabel,'string',sprintf('%.0f uM',newd(j)./DATA.stepscale));
             drawnow;
             poserr = abs(newd(j)-newpos);
-            if poserr < 20
+            if poserr < 3./DATA.stepscale.*1000 %3uM margin of error seems necessary. 
                 npost = npost+1;
             end
             if edur > 2
@@ -492,17 +493,17 @@ while npost < 2
         fprintf(DATA.sport,'DI\n');
        npost = 2;
        F = gcf;
-       uiwait(warndlg(sprintf('Only Moved to %.3f',newd(end)./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
+       uiwait(warndlg(sprintf('Only Moved to %.3f (%.3f)',[newd(end) newpos]./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
        figure(F);
     elseif newd(j) < minpos
         fprintf(DATA.sport,'DI\n');
        F = gcf;
-       uiwait(warndlg(sprintf('Postion %.3f min allowd %.3f',newd(end)./(DATA.stepscale.*1000),minpos./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
+       uiwait(warndlg(sprintf('Postion %.3f min allowd %.3f',[newd(end) minpos]./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
        figure(F);
     elseif newd(j) > maxpos
         fprintf(DATA.sport,'DI\n');
        F = gcf;
-       uiwait(warndlg(sprintf('Postion %.3f Max allowed %.3f',newd(end)./(DATA.stepscale.*1000),maxpos./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
+       uiwait(warndlg(sprintf('Postion %.3f Max allowed %.3',newd(end)./(DATA.stepscale.*1000),maxpos./(DATA.stepscale.*1000)),'Microdrive Error','modal'));
        figure(F);
     else
         stop = get(stopui,'value');
@@ -552,6 +553,7 @@ elseif nargin == 3
     DATA.newdepths = newd./DATA.stepscale;
     DATA.alltimes = [DATA.alltimes ts];
     DATA.alldepths = [DATA.alldepths DATA.newdepths];    
+    DATA.offidx(end+1) = length(DATA.alldepths);
 end
 
 if ~strcmp(DATA.plottype,'None')
