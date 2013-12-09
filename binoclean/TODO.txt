@@ -89,3 +89,4 @@ Things that need fixing:
 -last stim in an expt does not get a reward..... Maybe only if psych
 - find cocoa command to get current monitor icc info
 *saving to slot has extra xo=350 lines ?? tl??
+need rule to contol when checker is 2D noise or 2x1D

@@ -3989,7 +3989,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             }
             break;
         case DOT_DENSITY:
-            if(st->type == STIM_RDS || st->type == STIM_RDSSINE || st->type == STIM_RLS)
+            if(st->type == STIM_RDS || st->type == STIM_RDSSINE || st->type == STIM_RLS || st->type == STIM_CHECKER)
             {
                 if(val > 0){
                     pos->density = val;
@@ -5868,7 +5868,8 @@ void paint_frame(int type, int showfix)
         calc_stimulus(TheStim);
     gettimeofday(&calctime, NULL);
     
-    RecordImage(expt.st->framectr, expt.st);
+    if (optionflags[SAVE_RLS])
+        RecordImage(expt.st->framectr, expt.st);
     if (renderoff){
         return;
     }
