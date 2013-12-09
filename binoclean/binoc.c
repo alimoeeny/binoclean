@@ -9435,18 +9435,7 @@ int GotChar(char c)
 	}
 	else if(c== START_EXPT){ /* this is sent when BW starts up send everything */
         
-#ifdef NIDAQ  
-        // trigger data collection for Spike2
-//	    DIOWrite(0x7);
-        DIOval = 0;
-        DIOWriteBit(0,1);
-        DIOWriteBit(2,1);
-
-	    fsleep(0.01);
-        DIOWriteBit(0,0);
-        DIOWriteBit(2,0);
-//   	    DIOval = 0;  DIOWrite(0);
-#endif
+	    DIOval = 0;  DIOWrite(0);
         gettimeofday(&now,NULL);
         if(seroutfile)
             fprintf(seroutfile,"#StartExpt from Spike2 at %.4f\n",ufftime(&now));
@@ -9472,12 +9461,15 @@ int GotChar(char c)
             acknowledge("Very Short interval between Serial Connect",NULL);
         }
         else{
+#ifdef NIDAQ
+// trigger data collection for Spike2
             DIOWriteBit(0,1);
             DIOWriteBit(2,1);
             
             fsleep(0.01);
             DIOWriteBit(0,0);
             DIOWriteBit(2,0);
+#endif
             MakeConnection(1);
         }
         gettimeofday(&lastconnecttime,NULL);

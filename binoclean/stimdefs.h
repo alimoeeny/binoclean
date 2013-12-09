@@ -550,7 +550,7 @@ float pix2degy(float val);
 #define AUTO_FREQ 0
 
 #define isastim(x) (x != NULL && x->type != STIM_NONE)
-#define isadotstim(x) (x != NULL && x->type == STIM_RDS || x->type == STIM_RLS || x->type == STIM_CORRUG || x->type == STIM_SQCORRUG)
+#define isadotstim(x) (x != NULL && x->type == STIM_RDS || x->type == STIM_RLS || x->type == STIM_CORRUG || x->type == STIM_SQCORRUG || x->type == STIM_CHECKER)
 #define isanumber(c) (isdigit(c) || c == '-' || c =='+' || c == '*' || c == '.')
 
 // Need something else for 64 bit version.  drand48? 

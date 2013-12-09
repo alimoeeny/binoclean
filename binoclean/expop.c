@@ -2498,7 +2498,7 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                 else if(!strncmp(s,"load",4)){
                     expt.st->preload = 0;
                 }
-            expt.strings[flag] = myscopy(expt.strings[flag],s);
+                expt.strings[flag] = myscopy(expt.strings[flag],s);
             break;
         case IMAGELOAD_MODE:
             ok = 1;
@@ -7832,13 +7832,13 @@ void ShuffleStimulus(int state)
     else
         i = 0;
     if(seroutfile){
-        fprintf(seroutfile,"#Swapping %d(%d) with %d(%d)\n",
-                stimno,stimorder[stimno],stimno+i,stimorder[stimno+i]);
+        fprintf(seroutfile,"#Swapping %d(%d) with %d(%d) stimno %d+%d\n",
+                stimno,stimorder[stimno],stimno+i,stimorder[stimno+i],stimno,i);
     }
     temp = stimorder[stimno];
     stimorder[stimno] = stimorder[stimno + i];
     if (stimorder[stimno] > expt.nstim[5]){
-        sprintf(buf,"Swapfrom Stim %d larger that nstim",stimorder[stimno]);
+        sprintf(buf,"Swapfrom Stim %d (stimno %d+%d)larger that nstim",stimorder[stimno],stimno,i);
         acknowledge(buf, NULL);
     }
     stimorder[stimno+i] = temp;
@@ -8394,7 +8394,7 @@ int PreLoadImages()
                 SerialSend(FP_MOVE_DIR);
         }
         
-        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0  && expt.st->immode != IMAGEMODE_ORBW)
+        if (frpt < 1 || optionflags[FAST_SEQUENCE] == 0)
             frpt = 1;
         for(i = 0; i < expt.st->nframes+1; i+=frpt){
             if(optionflags[FAST_SEQUENCE]){
@@ -8437,7 +8437,10 @@ int PreLoadImages()
             }
             expt.st->forceseed = 0;
             st->framectr = i;
+            j = floor(i/frpt);
             st->left->calculated = st->right->calculated = 0;
+            if (manualprop[0] == IMAGEINDEX)
+                expt.st->left->imagei = manualstimvals[0][j];
             if (expt.st->type == STIM_IMAGE){
                 if((j = calc_image(expt.st,expt.st->left)) <0)
                     return(-1);
