@@ -1881,11 +1881,11 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
 }
 
 
-char *ReadManualStim(char *file){
+char *ReadManualStim(char *file, int stimid){
     struct stat statbuf;
     FILE *fin;
     char *s,*t,inbuf[BUFSIZ*10];
-    int nprop = 0,j,i,nframes,modifier,pos;
+    int nprop = 0,j,i,nframes=0,modifier,pos;
     float val,imx[MAXFRAMES],imy[MAXFRAMES];
     Stimulus *st;
     static char cbuf[BUFSIZ*10];
@@ -1896,7 +1896,7 @@ char *ReadManualStim(char *file){
     if(stat(file, &statbuf) == -1)
         return(NULL);
     fin = fopen(file,"r");
-    sprintf(cbuf,"");
+    sprintf(cbuf,"%d:",stimid);
     for(i = 0; i < MAXFRAMES; i++)
         imx[i] = imy[i] = 0;
     while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
@@ -1968,7 +1968,7 @@ char *ReadManualStim(char *file){
     }
     manualprop[nprop] = -1;
     fclose(fin);
-    if (expt.st->preload && expt.st->next->type == STIM_IMAGE){
+    if (expt.st->preload && expt.st->next->type == STIM_IMAGE && nframes > 0){
         st = expt.st;
         for (j = 0; j < nframes; j++){
             expt.st->next->xyshift[1] = imy[j];
@@ -1993,9 +1993,8 @@ char *ReadManualStim(char *file){
             calc_image(expt.st->next, expt.st->next->left);
             expt.st->next->left->calculated = st->next->right->calculated = 1;
             expt.st->next->calculated = 1;
-            expt.st->next->preloaded = 1;
         }
-        
+        expt.st->next->preloaded = j;
     }
         
     return(cbuf);
@@ -8457,7 +8456,7 @@ int PreLoadImages()
                     rcstimxy[1][i+j] = rcstimxy[1][i];
                 }
             }
-            if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE){
+            if(expt.st->next != NULL && expt.st->next->type == STIM_IMAGE && expt.st->next->preloaded == 0){
                 st->next->preloaded = 0;
                 st->next->left->baseseed = st->left->baseseed;
                 st->next->seedoffset = st->seedoffset;
@@ -8552,7 +8551,7 @@ int PrepareExptStim(int show, int caller)
     
     if (optionflags[MANUAL_EXPT]){
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
-        s = ReadManualStim(ebuf);
+        s = ReadManualStim(ebuf, stimorder[stimno]);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
         if (fabs(val) > 0.00001)
             code = afc_s.stimsign = (int)(val/fabs(val));
