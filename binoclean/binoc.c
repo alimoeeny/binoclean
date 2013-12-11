@@ -3406,6 +3406,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                 st->right->ptr->plaid_angle =  deg_rad(val);
                 }
             }
+            st->plaid_angle = deg_rad(val);
             break;
         case ORI2:
             if(st->type == STIM_GRATING2 || st->type == STIM_GRATING)

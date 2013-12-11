@@ -294,6 +294,7 @@ struct STIMULUS{
     float envelope;
     int modifier;
     int nphases;
+    float plaid_angle;
     int componentjumps[MAXFREQS]; //Apply phase jump or not
 };
 
