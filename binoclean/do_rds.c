@@ -990,7 +990,8 @@ void calc_rds_check(Stimulus *st, Substim *sst)
   q = sst->imb;
   p = sst->iim;
   xm = sst->nw/2;
-  if(twod){
+    val = fabs(st->plaid_angle - M_PI_2);
+  if(fabs(st->plaid_angle - M_PI_2) < 0.01){
     bit = 1;
     if(expt.stimmode == ORTHOG_UC && sst->mode == RIGHTMODE)
       bit = 2;
@@ -1613,7 +1614,7 @@ void paint_rds(Stimulus *st, int mode)
     p = sst->iim;
     fw = (sst->nw * sst->dotsiz[1])/2;
     fh = (sst->nh * sst->dotsiz[0])/2;
-    if(twod){
+    if(fabs(st->plaid_angle - M_PI_2) < 0.01){
       q = sst->imb;
       for(i = 0; i < sst->nw; i++){
 	glBegin(GL_QUAD_STRIP);
