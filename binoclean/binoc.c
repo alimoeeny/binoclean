@@ -3077,8 +3077,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             {
                 optimize_stimulus(st);
             }
-            if(code == BACKSTIM_TYPE && up)
-                SerialSend(BACKSTIM_TYPE);
+            if((code == BACKSTIM_TYPE || code == STIM3_TYPE) && up)
+                SerialSend(code);
             break;
         case GAMMAVAL_CODE:
             gammaval = val;

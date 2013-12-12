@@ -5294,7 +5294,7 @@ int ReadStimOrder(char *file)
         fclose(fd);
     }
     expt.nstim[5] = imax;
-    return(nt-1);
+    return(nt); // this is # of trials, not index of last trial
 }
 
 /*
@@ -6392,6 +6392,10 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
         case BACKSTIM_TYPE:
             if(st->next)
                 sprintf(cbuf,"%s%s%s",scode,temp,stimulus_names[st->next->type]);
+            break;
+        case STIM3_TYPE:
+            if(st->next && st->next->next)
+                sprintf(cbuf,"%s%s%s",scode,temp,stimulus_names[st->next->next->type]);
             break;
         case FRAMERATE_CODE:
             sprintf(cbuf,"%s%s%.2f",scode,temp,expt.mon->framerate);
@@ -14029,6 +14033,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             TheStim->mode &= (~ONLINEBITS);
             break;
+        case STIM3_TYPE:
         case BACKSTIM_TYPE:
         case STIMULUS_TYPE_CODE:
             for(i = 0; i < N_STIMULUS_TYPES; i++)
@@ -14045,6 +14050,16 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 }
                 else
                     StimulusType(TheStim->next, i);
+            }
+            else if(code == STIM3_TYPE){
+                if(TheStim->next->next == NULL){
+                    NewStimulus(TheStim->next);
+                    StimulusType(TheStim->next->next, i);
+                    TheStim->next->next->prev = TheStim->next;
+                    TheStim->next->splane = STIM_THIRD_BIT;
+                }
+                else
+                    StimulusType(TheStim->next->next, i);
             }
             else if(code == STIMULUS_TYPE_CODE){
                 StimulusType(TheStim, i);
