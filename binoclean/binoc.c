@@ -10298,6 +10298,7 @@ void expt_over(int flag)
      * NB stimvals XPOS,YPOS can change, so use expt.vals for these.
      */
     expt.st->preloaded = 0;
+    expt.st->next->preloaded = 0;
     if(expt.stimtype == STIM_GRATING2)
     {
 	    expt.st->type = STIM_GRATING2;

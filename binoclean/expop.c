@@ -8384,7 +8384,6 @@ int PreLoadImages()
     
     if((expt.st->type == STIM_IMAGE || expt.st->next->type == STIM_IMAGE) && expt.st->preload){
         gettimeofday(&then,NULL);
-        expt.st->preloaded = 0;
         
         frpt = expt.vals[FAST_SEQUENCE_RPT];
         if (optionflags[RAND_FP_DIR]){
@@ -8550,6 +8549,8 @@ int PrepareExptStim(int show, int caller)
     
     
     if (optionflags[MANUAL_EXPT]){
+        expt.st->preloaded = expt.st->next->preloaded = 0;
+
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf, stimorder[stimno]);
         val = afc_s.stimsign = expt.vals[PSYCH_VALUE];
