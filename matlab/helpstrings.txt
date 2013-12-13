@@ -7,4 +7,31 @@ yn  For Gabors, size of grid rectangle in Y direction
 sl  sl=0 make RDS/RLS dynamic. sl=1 fixed seed, static/drifting (jv  > 0). sl=n pattern changed every nth frame, if n > 1
 f2 SF of second frequency component for compound gratings/plaids
 helpfile path to a text file with help. Syntax: helpfile="Label"filename  "Label" is shown on in help menu. Contents of filename will be displayed.
-cd Set correlation (ce) to +1 and sets disparity orthogonal to RF (dO) to the value given. Just for Conveneice - doesn't change other variables.
+cd Sets correlation (ce) to +1 and sets disparity orthogonal to RF (dO) to the value given. Just for Conveneice - doesn't change other variables.
+Bs sets background stimulus type 
+Bh Background Stimulus Size
+Fa Direction for movement of Fixation point (Saccadic if Ff >0, Pursuit if pi > 0)
+Ff Frame on which Fixation point jumps. Jumps back after 2x Ff frames have elapsed
+Fs Size of fixation point jump (degrees)
+xo horizontal pos of stimulus (degrees)
+yo vertical pos of stimulus (degrees)
+lo File name for logging weight, coil settings 
+dp disparate phase. For RLS/RDS this applies a disparity in degrees by "wrapping around"
+dx disparity applied by horizontal translation of whole stimulus
+dx disparity applied by vertical translation of whole stimelus
+sz sets wi and hi.
+wi Full Width (diameter). For Bars, this determines how far they sweep
+sf Spatial Frequency (cpd). For Bars, widht of bar is half period.
+xn density of sampling in x direction for stim that use interpolation. Rare
+yn density of sampling in Y direction for stim that use interpolation. E.G. When there is a Gaussian envelope. Rarely set by user
+tf temporal frequency (Hz)
+ph spatial phase in degrees. This will get changed if tf != 0 see also ip
+ip initial phase. Set Spatial phase at stim start
+f2 SF of component 2 in compound gratings (2grating)
+t2 TF of component 2 in compound gratings (2grating)
+p2 phase of component 2 in compound gratings
+c2 contrast of component 2 in compound gratings and plaids
+a2 when > 0, turns grating into plaid, and RLS into noise plaid. Sets angle difference between components, so changes in or rotate both.
+sl 0 = dynamic RDS/RLS. 1 = drifting RDS/RLS. If >1, then image changes every nth frame. If op+rp this change is a new pattern, othewise a displacemt to achieve nominal speed (jv). sl>1 also makes grating drift sampled
+jv Drift speed of dots in RLS, lines in RLS. For Cylinder sets speed of axial rotation.  
+
