@@ -273,11 +273,11 @@
 #define VERGVERSION_CODE (LAST_STIMULUS_CODE+170)
 #define EXPT_NAME (LAST_STIMULUS_CODE+171)
 #define STIMULUS_TAG (LAST_STIMULUS_CODE+172)
-
+#define STIM3_TYPE (LAST_STIMULUS_CODE+173)
 //Add above here anything that needs to go to Spike2
 
 
-#define MAXSERIALCODES (LAST_STIMULUS_CODE+173)/* 204 */
+#define MAXSERIALCODES (LAST_STIMULUS_CODE+174)/* 204 */
 #define OPPOSITE_DELAY  MAXSERIALCODES
 #define FAST_SEQUENCE_RPT MAXSERIALCODES+1
 #define BRIGHTSHIFT_CODE MAXSERIALCODES+2
@@ -1011,6 +1011,7 @@ ValueCode valstrings[] = {
   {"fp",     "NewFixPos",FIXPOS_XY , 8 , 'N' ,2, SEND_EXPLICIT},
   {"Ro",     "RF Ori",RF_ANGLE, 128 , 'N' ,2, SEND_EXPT},
   {"Bs",     "BackStim",BACKSTIM_TYPE, 64 , 'C' ,0, SEND_EXPT},
+    {"St3",     "Stim3",STIM3_TYPE, 64 , 'C' ,0, SEND_EXPLICIT},
   {"Fs",     "FP Move Size",FP_MOVE_SIZE, 8 , 'N' ,4, SEND_NON_ZERO},
   {"Fa",     "FP Move Dir",FP_MOVE_DIR , 8 , 'N' ,2, SEND_EXPT},
   {"ip",     "Starting Phase",START_PHASE , 1 , 'N' ,2, SEND_EXPLICIT},

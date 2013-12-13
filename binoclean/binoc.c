@@ -3077,8 +3077,8 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             {
                 optimize_stimulus(st);
             }
-            if(code == BACKSTIM_TYPE && up)
-                SerialSend(BACKSTIM_TYPE);
+            if((code == BACKSTIM_TYPE || code == STIM3_TYPE) && up)
+                SerialSend(code);
             break;
         case GAMMAVAL_CODE:
             gammaval = val;
@@ -10299,6 +10299,7 @@ void expt_over(int flag)
      * NB stimvals XPOS,YPOS can change, so use expt.vals for these.
      */
     expt.st->preloaded = 0;
+    expt.st->next->preloaded = 0;
     if(expt.stimtype == STIM_GRATING2)
     {
 	    expt.st->type = STIM_GRATING2;
