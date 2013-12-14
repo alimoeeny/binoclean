@@ -857,6 +857,7 @@ char *bwtoggle_codes[] = {
 #define INTERNALCOMMAND 1024
 #define INDIRECT 512
 #define RF_PROPERTIES 256
+#define COMPOUND_GRATING (4096 << 1)
 
 ValueCode valstrings[] = {
   {"xo","X offset",  XPOS, 1, 'N' ,2, SEND_EXPT},
@@ -880,10 +881,10 @@ ValueCode valstrings[] = {
   {"se",     "Seed", SET_SEED, 5, 'N' ,0, SEND_STIMULUS},
   {"co",     "Contrast ", SETCONTRAST, 1, 'N' ,4, SEND_EXPLICIT},
   {"dy",     "Vertical Disparity", DISP_Y, 3, 'N' ,4, SEND_EXPT},
-  {"f2",     "SF2", SF2, 1, 'N' ,2, SEND_GRATING2},
-  {"t2",     "TF2", TF2, 1, 'N' ,2, SEND_GRATING2},
-  {"p2",     "Phase2", PHASE2, 1, 'N' ,2, SEND_EXPLICIT},
-  {"a2",     "Plaid angle", PLAID_ANGLE, 1, 'N' ,2, SEND_EXPLICIT},
+  {"f2",     "SF2", SF2, 1+COMPOUND_GRATING, 'N' ,2, SEND_GRATING2},
+  {"t2",     "TF2", TF2, 1+COMPOUND_GRATING, 'N' ,2, SEND_GRATING2},
+  {"p2",     "Phase2", PHASE2, 1+COMPOUND_GRATING, 'N' ,2, SEND_EXPLICIT},
+  {"a2",     "Plaid angle", PLAID_ANGLE, 1+COMPOUND_GRATING, 'N' ,2, SEND_EXPLICIT},
   {"jv",     "J velocity", JVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
   {"bpos",     "Boundary Position", BPOSITION, 5, 'N' ,2, SEND_EXPLICIT},
   {"bjv",     "Boundary velocity", BVELOCITY, 5, 'N' ,2, SEND_EXPLICIT},
@@ -899,7 +900,7 @@ ValueCode valstrings[] = {
   {"ds",     "Delta SF (L-R)", SF_DIFF, 3, 'N' ,4, SEND_EXPLICIT},
   {"dg",     "disp grad", DISP_GRAD, 3, 'N' ,4, SEND_EXPLICIT},
   {"dm",     "depth modulation", DEPTH_MOD, 3, 'N' ,4, SEND_EXPLICIT},
-  {"ta",     "twobar angle", TWOBAR_ANGSEP, 1, 'N' ,2, SEND_EXPLICIT},
+//  {"ta",     "twobar angle", TWOBAR_ANGSEP, 1, 'N' ,2, SEND_EXPLICIT},
   {"dr",     "Disp Ramp", DISP_RAMP, 3, 'N' ,2, SEND_EXPLICIT},
   {"dq",     "pDisp 2", PHASE2DISP, 3, 'N' ,2, SEND_EXPLICIT},
   {"rp",     "Rel Phase",  PHASEREL, 3, 'N' ,2, SEND_EXPLICIT},
@@ -1135,10 +1136,10 @@ ValueCode valstrings[] = {
   {"ox",     "Ori randomization",RANDOM_ORI, 8 , 'N' ,2, SEND_EXPLICIT},
   {"bb",     "dOri F+B",DORI_BOTH , 3 , 'N' ,2, SEND_EXPLICIT},
   {"dk",     "dOri Back",DORI_BACK , 66 , 'N' ,2, SEND_EXPLICIT},
-  {"xc",     "Stim eccentricity",STIM_ECCENTRICITY , 513 , 'N' ,2, SEND_EXPLICIT},
-  {"pa",     "Polar Angle",STIM_POLARANGLE , 513 , 'N' ,2, SEND_EXPLICIT},
-  {"o0",    "Old Lori",OLDLEFT_ORI, 514 , 'N' ,2, SEND_EXPLICIT},
-  {"o1",    "Old Rori",OLDRIGHT_ORI, 514 , 'N' ,2, SEND_EXPLICIT},
+ // {"xc",     "Stim eccentricity",STIM_ECCENTRICITY , 513 , 'N' ,2, SEND_EXPLICIT},
+//  {"pa",     "Polar Angle",STIM_POLARANGLE , 513 , 'N' ,2, SEND_EXPLICIT},
+//  {"o0",    "Old Lori",OLDLEFT_ORI, 514 , 'N' ,2, SEND_EXPLICIT},
+//  {"o1",    "Old Rori",OLDRIGHT_ORI, 514 , 'N' ,2, SEND_EXPLICIT},
   {"xx",     "Cyberamp channels",CYBER_CHANNELS, 128 , 'N' ,2, SEND_EXPLICIT},
   {"rs",     "RF Sign",RF_SIGN, 256 , 'N' ,2, SEND_EXPLICIT},
   {"el",     "End Length",END_LENGTH, 512 , 'N' ,2, SEND_EXPLICIT},

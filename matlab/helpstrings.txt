@@ -33,5 +33,20 @@ p2 phase of component 2 in compound gratings
 c2 contrast of component 2 in compound gratings and plaids
 a2 when > 0, turns grating into plaid, and RLS into noise plaid. Sets angle difference between components, so changes in or rotate both.
 sl 0 = dynamic RDS/RLS. 1 = drifting RDS/RLS. If >1, then image changes every nth frame. If op+rp this change is a new pattern, othewise a displacemt to achieve nominal speed (jv). sl>1 also makes grating drift sampled
-jv Drift speed of dots in RLS, lines in RLS. For Cylinder sets speed of axial rotation.  
-
+jv Drift speed of dots in RLS, lines in RLS. For Cylinder sets speed of axial rotation (360 = one complete rotation per second)
+bpos position of texture defined boundary, in degrees from center of stimulus (RLS)
+bjv  rate at which boundary position (RLS) moves  
+fi No longer implemented
+bi No longer implemented
+jn Number of dots making a cylinder. Read only
+jl dot lifetime for fixed lifetime condition (fl=+cn)
+jx p(dot dies) to control dot lifetime in cylinder
+nbars when st=bar, Sets numbner of bars to paint - usually 1. You have to set params for extra bars
+ic interocular contrast difference  cR co - ic/2,  cL = ic + ic/2  N.B. binoc does not check ranges. if co=1 and ic = 0.5, left eye will saturate
+od interocular orientaiton difference oR = or-od/2  oL = or+od2  
+ds interocular SF difference. sfR = sf-ds/2, sfL = sf+ds/2
+dg range of disparity modulation in Corrug stimuli (only)
+ta Very special. Don't mess with this. 
+pa Very special. Don't mess with this. 
+dr changes RDS dispaity deg/sec
+dq phase disparity applied to second component of compound grating
