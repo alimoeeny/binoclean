@@ -14031,7 +14031,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                     j++;
                 }
             }
-            TheStim->mode &= (~ONLINEBITS);
+//used to reset ONLINEBITS, but this changes expt states
+            TheStim->mode &= (~BACKCLEARED);
             break;
         case STIM3_TYPE:
         case BACKSTIM_TYPE:
