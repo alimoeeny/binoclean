@@ -13,4 +13,4 @@ sf=4
 or=0
 exp=/local/expts/GammaSize #Must match dir used by .m file
 !mat=GammaSizeExpt
-op=-sq+exm+bf+rp
+op=-sq+exm+rp+bp

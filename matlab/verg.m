@@ -794,6 +794,7 @@ for j = 1:length(strs{1})
         id = strfind(s,'=');
         if id & s(1) ~= '!'
             code = s(1:id(1)-1);
+            code = strrep(code, 'electrode','Electrode');
             if isempty(strmatch(code, {'1t' '2t' '3t' '4t'})) %illegal names
                 code = deblank(code);
             val = sscanf(s(id(1)+1:end),'%f');

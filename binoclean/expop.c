@@ -10817,7 +10817,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int finished = 0,j,i = 0, nreps, ntotal, retval =0;
     int framecount,rc,lastframecount;
     Substim *rds;
-    char c,buf[BUFSIZ*1000],tmp[BUFSIZ*20];
+    char c,buf[BUFSIZ*100],tmp[BUFSIZ*20];
     float val;
 //    Expstim *stim;
     struct plotdata *plot;
@@ -11531,9 +11531,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
   
     if ((expt.st->type == STIM_RLS || expt.st->type == STIM_CHECKER) && optionflags[SAVE_RLS] && rcfd){
         gettimeofday(&timea, NULL);
-        StimStringRecord(buf, expt.st);
-        j = strlen(buf);
-        fprintf(rcfd,"id%dse%d\n%s",expt.allstimid,expt.st->left->baseseed,buf);
+        fprintf(rcfd,"id%dse%dt%.3f\n",expt.allstimid,expt.st->left->baseseed,ufftime(&firstframetime));
+        StimStringRecord(rcfd, expt.st);
         if(optionflags[FAST_SEQUENCE]){
             fputs(rcbuf,rcfd);
         }

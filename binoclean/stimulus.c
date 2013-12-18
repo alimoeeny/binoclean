@@ -82,12 +82,17 @@ int *RecordImage(int frame, Stimulus *st){
     }
 }
 
-void StimStringRecord(char *buf, Expt *ex)
+void StimStringRecord(FILE *fd, Expt *ex)
 {
     int j,*p,i;
     char s[10];
-    sprintf(buf,"",j);
+    char buf[BUFSIZ*1000];
+    
+    
+    if (fd <= 0)
+        return;
     for (j = 0; j < expt.st->framectr; j++){
+        sprintf(buf,"",j);
         p = imagerec[j];
         if (p != NULL){
             sprintf(s,"%x:",j);
@@ -98,6 +103,7 @@ void StimStringRecord(char *buf, Expt *ex)
             }
             strcat(buf,"\n");
         }
+        fputs(buf,fd);
     }
 }
 
