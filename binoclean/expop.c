@@ -7329,6 +7329,10 @@ void InitExpt()
      }
      */
     
+    expt.fasttype = expt.mode; // make sure these are not left == 0
+    expt.fastbtype = expt.type2; // make sure these are not left == 0
+    expt.fastctype = expt.type3;
+    
     while((c = ReadSerial(0) != MYEOF))
         GotChar(c);
     if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
