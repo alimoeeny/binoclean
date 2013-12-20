@@ -11336,7 +11336,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         fprintf(seroutfile,"(%.3f,%.3f,%.3f)\n",StimDuration(),timediff(&endstimtime,&frametime),timediff(&firstframetime,&zeroframetime));
     }
     
-    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0 && (st->type != STIM_RDS && st->type != STIM_RLS)){
+    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0 && (st->type != STIM_RDS && st->type != STIM_RLS && st->type != STIM_CHECKER)){
         sprintf(buf,"%srP=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
             if(frameiseqp[i] >= 0){
