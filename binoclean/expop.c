@@ -7291,6 +7291,10 @@ void InitExpt()
      }
      */
     
+    expt.fasttype = expt.mode; // make sure these are not left == 0
+    expt.fastbtype = expt.type2; // make sure these are not left == 0
+    expt.fastctype = expt.type3;
+    
     while((c = ReadSerial(0) != MYEOF))
         GotChar(c);
     if(!(optionflag & FRAME_ONLY_BIT) || (optionflag & WAIT_FOR_BW_BIT))
@@ -10779,7 +10783,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     int finished = 0,j,i = 0, nreps, ntotal, retval =0;
     int framecount,rc,lastframecount;
     Substim *rds;
-    char c,buf[BUFSIZ*1000],tmp[BUFSIZ*20];
+    char c,buf[BUFSIZ*100],tmp[BUFSIZ*20];
     float val;
 //    Expstim *stim;
     struct plotdata *plot;
@@ -11298,7 +11302,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         fprintf(seroutfile,"(%.3f,%.3f,%.3f)\n",StimDuration(),timediff(&endstimtime,&frametime),timediff(&firstframetime,&zeroframetime));
     }
     
-    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0 && (st->type != STIM_RDS && st->type != STIM_RLS)){
+    if(optionflags[RANDOM_PHASE] && expt.st->nphases > 0 && (st->type != STIM_RDS && st->type != STIM_RLS && st->type != STIM_CHECKER)){
         sprintf(buf,"%srP=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
             if(frameiseqp[i] >= 0){
@@ -11493,9 +11497,8 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
   
     if ((expt.st->type == STIM_RLS || expt.st->type == STIM_CHECKER) && optionflags[SAVE_RLS] && rcfd){
         gettimeofday(&timea, NULL);
-        StimStringRecord(buf, expt.st);
-        j = strlen(buf);
-        fprintf(rcfd,"id%dse%d\n%s",expt.allstimid,expt.st->left->baseseed,buf);
+        fprintf(rcfd,"id%dse%dt%.3f\n",expt.allstimid,expt.st->left->baseseed,ufftime(&firstframetime));
+        StimStringRecord(rcfd, expt.st);
         if(optionflags[FAST_SEQUENCE]){
             fputs(rcbuf,rcfd);
         }
@@ -13987,7 +13990,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                     j++;
                 }
             }
-            TheStim->mode &= (~ONLINEBITS);
+//used to reset ONLINEBITS, but this changes expt states
+            TheStim->mode &= (~BACKCLEARED);
             break;
         case STIM3_TYPE:
         case BACKSTIM_TYPE:

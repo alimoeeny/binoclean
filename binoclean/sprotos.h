@@ -257,7 +257,7 @@ void printstair(int staircounter,  int startbin,  int bincounter_min,  int binco
 void clearlogitem(int code);
 void addcodetobuf(char *buf, int code);
 void SaveUnitLog();
-void StimStringRecord(char *buf, Expt *ex);
+void StimStringRecord(FILE *buf, Expt *ex);
 char *EyeCoilString(void);
 void SetWPanel();
 char *getfilename(char *path);

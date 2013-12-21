@@ -5618,7 +5618,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
                 myrnd_init(st->left->baseseed+st->framectr);
                 SetRandomPhase(st, pos);
-                if (st->left->seedloop > 1)
+                if (st->left->seedloop > 1 && st->type == STIM_GRATINGN || st->type == STIM_GRATING)
                     mode |= STIMCHANGE_FRAME;
 
             }

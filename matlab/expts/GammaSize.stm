@@ -1,0 +1,16 @@
+mo=backm
+st=grating
+sz=1
+tf=2
+sf=4
+or=0
+sz=4
+mo=fore
+st=grating
+sz=1
+tf=2
+sf=4
+or=0
+exp=/local/expts/GammaSize #Must match dir used by .m file
+!mat=GammaSizeExpt
+op=-sq+exm+rp+bp

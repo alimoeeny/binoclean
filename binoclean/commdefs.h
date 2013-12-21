@@ -1013,7 +1013,7 @@ ValueCode valstrings[] = {
   {"fp",     "NewFixPos",FIXPOS_XY , 8 , 'N' ,2, SEND_EXPLICIT},
   {"Ro",     "RF Ori",RF_ANGLE, 128 , 'N' ,2, SEND_EXPT},
   {"Bs",     "BackStim",BACKSTIM_TYPE, 64 , 'C' ,0, SEND_EXPT},
-    {"St3",     "Stim3",STIM3_TYPE, 64 , 'C' ,0, SEND_EXPLICIT},
+    {"St3",     "Stim3 Type",STIM3_TYPE, 64 , 'C' ,0, SEND_EXPLICIT},
   {"Fs",     "FP Move Size",FP_MOVE_SIZE, 8 , 'N' ,4, SEND_NON_ZERO},
   {"Fa",     "FP Move Dir",FP_MOVE_DIR , 8 , 'N' ,2, SEND_EXPT},
   {"ip",     "Starting Phase",START_PHASE , 1 , 'N' ,2, SEND_EXPLICIT},
