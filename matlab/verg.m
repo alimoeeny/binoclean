@@ -22,8 +22,10 @@ while j <= length(varargin)
         if length(varargin) > j && isnumeric(varargin{j+1})
             j = j+1;
             DATA.verbose = varargin{j};
+        elseif exist('DATA','var')
+            DATA.verbose = ones(size(DATA.verbose));
         else
-        DATA.verbose = ones(size(DATA.verbose)); 
+            verbose = 1;
         end
         DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
     elseif strcmp(varargin{j},'monitor')
@@ -309,6 +311,10 @@ for j = 1:length(strs{1})
                 DATA.comcodes(j).const = NaN;
                 DATA.comcodes(j).type = 'N';
                 DATA.comcodes(j).group = 512+2048;
+            else
+               if ~isfield(DATA.helpstrs,code) && DATA.verbose(1)
+                   fprintf('No help for %s\n',code);
+               end
             end
         end
     elseif strncmp(s,'CODE',4)
@@ -1489,7 +1495,7 @@ DATA.servoport = []; %name of tty2 in /local/binoc.setup
 DATA.servofig = 0;  %Figre # of servo control window.
 DATA = ReadSetupFile(DATA, '/local/binoc.setup');
 DATA = ReadStimFile(DATA, '/local/verg.setup');
-DATA.helpstrs = ReadHelp(DATA);
+[DATA.helpstrs, DATA.helpkeys] = ReadHelp(DATA);
 
 for j = 1:3 
 DATA.expmenucodes{j} = {};
@@ -1513,7 +1519,7 @@ for j = 1:length(DATA.comcodes)
 end
 
 
-function strs = ReadHelp(DATA)
+function [strs, Keys] = ReadHelp(DATA)
  
     strs = {};
     helpfile = [DATA.localmatdir '/helpstrings.txt'];
@@ -1524,8 +1530,19 @@ function strs = ReadHelp(DATA)
     txt = a{1};
     for j = 1:length(txt)
         code = regexprep(txt{j},'\s.*','');
-        if ~isempty(code)
-        strs.(code) =  regexprep(txt{j},code,'');
+        if ~isempty(code) && txt{j}(1) ~= '#'
+            if isfield(strs,code)
+                fprintf('%s help duplicated\n',code);
+            end
+            str = regexprep(txt{j},code,'');
+            if strfind(str,'#')
+                keyword = regexprep(str,'.*#','');
+                Keys.KeyWords.(code) = keyword;
+            else
+                Keys.KeyWords.(code) = '';
+            end     
+            str = regexprep(str,'#.*','');
+            strs.(code) =  str;
         end
     end
     end
@@ -3285,26 +3302,36 @@ function CodesPopup(a,b, type)
       nl=1;
       a = get(lst,'string');
       nlab = 0;
+      nc = 0;
       for j = 1:length(b)
+          code = DATA.comcodes(b(j)).code;
+          if ~strcmp(code,'xx')
+          ns = max([5 - length(code) 1]);          
+          ns = 1+ round(ns-1) .* 1.6;
+          nc = nc+1;
           if b(j) > 0
-              s = sprintf('%s %s',DATA.comcodes(b(j)).code,DATA.comcodes(b(j)).label);
+              s = sprintf('%s%*s%s',code,ns,' ',DATA.comcodes(b(j)).label);
           else
               nlab = nlab+1;
-              a(j+nl,1) = ' ';
+              a(nc+nl,1) = ' ';
               nl = nl+1;
               s = labels{nlab};
           end
-          if isfield(DATA.helpstrs,DATA.comcodes(b(j)).code)
-              s = [s '   ;   ' DATA.helpstrs.(DATA.comcodes(b(j)).code)];
+          if isfield(DATA.helpstrs,code)
+              s = [s '   ;   ' DATA.helpstrs.(code)];
+              keys{j+nl} = DATA.helpkeys.KeyWords.(code);
           end
-          a(j+nl,1:length(s)) = s;
-          a(j+nl,2+length(s):end) = 0;
+          a(nc+nl,1:length(s)) = s;
+          a(nc+nl,2+length(s):end) = 0;
+          end
       end
-      a = a(1:j+nl,:);
+      a = a(1:nc+nl,:);
       cmenu = uicontextmenu;
       set(cmenu,'UserData',lst);
       uimenu(cmenu,'label','Help','Callback',{@CodeListMenu, 'Help'});
       set(lst,'string',a);
+      setappdata(GetFigure(lst),'HelpKeyList',keys);
+      setappdata(GetFigure(lst),'OldText',a);
       %set(lst,'uicontextmenu',cmenu);    
       
   end
@@ -3334,7 +3361,7 @@ function CodesPopup(a,b, type)
     hm = uimenu(cntrl_box,'Label','Search');
     sm = uimenu(hm,'Label','Ignore case','callback',{@SearchList, 'IgnoreCase'},'Tag','IgnoreCase');
     
-    uicontrol(gcf,'style','pop','string','Search|Codes|Labels|Help','tag','SearchMode',...
+    uicontrol(gcf,'style','pop','string','Search: All|Search: Codes|Search: Labels|Search: Help','tag','SearchMode',...
         'units','norm', 'Position',[0 0.01 0.3 0.08]);
 
     srch = uicontrol(gcf, 'Style','edit','String', '',...
@@ -3347,15 +3374,27 @@ function CodesPopup(a,b, type)
         'Tag','CodeListString',...
 'units','norm', 'Position',[0.01 0.085 0.99 0.91]);
 a = get(lst,'string');
+nc = 1;
 for j = 1:length(DATA.comcodes)
     code = DATA.comcodes(j).code;
-    s = sprintf('%s %s',DATA.comcodes(j).code,DATA.comcodes(j).label);
-    if isfield(DATA.helpstrs,code)
-        s = [s '  : ' DATA.helpstrs.(code)];
+    if ~strcmp(code,'xx')
+        ns = max([5 - length(code) 1]);
+        ns = 1+ round(ns-1) .* 1.6;
+        s = sprintf('%s%*s%s',code,ns,' ',DATA.comcodes(j).label);
+        if isfield(DATA.helpstrs,code)
+            s = [s '  : ' DATA.helpstrs.(code)];
+            keys{j} = DATA.helpkeys.KeyWords.(code);
+        end
+        nc = nc+1;
+        a(nc,1:length(s)) = s;
+    else
+        nc = nc;
     end
-    a(j,1:length(s)) = s;
 end
 set(lst,'string',a);
+setappdata(GetFigure(lst),'HelpKeyList',keys);
+setappdata(GetFigure(lst),'OldText',a);
+
 if strcmp(type,'popuphelp')
     CodesPopup(helpmenu,b,'byhelp');
 end
@@ -3375,27 +3414,45 @@ function SearchList(a,b, varargin)
         ToggleCheck(a);
         return;
     end
+    newpattn = 0;
     pttn = get(a,'string');
     lastpttn = get(a,'UserData');
     set(a,'UserData',pttn);    
     F = get(a,'parent');
     findn = getappdata(F,'findn');
-    if isempty(findn)
+    it = findobj(F,'tag','CodeListString');
+    if isempty(findn) %hit return again
         findn = 1;
+    elseif ~strcmp(pttn,lastpttn)%new serach
+        newpattn = 1;
+    else
+        setappdata(F,'findn',[]);
+        if isappdata(F,'OldText')
+            txt = getappdata(F,'OldText');
+            set(it,'string',txt);
+            set(F,'Name','Code List');
+            return;
+        end
     end
     if strcmp(pttn, lastpttn)
         findn = findn+1;
     end
     
     ignorecase = 0;
-    it = findobj(F,'tag','IgnoreCase');
-    if strcmp(get(it,'checked'),'on')
+    mit = findobj(F,'tag','IgnoreCase');
+    if strcmp(get(mit,'checked'),'on')
         ignorecase = 1;
     end
     sm = findobj(F,'tag','SearchMode');
     searchmode = get(sm,'value');
-    it = findobj(F,'tag','CodeListString');
-    txt = get(it,'String');
+    if newpattn
+        txt = getappdata(F,'OldText');
+    else
+        txt = get(it,'String');
+        setappdata(F,'OldText',txt);
+    end
+    keys = getappdata(F,'HelpKeyList');
+    keys{size(txt,1)+1} = '';
     found = [];
     for j = 1:size(txt,1)
         t = txt(j,:);
@@ -3409,7 +3466,7 @@ function SearchList(a,b, varargin)
         elseif searchmode == 4 %just help
             s = regexprep(t,'.* : ','');
         else
-            s = txt(j,:);
+            s = [txt(j,:) keys{j}];
         end
         if ignorecase
             x = strfind(lower(s),lower(pttn));
@@ -3425,7 +3482,18 @@ function SearchList(a,b, varargin)
        if findn > length(found)
            findn = 1;
        end
-        set(it,'value',found(findn));
+       if length(found) == 0
+%           set(it,'value',found(findn));
+       else
+           str = sprintf('%d matches for %s',length(found),pttn);
+           txt(1,1:length(str)) = str;
+           txt(1,(length(str)+1):end) = ' ';
+           set(it,'value',1);
+           set(it,'string',txt([1 found],:));
+       end
+        set(F,'Name',sprintf('%d Matches for %s',length(found),pttn));
+    else
+        set(F,'Name',sprintf('No Matches for %s',pttn));
     end
     setappdata(F,'findn',findn);
     
@@ -4701,6 +4769,10 @@ if txt(end) == '='
 end
 a =  get(DATA.txtrec,'string');
 n = size(a,1);
+if strcmp(code,'px')
+    pixdeg = atan(DATA.binoc{1}.px/DATA.binoc{1}.vd) * 180/pi;
+    txt = [txt sprintf(' (%.3f deg)',pixdeg)];
+end
 if length(str)
     txt = [txt '(' str ')  ' datestr(now,'HH:MM')];
 end

@@ -154,7 +154,6 @@ int command_pending;
 int prevstim = -1;
 int noserialout = 0;
 int demomode = 0;
-Position panelx = 0,panely = 0;
 
 static Numeric *xpenv;
 static int totalframe = 0;
@@ -582,7 +581,7 @@ Exptmenu secondmenu[] = {
     {"Length R",HEIGHT_R},
     {"N Components",NCOMPONENTS},
     {"dp as dx",PHASE_AS_DISP},
-    {"dp as dx both",PHASE_AS_RELDISP},
+//    {"dp as dx both",PHASE_AS_RELDISP},
     {"SD X",SD_X},
     {"Counterphase ",SET_COUNTERPHASE},
     {"SF LEFT",SF_LEFT},
@@ -2890,12 +2889,7 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
                 }
             }
             break;
-        case PANEL_XPOS:
-            panelx = (Position)val;
-            break;
-        case PANEL_YPOS:
-            panely = (Position)val;
-            break;
+
         case STIMULUS_MODE:
             expt.stimmode = (int)val;
             if(expt.st->type == STIM_GRATINGN)
@@ -2961,13 +2955,10 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
         case TRIGGER_LEVEL2:
         case TRIGGER_LEVEL3:
         case TRIGGER_LEVEL4:
-        case PLOTSMOOTH:
-        case RC_DELAY:
         case TARGET_RATIO:
         case HIGHSF:
         case HIGHTF:
         case HIGHX:
-        case STEPPER_PLOTLEN:
         case TIMEOUT_CONTRAST:
         case TRIAL_START_BLANK:
         case TEST_VALUE1:
@@ -3610,20 +3601,6 @@ float ExptProperty(Expt *exp, int flag)
             else
                 val = STIM_NONE;
             break;
-        case PANEL_XPOS:
-        case PANEL_YPOS:
-            //Ali      if(allframe){
-            if(1){
-                if(x > 1<<16)
-                    x = (x>16);
-                if(x < 2560)
-                    val = (float)x;
-                else
-                    val = 0;
-            }
-            else
-                val = 0;
-            break;
         case STIMID:
             val = expt.allstimid;
             break;
@@ -3678,14 +3655,11 @@ float ExptProperty(Expt *exp, int flag)
         case TRIGGER_LEVEL3:
         case TRIGGER_LEVEL4:
         case ELECTRODE_DEPTH:
-        case PLOTSMOOTH:
-        case RC_DELAY:
         case GRIDSIZE:
         case TARGET_RATIO:
         case HIGHSF:
         case HIGHTF:
         case HIGHX:
-        case STEPPER_PLOTLEN:
         case REWARD_SIZE1:
         case REWARD_SIZE2:
         case REWARD_SIZE3:
@@ -3792,18 +3766,6 @@ float ExptProperty(Expt *exp, int flag)
                 val = 1;
             else
                 val = 0;
-            break;
-        case PLOTW:
-            val = expt.plot->size[0];
-            break;
-        case PLOTH:
-            val = expt.plot->size[1];
-            break;
-        case PLOTX:
-            val = expt.plot->pos[0];
-            break;
-        case PLOTY:
-            val = expt.plot->pos[1];
             break;
         case SPIKE_GAIN:
             val = expt.spikegain;
@@ -12797,12 +12759,6 @@ float readval(char *s, 	Stimulus *TheStim)
         }
         else if(!strncmp(s,serial_strings[DISP_X],2)){
             val = addval + StimulusProperty(expt.st,DISP_X) * val;
-        }
-        else if(!strncmp(s,serial_strings[STIM_POLARANGLE],2)){
-            val = addval + get_polarangle(expt.rf->pos[0],expt.rf->pos[1]) * val;
-        }
-        else if(!strncmp(s,serial_strings[STIM_ECCENTRICITY],2)){
-            val = sqrt(sqr(pix2deg(expt.rf->pos[0])) + sqr(pix2deg(expt.rf->pos[1]))) * val;
         }
         else if(!strncmp(s,serial_strings[RF_ANGLE],2))
             val = addval+expt.rf->angle;

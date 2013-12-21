@@ -309,10 +309,11 @@
 #define RF_Y MAXSERIALCODES+28
 #define RF_ORTHO MAXSERIALCODES+29
 #define SPIKE_GAIN MAXSERIALCODES+30
-#define PLOTW MAXSERIALCODES+31
-#define PLOTH MAXSERIALCODES+32
-#define PLOTX MAXSERIALCODES+33
-#define PLOTY MAXSERIALCODES+34
+
+//#define PLOTW MAXSERIALCODES+31
+//#define PLOTH MAXSERIALCODES+32
+//#define PLOTX MAXSERIALCODES+33
+//#define PLOTY MAXSERIALCODES+34
 #define TRIAL_COUNT MAXSERIALCODES+35
 #define GOODTRIALS MAXSERIALCODES +36
 #define BADTRIALS MAXSERIALCODES +37
@@ -346,14 +347,14 @@
 #define RF_SIGN MAXSERIALCODES+65
 #define END_LENGTH MAXSERIALCODES+66
 #define EXPT_LINW MAXSERIALCODES+67
-#define PLOTSMOOTH MAXSERIALCODES+68
+//#define PLOTSMOOTH MAXSERIALCODES+68
 #define SHOWFLAGS_CODE MAXSERIALCODES+69
 #define EXPT_STIMPERTRIAL MAXSERIALCODES+70
-#define RC_DELAY MAXSERIALCODES+71
+//#define RC_DELAY MAXSERIALCODES+71
 #define FIXCOLORS MAXSERIALCODES+72
 #define CONTRAST_RATIO MAXSERIALCODES+73
-#define ADDEXPTS_CODE  MAXSERIALCODES+74
-#define COMMAND_IN MAXSERIALCODES+75
+//#define ADDEXPTS_CODE  MAXSERIALCODES+74
+//#define COMMAND_IN MAXSERIALCODES+75
 #define GRIDSIZE MAXSERIALCODES+76
 #define ORTHOG_DISP MAXSERIALCODES+77
 #define PARALELL_DISP MAXSERIALCODES+78
@@ -392,7 +393,7 @@
 #define HIGHSF MAXSERIALCODES+111
 #define HIGHTF MAXSERIALCODES+112
 #define CONTRAST_PAIRS MAXSERIALCODES+113
-#define STEPPER_PLOTLEN MAXSERIALCODES+114
+//#define STEPPER_PLOTLEN MAXSERIALCODES+114
 #define NFRAMES_DONE MAXSERIALCODES+115
 #define PLOT_CLUSTER MAXSERIALCODES+116
 #define REWARD_SIZE1 MAXSERIALCODES+117
@@ -422,11 +423,11 @@
 #define FIXPT_EYE MAXSERIALCODES+141
 #define SD_BOTH MAXSERIALCODES+142
 #define UKA_VALS MAXSERIALCODES+143
-#define PHASE_AS_RELDISP MAXSERIALCODES+144
-#define PANEL_XPOS MAXSERIALCODES+145
+//#define PHASE_AS_RELDISP MAXSERIALCODES+144
+//#define PANEL_XPOS MAXSERIALCODES+145
 #define FB_RELATIVE_CONTRAST MAXSERIALCODES+146
 #define BACK_VDISP MAXSERIALCODES+147
-#define PANEL_YPOS MAXSERIALCODES+148
+//#define PANEL_YPOS MAXSERIALCODES+148
 #define SET_COUNTERPHASE MAXSERIALCODES+149
 #define USERID MAXSERIALCODES+150
 #define TEMPORAL_ORI_BANDWIDTH MAXSERIALCODES+151
@@ -455,7 +456,7 @@
 //Below here are temporary/convenience/state parameters that do not need saving
 
 #define ASPECT_RATIO MAXSAVECODES
-#define HIDDEN_OPTIONS MAXSAVECODES+1
+//#define HIDDEN_OPTIONS MAXSAVECODES+1
 #define NLOWCOMPONENTS MAXSAVECODES+2
 #define NHIGHCOMPONENTS MAXSAVECODES+3
 #define LAST_SEED MAXSAVECODES+4
@@ -1099,18 +1100,18 @@ ValueCode valstrings[] = {
 //  {"di", "DIRECTIONALIGY, +20 ",DIRECTION_TEXT, 128 , 'N' ,2, SEND_EXPLICIT},
 //  {"ct", "CELL_TYPE, +21 ",CELLTYPE_TEXT , 128 , 'N' ,2, SEND_EXPLICIT},
   {"fl", "Stimulus Flag +22",STIMULUS_FLAG , 1 , 'C' ,2, SEND_EXPLICIT},
-  {"si", "swap interval +23 ",SWAPINTERVAL , 32 , 'N' ,2, SEND_EXPLICIT},
-  {"Tz", "Trapezoidal scaling for projectors ",TRAPEZOIDAL_SCALING , 32 , 'N' ,2, SEND_EXPLICIT},
+//  {"si", "swap interval +23 ",SWAPINTERVAL , 32 , 'N' ,2, SEND_EXPLICIT},
+//  {"Tz", "Trapezoidal scaling for projectors ",TRAPEZOIDAL_SCALING , 32 , 'N' ,2, SEND_EXPLICIT},
   {"Rw", "RF Width +25 ",RF_WIDTH, 256 , 'N' ,2, SEND_EXPLICIT},
   {"Rh", "RF Height +26 ",RF_HEIGHT, 256 , 'N' ,2, SEND_EXPLICIT},
   {"Rx", "RF x +27 ",RF_X, 256 , 'N' ,2, SEND_EXPLICIT},
   {"Ry", "RF y +28 ",RF_Y, 256 , 'N' ,2, SEND_EXPLICIT},
   {"RO", "RF ORTHO ",RF_ORTHO, 512 , 'N' ,2, SEND_EXPLICIT},
   {"sg", "Spike Gain  ",SPIKE_GAIN, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"Pw", "Plot Width ",PLOTW, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"Ph", "Plot Height",PLOTH, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"Px", "Plot X",PLOTX, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"Py", "Plot Y",PLOTY, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"Pw", "Plot Width ",PLOTW, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"Ph", "Plot Height",PLOTH, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"Px", "Plot X",PLOTX, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"Py", "Plot Y",PLOTY, 0 , 'N' ,2, SEND_EXPLICIT},
   {"nT", "Trial Count",TRIAL_COUNT, 8 , 'N' ,2, SEND_EXPLICIT},
   {"Tg", "good trials ", GOODTRIALS, 8 , 'N' ,2, SEND_EXPLICIT},
   {"Tb", "bad trials ", BADTRIALS, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1124,9 +1125,9 @@ ValueCode valstrings[] = {
   {"bl",     "BONUS_CRITERION", BONUS_CRITERION, 8, 'N' ,2, SEND_EXPLICIT},
   {"b2",     "BONUS2_CRITERION", BONUS2_CRITERION, 8, 'N' ,2, SEND_EXPLICIT},
   {"bs",     "EXPT_BLKSIZ", EXPT_BLKSIZ, 8, 'N' ,2, SEND_EXPLICIT}, 
-  {"c0",     "CONTRAST_LEFT", CONTRAST_LEFT, 512+3, 'N' ,4, SEND_EXPLICIT},
-  {"c1",    "CONTRAST_RIGHT",CONTRAST_RIGHT, 512+3 , 'N' ,4, SEND_EXPLICIT},
-  {"tb",     "Twobar sep",TWOBAR_SEP, 1 , 'N' ,2, SEND_EXPLICIT},
+  {"cL",     "CONTRAST_LEFT", CONTRAST_LEFT, 512+3, 'N' ,4, SEND_EXPLICIT},
+  {"cR",    "CONTRAST_RIGHT",CONTRAST_RIGHT, 512+3 , 'N' ,4, SEND_EXPLICIT},
+//  {"tb",     "Twobar sep",TWOBAR_SEP, 1 , 'N' ,2, SEND_EXPLICIT},
   {"Fl",     "Fixation Linw",FIX_LINW, 8 , 'N' ,2, SEND_EXPLICIT},
   {"cg",     "SETCLEARCOLOR",SETCLEARCOLOR, 32 , 'N' ,2, SEND_EXPLICIT},
   {"bj",     "BACKJUMP",BACKJUMP, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1140,21 +1141,21 @@ ValueCode valstrings[] = {
 //  {"pa",     "Polar Angle",STIM_POLARANGLE , 513 , 'N' ,2, SEND_EXPLICIT},
 //  {"o0",    "Old Lori",OLDLEFT_ORI, 514 , 'N' ,2, SEND_EXPLICIT},
 //  {"o1",    "Old Rori",OLDRIGHT_ORI, 514 , 'N' ,2, SEND_EXPLICIT},
-  {"xx",     "Cyberamp channels",CYBER_CHANNELS, 128 , 'N' ,2, SEND_EXPLICIT},
-  {"rs",     "RF Sign",RF_SIGN, 256 , 'N' ,2, SEND_EXPLICIT},
-  {"el",     "End Length",END_LENGTH, 512 , 'N' ,2, SEND_EXPLICIT},
+//  {"xx",     "Cyberamp channels",CYBER_CHANNELS, 128 , 'N' ,2, SEND_EXPLICIT},
+//  {"rs",     "RF Sign",RF_SIGN, 256 , 'N' ,2, SEND_EXPLICIT},
+//  {"el",     "End Length",END_LENGTH, 512 , 'N' ,2, SEND_EXPLICIT},
   {"lw",     "Line Width for online plott",EXPT_LINW, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"ps",     "Plot Smoothing for online RC",PLOTSMOOTH, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"ps",     "Plot Smoothing for online RC",PLOTSMOOTH, 0 , 'N' ,2, SEND_EXPLICIT},
   {"pf",     "Flags Shown on panel",SHOWFLAGS_CODE, 128 , 'C' ,2, SEND_EXPLICIT},
   {"pt",     "Stimuli per fixation Trial",EXPT_STIMPERTRIAL, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"ri",     "RC Correlation delay",RC_DELAY, 8 , 'N' ,2, SEND_EXPLICIT},
+//  {"ri",     "RC Correlation delay",RC_DELAY, 8 , 'N' ,2, SEND_EXPLICIT},
   {"cr",     "Contrast Ratio",CONTRAST_RATIO, 3 , 'N' ,2, SEND_EXPLICIT},
-  {"tx",     "Expt 2 x or + ",ADDEXPTS_CODE , 16 , 'N' ,2, SEND_EXPLICIT},
-  {"ci",     "Command in",COMMAND_IN, 128 , 'C' ,2, SEND_EXPLICIT},
+//  {"tx",     "Expt 2 x or + ",ADDEXPTS_CODE , 16 , 'N' ,2, SEND_EXPLICIT},
+// {"ci",     "Command in",COMMAND_IN, 128 , 'C' ,2, SEND_EXPLICIT},
   {"gr",     "Grid Size",GRIDSIZE, 32 , 'N' ,2, SEND_EXPLICIT},
   {"dO",     "Orthog Disp",ORTHOG_DISP, 515 , 'N' ,2, SEND_EXPLICIT},
   {"dP",     "Paralell Disp",PARALELL_DISP, 515 , 'N' ,2, SEND_EXPLICIT},
-  {"sr",     "RDS/Sine",RDSXSINE, 512 , 'N' ,2, SEND_EXPLICIT},
+//  {"sr",     "RDS/Sine",RDSXSINE, 512 , 'N' ,2, SEND_EXPLICIT},
   {"ns",     "Change Seed",CHANGE_SEED, 16 , 'N' ,2, SEND_EXPLICIT},
   {"d1",     "Disparity 1",DISP_A, 513 , 'N' ,2, SEND_EXPLICIT},
   {"d2",     "Disparity 2",DISP_B, 513 , 'N' ,2, SEND_EXPLICIT},
@@ -1187,7 +1188,7 @@ ValueCode valstrings[] = {
   {"hs",     "High SF val",HIGHSF, 16 , 'N' ,2, SEND_EXPLICIT},
   {"ht",     "High TF val",HIGHTF, 16 , 'N' ,2, SEND_EXPLICIT},
   {"cz",     "Contrast Pairs",CONTRAST_PAIRS, 528 , 'N' ,2, SEND_EXPLICIT},
-  {"sL",     "Stepper Plot Length",STEPPER_PLOTLEN, 32 , 'N' ,2, SEND_EXPLICIT},
+//  {"sL",     "Stepper Plot Length",STEPPER_PLOTLEN, 32 , 'N' ,2, SEND_EXPLICIT},
   {"Nf",     "True Nframes",NFRAMES_DONE, 32 , 'N' ,2, SEND_EXPLICIT},
  // {"pC",     "Plot Cluster/Exp No.",PLOT_CLUSTER, 32 , 'N' ,2, SEND_EXPLICIT},
   {"r1",     "Reward 1",REWARD_SIZE1, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -1216,11 +1217,11 @@ ValueCode valstrings[] = {
   {"fm",     "FixPt Ocularity",FIXPT_EYE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"Sb",     "Sigma X and Y",SD_BOTH, 513 , 'N' ,2, SEND_EXPLICIT},
   {"uk",     "Uka Stair Coeffs",UKA_VALS, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"Pr",     "Phase Disp as RelDisp",PHASE_AS_RELDISP, 513 , 'N' ,2, SEND_EXPLICIT},
-  {"PX",     "Panel X position",PANEL_XPOS, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"Pr",     "Phase Disp as RelDisp",PHASE_AS_RELDISP, 513 , 'N' ,2, SEND_EXPLICIT},
+//  {"PX",     "Panel X position",PANEL_XPOS, 0 , 'N' ,2, SEND_EXPLICIT},
   {"rc",     "Relative contrast",FB_RELATIVE_CONTRAST, 513 , 'N' ,2, SEND_EXPLICIT},
   {"by",     "Background Vertical Disp",BACK_VDISP, 64 , 'N' ,2, SEND_EXPLICIT},
-  {"PY",     "Panel Y position",PANEL_YPOS, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"PY",     "Panel Y position",PANEL_YPOS, 0 , 'N' ,2, SEND_EXPLICIT},
   {"sC",     "Counterphase",SET_COUNTERPHASE, 1 , 'N' ,2, SEND_EXPLICIT},
   {"ui",     "User id", USERID, 128 , 'C' ,2, SEND_EXPT},
   {"Tw",     "Time Ori BW",TEMPORAL_ORI_BANDWIDTH, 1 , 'N' ,2, SEND_EXPLICIT},
@@ -1236,7 +1237,7 @@ ValueCode valstrings[] = {
   {"hxtype",     "High X type",HIGHXTYPE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"monkey", "monkey name (Directory)",MONKEYNAME, 128 , 'C' ,2, SEND_EXPLICIT},
   {"ar", "Aspect Ratio", ASPECT_RATIO, 513 , 'N' ,2, SEND_EXPLICIT},
-  {"Hi", "Hidden Codes", HIDDEN_OPTIONS, 128 , 'C' ,2, SEND_EXPLICIT},
+//  {"Hi", "Hidden Codes", HIDDEN_OPTIONS, 128 , 'C' ,2, SEND_EXPLICIT},
   {"nl",     "N Low F Components", NLOWCOMPONENTS, 1 , 'N' ,2, SEND_EXPLICIT},
   {"nh",     "N High F Comonents", NHIGHCOMPONENTS, 1,  'N' ,2, SEND_EXPLICIT},
   {"ls",     "Final Seed",LAST_SEED, 1 , 'N' ,2, SEND_EXPLICIT},
@@ -1273,7 +1274,7 @@ ValueCode valstrings[] = {
     {  "stimtag", "Stimulus Tag (label)", STIMULUS_TAG, 0, 'C', 0, SEND_EXPLICIT},
     {  "exp", "Expt Prefix (local dir)", EXPT_PREFIX, 0, 'C', 0, SEND_EXPLICIT},
     {  "nph", "Number of Random phases", NPHASES, 0, 'N', 0, SEND_EXPLICIT},
-    {  "jcomp", "SF Components that jump", JUMP_SF_COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
+    {  "jcomp", "SF Components that jump",  COMPONENTS, 0, 'N', 0, SEND_EXPLICIT},
     {  "nsf", "SF Components", SET_SF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
     {  "ntf", "TF Components", SET_TF_COMPONENTS, 0, 'N', 3, SEND_EXPLICIT},
     {  "nco", "Component Contrasts", SET_SF_CONTRASTS, 0, 'N', 3, SEND_EXPLICIT},

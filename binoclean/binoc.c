@@ -492,8 +492,6 @@ void ShowTime()
     if(issfrc(expt.stimmode))
         return;
     return;  //prefer to have status line printed
-    px = (int)(ExptProperty(&expt, PANEL_XPOS));
-    py = (int)(ExptProperty(&expt, PANEL_YPOS));
     
     if(px > 400)
         x[0] = -600;
@@ -669,7 +667,6 @@ void initial_setup()
 	TheStim->fix.timeout = 1.0;
 	expt.vals[BLANKCOLOR_CODE] = 1.0;
 	expt.vals[TIMEOUT_CONTRAST] = 1.0;
-	expt.vals[PLOTSMOOTH] = 1.0;
 	afc_s.sacval[0] = 0.0;
 	afc_s.sacval[1] = 0.0;
 	afc_s.sacval[2] = 0.0;
@@ -3626,14 +3623,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
                      expt.vals[DISP_P] = st->phasedisp[0] = 0;
              }
             break;
-        case PHASE_AS_RELDISP:
-            /*
-             * phase is added half to each eyey. 2PI/2 = PI.
-             */
-            expt.vals[DISP_P] = st->phasedisp[0] = -val * M_PI * st->f;
-            if(st->next)
-                st->next->phasedisp[0] = -val * M_PI * st->f;
-            break;
+
         case DISP_P:
             expt.vals[DISP_P] = st->phasedisp[0] = deg_rad(val)/2;
             if(st->type == STIM_RDS)
@@ -8341,9 +8331,7 @@ float StimulusProperty(Stimulus *st, int code)
             else
                 value = 0;
             break;
-        case PHASE_AS_RELDISP:
-            value = -st->phasedisp[0]/(M_PI * st->f);
-            break;
+
         case DISP_P:
             /*
              * Phase disp recorded in radians in the UFF files, so report it that way here
@@ -8887,7 +8875,6 @@ void SaveExptFile(char *filename,int flag)
                     case SEND_CLEAR:
                     case SD_BOTH:
                     case FB_RELATIVE_CONTRAST:
-                    case PHASE_AS_RELDISP:
                     case DISP_A:
                     case DISP_B:
                     case STIM_POLARANGLE:
