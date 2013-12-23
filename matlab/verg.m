@@ -12,6 +12,8 @@ if length(varargin) & ishandle(varargin{1})
 else
     checkforrestart = 1;
     TOPTAG = 'vergwindow';
+    
+%just parse arguments here that need to be set before reading DATA from figure    
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'autoreopen',6)
@@ -31,6 +33,7 @@ while j <= length(varargin)
     elseif strcmp(varargin{j},'monitor')
         DATA.frombinocfid = fopen('/local/frombinoc.txt','a');
         DATA.perfmonitor = 1;
+
     end
     j = j+1;
 end
@@ -117,6 +120,8 @@ else
     DATA = get(it,'UserData');
 end
 end
+
+%here parse varargin that require DATA to have been read
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{1},'close',5)
@@ -141,6 +146,8 @@ while j <= length(varargin)
     elseif strcmp(varargin{j},'autoreopen')
         DATA.autoreopen = 1;
         set(DATA.toplevel,'UserData',DATA);
+    elseif strcmp(varargin{j},'checkstart')
+        DATA = CheckStateAtStart(DATA);
     end
     j = j+1;
 end
@@ -152,7 +159,15 @@ function DATA = CheckStateAtStart(DATA)
         str = 'You Can define A "reset" stimfile that is Run before loading each new Expt. Put ereset=path in verg.setup or your stimfile';
         msgbox(str);
     end
-    
+    if DATA.verbose(4)
+    for j = 1:length(DATA.comcodes)
+       if ~isfield(DATA.helpstrs,DATA.comcodes(j).code) 
+           if ~strcmp('xx',DATA.comcodes(j).code)
+               fprintf('No help for %s\n',DATA.comcodes(j).code);
+           end
+       end
+    end
+    end
     
 function [DATA, codetype] = InterpretLine(DATA, line, varargin)
 
@@ -1531,8 +1546,9 @@ function [strs, Keys] = ReadHelp(DATA)
     txt = a{1};
     for j = 1:length(txt)
         code = regexprep(txt{j},'\s.*','');
-        if ~isempty(code) && txt{j}(1) ~= '#'
-            if isfield(strs,code)
+        if code(1) == '+'  %optionflag help
+        elseif ~isempty(code) && txt{j}(1) ~= '#'
+            if isfield(strs,code) && DATA.verbose(4)
                 fprintf('%s help duplicated\n',code);
             end
             str = regexprep(txt{j},code,'');

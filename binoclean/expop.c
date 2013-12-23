@@ -3127,9 +3127,6 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
             else if(val > -0.1 && val < 0.1)
                 st->flag |= BACK_ONLY;
             break;
-        case SPIKE_GAIN:
-            expt.spikegain = val;
-            break;
         case TRIGGER_LEVEL:
             exp->tl = val;
             expt.vals[TRIGGER_LEVEL1] = val;
@@ -3766,9 +3763,6 @@ float ExptProperty(Expt *exp, int flag)
                 val = 1;
             else
                 val = 0;
-            break;
-        case SPIKE_GAIN:
-            val = expt.spikegain;
             break;
         case NFRAMES_CODE:
             val = (float)exp->st->nframes;
@@ -8586,7 +8580,7 @@ int PrepareExptStim(int show, int caller)
         if(expt.vals[CHANGE_SEED] > 0)
             st->right->show_increment = st->left->show_increment = 0;
     }
-    else if(st->type != STIM_IMAGE){
+    else if(st->type != STIM_IMAGE  && expt.st->left->baseseed > 1000){
         /*
          * Need to initialize seed for random phase sequences etc for
          * non-rds stimulist

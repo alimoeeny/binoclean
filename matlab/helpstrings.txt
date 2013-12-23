@@ -1,10 +1,8 @@
-Covariate In Psych training, this variable covaries withe the metatmeter
 sx  Sd of Gaussian Envelope, orthogonal to Orientation.
 sy  Sd of Gaussian Envelope, Parallel to Orientation.
-dp  Phase angle disparity.  For RLS/RDS its a disparity in degrees, but made by "rotating" the pattern, not by horizontal displacement
-xn  For Gabors, size of grid rectangle in X direction
-yn  For Gabors, size of grid rectangle in Y direction
-sl  sl=0 make RDS/RLS dynamic. sl=1 fixed seed, static/drifting (jv  > 0). sl=n pattern changed every nth frame, if n > 1
+dp  Phase angle disparity.  For RLS/RDS its a disparity in degrees, but made by "rotating" the pattern, not by horizontal displacement. For Nsine stimuli, applies same phase angle difference to each component.
+Pd Applies a phase disparity that is equivalend to this value of horizontal disparity.
+sl 0 = dynamic RDS/RLS. 1 = drifting RDS/RLS. If >1, then image changes every nth frame. If op+rp this change is a new pattern, othewise a displacemt to achieve nominal speed (jv). sl>1 also makes grating drift sampled
 f2 SF of second frequency component for compound gratings/plaids
 helpfile path to a text file with help. Syntax: helpfile="Label"filename  "Label" is shown on in help menu. Contents of filename will be displayed.
 cd Sets correlation (ce) to +1 and sets disparity orthogonal to RF (dO) to the value given. Just for Conveneice - doesn't change other variables.
@@ -16,23 +14,21 @@ Fs Size of fixation point jump (degrees)
 xo horizontal pos of stimulus (degrees)
 yo vertical pos of stimulus (degrees)
 lo File name for logging weight, coil settings 
-dp disparate phase. For RLS/RDS this applies a disparity in degrees by "wrapping around"  #Binocular
 dx disparity applied by horizontal translation of whole stimulus #Binocular Disparity
-dx disparity applied by vertical translation of whole stimelus #Binocular Disparity
+dy disparity applied by vertical translation of whole stimelus #Binocular Disparity
 sz sets wi and hi.
 wi Full Width (diameter). For Bars, this determines how far they sweep
+hi Full Height (diameter). 
 sf Spatial Frequency (cpd). For Bars, widht of bar is half period.
-xn density of sampling in x direction for stim that use interpolation. Rare
-yn density of sampling in Y direction for stim that use interpolation. E.G. When there is a Gaussian envelope. Rarely set by user
+xn density of sampling in x direction for stim that use interpolation. For Gabors, size of grid rectangle in X direction. rarely set manually.
+yn density of sampling in Y direction for stim that use interpolation. E.G. When there is a Gaussian envelope (Gabors). Rarely set by user
 tf temporal frequency (Hz)
 ph spatial phase in degrees. This will get changed if tf != 0 see also ip
 ip initial phase. Set Spatial phase at stim start
-f2 SF of component 2 in compound gratings (2grating)
-t2 TF of component 2 in compound gratings (2grating)
+t2 TF of component 2 in compound gratings/plaids (2grating or grating with a2>0)
 p2 phase of component 2 in compound gratings
 c2 contrast of component 2 in compound gratings and plaids
 a2 when > 0, turns grating into plaid, and RLS into noise plaid. Sets angle difference between components, so changes in or rotate both.
-sl 0 = dynamic RDS/RLS. 1 = drifting RDS/RLS. If >1, then image changes every nth frame. If op+rp this change is a new pattern, othewise a displacemt to achieve nominal speed (jv). sl>1 also makes grating drift sampled
 jv Drift speed of dots in RLS, lines in RLS. For Cylinder sets speed of axial rotation (360 = one complete rotation per second)
 bpos position of texture defined boundary, in degrees from center of stimulus (RLS)
 bjv  rate at which boundary position (RLS) moves  
@@ -50,7 +46,6 @@ ta Very special. Don't mess with this.
 pa Very special. Don't mess with this. 
 dr changes RDS dispaity deg/sec
 dq phase disparity applied to second component of compound grating
-lw line width for RF box and other lines drawn in overlay of main display
 pf This controls the GUI appearance, written like OP code: pf=+sq+lm+rm codes on this list will have a checkbox in the Main verg window.
 pt Number of stimuli presented per fixation trial.  
 po postperiod (seconds). This much time must elapse after stim off before the trial ends, or the next stimulus is shonw (if pt > 1)
@@ -122,7 +117,7 @@ hL Height/Length in L eye.  Sets hi and and hd #binocular disparity size
 hR Height/Length in R eye.  Sets hi and and hd #binocular disparity size
 hd Length/Height Disparity  hR = hi-hd/2 hL = hi+hd/2 #binocular disparity size
 wL Width in L eye.  Sets wi and and wd #binocular disparity size
-hR Height/Length in R eye.  Sets wi and and wd #binocular disparity size
+wR Width in R eye.  Sets wi and and wd #binocular disparity size
 wd Length/Height Disparity  wR = wi-wd/2 wL = wi+wd/2 #binocular disparity size
 SL Size in L eye.  Sets sz (wi and hi) and and Sd #binocular disparity size
 SR Size in R eye.  Sets sz (wi and hi) and and Sd #binocular disparity size
@@ -140,8 +135,8 @@ by Vertical dispairity of Backround stim # binocular disparity background
 sC Expt Type only. Allows interleaving of counterphase and drifting stimuli
 ui String, needs to match binocs list #log
 Tw vaires range of oris mixed frame by frame
-Dc For fast seqs, controls fraction of frames that are signal frames. #revcor reverse correlation psych 
-Id Initial Dispaity.  For Cylinders, dispaity applied for first ns frames. Applie to stimuli where abs(dx) < mD
+Dc For fast seqs, controls fraction of frames that are signal frames. Rest are random picks from Dm +- Ri * Dw.  #revcor reverse correlation psych 
+Id For cylinders, where abs(dx) < mD, this disparity is applied for the first ns frames
 mD For manipulations like Id, that only apply to near zero signals, "near zero x" means abz(x) < mD #psych cylinder
 O2 second orientation used for the Radial stimulus type (very rare)
 n3 number of stimuli for Expt3 
@@ -149,12 +144,10 @@ Sr Rate of change in orientation (degrees/sec)
 xd When sl=1, allows control over position of dot pattern within apterture. Degrees.
 ob Only meaningful for st=image, controls which image is loaded.
 Ri For expts using Distribution Concentration (Dc), this is the incmrement between stimuli in the distribution.  See Also Dc, Dm 
-Dc Fraction of frames at signal value. Rest are random picks from Dm +- Ri * Dw. 
 Dw Number of different stimuli comprising random distribution for Dc expts. See Also Dc, Ri, Dm
 fH For generating rectangular fixation windows. Set fs first, then fH. '
 St minimum eye displacement before Spike will report a saccade
 Sa minium saccade size that binoc will punish. See also baddir
-Id For cylinders, where abs(dx) < mD, this disparity is applied for the first ns frames
 vv appies a vertical disparity to the fixation marker.
 px pixel size(X) in cm. Also reports back size in degrees.
 vd viewing distance eye - screen in cm
@@ -177,7 +170,7 @@ qe name an expt file to be added to the Quick Menu
 lc This many correct trials required to exit a correction loop #Psych Training
 ec After responding incorrectly to N consecutive stimuli of a given sign, enter a correction loop wehre only that choice direction is shown. #Psych Training
 cc How strongly the covariate changes with signal in psych trainig. See also Covariate #Psych Training
-Covariate name of a parameter that covaries with psych signal. Typically xo. See also cc #Psych Training
+Covariate name of a parameter that covaries with psych metameter (signal). Typically xo. See also cc #Psych Training
 bs Divide expt into blocks where each stimulus is shown N (=bs) times, before any stim is shown N+1. 
 cR Contrast of R eye stimulus. See also cL, ic #Binocular Disparity
 cL Contrast of L eye stimulus. See also cR, ic #Binocular Disparity
@@ -189,7 +182,7 @@ lf SF of L eye stimulus. See also rf, ds #Binocular Disparity
 rx size of a random x displacement applied at the start of each stimulus. For psych #human psych
 ox size of a random orientation displacement applied at the start of each stimulus. For psych #human psych
 bb apllies an orientation disparity to Foreground and Background
-lw line with for drawing RF box, manually drawn lines
+lw line with for drawing RF box, manually drawn lines, in ovelary of main display
 ts When shake detector activated, timeout in sec
 Ol orientation in left eye
 Or orientation in Right eye
@@ -215,6 +208,8 @@ StartDepth records depth where electrode entered.
 TwoCylDisp applies the same disparity to foreground and background cylinders.
 rC Expt Type only.
 posinc Read only. Reports jv as position increment per frame
+Op Position relative to RF in direction orthogonal to RF ori See also Pp,aOp
+Pp Position relative to RF in direction parallel to RF ori. See also Op,rPp
 aOp Position relative to 0,0 but in direction orthogonal to RF ori
 aPp Position relative to 0,0 but in direction parallel to RF ori
 verbose controls level of diagnostic printouts
@@ -233,7 +228,7 @@ psyv in stim files, sets the psychophysical metameter for this stim.
 expname arbitrary label to give to manual expts. Will be used by combine for grouping #Manual
 exp folder where manual expt stims will be for a manual expt #Manual
 stimtag label in stimN files that will be placed in Expt.Trials
-nph number of phase values for random phase. nph=0 stops random phase jumps in grating
+nph number of phase values for random phase. nph=0 stops random phase jumps in grating. nph = 1 produces a random walk - the phase increment is added, but with a random sign.
 jcomp for nsinest stimuli a list of 0s and 1s determinig which components will jump when a random phase jump happens, see also nph,sl
 nsf a list of sf components for Nsine stimuli
 ntf a list of tf values for Nsine stimuli
@@ -245,3 +240,24 @@ imload "preload" = load images from disk befor starting trial. "normal" read on 
 monitor path of file with monitor characteristics
 ereset path of file applied before reading a new expt file, to reset state. I.e clear out odd variables.
 seqpause when running sequences or repeats of expts, this pause is enforced between exts (sec)
+psychfile path to a local file where results of each trial are written in format used by PsychMon
+onlineprefix location for online data files written by mac (stimulus descriptions etc). Set automatcially when filename is changed. Not usuall set manually. 
++bac make RLS background the contrast inverse of foreground
+st stimulus type. One of rls,rds,cylinder,grating,2grating,nsine,gabor,rlssine,none,bar,gabor,rectangle,square,corrug,sqcorrug,annulus,image,checker. In matlab, StimulusName converts names <-> code numbers. 
+imy vertical position of background image. Performed by rotating pixels in image
+imx horizontal position of background image Performed by rotating pixels in image
+se seed used to generate RDS/RLS. se < 1000 have a special meaning - they are not automatically incremented. So if se < 1000 and sl = 1, then all stimuli will be generated using the same seed. For orbw image types, set which sample image is used. 
+dm amplitdude of depth modulation in corrug,sqcorrug stimuli. 
+ce Correlation. For gratings ce=0 produces random phases in each eye.
+mixac mixes correlated an anticorrelated dots. 0 = all corr, 1 = all Anticorr #binocular disparity ac
+bc sets correlation of back stim. 
+mo controls which stimulus is affected by subsequent commands mo=fore, mo=back, mo=ChoiceU,mo=ChoiceD,mo=st3.  Usually set mo=fore after setting any other stimulus. 
+baddir axis for bad micorsaccades. amplitued > Sa and direction with 45 degrees of baddir = trial aborted. Usually set automatically by axis of choice targets, but can overridden manual with this. 
+usenewdirs  if >0 uses differnt rules for placing the choice targets.  Avoid!
+cmdfile the named file is monitored for changes. If it changes, then binoc reads its contents and executes the commands. Used for remote monitoring/control
+dk Orientation disparity of background stimulus.
+lv Expt Type Only
+it force a delay between trials (sec), not between stimuli in a trial. Useful when there are licking artifacts. 
+ga record gamma correction used.  Doen't do anything inside binoc
+RO Moves RF box in a direction orthogonal to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
+RP Moves RF box in a direction parallel to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.

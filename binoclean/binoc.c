@@ -696,7 +696,6 @@ void initial_setup()
     
 	pos->size[0] = rint(width/pos->ss[0]);
 	pos->size[1] = rint(height/pos->ss[1]);
-	expt.spikegain = 10.0;
 	expt.electrode_depth = 0.0;
 	expt.vals[FIXATION_OVERLAP] = 100;
 	expt.vals[SHAKE_TIMEOUT_DURATION] = 10;
@@ -5173,7 +5172,7 @@ int change_frame()
 }
 
 
-float SetRandomPhase( Stimulus *st,     Locator *pos)
+float SetRandomPhase( Stimulus *st, Locator *pos)
 {
     int iphase,i;
     float phase;
@@ -5215,7 +5214,7 @@ float SetRandomPhase( Stimulus *st,     Locator *pos)
         pos->phase2 = (myrnd_i() %2) * M_PI;
     }
     else{
-        if( st->nphases > 0){
+        if( st->nphases > 1){
         iphase = (myrnd_i() %st->nphases);
         pos->phase = (iphase * 2 * M_PI)/st->nphases;
         pos->phase2 = (myrnd_i() %st->nphases);
@@ -5225,12 +5224,27 @@ float SetRandomPhase( Stimulus *st,     Locator *pos)
                     st->phases[i] = (myrnd_i() %st->nphases) * 2 *  M_PI/st->nphases;
             }
         }
+        if (st->nphases ==1) //this is a random walk - apply increment but in random direction
+        {
+            if (mode & FIRST_FRAME_BIT && optionflags[RANDOM_INITIAL_PHASE]){
+                iphase = (myrnd_i() %360);
+                pos->phase = (iphase * 2 * M_PI)/st->nphases;
+            }
+            else{
+                iphase = 2*(myrnd_i() %2)-1;
+                pos->phase += (st->incr * iphase);
+                pos->locn[0] += (st->posinc * iphase);
+            }
+        }
     }
     frameiseqp[expt.framesdone] = iphase;
     if(pos->phase != 0)
         iphase = 0;
     phase = pos->phase;
+    return(phase);
 }
+
+
 void SetRandomCorrelation(Stimulus *st)
 {
     double arnd,brnd;
@@ -5618,11 +5632,11 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
                 myrnd_init(st->left->baseseed+st->framectr);
                 SetRandomPhase(st, pos);
-                if (st->left->seedloop > 1 && st->type == STIM_GRATINGN || st->type == STIM_GRATING)
+                if (st->left->seedloop > 1 && (st->type == STIM_GRATINGN || st->type == STIM_GRATING))
                     mode |= STIMCHANGE_FRAME;
 
             }
-            else if(st->left->seedloop > 1){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
+            else if(st->left->seedloop > 1 &&st->nphases > 2){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
                 pos->phase += st->incr;
                 frameiseqp[expt.framesdone] = (int)(pos->phase * 180/M_PI)%360; //record actual PHASE2
             }
@@ -5632,9 +5646,9 @@ void increment_stimulus(Stimulus *st, Locator *pos)
                pos->phase += st->incr;
             else if (st->framectr % (int)st->left->seedloop == 0)
                 pos->phase += (st->incr * st->left->seedloop);
+            if (st->left->seedloop == 1)
+                pos->locn[0] += st->posinc;
         }
-        if (st->left->seedloop == 1)
-            pos->locn[0] += st->posinc;
 		if((st->type == STIM_BAR || st->type == STIM_TWOBAR) && !(st->mode & EXPTPENDING) &&
 		   (option2flag & EXPT_INTERACTIVE))
             pos->phase = M_PI/2;
@@ -6865,7 +6879,7 @@ int next_frame(Stimulus *st)
             else if(mimic_fixation && val > TheStim->fix.rt-0.02){
                 if(SACCREQD(afc_s)){
                     printf("og=%.3f\n",o);
-                    if((o = drand48()) < expt.spikegain)
+                    if((o = drand48()) < afc_s.proportion)
                         GotChar(WURTZ_OK);
                     else{
                         GotChar(WURTZ_OK_W);
