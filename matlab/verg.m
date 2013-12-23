@@ -3376,7 +3376,7 @@ function CodesPopup(a,b, type)
     helpmenu = sm;
     hm = uimenu(cntrl_box,'Label','Print','callback',{@CodesPopup, 'printcodes'});
     hm = uimenu(cntrl_box,'Label','Search');
-    sm = uimenu(hm,'Label','Ignore case','callback',{@SearchList, 'IgnoreCase'},'Tag','IgnoreCase');
+    sm = uimenu(hm,'Label','Ignore case','callback',{@SearchList, 'IgnoreCase'},'Tag','IgnoreCase','checked','on');
     
     uicontrol(gcf,'style','pop','string','Search: All|Search: Codes|Search: Labels|Search: Help','tag','SearchMode',...
         'units','norm', 'Position',[0 0.01 0.3 0.08]);
