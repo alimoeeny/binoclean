@@ -1547,6 +1547,9 @@ function [strs, Keys] = ReadHelp(DATA)
     for j = 1:length(txt)
         code = regexprep(txt{j},'\s.*','');
         if code(1) == '+'  %optionflag help
+            str = regexprep(txt{j},code,'');
+            code = code(2:end);
+            Keys.options.(code) = str;
         elseif ~isempty(code) && txt{j}(1) ~= '#'
             if isfield(strs,code) && DATA.verbose(4)
                 fprintf('%s help duplicated\n',code);
@@ -3346,6 +3349,7 @@ function CodesPopup(a,b, type)
       cmenu = uicontextmenu;
       set(cmenu,'UserData',lst);
       uimenu(cmenu,'label','Help','Callback',{@CodeListMenu, 'Help'});
+      a = AddOptionHelp(DATA,a);
       set(lst,'string',a);
       setappdata(GetFigure(lst),'HelpKeyList',keys);
       setappdata(GetFigure(lst),'OldText',a);
@@ -3408,12 +3412,26 @@ for j = 1:length(DATA.comcodes)
         nc = nc;
     end
 end
+a = AddOptionHelp(DATA,a);
+
 set(lst,'string',a);
 setappdata(GetFigure(lst),'HelpKeyList',keys);
 setappdata(GetFigure(lst),'OldText',a);
 
 if strcmp(type,'popuphelp')
     CodesPopup(helpmenu,b,'byhelp');
+end
+
+    function a = AddOptionHelp(DATA,a)
+        
+if isfield(DATA.helpkeys,'options')
+    s = 'Binary options';
+    a(end+1,1:length(s)) = s;
+    f = fields(DATA.helpkeys.options)
+    for j = 1:length(f)
+        s = sprintf('+%s %s',f{j},DATA.helpkeys.options.(f{j}))
+        a(end+1,1:length(s)) = s;
+    end
 end
 
 function ToggleCheck(a)

@@ -1247,7 +1247,7 @@ void calc_stimulus(Stimulus *st)
     st->right->pos.xy[0] = st->pos.xy[0] - st->disp;
     st->left->pos.xy[1] = st->pos.xy[1] + st->vdisp;
     st->right->pos.xy[1] = st->pos.xy[1] - st->vdisp;
-    
+    st->right->ptr->deathchance = st->left->ptr->deathchance;
     st->left->pos.imsize[1] = 2* st->pos.radius[1] + deg2pix(st->dwidth)/2;       
     st->right->pos.imsize[1] = 2 * st->pos.radius[1] - deg2pix(st->dwidth)/2;
     st->left->pos.imsize[0] = 2* st->pos.radius[0] + deg2pix(st->dlength)/2;       

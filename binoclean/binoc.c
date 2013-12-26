@@ -3089,8 +3089,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             clear_display(1);
             break;
         case JDEATH:
-            if(st->type == STIM_CYLINDER)
-                st->left->ptr->deathchance = val;
+            st->left->ptr->deathchance = val;
             break;
         case BPOSITION:
             st->left->boundarypos = deg2pix(val);
@@ -6096,14 +6095,17 @@ void testcolor()
 float SetFixColor(Expt expt)
 {
     
-    if (optionflags[SHOW_REWARD_BIAS])
+    if (optionflags[SHOW_REWARD_BIAS] && optionflag & AFC_SET)
       	optionflag |= (SQUARE_FIXATION);
-    if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+    if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0 && optionflag & AFC_SET){
         expt.st->fixcolor = expt.st->fix.offcolor;
     }
-    else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+    else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0 && optionflag & AFC_SET){
         expt.st->fixcolor = expt.st->fix.fixcolors[0];
         optionflag &= (~SQUARE_FIXATION);
+    }
+    else if (optionflags[SHOW_REWARD_BIAS] && !(option2flag & AFC) && stimstate == PREFIXATION){
+        expt.st->fixcolor = expt.st->fix.offcolor;
     }
     else if (stimstate == INTERTRIAL)
         expt.st->fixcolor = expt.st->fixcolor;
@@ -6402,7 +6404,10 @@ int next_frame(Stimulus *st)
                 fixstate = GOOD_FIXATION;
             if (optionflags[SHOW_REWARD_BIAS])
                 optionflag |= (SQUARE_FIXATION);
-            if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+            if (optionflags[SHOW_REWARD_BIAS] && !(option2flag & AFC)){
+                TheStim->fixcolor = TheStim->fix.offcolor;
+            }
+            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
                 TheStim->fixcolor = TheStim->fix.offcolor;
             }
             else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
@@ -6477,17 +6482,7 @@ int next_frame(Stimulus *st)
             
             if(debug) glstatusline("PreStim",3);
             clearcolor = TheStim->gammaback;
-            if (optionflags[SHOW_REWARD_BIAS])
-                optionflag |= (SQUARE_FIXATION);
-            if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
-                TheStim->fixcolor = TheStim->fix.offcolor;
-            }
-            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
-                TheStim->fixcolor = TheStim->fix.fixcolors[0];
-                optionflag &= (~SQUARE_FIXATION);
-            }
-            else
-                TheStim->fixcolor = TheStim->fix.fixcolor;
+            SetFixColor(expt);
             if(CheckFix() < 0)
                 break;
             //Ali  CheckKeyboard(D, allframe);

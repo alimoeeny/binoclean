@@ -242,7 +242,6 @@ ereset path of file applied before reading a new expt file, to reset state. I.e 
 seqpause when running sequences or repeats of expts, this pause is enforced between exts (sec)
 psychfile path to a local file where results of each trial are written in format used by PsychMon
 onlineprefix location for online data files written by mac (stimulus descriptions etc). Set automatcially when filename is changed. Not usuall set manually. 
-+bac make RLS background the contrast inverse of foreground
 st stimulus type. One of rls,rds,cylinder,grating,2grating,nsine,gabor,rlssine,none,bar,gabor,rectangle,square,corrug,sqcorrug,annulus,image,checker. In matlab, StimulusName converts names <-> code numbers. 
 imy vertical position of background image. Performed by rotating pixels in image
 imx horizontal position of background image Performed by rotating pixels in image
@@ -261,3 +260,5 @@ it force a delay between trials (sec), not between stimuli in a trial. Useful wh
 ga record gamma correction used.  Doen't do anything inside binoc
 RO Moves RF box in a direction orthogonal to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
 RP Moves RF box in a direction parallel to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
++bac make RLS background the contrast inverse of foreground
++sR Fixation point changes with reward bias + if neutral, offcolor if < 0 oncolor if > 0. If +afc is not set, then color is offcolor except when fixation is in window
