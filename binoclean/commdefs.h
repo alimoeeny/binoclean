@@ -712,7 +712,7 @@ ToggleCode togglestrings[] = {
     {"AFC", "afc", 0, AFC, 2,},
     //   {"P.Perf",     "pp",  0, PERF_STRING, 2},
     {"Indicate Reward Bias",    "sR",  0, SHOW_REWARD_BIAS, 3},
-    {"Collapse Expt3",    "C3",  0, COLLAPSE_EXPT3, 3},
+//    {"Collapse Expt3",    "C3",  0, COLLAPSE_EXPT3, 3},
     {"Odd Man Out",    "af3", 0, ODD_MAN_OUT_TASK, 3},
     {"Choice by icon",    "Rcd", 0, CHOICE_BY_ICON, 3},
     {"Icon In Trial",    "Iit", 0, ICON_IN_TRIAL, 3},

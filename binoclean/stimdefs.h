@@ -395,7 +395,7 @@ float pix2degy(float val);
 #define RANDOM_CONTRAST 57
 #define RANDOM_CORRELATION 58
 #define SHOW_REWARD_BIAS 59
-#define COLLAPSE_EXPT3 60
+//#define COLLAPSE_EXPT3 60
 #define ODD_MAN_OUT_TASK 61
 #define CHOICE_BY_ICON 62
 #define JUMP_IMAGE 63
