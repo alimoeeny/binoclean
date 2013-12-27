@@ -1,0 +1,9 @@
+st=2grating
+sf=4
+tf=2
+sz=6
+jv=0.5
+nph=0
+!mat=Gamma2
+op=+exm
+exp=/local/expts/Gamma2

@@ -351,6 +351,8 @@ int calc_rds(Stimulus *st, Substim *sst)
   int eyemode,induced = 0,hpixmul,wpixmul;
   float *pf,wscale,hiscale,dw,laps,partlap,ftmp;
   int wrapped = 0,sumwrap = 0,nowrap = 1;
+    int jumpdots = 0,jumpsize=1,seedoffset=0;
+    
 //Ali did this 7/19/13
     uint64_t q,prnd, rnds[10],myrnd_u();
 
@@ -539,9 +541,22 @@ int calc_rds(Stimulus *st, Substim *sst)
   h = (vcoord)(2 * pos->radius[1] - sst->dotsiz[1]/2);
   dw = sst->dotsiz[0]/2;
   xshift[0] -= w/2;
-  srandom(sst->seed);
-  myseed(sst->seed);
-  srand48(sst->seed);
+    jumpdots = 2 * sst->ndots;
+    jumpsize = 1;
+    if (sst->seedloop > 0 && sst->ptr->deathchance > 0.001){
+        jumpdots = st->framectr * sst->ndots * sst->ptr->deathchance;
+        jumpdots = sst->ndots - jumpdots;
+        while (jumpdots < 0){
+            jumpdots += sst->ndots;
+            seedoffset++;
+        }
+    }
+    
+    
+    
+  srandom(sst->seed+seedoffset);
+  myseed(sst->seed+seedoffset);
+  srand48(sst->seed+seedoffset);
   if(!(optionflag & SQUARE_RDS))
     {
       asq = pos->radius[0] * pos->radius[0];
@@ -695,7 +710,7 @@ int calc_rds(Stimulus *st, Substim *sst)
   hiscale = (float)(ih)/0xffff;
     
   ncalls = 0;
-    
+
   if(sst->seedloop == 1 && pos->radius[0] > pos->radius[1] * 4)
     nwrap = 32;
     nac = 0;
@@ -714,9 +729,12 @@ int calc_rds(Stimulus *st, Substim *sst)
        * in an extra call to random to uncorrelate Right
        */
         
+      if (i == jumpdots) //change remaining dots - implements deathchance
+          myseed(sst->seed+jumpsize+seedoffset);
+        
       if(i == sst->corrdots && sst->mode == RIGHTMODE && !seedcall){
-	srandom(sst->seed+200),seedcall++;
-	myseed(sst->seed+200);
+          srandom(sst->seed+200),seedcall++;
+          myseed(sst->seed+200);
       }
       prnd = myrnd_u();
       q = myrnd_u();

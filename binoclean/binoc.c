@@ -246,28 +246,28 @@ static int stepframe = 0;
 
 char *toggle_strings[] = {
     /* optionflag */
-	"Goraud Shading", "Dithering", "Frame Test","Go",
-	"AntiAlias", "Square","72Hz","Cnrst Rev",
-	"S.E.","Back Fixed","Test mode","Fix cross","Box",
-	"Auto Plot","Wurtz Task","PreBack","L Monoc","R Monoc",
-	"Checkfix","Verg Check","Whole Stimuli", "Store",
-	"Show Val", "Conjuate Tracking", "Trials",
-	"Wait for BW", "Disp Clamp", "Clamp+Hold", "Search..", 
-	"Vgc Ramps", "RampHold", "See Conj", 
-    /* option2flag */
-	"Flash", "Interact","FREE",
-	"Vary Vergence","+Anti", "+Blank", "+random", "+monoc", "+uncorr",
-	"wipe screen",
-	"PsychoPhysics",  
-	"Alt Probe", "RANDOM","Stair","AFC", "P.Perf", "IFC",
-	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
-	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
-	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
-	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
-    "Odd Man Out","Choice by icon","Image Jumps",
-    "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
-    "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
-    "Show Stim Boxes",
+//	"Goraud Shading", "Dithering", "Frame Test","Go",
+//	"AntiAlias", "Square","72Hz","Cnrst Rev",
+//	"S.E.","Back Fixed","Test mode","Fix cross","Box",
+//	"Auto Plot","Wurtz Task","PreBack","L Monoc","R Monoc",
+//	"Checkfix","Verg Check","Whole Stimuli", "Store",
+//	"Show Val", "Conjuate Tracking", "Trials",
+//	"Wait for BW", "Disp Clamp", "Clamp+Hold", "Search..", 
+//	"Vgc Ramps", "RampHold", "See Conj", 
+//    /* option2flag */
+//	"Flash", "Interact","FREE",
+//	"Vary Vergence","+Anti", "+Blank", "+random", "+monoc", "+uncorr",
+//	"wipe screen",
+//	"PsychoPhysics",  
+//	"Alt Probe", "RANDOM","Stair","AFC", "P.Perf", "IFC",
+//	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
+//	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
+//	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
+//	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
+//    "Odd Man Out","Choice by icon","Image Jumps",
+//    "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
+//    "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
+//    "Show Stim Boxes",
     NULL,
 };
 
@@ -350,7 +350,7 @@ char *toggle_codes[] = {
     "rC", // random contrast
     "rI", // random interocular correlation
     "sR", // show reward bias
-    "C3", //Collapse Psychophysics across Expt3  
+//    "C3", //Collapse Psychophysics across Expt3
     "af3", //Odd man out task
     "Rcd", //Choice direction random
     "ijump", //Image jumps
@@ -627,7 +627,6 @@ void initial_setup()
     char *s,buf[BUFSIZ*10];
     
 	setgamma(1.22);
-	defaultflags[COLLAPSE_EXPT3] = 1;
 	defaultflags[BINOCULAR_FIXPOINT] = 1;
 	defaultflags[STAIR_CENTER] = 1;
     
@@ -3089,8 +3088,7 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
             clear_display(1);
             break;
         case JDEATH:
-            if(st->type == STIM_CYLINDER)
-                st->left->ptr->deathchance = val;
+            st->left->ptr->deathchance = val;
             break;
         case BPOSITION:
             st->left->boundarypos = deg2pix(val);
@@ -5654,7 +5652,13 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             pos->phase = M_PI/2;
 		else if (st->type == STIM_GRATING2 || st->type == STIM_GRATING)
         {
-		    pos->phase2 += st->left->incrs[1];
+		    if (optionflags[RANDOM_RELPHASE] && st->nphases > 0){
+                iphase = myrnd_i() % st->nphases;
+                pos->phase2 = (iphase * M_PI * 2)/st->nphases;
+            }
+            else
+                pos->phase2 += st->left->incrs[1];
+            
 		}
 		else if (st->type == STIM_GRATINGN)
         {
@@ -6096,14 +6100,17 @@ void testcolor()
 float SetFixColor(Expt expt)
 {
     
-    if (optionflags[SHOW_REWARD_BIAS])
+    if (optionflags[SHOW_REWARD_BIAS] && optionflag & AFC_SET)
       	optionflag |= (SQUARE_FIXATION);
-    if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+    if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0 && optionflag & AFC_SET){
         expt.st->fixcolor = expt.st->fix.offcolor;
     }
-    else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
+    else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0 && optionflag & AFC_SET){
         expt.st->fixcolor = expt.st->fix.fixcolors[0];
         optionflag &= (~SQUARE_FIXATION);
+    }
+    else if (optionflags[SHOW_REWARD_BIAS] && !(option2flag & AFC) && stimstate == PREFIXATION){
+        expt.st->fixcolor = expt.st->fix.offcolor;
     }
     else if (stimstate == INTERTRIAL)
         expt.st->fixcolor = expt.st->fixcolor;
@@ -6402,7 +6409,10 @@ int next_frame(Stimulus *st)
                 fixstate = GOOD_FIXATION;
             if (optionflags[SHOW_REWARD_BIAS])
                 optionflag |= (SQUARE_FIXATION);
-            if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
+            if (optionflags[SHOW_REWARD_BIAS] && !(option2flag & AFC)){
+                TheStim->fixcolor = TheStim->fix.offcolor;
+            }
+            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
                 TheStim->fixcolor = TheStim->fix.offcolor;
             }
             else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
@@ -6477,17 +6487,7 @@ int next_frame(Stimulus *st)
             
             if(debug) glstatusline("PreStim",3);
             clearcolor = TheStim->gammaback;
-            if (optionflags[SHOW_REWARD_BIAS])
-                optionflag |= (SQUARE_FIXATION);
-            if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
-                TheStim->fixcolor = TheStim->fix.offcolor;
-            }
-            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
-                TheStim->fixcolor = TheStim->fix.fixcolors[0];
-                optionflag &= (~SQUARE_FIXATION);
-            }
-            else
-                TheStim->fixcolor = TheStim->fix.fixcolor;
+            SetFixColor(expt);
             if(CheckFix() < 0)
                 break;
             //Ali  CheckKeyboard(D, allframe);
