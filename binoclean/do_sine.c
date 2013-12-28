@@ -186,7 +186,7 @@ void calc_grating(Stimulus *st, Substim *sst, float disp)
         lumscale = st->background * pos->contrast;
     else
         lumscale = 1.0;
-    lumbscale = st->background * pos->contrast_amp;
+    lumbscale = st->background * pos->contrast2;
     
     sy = deg_rad(gb->sy);
     if(sy > pos->radius[1] * 2 || sy < 0.01)

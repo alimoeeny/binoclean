@@ -7157,6 +7157,7 @@ void InitExpt()
             case ORI_BANDWIDTH:
             case PLAID_RATIO:
             case ORIENTATION_DIFF:
+            case PLAID_ANGLE:
                 expt.stimvals[i] = GetProperty(&expt,expt.st,i);
                 break;
             case TARGET_RATIO:

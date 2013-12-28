@@ -1,0 +1,19 @@
+There are two ways to set binoc up to run a sequence of expts. One is with a sepcial form of quick expt file.  This must begin with the word "sequence". After that, you can use any normal commands, plus two others:
+
+expt=path
+
+loads the stimm file named by path. You can do this multiple times to combine files
+
+!expt  runs and experiment with the current settings.  Lines after this will only be read when the experiment is finished.
+
+N.B. if you call a matlab funtion with
+!mat=MyMatlabRoutine('args')
+
+in a sequence file, this supercedes any !mat command in any stimfiles names with expt=
+
+
+When a sequence file is read, the contents are shown in a new window, and can be edited. The sequence is run when the "Run" button in the sequence window is hit.
+
+
+The second method is to choose "pop"... "Run Sequence" which brings up an empty sequence window. Type commands in there as you would in a .stm file (no need for "sequence" at the start).
+

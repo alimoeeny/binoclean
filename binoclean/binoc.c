@@ -6407,20 +6407,7 @@ int next_frame(Stimulus *st)
                 fprintf(seroutfile,"#Trial at %.2f (%d)%c\n",ufftime(&now),fixstate,exptchr);
             if(testflags[PLAYING_EXPT])
                 fixstate = GOOD_FIXATION;
-            if (optionflags[SHOW_REWARD_BIAS])
-                optionflag |= (SQUARE_FIXATION);
-            if (optionflags[SHOW_REWARD_BIAS] && !(option2flag & AFC)){
-                TheStim->fixcolor = TheStim->fix.offcolor;
-            }
-            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward < 0){
-                TheStim->fixcolor = TheStim->fix.offcolor;
-            }
-            else if (optionflags[SHOW_REWARD_BIAS] && expt.biasedreward == 0){
-                TheStim->fixcolor = TheStim->fix.fixcolors[0];
-                optionflag &= (~SQUARE_FIXATION);
-            }
-            else
-                TheStim->fixcolor = TheStim->fix.fixcolor;
+            SetFixColor(expt);
             pursued = 0;
             clearcolor = TheStim->gammaback;
             if(laststate == INTERTRIAL) /* first call */

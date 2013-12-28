@@ -126,7 +126,7 @@ j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{1},'close',5)
         if DATA.pipelog
-            system('/bgc/bgc/perl/pipelog end');
+            system([GetFilePath('perl') '/pipelog end']);
         end
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
@@ -1330,7 +1330,7 @@ DATA.plotexpts = [];
 DATA.completions = {};
 DATA.newchar = 0;
 DATA.newexptdef = 1;  %when load 1st file, don't do any resets
-DATA.netmatdir='/Volumes/bgc5/bgc/c/binoclean/matlab';
+DATA.netmatdir= [GetFilePath('binoclean') '/matlab'];
 DATA.localmatdir='/local/matlab';
 DATA.pausetime = 0;
 DATA.readpause = 0;
@@ -2106,7 +2106,7 @@ function MenuHit(a,b, arg)
     if strcmp(arg,'bothclose')
         fprintf(DATA.outid,'\\quit\n');
         if DATA.pipelog
-            system('/bgc/bgc/perl/pipelog end');
+            system([GetFilePath('perl') '/pipelog end']);
         end
         if isfield(DATA,'timerobj') & isvalid(DATA.timerobj)
             stop(DATA.timerobj);
@@ -2125,7 +2125,7 @@ function MenuHit(a,b, arg)
         [a, prefix] = fileparts(DATA.binoc{1}.psychfile);
         prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');
         prefix = regexprep(prefix,'DATE$','');
-        system(['/bgc/bgc/perl/pipelog ' DATA.binoc{1}.monkey ' ' prefix ' &']);
+        system([GetFilePath('perl') '/pipelog ' DATA.binoc{1}.monkey ' ' prefix ' &']);
         DATA.pipelog = 1;
         DATA = AddTextToGui(DATA,['Pipelog ' prefix]);
     elseif strcmp(arg,'setshake')
@@ -3617,8 +3617,10 @@ for j = line:length(str)
         outprintf(DATA,'%s\n',str{j}); %this runs expt in binoc
         return;
     end
-    if DATA.outid > 0
-         fprintf(DATA.outid,'%s #RunSeq\n',str{j});
+    if ~sum(strncmp(str{j},'expt',4)) %don't send these lines to binoc
+        if DATA.outid > 0
+            fprintf(DATA.outid,'%s #RunSeq\n',str{j});
+        end
     end
     DATA = LogCommand(DATA, str{j});
 end

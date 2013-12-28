@@ -57,6 +57,12 @@ for j = 1:length(jxs)
     fclose(fid);
 end
 
+stimname = [basedir '/stim' int2str(ns)];
+ns = ns+1;
+fid = fopen(stimname,'w');
+fprintf(fid,'st=none\n');
+fclose(fid);
+
 nr = round(80./ns);
 stimorder = repmat([1:ns]-1,1,nr);
 stimorder = stimorder(randperm(length(stimorder)));
