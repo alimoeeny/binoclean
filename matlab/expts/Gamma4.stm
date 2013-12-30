@@ -1,0 +1,16 @@
+st=2grating
+sf=4
+tf=2
+sz=6
+jv=0.5
+nph=0
+st=rls
+dd=100
+sl=1
+dw=0.05
+op=-sq
+!mat=Gamma4
+op=+exm
+exp=/local/expts/Gamma4
+expname=Gamma4
+
