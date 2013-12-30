@@ -1421,7 +1421,7 @@ DATA.stimulusnames{14} = 'sqcorrug';
 DATA.stimulusnames{15} = 'twobar';
 DATA.stimulusnames{16} = 'rls';
 DATA.redundantcodes = {'Bh' 'Bc' 'Bs' 'Op' 'Pp' 'sO' 'bO' 'aOp' 'aPp' 'O2' 'lf' 'rf'};
-DATA.stimlabels = {'Fore' 'Back' 'ChoiceU/R' 'ChoiceD/L'};
+DATA.stimlabels = {'Foregnd' 'Backgnd' 'ChoiceU/R' 'ChoiceD/L'};
 
 DATA.badnames = {'2a' '4a' '72'};
 DATA.badreplacenames = {'afc' 'fc4' 'gone'};
@@ -1890,7 +1890,7 @@ function DATA = InitInterface(DATA)
     bp(1) = 0.01;
     bp(2) = bp(2)+bp(4);
     bp(3) = cw;
-    a = uicontrol(gcf,'style','text','string','Fore',  'units', 'norm', 'Tag','CurrentStimLabel','position',bp);     
+    a = uicontrol(gcf,'style','text','string','Foreground',  'units', 'norm', 'Tag','CurrentStimLabel','position',bp);     
     cmenu = uicontextmenu;
     uimenu(cmenu,'label','Edit ForeGround','Callback',{@StimulusSelectMenu, 'fore'});
     uimenu(cmenu,'label','Edit BackGround','Callback',{@StimulusSelectMenu, 'back'});
@@ -1902,6 +1902,8 @@ function DATA = InitInterface(DATA)
     bp(3) = cw;
     uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
         'units', 'norm', 'position',bp,'value',DATA.stimtype(1),'Tag','ForegroundType','callback',{@SetExpt, 'st'});
+    bp(1) = bp(1)+bp(3)+0.01;
+    a = uicontrol(gcf,'style','text','string','Background',  'units', 'norm', 'Tag','BackgrStimLabel','position',bp);     
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
         'units', 'norm', 'position',bp,'value',DATA.stimtype(2),'Tag','BackgroundType','callback',{@SetExpt, 'bs'});

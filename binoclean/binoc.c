@@ -244,140 +244,7 @@ int testflags[NTESTFLAGS] = {0};
 int states[NSTATEFLAGS] = {0};
 static int stepframe = 0;
 
-char *toggle_strings[] = {
-    /* optionflag */
-//	"Goraud Shading", "Dithering", "Frame Test","Go",
-//	"AntiAlias", "Square","72Hz","Cnrst Rev",
-//	"S.E.","Back Fixed","Test mode","Fix cross","Box",
-//	"Auto Plot","Wurtz Task","PreBack","L Monoc","R Monoc",
-//	"Checkfix","Verg Check","Whole Stimuli", "Store",
-//	"Show Val", "Conjuate Tracking", "Trials",
-//	"Wait for BW", "Disp Clamp", "Clamp+Hold", "Search..", 
-//	"Vgc Ramps", "RampHold", "See Conj", 
-//    /* option2flag */
-//	"Flash", "Interact","FREE",
-//	"Vary Vergence","+Anti", "+Blank", "+random", "+monoc", "+uncorr",
-//	"wipe screen",
-//	"PsychoPhysics",  
-//	"Alt Probe", "RANDOM","Stair","AFC", "P.Perf", "IFC",
-//	"Feedback","Flip","Paint back","Fix Sepn","RandExp2",
-//	"RevExpt2","Binoc FP","RC","+zero","no status","no mirrors",
-//	"Move RF","Grey Monoc","Contour","Smooth/Polar","Sequence","Xexp2","Fake dFP","+sine","Sp Clear", "+highTF","+highSF","Counterphase","+highSQ","+highX","+ ZeroS","+MonocS","+component","xUncorr","Rand Phase","Track","Rnd FPdir",
-//	"SplitScreen","Count BadFix","RunSeq","microstim","Tile-XY","Store Expt Only","FixGrat","+FPmove","Rand RelPhase","Always Change","TGauss","Check Frames","Random dPhase","xHigh","Always Backgr","Store LFP","Nonius","+Flip","Online Data","AutoCopy","PlotFlip","FastSeq","4Choice","BackLast","Us0only","Random Contrast","Random Correlation","Indicate Reward Bias","Collapse Expt3",
-//    "Odd Man Out","Choice by icon","Image Jumps",
-//    "AutoCopy","Custom Vals Expt2","Stim In Overlay", "reduce serial out", "center staircase", "Paint all frames", "modulate disparity", "stereo Glasses",
-//    "nonius for V", "Calc once only", "Debug", "Watch Times", "Initial Training", "Check FrameCounts",
-//    "Show Stim Boxes",
-    NULL,
-};
 
-
-
-char *toggle_codes[] = {
-    "gs","di",
-    "ft", //Frame test
-    "do", //Go/Stop
-    "aa", // AntiAliasing
-    "sq","xx",
-    "cr", // Contrast reversing
-    "se", // S.E.M. 
-    "bf", // Background Fixed
-    "tm","fc","fb","ap","wt","pb","lm","rm","cf","cv",
-    "ws","ts","pw","ct","sw","bw","dc","ch","sm","vr",
-    "rh","co","fl","ei","xx", "te","ia","ic","ir","im",
-    "iu","cs","py","pa","ra",
-    "sc", // Staircase
-    "afc",
-    "pp", // Show Performance String
-    "if", // IFC
-    "fe", // Feedback
-    "ff", // Flip Feedback
-    "bp", // Paint background stims
-    "fs", // Fixed Bar Separation
-    "r2", // Random rewards for expt2
-    "i2", // Reverse rewards for expt2
-    "bm", // Binocular Fixation point
-    "rc", // Reverse Correlation 
-    "iz", // Interleave Zero
-    "s0", // Hide Status
-    "m0", // No Mirrors (for initial training)
-    "mr", // Move RF with Conjpos Eye tracking
-    "gm", // Grey Monoc (grey field for 'occluded' eye) 
-    "cn", // Contour Plot
-    "gc", // Smooth Contour plot
-    "to", // Plot Sequence
-    "x2", // Expt2 is multiplied by Expt 1
-    "fp", // Simulate FP movement
-    "is", // Interleave Sinewave
-    "sp", // Clear Spikes when step microdrive
-    "ht", // +High TF
-    "hs", // +High SF
-    "cp",
-    "hq",
-    "hx", // +High X value
-    "I0",
-    "Im",
-    "Ic", // Interleave Components
-    "Iu", // Interleave Set of uncorrelated stims with each of Expt 2 val 
-    "rp", //random phase
-    "pt", // Plot Electrode Track
-    "rd", // RAND_FP_DIR
-    "ss", // SPLITSCREEN
-    "cB", //Count Bad fixations not just wrong choices
-    "rS", //Treat Stimulus as sequences
-    "uS", //microstim on this trial
-    "xy", //random tiling of XY-pos
-    "sE", //Store Expts only
-    "fG", //make fixpt a sq grating (for focussing).
-    "iF", //Interleave FP jump
-    "rr", //Randomize Relative Phase
-    "ac", //Always Change Stim
-    "tg", //Temporal Gaussian
-    "cF", //Check Frame count
-    "rP", // random phase disp
-    "hX", // interleave HIGH expt 1 for each val of expt 2
-    "ab", // always show background
-    "lf", // Store lfp
-    "no", // nonius lines
-    "fi", // Interleave signflip (for IFC)
-    "da", // Make Online Data Files
-    "ao", // Auto Store Online Data Files
-    "pf", // Flip Expts 1/2 on plot
-    "fS", //Fast Sequence
-    "af4", // 4 choice targets, for gambling
-    "tl", // Paint stim 3 last
-    "U0", // microstim zero trials only
-    "rC", // random contrast
-    "rI", // random interocular correlation
-    "sR", // show reward bias
-//    "C3", //Collapse Psychophysics across Expt3
-    "af3", //Odd man out task
-    "Rcd", //Choice direction random
-    "ijump", //Image jumps
-    
-    "cd", // Auto Copy Online Data Files # not shown on panel
-    "cb", //Custom vals for expt2
-    "pe", //stimulus in Overlay
-    "ls", // reduce serialoutput (RC expts)
-    "cS", // Center staircases (instead of starting at extremes)
-    "FN", // FIXNUM_PAINTED_FRAMES paint all frames in stim, regargless of elapsed time
-    "md", // modulate disparity
-    "sg", // stereo glasses
-    "vn", // Nonius lines for vertical vergence
-    "Co", // Calculated once only, at stim start...
-    "od", //Debug  
-    "WT", //Watch timings
-    "IT", //Initial Training
-    "CF", //CHECK_FRAMECOUNTS
-    "SB", //Show Stim Boxes
-    /* 
-     * One day, all the BW toogle boxes will be done like the rest
-     * with optionflags[] and toggle_codes. Then this will be
-     * where their codes are kept.
-     "xl","xr","xc","xg","xx","yg","sf"
-     */
-    NULL,
-};
 
 char *mode_codes[] = {
     "db","zb","rw","vb",NULL,
@@ -386,15 +253,6 @@ char *mode_codes[] = {
 char *flag_codes[] = {
     "pc","nc","cs","ac","sq","uc","le","fd","dd","mm","mf","tx","tc","cn","pl","fo","nw","sp", "bo", "oc", "wr",
     NULL,};
-
-char *flagstrings[] = {
-	"White Dots", "Black Dots", "Crossed Seed","AntiCorrelate", "Square","Uncorrelated",
-	"Direction LEFT", "FIXED dot num", "Flat disp", "Flat surf", "Fix dot",
-	"Texture", "Cards", "COUNTDOWN", "PLC", "PrefDir Only", "No wrap (Cyl)", "Hold plane" ,"NullDir Only", "Front Occludes", "RDS wrap",NULL,
-};
-
-
-
 
 extern double fakestim;
 extern int usenewdirs;
@@ -461,11 +319,6 @@ int PrintToggles(FILE *ofd)
     while(togglestrings[i].code != NULL){
         fprintf(ofd, "%s %s\n",togglestrings[i].code,togglestrings[i].label);
         i++;
-    }
-    fprintf(ofd,"Stimulus codes:\n");
-    while(flagstrings[j]){
-        fprintf(ofd, "%s %s\n",flag_codes[j],flagstrings[j]);
-        j++;
     }
     return(i);
 }

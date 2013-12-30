@@ -268,14 +268,13 @@ int allflags[MAXALLFLAGS] = {0};
 /* BCNEW */
 
 extern int ranright,  ranleft, ranleftc, ranrightc, expstate;
-extern char *flagstrings[];
+
 extern int codectr,stimstate,monkeypress,bothmask,alphamask;
 extern int lastcodes[];
 extern float clearcolor;
 extern long optionflag,option2flag;
 extern int mode,wurtzcount,duration;
-extern char *toggle_strings[];
-extern char *toggle_codes[];
+
 extern char *flag_codes[];
 extern char *mode_codes[];
 //extern char *serial_strings[];
