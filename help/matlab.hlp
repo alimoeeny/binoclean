@@ -6,7 +6,7 @@ exp=/local/path  # folder containing stimulus descriptions, stimorder
 the exp folder must contatin a file "stimorder" that contains a string of integers which determines the sequence of stimuli, 0 - N-1 for N stimuli.
 This file can contain other lines, which will be written into the .smr file without being parsed by binoc. A line of the form
 
-expvals=dx,jv,sl
+expvars=dx,jv,sl
 
 can be used to record the parameters which will be varying between trials.  This
 will then make it into Expt.Header, and so can be used to sort out trials. 
@@ -31,9 +31,9 @@ Stim files
 
 These can conatin any lines settting the state of binoc, including stimulus properties or fixation controls. In addition there are two lines that are just passed on into the data file
 
-exvals1.0 3.0 4.0 15
+manexvals15 1.0 3.0 4.0
 
-Any number of numbers can follow exvals, to identify the stimulus type. E.g. if and experiment is changing two parameters, the first two can encode the value.  The last number is intended to identify the stimulus number. You can put whatever numbers you like here. When the data file is parsed into matlab, each Expt.Trials will have a vector of these values.  
+The integer before the first space identifies the stimulus number (i.e. the stim  file).  Note that if you modify the number of stimuli during an expt, this may be hard to interpret.  Any number of numbers can follow exvals, to identify the stimulus properties. E.g. if and experiment is changing two parameters, the first two can encode the value.  The last number is intended to identify the stimulus number. You can put whatever numbers you like here. When the data file is parsed into matlab, each Expt.Trials will have a vector of these values.  
 
 stimtag=arbitray string
 
