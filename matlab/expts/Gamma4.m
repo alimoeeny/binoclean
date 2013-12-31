@@ -9,11 +9,11 @@ end
 sfone = 3;
 sfs = [4 3 4.0 3.0 4   4   4  4   4  4];
 cos = [1 1 0.5 0.5 1   0.5 1  0.5 1  1];
-ors = [0 0 0.0 0.0 -45 -45 45 45 -45 0];
+ors = [0 0 0.0 0.0 -45 -45 45 45  0  0];
 a2s = [0 0 0.0 0.0 0    0  0  0   90 0];
 nphs =[0 0 0   0   0    0  0  0   0  360]
 
-ncs = [1 9 13 25 31];
+ncs = [0 8 16 24 32];
 
 tfs = [0 1 2 4 8];
 jxs = [0 0.02 0.04 0.08];
@@ -27,7 +27,7 @@ AllS(ns).sf = sfs(1);
 fid = fopen(stimname,'w');
 fprintf(fid,'st=2grating\nsf=%.1f\ntf=%.2f\n',sfs(1),tf);
 fprintf(fid,'f2=%.2f\n',sfs(2));
-fprintf(fid,'t2=%.2f\n',tf);
+fprintf(fid,'t2=%.2f\n',tf * sfs(2)/sfs(1));
 fprintf(fid,'c2=1.0\n');
 fprintf(fid,'or=0\n');
 fclose(fid);

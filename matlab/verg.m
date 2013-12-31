@@ -1903,7 +1903,7 @@ function DATA = InitInterface(DATA)
     uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
         'units', 'norm', 'position',bp,'value',DATA.stimtype(1),'Tag','ForegroundType','callback',{@SetExpt, 'st'});
     bp(1) = bp(1)+bp(3)+0.01;
-    a = uicontrol(gcf,'style','text','string','Background',  'units', 'norm', 'Tag','BackgrStimLabel','position',bp);     
+    a = uicontrol(gcf,'style','text','string','Backgnd',  'units', 'norm', 'Tag','BackgrStimLabel','position',bp);     
     bp(1) = bp(1)+bp(3)+0.01;
     uicontrol(gcf,'style','pop','string',DATA.stimulusnames, ...
         'units', 'norm', 'position',bp,'value',DATA.stimtype(2),'Tag','BackgroundType','callback',{@SetExpt, 'bs'});

@@ -22,7 +22,7 @@ char * VERSION_NUMBER;
 int init_rls(Stimulus *st,  Substim *sst, float density);
 
 #define NSEEDS 10
-long *rndarray;
+uint64_t *rndarray;
 int rndarraylen = 0;
 long seeds[NSEEDS] = {
     //  2, 4, 6, 8, 10, 12, 14, 16, 18, 20
@@ -201,7 +201,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     vcoord yp,diff;
     double drnd,aval;
     int bit, nbit;
-    long *rp,rnd,*rq;
+    uint64_t *rp,rnd,*rq;
     int orthoguc = 0,orthogac = 0;
     int pblank = 0,*pi;
 
@@ -393,7 +393,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     if(sst->ndots > rndarraylen){
         if(rndarray != NULL)
             free(rndarray);
-        rndarray = (long *)malloc(4 * sst->ndots * sizeof(long));
+        rndarray = (uint64_t *)malloc(4 * sst->ndots * sizeof(uint64_t));
         rndarraylen = 4 * sst->ndots;
     }
     rp = rndarray;
@@ -681,10 +681,11 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     vcoord yp,diff;
     double drnd,aval,bval;
     int bit, nbit,k,nrect,nboundary,nneg;
-    long *rp,rnd;
+    uint64_t *rp,rnd;
     float dc,xstart,xp,dw,*pf,ey,ex,ysd,xsd,eyb,exb,xstep,nextx,nexty;
     float xps[4],yps[4],r[4],xv,boundaries[2048],bw,yv;
     vcoord *xvals;
+    
     if(st->flag & ANTICORRELATE && sst->mode == RIGHTMODE)
         contrast = -pos->contrast;
     if(st->flag & CONTRAST_NEGATIVE)
@@ -839,7 +840,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     if(sst->ndots > rndarraylen){
         if(rndarray != NULL)
             free(rndarray);
-        rndarray = (long *)malloc(2 * sst->ndots * sizeof(long));
+        rndarray = (uint64_t *)malloc(2 * sst->ndots * sizeof(uint64_t));
         rndarraylen = 2 * sst->ndots;
     }
     rp = rndarray;
@@ -980,11 +981,9 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                 nextx = -xstart;
                 nrects = 0;
                 for(xp = -xstart; xp <= xstart; xp +=  xstep){
-                    if(++nrects < 4096)
-                        xvals[nrects] = xp;
+                    xvals[nrects] = xp;
                 }
-                if (nrects<4096)
-                    xvals[nrects] = xp+xstep;
+                xvals[nrects] = xp+xstep;
                 if (expt.stimmode == RLS_TERMINATOR){
                     nrects = 0;
                     xvals[nrects++] = -xstart;
@@ -1015,6 +1014,12 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                 for(j = 0; j < nrects; j++){
                     xp = xvals[j];
                         xsq = xp*xp;
+/*
+ * for RLS terminator, use differtn bit of RLS for each segment
+ * NB means that if nc > 64, pattern becomses periodic
+ *could fix this by increasing calls to rnd, but not sure we need to yet.
+ */
+                    
                     if (expt.stimmode == RLS_TERMINATOR)
                     {
                         if(xp >= boundaries[b]-0.0001 && b <= nboundary)
@@ -1025,7 +1030,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                             k = (nboundary+b-nneg)%(2);
                         else
                             k = b;
-                        if (*rp & (1<<k))
+                        if (*rp & (1UL<<k))
                             dc = 0;
                         else
                             dc = 1;
@@ -1233,8 +1238,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     ndots = pf - sst->imb; // acutal # ov vertices
     x = sst->xpos;
     ndots = 0;  // remove this line to look at xvals in debugger.
-    if (ndots > 4096) // dont exceed array on stack for testing
-        ndots = 4096;
+    if (ndots > sst->xpla) // dont exceed array on stack for testing
+        ndots = sst->xpla;
     for (i = 0; i < ndots; i++)
         xvals[i] = *x++;
     pf = sst->imb;
