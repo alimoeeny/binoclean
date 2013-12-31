@@ -3,6 +3,17 @@ function AllS = Gamma2(varargin)
 AllS = [];
 
 basedir = '/local/expts/Gamma4';
+nr = 0;
+
+j = 1;
+while j <= length(varargin)
+    if strncmpi(varargin{j},'nrpt',4);
+        j = j+1;
+       nr = varargin{j};
+    end
+    j = j+1;
+end
+
 if ~exist(basedir)
     mkdir(basedir);
 end
@@ -13,7 +24,7 @@ ors = [0 0 0.0 0.0 -45 -45 45 45  0  0];
 a2s = [0 0 0.0 0.0 0    0  0  0   90 0];
 nphs =[0 0 0   0   0    0  0  0   0  360]
 
-ncs = [0 8 16 24 32];
+ncs = [0 71 0 9 18 24 35 71];
 
 tfs = [0 1 2 4 8];
 jxs = [0 0.02 0.04 0.08];
@@ -30,6 +41,8 @@ fprintf(fid,'f2=%.2f\n',sfs(2));
 fprintf(fid,'t2=%.2f\n',tf * sfs(2)/sfs(1));
 fprintf(fid,'c2=1.0\n');
 fprintf(fid,'or=0\n');
+fprintf(fid,'sl=0\n');
+fprintf(fid,'nc=2\n');
 fclose(fid);
 
 for j = 1:length(cos)
@@ -40,14 +53,19 @@ AllS(ns).co = cos(j);
 fid = fopen(stimname,'w');
 fprintf(fid,'st=grating\nsf=%.1f\ntf=%.2f\n',sfs(j),tf);
 fprintf(fid,'co=%.2f\n',cos(j));
+fprintf(fid,'f2=%.2f\n',sfs(j)); %make sure plaid is one SF
 fprintf(fid,'t2=%.2f\n',tf);
 fprintf(fid,'c2=1.0\n');
+fprintf(fid,'sM=0\n');
 fprintf(fid,'or=%.1f\n',ors(j));
 fprintf(fid,'a2=%.2f\n',a2s(j));
 fprintf(fid,'nph=%.2f\n',nphs(j));
+fprintf(fid,'nc=1\n');
+fprintf(fid,'sl=0\n');
 fclose(fid);
 end    
     
+
 for j = 1:length(ncs)
 stimname = [basedir '/stim' int2str(ns)];
 ns = ns+1;
@@ -58,16 +76,22 @@ fprintf(fid,'st=rls\nsf=1\ntf=1\na2=0\nnph=0\nsM=29\n');
 fprintf(fid,'nc=%d\n',ncs(j));
 fprintf(fid,'or=0\n',ncs(j));
 fprintf(fid,'jv=%.1f\n',speed);
+if j > 2
+    fprintf(fid,'sl=1\n');
+else
+    fprintf(fid,'sl=0\n');
+end
 fclose(fid);
 end
 
-
-nr = round(80./ns);
+if nr <= 0
+    nr = round(80./ns);
+end
 stimorder = repmat([1:ns]-1,1,nr);
 stimorder = stimorder(randperm(length(stimorder)));
 stimname = [basedir '/stimorder'];
 fid = fopen(stimname,'w');
-fprintf(fid,'expvars co,a2,or,sl,nc\n');
+fprintf(fid,'expvars=co,a2,or,sl,nc\n');
 fprintf(fid,'%s\n',sprintf('%d ',stimorder));
 fclose(fid);
 fprintf('%d stim * %d repeats\n',ns,nr);

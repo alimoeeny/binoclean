@@ -2790,7 +2790,7 @@ if length(value) == 1
          if value > size(str,1)
              fprintf('Value %d out of range for %s\n',value, tag);
          else
-         set(it,'value',value);
+             set(it,'value',value);
          end
      end
 elseif length(value) > 1

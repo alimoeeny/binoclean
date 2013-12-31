@@ -1,0 +1,16 @@
+mo=back
+st=none
+mo=fore
+st=rls
+op=-aa-sq-rp+exm
+dw=0.05
+et=dw
+e2=jv
+sl=1
+dd=100
+nph0
+sz=4
+xo=Rx
+yo=Ry
+or=0
+!mat=RLSExpts('dotsize','nr',4)

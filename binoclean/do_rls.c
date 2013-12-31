@@ -203,7 +203,7 @@ void calc_rls(Stimulus *st, Substim *sst)
     int bit, nbit;
     uint64_t *rp,rnd,*rq;
     int orthoguc = 0,orthogac = 0;
-    int pblank = 0,*pi;
+    int pblank = 0,*pi,maxconsec = 0;
 
     if (sst->density < 100)
         pblank = rint((100-sst->density) * 2.55);
@@ -213,6 +213,8 @@ void calc_rls(Stimulus *st, Substim *sst)
     if (expt.stimmode == ORTHOG_AC || (st->left->ptr->plaid_angle) > 2 * M_2_PI)
         orthogac = 1;
     
+    if(expt.stimmode == RLS_HIGHPASS)
+        maxconsec = st->dotrpt;
     
     if(st->left->ptr->sx > 0.01 && optionflag & SQUARE_RDS)
     {
@@ -649,6 +651,27 @@ void calc_rls(Stimulus *st, Substim *sst)
         }
         i++,x++,y++,p++,rp++,q++,zx++,zy++,pi++;
         nx++;
+    }
+    
+    if(maxconsec > 0){
+        p = sst->iim;
+        for(i = 0; i < sst->ndots; i++){
+            lastp = (*p & (WHITEMODE | BLACKMODE));
+            if (lastp == lastq)
+                nbit++;
+            else
+                nbit = 0;
+            if (nbit >= maxconsec){
+                if(*p & BLACKMODE)
+                    *p = (WHITEMODE | (*p & (~(WHITEMODE | BLACKMODE))));
+                else
+                    *p = (BLACKMODE  | (*p & (~(WHITEMODE | BLACKMODE))));
+                nbit = 0;
+                lastp = (*p & (WHITEMODE | BLACKMODE));
+            }
+            lastq =  lastp;
+            p++;
+        }
     }
     if(nx > sst->xpl)
         fprintf(stderr,"Made too many (%d) Quads in RLS (alloc %d)\n",nx,sst->xpl);

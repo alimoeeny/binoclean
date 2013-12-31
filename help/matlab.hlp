@@ -2,22 +2,25 @@ To build a manual experiment, the stim file needs:
 
 op=+exm
 exp=/local/path  # folder containing stimulus descriptions, stimorder
+!mat=BinocExpt  #matlab command to be executed at expt start. 
 
-the exp folder must contatin a file "stimorder" that contains a string of integers which determines the sequence of stimuli, 0 - N-1 for N stimuli.
+verg requires that the matlab command return a value. If this is a structure than contains the field "stimdir"  then verg will use this so set the pather to the stim files. If you use this, the .stm file does not need exp=.
+
+The exp folder must contatin a file "stimorder" that contains a string of integers which determines the sequence of stimuli, 0 - N-1 for N stimuli.
 This file can contain other lines, which will be written into the .smr file without being parsed by binoc. A line of the form
 
 expvars=dx,jv,sl
 
 can be used to record the parameters which will be varying between trials.  This
-will then make it into Expt.Header, and so can be used to sort out trials. 
+will then make it into Expt.Header, and so can be used to sort out trials.
+You can also set expname here.  
 
 
-
-It must also contain files stim0, stim1 ... stimnN-1 each of which sets the stimulus parameters that need to be set for that trial.   N.B. binoc does not reset any parameters. If file stim0 sets tf to 0, then other stimxx files need to reset tf unless you want it to remain 0 after stim0 is found in stimorder. For this reason it is best to set a value for all variables that are changing in all stim files, even if these do nothing.  (E.g if some stimuli are gratings, it may seem unneccessar to set dd in those stim file.  But then Expt.Trials will contain gratings with two different values of dd, so work must be done to ensure these are grouped togehter before calculating a mean response). 
+The stimdir must also contain files stim0, stim1 ... stimnN-1 each of which sets the stimulus parameters that need to be set for that trial.   N.B. binoc does not reset any parameters. If file stim0 sets tf to 0, then other stimxx files need to reset tf unless you want it to remain 0 after stim0 is found in stimorder. For this reason it is best to set a value for all variables that are changing in all stim files, even if these do nothing.  (E.g if some stimuli are gratings, it may seem unneccessar to set dd in those stim file.  But then Expt.Trials will contain gratings with two different values of dd, so work must be done to ensure these are grouped togehter before calculating a mean response). 
 
 Note that the .stm file that contains these lines can also set up any other stimulus parameters. The files describing individual stimuli for the experiment don't have to specify everything, only the things that change in this experiment. 
 
-Optional Lines in stim file
+Optional Lines in .stm file
 
 expname=arbitrary  Gives an experiment name that will be used in combine
 !mat=BuildExpt   Names a .m file that generates the stim files and stimulusorder file.  
@@ -25,7 +28,8 @@ If this is named, then verg will call eval with whateever follows the =.
 !mat=BuildExpt('size',2)
 will send those argumnents to BuildExpt
 
-This is called every time the run button is hit, so if the matlab function re-caclulates stimorder, this will generate a new random order for each run. E.G. 
+This is called every time the run button is hit, so if the matlab function re-caclulates stimorder, this will generate a new random order for each run. 
+
 
 Stim files
 

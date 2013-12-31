@@ -1,12 +1,14 @@
 st=2grating
 sf=4
 tf=2
-sz=6
+sz=4
 jv=0.5
 nph=0
 st=rls
 dd=100
 sl=1
+xo=Rx
+yo=Ry
 dw=0.05
 op=-sq
 !mat=Gamma4

@@ -4949,8 +4949,9 @@ void setsecondexp(int w, int id, int val)
         default:
             i = 0;
             code = valstringindex[val];
-            if (code < 0)
+            if (code < 0 || val < 0){
                 break;
+            }
             if (valstrings[code].group & EXPT_NOT_ALLOWED){
                 expt.type2 = EXPTYPE_NONE;
                 optionflags[PLOTFLIP] = 0;
@@ -5219,7 +5220,7 @@ int ReadStimOrder(char *file)
 
     FILE *fd;
     char buf[BUFSIZ*10],*s,*t;
-    int ival,nt=0,imax = 0;
+    int ival,nt=0,imax = 0,ok;
  
     if (expt.strings[EXPT_PREFIX] != NULL){
         sprintf(buf,"%s/stimorder",expt.strings[EXPT_PREFIX]);
@@ -5233,10 +5234,12 @@ int ReadStimOrder(char *file)
             s = buf;
             if (isdigit(s[0])){
                 while(s){
-                    sscanf(s,"%d",&ival);
+                    ok = sscanf(s,"%d",&ival);
+                    if (ok > 0){ // beware trailing whitespace
                     stimorder[nt++] = ival;
                     if (ival > imax)
                         imax = ival;
+                    }
                     t = s;
                     if((s = strchr(t,' ')) != NULL)
                         s++;
@@ -5249,7 +5252,7 @@ int ReadStimOrder(char *file)
         fclose(fd);
     }
     expt.nstim[5] = imax;
-    return(nt); // this is # of trials, not index of last trial
+    return(nt); // this is # of trials, not index of last trial.  But nt gets increment
 }
 
 /*
@@ -14080,7 +14083,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                     *t = 0;
                 j = str2code(s);
             }
-            if(j < MAXTOTALCODES){
+            if(j < MAXTOTALCODES && j >= 0){
                 /*  make sure the exptype is shown */
                 if(code == EXPTYPE_CODE){
                     for(i = 0; i < nexptypes[0]; i++){
@@ -14103,6 +14106,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 if(code == EXPTYPE_CODE3){
                 }
                 SetExptProperty(ex, TheStim,code, (float)(j),0);
+            }
+            else{
+                sprintf(buf,"Can't Interpret %s",line);
+                acknowledge(buf,NULL);
             }
             break;
         case RELDISP:

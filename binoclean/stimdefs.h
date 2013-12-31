@@ -254,6 +254,7 @@ float pix2degy(float val);
 #define IMAGETRIALMIX 27
 #define MANUAL_STIM_SEQ 28
 #define RLS_TERMINATOR 29
+#define RLS_HIGHPASS 30
 
 #define issfrc(x) (x == RANDOM_ONOFF || x == RANDOM_ONOFF_LOG || x == INDEP_ONOFF || x == INDEP_ONOFF_LOG || x == BINOC_INDEP_ONOFF_LOG || x== THREE_CONTRAST_LEVEL || x == BINOC_INDEP_ONOFF)
 

@@ -260,6 +260,7 @@ it force a delay between trials (sec), not between stimuli in a trial. Useful wh
 ga record gamma correction used.  Doen't do anything inside binoc
 RO Moves RF box in a direction orthogonal to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
 RP Moves RF box in a direction parallel to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
+Dr When RDS is made of random disparity samples, each ramdom pick generates Dr Dots of the same disparity. For RLS Dr places an upper limit on the number of consecutive lines with the same color, if check enable with sM =30.
 +bac make RLS background the contrast inverse of foreground
 +sR Fixation point changes with reward bias + if neutral, offcolor if < 0 oncolor if > 0. If +afc is not set, then color is offcolor except when fixation is in window
 +co  Plot conjugate eye position as a cross in the overlay plane on the display screen

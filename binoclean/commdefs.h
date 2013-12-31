@@ -902,7 +902,7 @@ ValueCode valstrings[] = {
   {"dg",     "disp grad", DISP_GRAD, 3, 'N' ,4, SEND_EXPLICIT},
   {"dm",     "depth modulation", DEPTH_MOD, 3, 'N' ,4, SEND_EXPLICIT},
 //  {"ta",     "twobar angle", TWOBAR_ANGSEP, 1, 'N' ,2, SEND_EXPLICIT},
-  {"dr",     "Disp Ramp", DISP_RAMP, 3, 'N' ,2, SEND_EXPLICIT},
+// {"dr",     "Disp Ramp", DISP_RAMP, 3, 'N' ,2, SEND_EXPLICIT},
   {"dq",     "pDisp 2", PHASE2DISP, 3, 'N' ,2, SEND_EXPLICIT},
   {"rp",     "Rel Phase",  PHASEREL, 3, 'N' ,2, SEND_EXPLICIT},
   {"Pd",     "Phase Disp as Disp", PHASE_AS_DISP, 3, 'N' ,2, SEND_EXPLICIT},
