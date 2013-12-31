@@ -3,6 +3,9 @@ function AllS = Gamma2(varargin)
 AllS = [];
 
 basedir = '/local/expts/Gamma4';
+if ~exist(basedir)
+    mkdir(basedir);
+end
 sfone = 3;
 sfs = [4 3 4.0 3.0 4   4   4  4   4  4];
 cos = [1 1 0.5 0.5 1   0.5 1  0.5 1  1];

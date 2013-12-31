@@ -9881,7 +9881,7 @@ void ResetExpStim(int offset)
         SetStimulus(expt.st, expt.stimvals[SET_SEEDLOOP], SET_SEEDLOOP, NULL);
         expt.st->flag = expt.oldstimflag;
     }
-    if(stimorder[stim] & STIMULUS_EXTRA_ZERO &&
+    if((stimorder[stim] & STIMULUS_EXTRA_ZERO) &&
        expt.mode != DISP_A && expt.mode != DISP_B)
         SetStimulus(expt.st, expt.stimvals[DEPTH_MOD], DEPTH_MOD, NULL);
     

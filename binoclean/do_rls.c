@@ -95,8 +95,12 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
      * = area of dot
      */
 	ndots = 1+(2 * pos->radius[1]/(sst->dotsiz[1]));
-	if(pos->ss[0] > 1 || expt.stimmode == RLS_TERMINATOR)
+	if(pos->ss[0] > 1 || expt.stimmode == RLS_TERMINATOR){
         nrect = 3+ (pos->radius[0] * 2)/pos->ss[0]; // add 3 to allow for extras at each end
+        i = 3 + (pos->radius[0] * st->nfreqs);
+        if (i > nrect)
+             nrect = i;
+    }
 	else
         nrect = 20;
 	
@@ -133,14 +137,14 @@ int init_rls(Stimulus *st,  Substim *sst, float density)
             free(sst->ypos);
         sst->ypos = (vcoord *)malloc(sst->ypl * sizeof(vcoord));
 	}
-	if(ndots *4*nrect> sst->xpla || sst->xpos == NULL) /* need new memory */
+	if(ndots *4*nrect> sst->xpla || sst->xposa == NULL) /* need new memory */
 	{
         sst->xpla = ndots *4*nrect;
         if(sst->xposa != NULL)
             free(sst->xposa);
         sst->xposa = (vcoord *)malloc(sst->xpla * sizeof(vcoord));
 	}
-	if(ndots *4*nrect> sst->ypla || sst->ypos == NULL) /* need new memory */
+	if(ndots *4*nrect> sst->ypla || sst->yposa == NULL) /* need new memory */
 	{
         sst->ypla = ndots *4*nrect;
         if(sst->yposa != NULL)
@@ -679,8 +683,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     int bit, nbit,k,nrect,nboundary,nneg;
     long *rp,rnd;
     float dc,xstart,xp,dw,*pf,ey,ex,ysd,xsd,eyb,exb,xstep,nextx,nexty;
-    float xvals[4096],xps[4],yps[4],r[4],xv,boundaries[2048],bw,yv;
-    
+    float xps[4],yps[4],r[4],xv,boundaries[2048],bw,yv;
+    vcoord *xvals;
     if(st->flag & ANTICORRELATE && sst->mode == RIGHTMODE)
         contrast = -pos->contrast;
     if(st->flag & CONTRAST_NEGATIVE)
@@ -822,6 +826,8 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
     pf = sst->imb;
     x = sst->xpos;
     y = sst->ypos;
+    xvals = sst->xposa;
+    
     iw = w;
     ih = h;
     seedcall = 0;
@@ -974,9 +980,11 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                 nextx = -xstart;
                 nrects = 0;
                 for(xp = -xstart; xp <= xstart; xp +=  xstep){
-                        xvals[nrects++] = xp;
+                    if(++nrects < 4096)
+                        xvals[nrects] = xp;
                 }
-                xvals[nrects] = xp+xstep;
+                if (nrects<4096)
+                    xvals[nrects] = xp+xstep;
                 if (expt.stimmode == RLS_TERMINATOR){
                     nrects = 0;
                     xvals[nrects++] = -xstart;

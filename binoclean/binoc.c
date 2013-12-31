@@ -4397,6 +4397,10 @@ int SetStimulus(Stimulus *st, float val, int code, int *event)
 //                st->freqs[i] = st->f + (a - st->f) * (i - floor(st->nfreqs/2));
                 st->freqs[i] = st->f + (a - st->f) * (i);
             }
+            if (st->type == STIM_RLS){
+                init_rls(st, st->left,100);
+                init_rls(st, st->right,100);
+            }
             break;
         case START_PHASE:
             st->vals[code] = val;
