@@ -586,6 +586,7 @@
 #define SEND_GRATING2 4
 #define SEND_NON_ZERO 5
 #define SEND_EXPT_NONZERO 6
+#define SEND_READ_ONLY 10 //Not set by user, just for internal communication/save
 #define SEND_NEVER 1000  // never goes down serial line, just for setup
 
 
@@ -916,10 +917,10 @@ ValueCode valstrings[] = {
   {"et",     "Expt1 Type",  EXPTYPE_CODE, 16 , 'C' ,2, SEND_EXPT},
   {"fz",     "FRAMERATE",  FRAMERATE_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
   {"du",     "Stimulus Duration", STIMULUS_DURATION_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
-  {"vc",     "CLAMP_DISPARITY", CLAMP_DISPARITY_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"vc",     "CLAMP_DISPARITY", CLAMP_DISPARITY_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"po",     "POSTPERIOD", POSTPERIOD_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
   {"mo",     "Mode",MODE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"vr",     "RAMP_VERGENCE",RAMP_VERGENCE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"vr",     "RAMP_VERGENCE",RAMP_VERGENCE_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"nt",     "N Stim (Expt 1)",NTRIALS_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
   {"uf",     "Uff Prefix",UFF_PREFIX, 32 , 'C' ,2, SEND_USER_ONLY},
   {"hx",     "High X Value for Interleaves",HIGHX, 16 , 'N' ,2, SEND_EXPLICIT},
@@ -928,14 +929,14 @@ ValueCode valstrings[] = {
   {"mD",     "Max Signal for Near-zero manip", INITIAL_APPLY_MAX, 17 , 'N' ,5, SEND_EXPT},
   {"op",     "optionflag setup", OPTION_CODE, 16 , 'N' ,2, SEND_STIMULUS},
   {"nr",     "N Repetitions", NREPS_CODE, 16 , 'N' ,2, SEND_EXPT},
-  {"tl",     "trigger level", TRIGGER_LEVEL, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"tl",     "trigger level", TRIGGER_LEVEL, 0 , 'N' ,2, SEND_EXPLICIT},
   {"fw",     "fixation window", FIXATION_WINDOW, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"df",     "display flag",DISPLAYFLAG_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
+//  {"df",     "display flag",DISPLAYFLAG_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"ch",     "channel Set code",CHANNEL_CODE, 32 , 'N' ,2, SEND_EXPLICIT},
-  {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N' ,2, SEND_NON_ZERO},
-  {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"bt",     "BW Time",UFF_TIME, 0 , 'N' ,2, SEND_EXPLICIT},
-  {"Bc",     "Background Contrast",BACK_CONTRAST, 4+INDIRECT, 'N' ,3, SEND_EXPT},
+// {"sv",     "Static Vergence",STATIC_VERGENCE, 0 , 'N' ,2, SEND_NON_ZERO},
+//  {"wf",     "mean fixation period",WURTZ_DURATION_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
+  {"bt",     "BW Time",UFF_TIME, 0 , 'N' ,2, SEND_READ_ONLY},
+  {"Bc",     "Background Contrast",BACK_CONTRAST, 4+INDIRECT, 'N' ,3, SEND_READ_ONLY},
   {"ei",     "Expt incr", EXPT_INCR, 16 , 'N' ,5, SEND_EXPT},
   {"em",     "Expt Mean", EXPT_MEAN, 16 , 'N' ,5, SEND_EXPT},
   {"is",     "ISI", ISI_CODE, 16 , 'N' ,2, SEND_EXPLICIT},
@@ -949,7 +950,7 @@ ValueCode valstrings[] = {
   {"fx",     "fixation x pos ",FIXPOS_X, 8 , 'N' ,2, SEND_EXPLICIT},
   {"fy",     "fixation y pos ",FIXPOS_Y, 8 , 'N' ,2, SEND_EXPLICIT},
   {"fs",     "fixation size ",SETFIXSIZE, 8 , 'N' ,2, SEND_EXPLICIT},
-  {"cj",     "mean conjugate",STATIC_CONJUGATE, 8 , 'N' ,2, SEND_EXPLICIT},
+//  {"cj",     "mean conjugate",STATIC_CONJUGATE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"rw",     "Reward Size", REWARD_SIZE, 8 , 'N' ,2, SEND_EXPLICIT},
   {"vh",     "Vergence RAMP and Hold", RAMP_HOLD_CODE, 0 , 'N' ,2, SEND_EXPLICIT},
   {"ti",     "Timeout",  TIMEOUT_CODE, 8 , 'N' ,2, SEND_EXPLICIT},
@@ -964,7 +965,7 @@ ValueCode valstrings[] = {
   {"ed",     "electrode depth", ELECTRODE_DEPTH, 32 | EXPT_NOT_ALLOWED, 'N' ,2, SEND_USER_ONLY},
   {"cm",     "Comment", UFF_COMMENT, 128 , 'C' ,2, SEND_USER_ONLY},
   {"ss",     "Seed Shift/UC gap", SEED_SHIFT, 7 , 'N' ,0, SEND_EXPLICIT},
-  {"cp",     "Conjugate Position",CONJUGATE_POSITION, 8 , 'N' ,2, SEND_EXPLICIT},
+//  {"cp",     "Conjugate Position",CONJUGATE_POSITION, 8 , 'N' ,2, SEND_EXPLICIT},
   {"pd",     "Deg2pix", DEG2PIX, 32 , 'N' ,2, SEND_EXPLICIT},
   {"yx",     "DRAGGED_POS",DRAGGED_POS, 1024 , 'N' ,2, SEND_EXPLICIT},
   {"o2",     "optionflag2",STIMULUS_OPTIONS, 32 , 'N' ,2, SEND_EXPLICIT},

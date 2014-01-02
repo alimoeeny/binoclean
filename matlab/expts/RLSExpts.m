@@ -24,10 +24,12 @@ end
 matexp.stimdir = basedir;
 
 
-jvs = [0.5 1 2];
+jvs = [0 0.5 1 2 0.5 1 2];
+nphs =[0 0   0 0  1  1 1] 
 dws = [0.05 0.1 0.15];
 %size(values,1) must match length stimvars
 values(1,:)= repmat(jvs,1,length(dws));
+values(5,:)= repmat(nphs,1,length(dws));
 nr = length(jvs); %# times to repeat each dw;
 n = length(dws);
 for j = 1:n
@@ -36,7 +38,8 @@ for j = 1:n
 end
 values(3,:) = round(stimw./values(2,:));
 values(4,:) = 29;
-stimvars = {'jv' 'dw' 'nc' 'sM'};
+values(5,:) = 0;
+stimvars = {'jv' 'dw' 'nc' 'sM' 'nph'};
 exid = [1 2];
 
 ns = 0;

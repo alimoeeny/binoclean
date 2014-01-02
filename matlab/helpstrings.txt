@@ -10,6 +10,7 @@ Bs sets background stimulus type
 Bh Background Stimulus Size
 Fa Direction for movement of Fixation point (Saccadic if Ff >0, Pursuit if pi > 0)
 Ff Frame on which Fixation point jumps. Jumps back after 2x Ff frames have elapsed
+fs size of fixation marker
 Fs Size of fixation point jump (degrees) 
 xo horizontal pos of stimulus (degrees)
 yo vertical pos of stimulus (degrees)
@@ -145,7 +146,7 @@ xd When sl=1, allows control over position of dot pattern within apterture. Degr
 ob Only meaningful for st=image, controls which image is loaded.
 Ri For expts using Distribution Concentration (Dc), this is the incmrement between stimuli in the distribution.  See Also Dc, Dm 
 Dw Number of different stimuli comprising random distribution for Dc expts. See Also Dc, Ri, Dm
-fH For generating rectangular fixation windows. Set fs first, then fH. '
+fH For generating rectangular fixation windows. Set fw first, then fH. 
 St minimum eye displacement before Spike will report a saccade
 Sa minium saccade size that binoc will punish. See also baddir
 vv appies a vertical disparity to the fixation marker.
@@ -261,6 +262,18 @@ ga record gamma correction used.  Doen't do anything inside binoc
 RO Moves RF box in a direction orthogonal to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
 RP Moves RF box in a direction parallel to its Ori. Useful to center RF when using data plotted relative to RF center. But this should now be rare.
 Dr When RDS is made of random disparity samples, each ramdom pick generates Dr Dots of the same disparity. For RLS Dr places an upper limit on the number of consecutive lines with the same color, if check enable with sM =30.
+js For cylinders, adds an absolute disparity to the whole cylinder. 
+sp If fixation is broken before sp after trial start, the trial ends, but there is no timeout. (So eyes sweeping though the fixation window don't count)
+pd Number of pixels in 1 degree. Calculated from px and vd. Read only
+sm During a staircase, minimum increment allowed #psychophysics
+sh largest increment allowed in a staircase
+s0 initial increment used for staircase
+jc size of window around choice target required for valid choice. #psychophysics
+nr present each stimulus this many times
+fw fixation within +-fw is good
+ch Internal, for setting xy eye position display. 
+wr Reaction Time allowed for response saccade once Trial ends (end stim + po). #psychophyics
+fz Should be set in binoc.setup. Needs to match monitor.
 +bac make RLS background the contrast inverse of foreground
 +sR Fixation point changes with reward bias + if neutral, offcolor if < 0 oncolor if > 0. If +afc is not set, then color is offcolor except when fixation is in window
 +co  Plot conjugate eye position as a cross in the overlay plane on the display screen

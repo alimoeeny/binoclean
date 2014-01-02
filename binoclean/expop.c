@@ -528,7 +528,7 @@ Exptmenu secondmenu[] = {
     {"SF (Linear)",SFLIN},
     {"TF (Linear)",TFLIN},
     {"RF sign",RF_SIGN},
-    {"vergence",STATIC_VERGENCE},
+//    {"vergence",STATIC_VERGENCE},
     {"Ped Disp",STANDING_DISP},
     {"Nplanes",NPLANES},
     {"Clamp",CLAMP_DISPARITY_CODE},
@@ -1465,8 +1465,10 @@ void PrintCodes(int mode)
     sprintf(s,"");
     for(i = 0; i < expt.totalcodes; i++)
     {
+        if(valstrings[i].codesend < SEND_READ_ONLY){
         sprintf(tmp,"CODE %s %d %s%c %d\n",valstrings[i].code,valstrings[i].icode,valstrings[i].label,valstrings[i].ctype,valstrings[i].group);
         notify(tmp);
+        }
     }
     sprintf(tmp,"CODE OVER\n");
     notify(tmp);
