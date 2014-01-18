@@ -1,0 +1,23 @@
+Ori Psych
+
+ap = proportion of 0 signal trials where a DOWN/LEFT (negagive values for saccade V or H) choices is rewarded
+(Ie proportion of resps that are plotted as %yes (up on graph) rewarded.
+So if bias on graph is down, set ap > 0.5
+On Ravel, this is also true for H saccades.
+For H saccs (+-45) this may be wrong ? some rigs. Bias is down, set ap < 0.5.
+
+First Ori in expt list should be near horizontal or oblique left for
+sign conventions to work. So correct pairs are:
+
+0/90  10/100 20/110 -60/30(H) -50/40(H) -40/50(H) -30/60(H) -20/70 -10/80
+
+Where (H) indicates that the choice will be a horizontal saccade.
+
+binoc chooses H or V saccades based on the last orientation in the list for expt 1.
+
+Lemieux: Avoid 110/20
+         
+
+orsubspfine. Dm=82.5 for 0/90 -60/30 -30/60 -45/45
+ 	     Dm=72.5 for -10/80 20/110 -40/50
+  	     Dm=62.5 for -20/70 10/100 -50/40

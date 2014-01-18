@@ -1,0 +1,10 @@
+RevCor
+
+Fr = FastSeq repeat. Number of frames for which each sequence is shown
+
+
+PREDICTION and SURPRISES:
+
+If  FAST_SEQUENCE is combined with "Flash" (op=+fl+fS), then a predicable sequence of flashed stimuli is set up, which is fixed for the first half of the trial, and which has one random deviation from predictability during the second half. 
+
+If experiment type is contrast (with two values, 0 and 1), then the sequence consists of periodic flashes of a single stimulus, and the unpredictable event is an omitted flash. The duration of the flash (in frames) is set by the fast-sequence-repeat code (Fr=). The temporal frequency is set with tf=. Make sure all interleave conditions are off.

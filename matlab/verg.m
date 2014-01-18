@@ -1538,6 +1538,7 @@ end
 function [strs, Keys] = ReadHelp(DATA)
  
     strs = {};
+    Keys = [];
     helpfile = [DATA.localmatdir '/helpstrings.txt'];
     fid = fopen(helpfile,'r');
     if fid > 0
@@ -3398,6 +3399,7 @@ function CodesPopup(a,b, type)
 'units','norm', 'Position',[0.01 0.085 0.99 0.91]);
 a = get(lst,'string');
 nc = 1;
+keys = {};
 for j = 1:length(DATA.comcodes)
     code = DATA.comcodes(j).code;
     if ~strcmp(code,'xx')

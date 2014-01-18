@@ -1,0 +1,12 @@
+tty1=/dev/tty.USA49Wfd33P1.1 #device for serial -> Spike2
+tty2=/dev/tty.USA49Wfd33P2.2 #device for serial -> microdrive
+monitor=/local/monitors/Default  
+stepperid=1
+#winsize=1440x1050+1600 #use this line for less than fullscreen
+fullscreen=2 #Stim window fills screen 2
+winsize=2560x1600 #still need to tell binoc size in pixels
+videocapture=640 288 1280 1024  #only for demos
+framerate=60
+electrode=16Contact CNT 100u 88-09 #add electode descriptions to menu
+ch10+,fs5 #any other defaults to set in binoclean.
+

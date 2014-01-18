@@ -1,0 +1,12 @@
+Commands
+Special Key presses:
+
+Cntrl-Alt-space  freezes/unfreezes an experiment. When an expt is "frozen" the stimulus sequence is no longer incremented, so that the same stimulus is shown over and over.
+
+Cntrl-Alt-+ increments the stimulus sequence
+Cntrl-Alt-+ decrements the stimulus sequence
+
+Special Commands (all start with \):
+
+\quit exits
+\saveim  saves an image of the last frame in the expt.

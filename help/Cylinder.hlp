@@ -1,0 +1,4 @@
+Cylinders
+Or 90, dx - = near moving left in rig. Fa 90, pi + = pursue left = +dfx
+Or 0, dx - = near moving down. Fa 180, pi + = pursue down = -dfy
+Respdir+ = right or down on reversed screen (as seen by monkey). 

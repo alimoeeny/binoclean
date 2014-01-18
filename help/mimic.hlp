@@ -1,0 +1,5 @@
+Mimic:
+
+spike gain ("sg") controls % correct with mimice AFC
+sg=1 all correct
+sg=0 all wrong
