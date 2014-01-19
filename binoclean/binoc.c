@@ -5092,6 +5092,7 @@ float SetRandomPhase( Stimulus *st, Locator *pos)
             }
             else{
                 iphase = 2*(myrnd_i() %2)-1;
+                st->phasesign = iphase;
                 pos->phase += (st->incr * iphase);
                 pos->locn[0] += (st->posinc * iphase);
             }
@@ -5492,13 +5493,17 @@ void increment_stimulus(Stimulus *st, Locator *pos)
             if (st->left->seedloop <2 || st->framectr % (int)(expt.st->left->seedloop) == 0){
                 myrnd_init(st->left->baseseed+st->framectr);
                 SetRandomPhase(st, pos);
-                if (st->left->seedloop > 1 && (st->type == STIM_GRATINGN || st->type == STIM_GRATING))
+                if (st->left->seedloop > 1 && (st->type == STIM_GRATINGN || st->type == STIM_GRATING)){
                     mode |= STIMCHANGE_FRAME;
+                }
 
             }
             else if(st->left->seedloop > 1 &&st->nphases > 2){ //sl >1 and RANDOM_PHASE for grating = drift at TF between jumps
                 pos->phase += st->incr;
                 frameiseqp[expt.framesdone] = (int)(pos->phase * 180/M_PI)%360; //record actual PHASE2
+            }
+            else if (st->nphases == 1 && st->left->seedloop > 1){
+                pos->phase += (st->incr * st->phasesign);
             }
 		}
         else{

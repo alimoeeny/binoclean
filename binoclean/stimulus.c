@@ -291,6 +291,7 @@ Stimulus *NewStimulus(Stimulus *st)
     new->dotrpt = 1;
     new->dotfrac = 0.5;
     new->nphases = 360; //default for random
+    new->phasesign = 1;
     if(new->prev == NULL){
         new->right->id[1] = new->left->id[1] = '0';
     }

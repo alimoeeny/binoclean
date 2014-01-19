@@ -1,0 +1,6 @@
+Noise Plaid conventions.
+
+When or=90, sign of Pd matches dx (amd dO)
+When or-90 it is reversed.
+With Checkers, Pd is the magnituge of disparity applied othrongonal. 
+No adjustment is made to match the horizontal component

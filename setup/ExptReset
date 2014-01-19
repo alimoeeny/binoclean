@@ -1,0 +1,9 @@
+#paramters to reset when a new expt is loaded. I.e. undo any "odd" settings
+op=-exm-fS+x2
+co=1
+ce=1
+Fr=1
+a2=0
+sM=0
+As=0
+expname=NotSet

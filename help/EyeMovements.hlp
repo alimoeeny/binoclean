@@ -1,0 +1,9 @@
+EyeMovements
+
+Fixation window size is set with "fw=".  If you need a rectangle, rather than a box, setting
+"fH=" after setting fw sets a separate height. 
+
+Changing the fixation position ("fx=", "fy=")  during a trial is no use ? it is always reset at the end of each trial. Make these adjustments between trials. 
+
+The Brainwave program has a very simple saccade detector. It detects all rapid displacements that are larger than a Saccade Threshold ("St="). Setting St=0 turns off
+saccade detection. If a saccade is detected, BW merely reports this fact, with the saccade size and direction, to binoc. In binoc, action is only taken if the saccade happened 200ms after the trial start, was within 30 degrees of straight up, and the size of the reported saccade exceeds another threshold ("Sa="). Setting, "St=0.1" with "Sa=100" means that saccades are reported but binoc never does anything. 

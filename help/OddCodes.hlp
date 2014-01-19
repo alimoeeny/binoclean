@@ -1,0 +1,18 @@
+"Odd" Codes
+Ff sets a Frame number at which the fixation point will jump
+fn repeat # for each frame 
++FN Paint all frames, ignoring elapsed time
++CF Check Framecounts and warn in error.
+
+Useful/Common Codes
+
+dx  Horizontal disparity
+fh  Size of grey window around fixation point
+wi  Width
+hi  Height
+co  Contrast
+jv  Speed of moving dots
+xo  X position
+yo  Y position
+fx  Fixation point x
+fy  Fixation point y

@@ -6,6 +6,7 @@ function matexp = RLSExpts(name, varargin)
 
 basedir = ['/local/expts/RLS' name];
 stimw = 4;
+liststim = 1;
 nr = 0;
 j = 1;
 while j <= length(varargin)
@@ -33,7 +34,7 @@ values(5,:)= repmat(nphs,1,length(dws));
 nr = length(jvs); %# times to repeat each dw;
 n = length(dws);
 for j = 1:n
-    id = [1:nr] + (j-1) * n;
+    id = [1:none] + (j-1) * none;
     values(2,id) = dws(j);
 end
 values(3,:) = round(stimw./values(2,:));
@@ -57,7 +58,10 @@ if ~exist(basedir)
 end
 
 for j = 1:ns
-    WriteStim(basedir, j-1, AllS(j),exvals(j,:));
+    matexp.labels{j} = WriteStim(basedir, j-1, AllS(j),exvals(j,:));
+    if liststim
+        fprintf('%s\n',matexp.labels{j});
+    end
 end
 
 if (nr ==0)  %set nr automatically to get ~ 80 trials
@@ -80,22 +84,26 @@ fclose(fid);
 fprintf('%d stim * %d repeats\n',ns,nr);
 matexp.AllS = AllS;
 
-function WriteStim(basedir, stimno, S, exvals)
+function s = WriteStim(basedir, stimno, S, exvals)
 
 stimname = sprintf('%s/stim%d',basedir,stimno);
 fid = fopen(stimname,'w');
 f = fields(S);
 exstr = [];
+s = [];
 for j = 1:length(f)
     x = S.(f{j});
+    
     if sum(strmatch(f{j},{'st'})); %char fields
-        fprintf(fid,'%s=%s',f{j},x);
+        str = sprintf('%s=%s',f{j},x);
     else
-        fprintf(fid,'%s=%.2f\n',f{j},x);
+        str = sprintf('%s=%.2f',f{j},x);
     end
+    fprintf(fid,'%s\n',str);
+    s = [s str ' '];
 end
 exstr = sprintf(' %.2f',exvals);
-
 fprintf(fid,'manexpvals%d%s\n',stimno,exstr);
+
 fclose(fid);
 

@@ -83,7 +83,7 @@
 #define EXPT_LOAD8 (EXPT_LOAD1+7)
 #define EXPT_LOAD9 (EXPT_LOAD1+8)
 #define EXPT_LOAD10 (EXPT_LOAD1+9)
-#define MAXQUICKEXP 200
+#define MAXQUICKEXP 300
 #define CLOSE_EXPT (EXPT_LOAD1+MAXQUICKEXP)
 
 #define MAXRCFRAMES 50000
@@ -13701,7 +13701,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
              */
             LabelAndPath(s, qlabel, qpath, qname);
             t = qname;
-            if (nquickexpts > MAXQUICKEXP/2)
+            if (nquickexpts > MAXQUICKEXP* 0.8)
                 fprintf(stdout,"QUICK%d is %s\n",nquickexpts,qpath);
             found = 0;
             for(j = 0; j < nquickexpts; j++){

@@ -296,6 +296,7 @@ struct STIMULUS{
     int nphases;
     float plaid_angle;
     int componentjumps[MAXFREQS]; //Apply phase jump or not
+    int phasesign; 
 };
 
 typedef struct STIMULUS Stimulus;
