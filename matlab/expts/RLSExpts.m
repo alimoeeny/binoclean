@@ -26,12 +26,12 @@ matexp.stimdir = basedir;
 
 
 jvs = [0 0.5 1 2 0.5 1 2];
-nphs =[0 0   0 0  1  1 1] 
+nphs =[0 0   0 0  1  1 1];
 dws = [0.05 0.1 0.15];
 %size(values,1) must match length stimvars
 values(1,:)= repmat(jvs,1,length(dws));
 values(5,:)= repmat(nphs,1,length(dws));
-nr = length(jvs); %# times to repeat each dw;
+none = length(jvs); %# times to repeat each dw;
 n = length(dws);
 for j = 1:n
     id = [1:none] + (j-1) * none;
@@ -39,7 +39,9 @@ for j = 1:n
 end
 values(3,:) = round(stimw./values(2,:));
 values(4,:) = 29;
-values(5,:) = 0;
+values(:,end+1) = [0.5 0.05 0 0 0];  %RLS jv 0.5
+values(:,end+1) = [0.5 0.05 0 0 360]; %random phase
+values(:,end+1) = [0.5 0.05 0 0 1]; %random walk
 stimvars = {'jv' 'dw' 'nc' 'sM' 'nph'};
 exid = [1 2];
 
