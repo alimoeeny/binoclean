@@ -1004,7 +1004,7 @@ void calc_rls_polys(Stimulus *st, Substim *sst)
                 nextx = -xstart;
                 nrects = 0;
                 for(xp = -xstart; xp <= xstart; xp +=  xstep){
-                    xvals[nrects] = xp;
+                    xvals[nrects++] = xp;
                 }
                 xvals[nrects] = xp+xstep;
                 if (expt.stimmode == RLS_TERMINATOR){

@@ -1465,7 +1465,7 @@ void PrintCodes(int mode)
     sprintf(s,"");
     for(i = 0; i < expt.totalcodes; i++)
     {
-        if(valstrings[i].codesend < SEND_READ_ONLY){
+        if(valstrings[i].codesend < SEND_READ_ONLY || valstrings[i].codesend == SEND_VERG_ONLY){
         sprintf(tmp,"CODE %s %d %s%c %d\n",valstrings[i].code,valstrings[i].icode,valstrings[i].label,valstrings[i].ctype,valstrings[i].group);
         notify(tmp);
         }
@@ -1628,8 +1628,10 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         i++;
     }
     ncodes = ncodes+1;
+// expt.totalcodes is the size of valstrings, expt.maxcode is max value of icode
     expt.totalcodes = i;
     expt.maxcode = ncodes-1;
+    
 // serial_stings[i] gives the string associated with code i
     serial_strings = (char**)(malloc(sizeof(char *) * ncodes));
     serial_names = (char**)(malloc(sizeof(char *) * ncodes));
@@ -7428,7 +7430,9 @@ void InitExpt()
             acknowledge(buf,NULL);
             sprintf(cbuf,"./%s.%sX%s.rc%d",stimulus_names[expt.st->type],serial_strings[expt.mode],serial_strings[expt.type2],rcctr++);
             rcfd = fopen(cbuf,"w");
-            
+        }
+        else if (seroutfile){
+            fprintf(seroutfile,"#saverls %s\n",cbuf);
         }
     }
     else
@@ -12496,7 +12500,7 @@ void inc_psychdata(int response_direction, Expt *ex, int jstimno)
 
 int ShowFlag(char *s, int flag)
 {
-    char c = *s++;
+    char c = *s++,buf[BUFSIZ];
     int bit = 0, bit2 = 0,i = 0,j =0;
     
     if(flag){
@@ -12531,8 +12535,11 @@ int ShowFlag(char *s, int flag)
     else if(togglestrings[i].group ==3)
     {
         j = togglestrings[i].icode;
-        if(j >= MAXALLFLAGS)
-            fprintf(stderr,"Unrecognized flag %s",s);
+        if(j >= MAXALLFLAGS){
+            sprintf(buf,"Unrecognized flag %s",s);
+            notify(buf);
+            fprintf(stderr,buf);
+        }
         if(c == '+')
             allflags[j] = 1;
         else
@@ -13129,14 +13136,17 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 //    }
     else if(!strncmp(line,"freerwd",7)){
         SerialSignal(FREE_REWARD);
+        return(0);
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
+        return(0);
     }
     else if(!strncmp(line,"quicksave",7)){
         sscanf(&line[9],"%d",&i);
         sprintf(buf,"./q%dexp.stm",i);
         SaveExptFile(buf,QUICK_SAVE);
+        return(0);
     }
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
@@ -13614,6 +13624,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
+        case -1:
+            sprintf(buf,"Unrecognized code %s\n",line);
+            fprintf(stdout,buf);
+            notify(buf);
+            break;
         case JUMP_SF_COMPONENTS:
             for(i = 0; i < expt.st->nfreqs; i++)
                 expt.st->componentjumps[i] = 1;
@@ -14281,7 +14296,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             {
                 SetExptString(&expt,expt.st, code, s);
             }
-            else if(code < MAXTOTALCODES)
+            else if(code <= expt.maxcode)
             {
                 sscanf(s,"%f",&val);
                 SetProperty(ex, TheStim,code, val);

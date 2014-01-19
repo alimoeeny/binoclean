@@ -231,9 +231,9 @@ float pix2degy(float val);
 #define RANDOM_ONOFF_LOG 7
 #define INDEP_ONOFF 8
 #define INDEP_ONOFF_LOG 9
-#define BINOC_INDEP_ONOFF_LOG 10
-#define THREE_CONTRAST_LEVEL 11
-#define BINOC_INDEP_ONOFF 12
+#define BINOC_INDEP_ONOFF 10  //order of 10,11,12 shifted Jan 2014
+#define BINOC_INDEP_ONOFF_LOG 11
+#define THREE_CONTRAST_LEVEL 12
 //for RLS
 #define WHITENOISE16 5   //16 levels of grey
 //for grating subspace expts
@@ -252,7 +252,7 @@ float pix2degy(float val);
 #define RDSRLSSETSL 25
 #define BUTTSEXPT 26
 #define IMAGETRIALMIX 27
-#define MANUAL_STIM_SEQ 28
+
 #define RLS_TERMINATOR 29
 #define RLS_HIGHPASS 30
 

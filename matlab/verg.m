@@ -58,7 +58,7 @@ if isempty(it)
         end
         tt = TimeMark(tt, 'Pipes');
         DATA.stimfilename = varargin{1};
-        SendState(DATA); %params loaded from verg.setup etc
+        SendState(DATA); %params loaded from verg.setup, binoc.setup etc
         DATA = ReadStimFile(DATA, '/local/verg.setup'); %make sure these go to binoc
         DATA = ReadStimFile(DATA,varargin{1}, 'init');
         SendCode(DATA,'vve'); %send verg version
@@ -272,7 +272,7 @@ for j = 1:length(strs{1})
         estr = s(eid(1)+1:end);
         eid = find(strcmp(estr,DATA.electrodestrings));
         if isempty(eid)
-            DATA.electrodestrings = {DATA.electrodestrings{:} estr};
+            DATA.electrodestrings = {DATA.electrodestrings{:} deblank(estr)};
             DATA.electrodeid = length(DATA.electrodestrings);
         else
             DATA.electrodeid = eid(1);
@@ -358,7 +358,7 @@ for j = 1:length(strs{1})
     elseif strncmp(s,'cwd=',4)
         DATA.cwd = value;
     elseif strncmp(s,'status',5)
-        DATA.Statuslines{1+length(DATA.Statuslines)} = s(8:end);
+        DATA.Statuslines{end+1} = s(8:end);
         if ishandle(DATA.statusitem)
             set(DATA.statusitem,'string',DATA.Statuslines,'listboxtop',length(DATA.Statuslines));
         end
@@ -732,6 +732,11 @@ for j = 1:length(strs{1})
                 
             end
         end
+    elseif strncmp(s,'Unrecog',7)
+        if DATA.verbose(4)
+            fprintf('%s\n',s);
+        end
+        DATA.Statuslines{end+1} = s(8:end);
     elseif sum(strcmp(code,{DATA.comcodes.code}))
         cid = find(strcmp(code,{DATA.comcodes.code}));
         code = DATA.comcodes(cid(1)).code;
@@ -750,6 +755,7 @@ for j = 1:length(strs{1})
                 DATA.binoc{DATA.currentstim}.(code) = val;
             end
             codetype = DATA.comcodes(cid(1)).group;
+            DATA = SetCode(DATA,code);
         end    
     elseif regexp(s,'^E[A-C][0-9,\-,C]') %don't let this catch other codes starting with E
         if strncmp(s,'EBCLEAR',5)
@@ -824,9 +830,27 @@ for j = 1:length(strs{1})
             else
                 DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
             end
+            SetCode(DATA,code);
         end
     end
     end
+end
+
+function DATA = SetCode(DATA,code)
+%DATA = SetCode(DATA,val)
+% Does additional steps needed for some codes, like 'Electrode'
+
+if DATA.currentstim == 1
+val = GetValue(DATA,code);
+if strcmp(code,'Electrode')
+    id = find(strcmp(val,DATA.electrodestrings));
+    if isempty(id)
+        DATA.electrodestrings{end+1} = deblank(val);
+        DATA.electrodeid = length(DATA.electrodestrings);
+    else
+        DATA.electrodeid = id;
+    end
+end
 end
 
 
@@ -962,8 +986,8 @@ if fid > 0
         if ~isempty(id)
             value = tline(id+1:end);
         end
-        if strncmp(tline,'electrode=',8) && ~isempty(value)
-            DATA.electrodestrings{1+length(DATA.electrodestrings)} = value;
+        if strncmpi(tline,'electrode=',8) && ~isempty(value)
+            DATA.electrodestrings{1+length(DATA.electrodestrings)} = deblank(value);
         end
         if strncmp(tline,'tty2=',5) && ~isempty(value)
             DATA.servoport = deblank(value);
@@ -1399,6 +1423,7 @@ DATA.datafile = [];
 DATA.electrodestrings = {'Not Set'};
 DATA.userstrings = {'bgc' 'ali' 'ink' 'agb'};
 DATA.monkeystrings = {'Icarus' 'Junior Barnes' 'Lemieux' 'Pepper' 'Rufus' };
+DATA.monkeystrs = {'ica' 'jbe' 'lem' 'ppr' 'ruf' };
 DATA.binoc{1}.Electrode = 'default';
 DATA.binoc{1}.monkey = 'none';
 DATA.binoc{1}.lo = '';
@@ -1483,7 +1508,7 @@ DATA.binoc{1}.i2 = '0';
 DATA.binoc{1}.i3 = '0';
 DATA.binoc{1}.nr = 1;
 DATA.binoc{1}.rw = 0;
-DATA.binoc{1}.seqpause = 5;
+DATA.binoc{1}.seqpause = 10;
 DATA.binoc{1}.ereset = 'NotSet';
 
 DATA.binocstr.monitor = '/local/monitors/Default';
@@ -1540,16 +1565,25 @@ function [strs, Keys] = ReadHelp(DATA)
     strs = {};
     helpfile = [DATA.localmatdir '/helpstrings.txt'];
     fid = fopen(helpfile,'r');
+    Keys.extras =[];
     if fid > 0
     a = textscan(fid,'%s','delimiter','\n');
     fclose(fid);
     txt = a{1};
+    code = [];
+    lastcode = code;
     for j = 1:length(txt)
         code = regexprep(txt{j},'\s.*','');
         if code(1) == '+'  %optionflag help
             str = regexprep(txt{j},code,'');
             code = code(2:end);
             Keys.options.(code) = str;
+        elseif txt{j}(1) == '#' && ~isempty(lastcode)
+            if isfield(Keys.extras,lastcode)
+                Keys.extras.(lastcode){end+1} = txt{j}(2:end);
+            else
+                Keys.extras.(lastcode){1} = txt{j}(2:end);
+            end
         elseif ~isempty(code) && txt{j}(1) ~= '#'
             if isfield(strs,code) && DATA.verbose(4)
                 fprintf('%s help duplicated\n',code);
@@ -1563,6 +1597,7 @@ function [strs, Keys] = ReadHelp(DATA)
             end     
             str = regexprep(str,'#.*','');
             strs.(code) =  str;
+            lastcode = code;
         end
     end
     end
@@ -2172,11 +2207,18 @@ function MenuHit(a,b, arg)
 
     
 function DATA = LoadLastSettings(DATA, varargin)
-    
+%DATA = LoadLastSettings(DATA, varargin)
+% reads state variables from expt backup files to restosr
+% state - including se, id, penetraion details, ed.
+% Only does this if the backup is less than half an hour old
+% ...,'force')  overrides time test
     interactive = 0;
     j = 1;
+    go  = 0;
     while j <= length(varargin)
-        if strncmpi(varargin{j},'interactive',5)
+        if strncmpi(varargin{j},'force',5)
+            go = 1;
+        elseif strncmpi(varargin{j},'interactive',5)
             interactive = 1;
         end
         j = j+1;
@@ -2189,7 +2231,6 @@ function DATA = LoadLastSettings(DATA, varargin)
         end
         [a,id] = max([d.datenum]);
         d = d(id);
-        go  = 0;
         if now - d.datenum < 0.5/24 %less than an half an hour old - read in settings
             go = 1;
             if interactive 
@@ -2201,7 +2242,7 @@ function DATA = LoadLastSettings(DATA, varargin)
         end
         if go
             txt = scanlines(d.name);
-            for s = {'id' 'se' 'ed' 'Rx' 'Ry' 'Ro' 'Rw' 'Rh' 'Xp' 'Yp' 'Pn' 'Electrode'}
+            for s = {'id' 'se' 'ed' 'Rx' 'Ry' 'Ro' 'Rw' 'Rh' 'Xp' 'Yp' 'Pn' 'Electrode' 'hemi' 'ui' 'ePr' 'eZ' 'monkey' 'coarsemm' 'adapter'}
             id = find(strncmp(s,txt,length(s{1})));
             if ~isempty(id)
                 cprintf('blue','Setting %s from %s\n',txt{id(1)},d.name);
@@ -2230,7 +2271,7 @@ function RecoverFile(a, b, type)
         uimenu(hm,'Label','List','callback',{@RecoverFile, 'list'});
         [a,id] = sort([d.datenum]);
         d = d(id);
-        uimenu(hm,'Label',['Just Restore id/se from ' d(end).name],'callback',{@RecoverFile, 'loadlast'});
+        uimenu(hm,'Label',['Just Restore Pen/Expt Settings from ' d(end).name],'callback',{@RecoverFile, 'loadlast'});
         for j = 1:length(d)
             uimenu(hm,'Label',[d(j).name d(j).date(12:end)],'callback',{@RecoverFile, d(j).name(5:end)});
         end
@@ -2238,11 +2279,15 @@ function RecoverFile(a, b, type)
         rfile = ['/local/' DATA.binoc{1}.monkey '/lean' type];
         dfile = ['/local/' DATA.binoc{1}.monkey '/lean.today'];
         copyfile(rfile,dfile);
-        ReadStimFile(DATA, dfile);
+        DATA = ReadStimFile(DATA, dfile);
+        set(DATA.toplevel,'UserData',DATA);
     elseif strcmp(type,'loadlast')
-        LoadLastSettings(DATA,'noninteractive');
+        DATA = LoadLastSettings(DATA,'noninteractive','force');
+        set(DATA.toplevel,'UserData',DATA);
     else
-        fprintf('Recover called with %s\n',type);
+        if DATA.verbose(4)
+            fprintf('Recover called with %s\n',type);
+        end
     end
     
     
@@ -2682,8 +2727,13 @@ function SetVerbose(a,b, flag)
          id = strmatch(DATA.exptype{j},DATA.expmenucodes{j},'exact');
          if isempty(id)
              DATA.expmenucodes{j} = {DATA.expmenucodes{j}{:} DATA.exptype{j}};
-             a = strcmp(DATA.exptype{j},{DATA.comcodes.code});
-             DATA.expstrs{j} = {DATA.expstrs{j}{:} DATA.comcodes(a).label};
+             a = find(strcmp(DATA.exptype{j},{DATA.comcodes.code}));
+             if isempty(a)
+                 str = 'Unknown';
+             else
+                 str = DATA.comcodes(a).label;
+             end
+             DATA.expstrs{j}{end+1} = str;
              set(it,'string',DATA.expstrs{j});
              new = new+1;             
          end
@@ -3079,34 +3129,35 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(1) = 0.01;
     bp(3) = 0.3;
     uicontrol(gcf,'style','text','string','Penetration Number', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
-    uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Pn','callback',{@TextGui, 'Pn'});
+    
+    uicontrol(gcf,'style','edit','string',num2str(GetValue(DATA,'Pn')), ...
+        'units', 'norm', 'position',bp,'Tag','Pn','callback',{@TextGui, 'Pn'});
 
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.1;
     uicontrol(gcf,'style','text','string','X', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','StepSize2');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
-    uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Xp','callback',{@TextGui, 'Xp'});
+    uicontrol(gcf,'style','edit','string',num2str(GetValue(DATA,'Xp')), ...
+        'units', 'norm', 'position',bp,'Tag','Xp','callback',{@TextGui, 'Xp'});
     
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.1;
     uicontrol(gcf,'style','text','string','Y', ...
-        'units', 'norm', 'position',bp,'value',1);
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.98./nc;
-    uicontrol(gcf,'style','edit','string','0', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Yp','callback',{@TextGui, 'Yp'});
+    uicontrol(gcf,'style','edit','string',num2str(GetValue(DATA,'Yp')), ...
+        'units', 'norm', 'position',bp,'Tag','Yp','callback',{@TextGui, 'Yp'});
 
     bp(1) = 0.01;
     bp(2) = bp(2)-1./nr;
     uicontrol(gcf,'style','text','string','Electrode', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+        'units', 'norm', 'position',bp);
 
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 3./nc;
@@ -3116,11 +3167,11 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(1) = bp(1)+bp(3)+0.01;
     bp(3) = 0.2;
     uicontrol(gcf,'style','text','string','Impedance', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 1./nc;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.eZ), ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','IMpedance','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'Tag','Impedance','callback',{@MenuGui});
     
 
     
@@ -3131,24 +3182,32 @@ cntrl_box = figure('Position', DATA.winpos{9},...
         'units', 'norm', 'position',bp,'value',1,'Tag','userlabel');
     bp(1) = 1./nc;
     bp(3) = 1.9./nc;
+    id = find(strcmp(DATA.binoc{1}.ui,DATA.userstrings));
+    if isempty(id)
+        id = 1;
+    end
     uicontrol(gcf,'style','pop','string',DATA.userstrings, ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Experimenter','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',id,'Tag','Experimenter','callback',{@MenuGui});
 
     bp(1) = 3./nc;
     bp(3) = 0.9./nc;
     uicontrol(gcf,'style','text','string','Monkey', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+        'units', 'norm', 'position',bp);
 
     bp(1) = bp(1)+bp(3);
     bp(3) = 1.9./nc;
+    id = find(strcmp(DATA.binoc{1}.monkey,DATA.monkeystrs));
+    if isempty(id)
+        id = 1;
+    end
     uicontrol(gcf,'style','pop','string',DATA.monkeystrings, ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','Monkey','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',id,'Tag','Monkey','callback',{@MenuGui});
 
     bp(2) = bp(2)-1./nr;
     bp(1) = 0.01;
     bp(3) = 0.2;
     uicontrol(gcf,'style','text','string','Tube Protrusion', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.1;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.ePr), ...
@@ -3157,7 +3216,7 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','text','string','Coarse mm', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','adapterlabel');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.1;
     uicontrol(gcf,'style','edit','string',num2str(DATA.binoc{1}.coarsemm), ...
@@ -3166,7 +3225,7 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','text','string','Adapter', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','adapterlabel');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','edit','string',DATA.binoc{1}.adapter, ...
@@ -3175,12 +3234,18 @@ cntrl_box = figure('Position', DATA.winpos{9},...
     bp(2) = bp(2)-1./nr;
     bp(1) = 0.01;
     bp(3) = 0.2;
+    
+    
+    id = find(strcmp(DATA.binoc{1}.hemi,{'Left' 'Right' 'NotSet'}));
+    if isempty(id)
+        id = 1;
+    end
     uicontrol(gcf,'style','text','string','Hemisphere', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','electrodelabel');
+        'units', 'norm', 'position',bp);
     bp(1) = bp(1)+bp(3);
     bp(3) = 0.2;
     uicontrol(gcf,'style','pop','string','Left|Right|Unknown', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','hemisphere','callback',{@MenuGui});
+        'units', 'norm', 'position',bp,'value',id,'Tag','hemisphere','callback',{@MenuGui});
     
     bp(1) = 0.99-bp(3);
     uicontrol(gcf,'style','pushbutton','string','Apply', ...
@@ -3195,7 +3260,8 @@ cntrl_box = figure('Position', DATA.winpos{9},...
 set(gcf,'CloseRequestFcn',{@CloseWindow, 9});
 
 function MarkComment(a,b,txt);
-    outprintf(DATA,'sm=%s\n',txt);
+  DATA = GetDataFromFig(a);
+  outprintf(DATA,'cm=%s\n',txt);
         
 
 function OptionPopup(a,b)
@@ -3268,27 +3334,23 @@ function CodesPopup(a,b, type)
          fid = fopen(outname,'w');
          for j = 1:size(txt,1)
              fprintf(fid,'%s\n',deblank(txt(j,:)));
-         end
-         fprintf(fid,'Binary Option Codes (op=+xx to set)\n')
-         f = fields(DATA.optionflags);
-         for j = 1:length(f)
-             if strncmp((f{j}),'lbl',3)
-                 fprintf(fid,'Group: %s\n',DATA.optionstrings.(f{j}));
-             else
-                 fprintf(fid,'%s %s\n',f{j},DATA.optionstrings.(f{j}));
+             code = regexprep(txt(j,:),'\s.*','');
+             if isfield(DATA.helpkeys.extras,code)
+                 for k = 1:length(DATA.helpkeys.extras.(code))
+                     fprintf(fid,'     %s\n',DATA.helpkeys.extras.(code){k});
+                 end
              end
-         end         
+         end
          fclose(fid);
          return;
-
       elseif strcmp(type,'bycode')
-          set(lst,'string','Alphabetical by code');
+          set(lst,'string','Alphabetical by code.  :* = more help with mouse click');
           [c,b] = sort({DATA.comcodes.code});
       elseif strcmp(type,'bylabel')
-          set(lst,'string','Alphabetical by Label');
+          set(lst,'string','Alphabetical by Label :* = more help with mouse click');
           [c,b] = sort({DATA.comcodes.label});
       elseif strcmp(type,'byhelp')
-          set(lst,'string','Alphabetical by Help');
+          set(lst,'string','Alphabetical by Help :* = more help with mouse click');
           f = fields(DATA.helpstrs);
           for j = 1:length(f)
               helpstr{j} = DATA.helpstrs.(f{j});
@@ -3297,7 +3359,7 @@ function CodesPopup(a,b, type)
           [c, b] = sort(helpstr);
           b = cid(b);
       elseif strcmp(type,'bygroup')
-          set(lst ,'string','Groups:');
+          set(lst ,'string','Groups: :* = more help with mouse click');
           id = find(bitand(1,[DATA.comcodes.group]));
           [c,b] = sort({DATA.comcodes(id).code});
           labels{1} = 'Stimulus Rendering';
@@ -3326,7 +3388,11 @@ function CodesPopup(a,b, type)
       nlab = 0;
       nc = 0;
       for j = 1:length(b)
-          code = DATA.comcodes(b(j)).code;
+          if b(j) == 0
+              code = '';
+          else
+              code = DATA.comcodes(b(j)).code;
+          end
           if ~strcmp(code,'xx')
           ns = max([5 - length(code) 1]);          
           ns = 1+ round(ns-1) .* 1.6;
@@ -3340,7 +3406,11 @@ function CodesPopup(a,b, type)
               s = labels{nlab};
           end
           if isfield(DATA.helpstrs,code)
-              s = [s '   ;   ' DATA.helpstrs.(code)];
+              if isfield(DATA.helpkeys.extras,code)
+                  s = [s '*   ;*  ' DATA.helpstrs.(code)];
+              else
+                  s = [s '   ;   ' DATA.helpstrs.(code)];
+              end
               keys{j+nl} = DATA.helpkeys.KeyWords.(code);
           end
           a(nc+nl,1:length(s)) = s;
@@ -3391,11 +3461,12 @@ function CodesPopup(a,b, type)
         'callback', @SearchList, ...
         'units','norm', 'Position',[0.3 0.01 0.99 0.08]);
 
-    lst = uicontrol(gcf, 'Style','list','String', 'Code LIst',...
+    lst = uicontrol(gcf, 'Style','list','String', 'Code List :* = more help with mouse click',...
         'HorizontalAlignment','left',...
         'Max',10,'Min',0,...
         'Tag','CodeListString',...
-'units','norm', 'Position',[0.01 0.085 0.99 0.91]);
+        'callback',@HelpHit,...
+        'units','norm', 'Position',[0.01 0.085 0.99 0.91]);
 a = get(lst,'string');
 nc = 1;
 for j = 1:length(DATA.comcodes)
@@ -3424,14 +3495,43 @@ if strcmp(type,'popuphelp')
     CodesPopup(helpmenu,b,'byhelp');
 end
 
-    function a = AddOptionHelp(DATA,a)
+function HelpHit(a,b)
+DATA = GetDataFromFig(a);
+
+str = get(a,'string');
+l = get(a,'value');
+code = str(l,:);
+code = regexprep(code,'\s.*','');
+fpos = get(GetFigure(a),'position');
+if isfield(DATA.helpkeys.extras,code)
+    cm = uicontextmenu;
+    X = DATA.helpkeys.extras.(code);
+    for j = 1:length(X)
+        uimenu(cm,'label',X{j});
+    end
+    set(cm,'position', [50 fpos(4)/2],'visible','on');
+end
+
+function a = AddOptionHelp(DATA,a)
         
 if isfield(DATA.helpkeys,'options')
-    s = 'Binary options';
+    s = 'Binary options (op=+xx to set. op=-xx to unset)';
     a(end+1,1:length(s)) = s;
-    f = fields(DATA.helpkeys.options)
+    
+    f = fields(DATA.optionflags);
     for j = 1:length(f)
-        s = sprintf('+%s %s',f{j},DATA.helpkeys.options.(f{j}))
+        if isfield(DATA.helpkeys.options,f{j})
+            s = sprintf('+%s %s   ;   %s',f{j},DATA.optionstrings.(f{j}),DATA.helpkeys.options.(f{j}));
+        else
+            s = sprintf('+%s %s\n',f{j},DATA.optionstrings.(f{j}));
+        end
+        a(end+1,1:length(s)) = s;
+    end
+
+         
+    f = fields(DATA.helpkeys.options);
+    for j = 1:length(f)
+        s = sprintf('+%s %s',f{j},DATA.helpkeys.options.(f{j}));
         a(end+1,1:length(s)) = s;
     end
 end
@@ -4218,7 +4318,7 @@ function OpenPenLog(a,b, varargin)
         DATA.binoc{1}.Yp = Text2Val(findobj(F,'Tag','Yp'));
         DATA.binoc{1}.Pn = Text2Val(findobj(F,'Tag','Pn'));
         DATA.binoc{1}.ePr = Text2Val(findobj(F,'Tag','protrudes'));
-        DATA.binoc{1}.eZ = Text2Val(findobj(F,'Tag','impedance'));
+        DATA.binoc{1}.eZ = Text2Val(findobj(F,'Tag','Impedance'));
         DATA.binoc{1}.adapter = get(findobj(F,'Tag','adapter'),'string');
         DATA.binoc{1}.hemi = Menu2Str(findobj(F,'Tag','hemisphere'));
         DATA.binoc{1}.ui = Menu2Str(findobj(F,'Tag','Experimenter'));
@@ -4312,6 +4412,15 @@ function SendCode(DATA, code)
             fprintf(DATA.outid,'%s\n',s);
         end
     end
+    
+function val = GetValue(DATA,code)    
+%Gets value of a code
+
+if isfield(DATA.binoc{1},code)
+    val = DATA.binoc{1}.(code);
+else
+    va = NaN;
+end
     
 function [s, lbl, type] = CodeText(DATA,code, varargin)
 s = [];

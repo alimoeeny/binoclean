@@ -595,12 +595,16 @@ void initial_setup()
     gettimeofday(&now,NULL);
     ExptInit(&expt, TheStim, &mon);
 //ExptInit now sets up codesend and nfplaces from valstrings
-
+    
+//now can interpret lines from binoc.setup that require Expt to be initialized
     if((fd = fopen("/local/binoc.setup","r")) != NULL)
     {
 	    while(fgets(buf, BUFSIZ, fd) != NULL){
             if (strncmp(buf,"default:",8) ==NULL)
                 InterpretLine(&buf[8],&expt,3);
+            else if(!strncmp(buf,"monitor",7)){
+                InterpretLine(buf,&expt,3);
+            }
         }
     }
     
@@ -724,6 +728,7 @@ char **argv;
             else if(!strncmp(buf,"printcodes",9)){
                 PrintStates();
             }
+
 
 	    }
     }
@@ -7707,6 +7712,10 @@ float StimulusProperty(Stimulus *st, int code)
 	double cosa,sina;
 	OneStim *psine;
 	Substim *rds;
+    int icode = -1;
+    
+    if (code < MAXTOTALCODES && valstringindex[code] >=0)
+        icode = valstringindex[code];
     
 	rds = st->left;
 	switch(code)
@@ -8497,7 +8506,10 @@ float StimulusProperty(Stimulus *st, int code)
             value = avglen;
             break;
         default:
-            value = NOTSET;
+            if (icode > -1 && valstrings[icode].ctype != 'C')
+                value = expt.vals[code];
+            else
+                value = NOTSET;
             break;
 	}
 	return(value);
@@ -8700,7 +8712,7 @@ void SaveExptFile(char *filename,int flag)
         
 		if(optionflag & CLAMP_HOLD_BIT)
 			optionflag |= CLAMP_EXPT_BIT;
-		for(i = LAST_STIMULUS_CODE; i < MAXSAVECODES; i++)
+		for(i = LAST_STIMULUS_CODE; i < MAXTOTALCODES; i++)
 		{
 			cbuf[0] = '=';
 			cbuf[1] = 0;
@@ -8711,65 +8723,23 @@ void SaveExptFile(char *filename,int flag)
                 s = serial_strings[i];
 			if((j = MakeString(i, cbuf, &expt, TheStim,TO_FILE)) >= 0 && use){
                 switch(i){
-                        
-                        
-                        /* 
-                         * for some parameters, intended as convenienve options online,
-                         * it is best not to save them to the file
-                         * as loading them up just causes trouble
-                         */
-                    case STIM_SIZE:
-                    case BACK_SIZE:
-                    case QUERY_STATE:
-                    case CONTRAST_LEFT:
-                    case CONTRAST_RIGHT:
-                    case SF_LEFT:
-                    case SF_RIGHT:
-                    case WIDTH_L:
-                    case WIDTH_R:
-                    case HEIGHT_L:
-                    case HEIGHT_R:
-                    case CONTRAST_PAIRS:
-                    case SEND_CLEAR:
-                    case SD_BOTH:
-                    case FB_RELATIVE_CONTRAST:
-                    case DISP_A:
-                    case DISP_B:
-                    case STIM_POLARANGLE:
-                    case STIM_ECCENTRICITY:
-                    case ORTHOG_POSR:
-                    case ORTHOG_POSL:
-                    case INITIAL_MOVEMENT:
-                    case INITIAL_DURATION:
-                        go = 0;
-                        break;
                     case SACCADE_DETECTED:
                         if(flag == SAVE_STATE)
                             go = 1;
                         else
                             go = 0;
                         break;
+                    case JUMP_SF_COMPONENTS:
+                    case SET_TF_COMPONENTS:
+                    case SET_SF_COMPONENTS:
+                    case SET_SF_CONTRASTS:
                     case PHASE_AS_DISP:
                         if(expt.st->type == STIM_GRATINGN)
                             go = 1;
                         else
                             go = 0;
                         break;
-                    case PENETRATION_TEXT:
-                    case PENXPOS:
-                    case PENYPOS:
-                    case PENNUMCOUNTER:
-                    case VWHERE:
-                    case GOODTRIALS:
-                    case ORTHOG_POS:
-                    case PARA_POS:
-                    case BADTRIALS:
-                    case RELDISP:
-                        if(flag == SAVE_STATE)
-                            go = 1;
-                        else
-                            go = 0;
-                        break;
+
                         /*
                          * This list NOT save in QuckExpts. Might want to change these during
                          * course of expt
@@ -8801,7 +8771,12 @@ void SaveExptFile(char *filename,int flag)
                             go = 0;
                         break;
                     default:
-                        go = 1;
+                        if (valstrings[code].codesave == SEND_NEVER)
+                            go = 0;
+                        else if (flag != SAVE_STATE && valstrings[code].codesave == SAVE_STATE)
+                            go = 0;
+                        else
+                            go = 1;
                         break;
                         
                 }

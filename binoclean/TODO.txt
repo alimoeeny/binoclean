@@ -92,4 +92,6 @@ Things that need fixing:
 * need rule to contol when checker is 2D noise or 2x1D - nonzero a2
 Allow circular checkers.
 Allow drifing checkers.
+-seqpause not initialised properly
+aknowlegde before window up is just fprintf.  ? keep track and report later? 
 
