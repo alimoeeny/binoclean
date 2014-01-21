@@ -1494,7 +1494,6 @@ void paint_rds(Stimulus *st, int mode)
     {
       if(optionflag & ANTIALIAS_BIT)
         {
-#ifdef Darwin
 	  if(w < 1)
 	    glLineWidth(1.0);
 	  else
@@ -1518,7 +1517,7 @@ void paint_rds(Stimulus *st, int mode)
             }
         }
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#else
+#ifdef Darwinoldelse
 	  glLineWidth(1.0);
             glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
@@ -1553,7 +1552,6 @@ void paint_rds(Stimulus *st, int mode)
        * to do this if antialiasing is off. On SG need both
        * For macmins+Lion+binoclean, need both atagin
        */
-#ifdef Darwin
       if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
           glBegin(GL_LINES);
           
@@ -1571,7 +1569,7 @@ void paint_rds(Stimulus *st, int mode)
               rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
           glEnd();
       }
-#else
+#ifdef Darwinoldelse
 	if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
         glBegin(GL_LINES);
         

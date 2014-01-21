@@ -1113,7 +1113,10 @@
 					NIDAQ,
 					Darwin,
 				);
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					NIDAQ,
+					Darwin,
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1141,6 +1144,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					NIDAQ,
+					Darwin,
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
 					NIDAQ,
 					Darwin,
 				);

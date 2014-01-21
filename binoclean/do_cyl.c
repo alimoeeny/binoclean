@@ -503,17 +503,24 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     else if(optionflag & ANTIALIAS_BIT)
     {
         aamode = 1;
+        if(w < 1)
+            glLineWidth(1.0);
+        else
+            glLineWidth(w*2);
         glLineWidth(1.0);
-        glLineWidth(hdotsize[0]*balls[0].dot*2);
+        glEnable(GL_POLYGON_SMOOTH);
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBegin(GL_LINES);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
-        glEnd();
-        glDisable(GL_BLEND);
-        glDisable(GL_LINE_SMOOTH);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
     }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPopMatrix();
 }
 

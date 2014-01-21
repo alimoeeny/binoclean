@@ -7073,7 +7073,6 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[2],y+line[3]);
 }
 
-#ifdef Darwin
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
     
@@ -7088,7 +7087,7 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[6],y+line[7]);
     glEnd();
 }
-#else
+#ifdef Darwinoldelse
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
     
