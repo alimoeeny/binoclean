@@ -123,7 +123,8 @@ int init_cylinder(Stimulus *st,  Substim *sst) /* passed st, st->left (pointer t
 		cyl->numdots = ndots;
     
 	
-    
+    myrnd_init(st->left->baseseed);
+    srand48(st->left->baseseed);
 	fill_balls(cyl->numdots, cyl->balls, st->flag, cyl->lifeframes);      /* fill balls structure with random numbers */
     /*flag will give whether flat or cylindriical motion */
 	/* if subpix mode and calprims set ie. new or size has changed set new list of primitives */
