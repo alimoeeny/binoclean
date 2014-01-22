@@ -7552,7 +7552,7 @@ Thisstim *getexpval(int stimi)
         stimret.vals[EXP_PSYCHVAL] = stimret.vals[0]-expt1crit;
         
         if(optionflags[RANDOM_EXPT2] && expt.type2 == DELAY && stimret.vals[1] != 0){
-            if((rnd = lrand48() & 1) > 0)
+            if((rnd = myrnd_u() & 1) > 0)
                 stimret.vals[EXP_PSYCHVAL] = -stimret.vals[EXP_PSYCHVAL];
         }
         stimret.vals[SIGNAL_STRENGTH] = fabs(stimret.vals[EXP_PSYCHVAL]);
@@ -9686,7 +9686,7 @@ int PrepareExptStim(int show, int caller)
                 else if (rval <= 0.8){ // add extra frames;
                     i = 0;
                     while(i < pw-1){
-                        k = lrand48() % expt.st->nframes;
+                        k = myrnd_u() % expt.st->nframes;
                         if(frameiseq[k] != 0 && frameiseq[k] != isig){
                             rcstimid[k] = frameiseq[k] = 0;
                             frameseq[k] = stp->vals[1];
