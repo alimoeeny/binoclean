@@ -5786,7 +5786,7 @@ void paint_frame(int type, int showfix)
     
     /* if the middle button is down, dont paint - quick check for stim  effect */
     
-    setmask(BOTHMODE);
+    setmask(FORCEBOTH); //clear both eyes' screen regardless of stimulus ocularity
     if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
     if (TheStim->noclear == 0)
@@ -5795,6 +5795,7 @@ void paint_frame(int type, int showfix)
     if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
         paint_target(expt.targetcolor, 0);
     }
+    setmask(BOTHMODE); // may be monoc if selected
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
             paint_stimulus(TheStim->next,1);

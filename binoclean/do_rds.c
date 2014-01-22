@@ -1517,7 +1517,7 @@ void paint_rds(Stimulus *st, int mode)
             }
         }
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#ifdef Darwinoldelse
+#ifdef Darwinoldelse // was else after #ifdef Darwinaabgc
 	  glLineWidth(1.0);
             glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
