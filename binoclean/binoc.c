@@ -209,7 +209,7 @@ unsigned int mode = 0;
 int stmode = 0;
 static int oldmode = 0;
 int runmode = 1;
-int testmode = 4;
+int testmode = 1;
 static int maxloops = 0;
 static char *loadfiles[100] = {NULL};
 
@@ -2317,7 +2317,6 @@ int event_loop(float delay)
     }
     if(mode & TEST_PENDING)
     {
-        testmode = 4;
         if(testmode == 0){
             /*		      run_anticorrelated_test_loop();*/
             if(TheStim->type == STIM_RADIAL)
@@ -7148,7 +7147,7 @@ void run_rds_test_loop()
     char cbuf[BUFSIZ];
     Stimulus *st;
     int shift = pos->xy[1];
-    float vcolor[4],fixw;
+    float vcolor[4],fixw,bcolor[4];
     Substim *gb = TheStim->left;
     Substim *sst = TheStim->left;
     float val,angle;
@@ -7158,6 +7157,7 @@ void run_rds_test_loop()
     int ncalls[4];
     
     vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
     st = TheStim;
     x = sst->xpos;
     y = sst->ypos;
@@ -7181,6 +7181,74 @@ void run_rds_test_loop()
     
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth(1.0);
+#define ACSIZE 8
+    if(testmode == 1){
+        optionflag &= (~ANTIALIAS_BIT);
+        for(frame = 0; frame < 72; frame++){
+        glClear(GL_ACCUM_BUFFER_BIT);
+        calc_rds(st, st->left);
+            xp[0] = st->pos.xy[0];
+        for (i = 0; i < ACSIZE; i++){
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            st->pos.xy[0] += 0.1;
+            glAccum(GL_ACCUM, 1.0/ACSIZE);
+            paint_rds(st, LEFTMODE);
+        }
+            st->pos.xy[0] = xp[0];
+        glAccum (GL_RETURN, 1.0);
+        glFlush();
+        }
+        for(frame = 0; frame < 72; frame++){
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glLineWidth(1.0);
+//            glEnable(GL_POLYGON_SMOOTH);
+            glDisable(GL_LINE_SMOOTH);
+            glDisable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            mycolor(vcolor);
+            glBegin(GL_POLYGON);
+            glVertex2f(50,50);
+            glVertex2f(50,100);
+            glVertex2f(100,100);
+            glVertex2f(100,50);
+            glEnd();
+            if (1){
+            mycolor(bcolor);
+            glBegin(GL_POLYGON);
+            glVertex2f(75.5,50);
+            glVertex2f(75.5,100);
+            glVertex2f(125.5,100);
+            glVertex2f(125.5,50);
+            glEnd();
+            }
+
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                mycolor(vcolor);
+                glBegin(GL_POLYGON);
+                glVertex2f(50,50);
+                glVertex2f(50,100);
+                glVertex2f(100,100);
+                glVertex2f(100,50);
+                glEnd();
+                if (1){
+                    mycolor(bcolor);
+                    glBegin(GL_POLYGON);
+                    glVertex2f(75.5,50);
+                    glVertex2f(75.5,100);
+                    glVertex2f(125.5,100);
+                    glVertex2f(125.5,50);
+                    glEnd();
+            }
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glFlush();
+        }
+        return;
+    }
     if(testmode == 3){
         for(frame = 0; frame < 72; frame++){
             testcalc_rds(st->next,st->next->left, testmode);

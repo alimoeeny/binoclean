@@ -4200,6 +4200,9 @@ int ReadCommand(char *s)
         ReopenSerial();
         SendAll();
     }
+    else if(!strncasecmp(s,"runtest",7)){
+        set_test_loop();
+    }
     else if(!strncasecmp(s,"savefile=",9)){
         SaveExptFile(&s[9],0);
     }
