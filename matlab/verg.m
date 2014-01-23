@@ -12,12 +12,22 @@ if length(varargin) & ishandle(varargin{1})
 else
     checkforrestart = 1;
     TOPTAG = 'vergwindow';
-    
+    it = findobj('Tag',TOPTAG,'type','figure');
+    setdata = 0;
 %just parse arguments here that need to be set before reading DATA from figure    
 j = 1;
 while j <= length(varargin)
     if strncmpi(varargin{j},'autoreopen',6)
+        if j ==1 && ~isempty(it) %User changing after window opened
+            DATA = get(it(1),'UserData');
+            setdata = 1;
+        end
         DATA.autoreopen =1;
+        if length(varargin) == j+1          %final argument after autoreopen = line to resend
+            j = j+1;
+            DATA.reopenstr = varargin{j};
+        end
+
     elseif strcmp(varargin{j},'new')
         checkforrestart = 0;
     elseif strcmp(varargin{j},'verbose')
@@ -37,7 +47,9 @@ while j <= length(varargin)
     end
     j = j+1;
 end
-
+if setdata
+            set(it,'UserData',DATA);
+end
 
 
 it = findobj('Tag',TOPTAG,'type','figure');
@@ -152,7 +164,12 @@ while j <= length(varargin)
     j = j+1;
 end
 
-
+function binocprintf(DATA, varargin)
+%call fprintf, but only if pipe is open    
+    if DATA.outid > 0
+        fprintf(DATA.outid, varargin{:});
+    end
+        
 
 function DATA = CheckStateAtStart(DATA)
     if strcmp('NotSet',DATA.binoc{1}.ereset)
@@ -2959,6 +2976,9 @@ function CheckInput(a,b, fig, varargin)
                          fprintf('Reopening pipes\n');
                          pause(1);
                          ReadIO(DATA,[],6);
+                         if isfield(DATA,'reopenstr') && ~isempty(DATA.reopenstr)
+                             binocprintf(DATA,'%s\n',DATA.reopenstr);
+                         end
                      else
                          fprintf('Binoc Restarted - reopen pipes\n');
                      end
