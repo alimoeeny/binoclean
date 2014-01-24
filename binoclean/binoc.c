@@ -7140,7 +7140,7 @@ void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
 
 void run_rds_test_loop()
 {
-    int i,j,fw,fh,ival,frame = 0;
+    int i,j,fw,fh,ival,frame = 0,nframes = 72;;
     int *p,d,*end;
     vcoord *x,*y,xp[2],dw,dh,w,h;
     Locator *pos = &TheStim->pos;
@@ -7194,7 +7194,7 @@ void run_rds_test_loop()
         optionflag &= (~ANTIALIAS_BIT);
         gettimeofday(&timeb,NULL);
 
-        for(frame = 0; frame < 72; frame++){
+        for(frame = 0; frame < nframes; frame++){
         glClear(GL_ACCUM_BUFFER_BIT);
         calc_rds(st, st->left);
             xp[0] = st->pos.xy[0];
@@ -7212,7 +7212,7 @@ void run_rds_test_loop()
         
         gettimeofday(&now,NULL);
         val = timediff(&now,&timeb);
-        printf("Acculm %d frames took %.3f\n",val);
+        printf("Acculm %d frames took %.3f\n",nframes,val);
         gettimeofday(&timeb,NULL);
         glDrawBuffer(GL_BACK);
 
@@ -7234,9 +7234,9 @@ void run_rds_test_loop()
             for (i = 0; i < sst->ndots; i++)
             {
                 if(*p & BLACKMODE)
-                    SetGrey(0);
+                    glColor4f(0,0,0,1);
                 else if(*p & WHITEMODE)
-                    SetGrey(1);
+                    glColor4f(1,1,1,1);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
                 glVertex2f(*x-rect[0],*y+rect[1]);
@@ -7255,9 +7255,9 @@ void run_rds_test_loop()
             for (i = 0; i < sst->ndots; i++)
             {
                 if(*p & BLACKMODE)
-                    SetGrey(0);
+                    glColor4f(0,0,0,1);
                 else if(*p & WHITEMODE)
-                    SetGrey(1);
+                    glColor4f(1,1,1,1);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
                 glVertex2f(*x-rect[0],*y+rect[1]);
@@ -7271,12 +7271,14 @@ void run_rds_test_loop()
         }
         gettimeofday(&now,NULL);
         val = timediff(&now,&timeb);
-        printf("Blend %d frames took %.3f\n",val);
+        printf("Blend %d frames took %.3f\n",nframes,val);
+        gettimeofday(&timeb,NULL);
 
         for(frame = 0; frame < 72; frame++){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glLineWidth(1.0);
-            glEnable(GL_POLYGON_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDisable(GL_DEPTH_TEST);
@@ -7289,9 +7291,9 @@ void run_rds_test_loop()
             for (i = 0; i < sst->ndots; i++)
             {
                 if(*p & BLACKMODE)
-                    SetGrey(0);
+                    glColor4f(0,0,0,1);
                 else if(*p & WHITEMODE)
-                    SetGrey(1);
+                    glColor4f(1,1,1,1);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
@@ -7313,7 +7315,7 @@ void run_rds_test_loop()
         }
         gettimeofday(&now,NULL);
         val = timediff(&now,&timeb);
-        printf("Blend Each Dot %d frames took %.3f\n",val);
+        printf("Blend Each Dot %d frames took %.3f\n",nframes,val);
 
         for(frame = 0; frame < 72; frame++){
             glEnable(GL_POLYGON_SMOOTH);
@@ -7329,7 +7331,7 @@ void run_rds_test_loop()
             glVertex2f(100,100);
             glVertex2f(100,50);
             glEnd();
-            if (1){
+            if (0){
                 mycolor(bcolor);
                 glBegin(GL_POLYGON);
                 glVertex2f(75.5,50);
@@ -7338,8 +7340,8 @@ void run_rds_test_loop()
                 glVertex2f(125.5,50);
                 glEnd();
 //            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                glSwapAPPLE();
             }
+            glSwapAPPLE();
         }
         return;
     }
