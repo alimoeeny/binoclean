@@ -1918,6 +1918,9 @@ char *ReadManualStim(char *file, int stimid){
             else{
                 manualprop[nprop] = FindCode(inbuf);
                 propmodifier[nprop] = 0;
+                SerialString("mt",0);
+                SerialString(inbuf,0);
+                SerialString("\n",0);
             }
 
         
@@ -2025,7 +2028,7 @@ int ReadCommandFile(char *file)
 {
     struct stat statbuf;
     FILE *fin;
-    char *s;
+    char *s,buf[BUFSIZ];
     
     if(file == NULL)
         return(0);
@@ -2034,11 +2037,11 @@ int ReadCommandFile(char *file)
     
     if(statbuf.st_mtime > lastcmdread) /* file has been modified */
     { 
-        fprintf(stdout,"last read was at %s",ctime(&lastcmdread));
-        fprintf(stdout,"cmdfile modified at %s",ctime(&statbuf.st_mtime));
+        sprintf(buf,"cmdfile modified at %s (last read %s)",ctime(&statbuf.st_mtime),ctime(&lastcmdread));
+        fprintf(stderr,buf);
+        statusline(buf);
         if(seroutfile){
-            fprintf(seroutfile,"#cmdfile modified at %s,",nonewline(ctime(&statbuf.st_mtime)));
-            fprintf(seroutfile," since %s",ctime(&lastcmdread));
+            fprintf(seroutfile,"#%s\n",buf);
         }
         
         usleep(100000);
@@ -4235,7 +4238,7 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"nomonkey",7)){
         monkeyhour = 0;
-        printf("Not Checking for running without monkey\n");
+        acknowledge("Not Checking for running without monkey\nDO NOT use this if a monkey is in this Rig");
     }
     else if(!strncmp(s,"test",4)){
 
@@ -5245,7 +5248,12 @@ int ReadStimOrder(char *file)
                         s++;
                }
             }
-            else{ // send all other lines to serial file
+            else{ // send all other lines to serial file or InterpretLine
+//Dont send all to Interpretline in case of accidental code.
+                ival = FindCode(s);
+                if (ival == EXPT_NAME)
+                    InterpretLine(s, &expt, 2);
+                else
                     SerialString(s,0);
             }
         }
@@ -6831,7 +6839,8 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 
 int confirm_no(char *s, *help)
 {
-    return(1);   
+    acknowledge(s,help);
+    return(1);
 }
 
 int confirm_yes(char *s, char *yescmd, char *nocmd, char *help)
@@ -11435,14 +11444,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
          * if optionflags[CHECK_FRAMECOUNTS] ==2, only check the first stimulus
          */
         if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
-            if(optionflags[CHECK_FRAMECOUNTS] < 2){
-                sprintf(buf,"Only completed %d/%d frames. op-CN to stop Checking",framesdone,n);
-                confirm_yes(buf,"op=+CN","op=-CN",NULL);
-            }
-            else if (stimno ==  0){
-                sprintf(buf,"Only completed %d/%d frames. Will not Check again.",framesdone,n);
+                sprintf(buf,"Only completed %d/%d frames (stim %d at %s). op-CN to stop Checking",framesdone,n,stimno,binocTimeString());
                 acknowledge(buf,NULL);
-            }
+            statusline(buf);
         }
     }
     
@@ -11452,15 +11456,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      */
     if(optionflags[CHECK_FRAMECOUNTS] && retval != BAD_TRIAL && 
        frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){
-        if(optionflags[CHECK_FRAMECOUNTS] < 2){
-            sprintf(buf,"%d frames took %.1f.  op-CN to stop Checking",framesdone,frametimes[framesdone-1]);
-            confirm_yes(buf,"op=+CN","op=-CN", NULL);
-                optionflags[CHECK_FRAMECOUNTS] = 0;
-        }
-        else if (stimno == 0){
-            sprintf(buf,"%d frames took %.1f. Won't check again",framesdone,frametimes[framesdone-1]);
-            acknowledge(buf,NULL);
-        }
+        sprintf(buf,"Only completed %d/%d frames (stim %d at %s). op-CN to stop Checking",framesdone,n,stimno,binocTimeString());
+        acknowledge(buf,NULL);
+        statusline(buf);
     }
     
     if(rcfd && optionflags[WATCH_TIMES]){
@@ -12977,14 +12975,15 @@ int ReadConjPos(Expt*ex, char *line)
     
     return(0);
 }
+
+
+
 /*
  * Interpretline pases text strings from files, the serial line, and the GUI input pipe;
  * frompc = 1 mean it came form the serial line
- * frompc = 2 means it came from the GUI input line
+ * frompc = 2 means it came from the GUI input line, or a disk file
  * frompc = 3 means generated within binoclean, eg in ReadCommandLine
  */
-
-
 int InterpretLine(char *line, Expt *ex, int frompc)
 {
     int i,n,len,ival,total,j,vals[MAXBINS],k,code,icode,oldmode,x,y;
