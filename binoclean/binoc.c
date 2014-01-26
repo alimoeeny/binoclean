@@ -7116,6 +7116,19 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
     glEnd();
     }
 }
+#ifdef Darwinoldelse
+void aarotrect(vcoord *line, vcoord x, vcoord y)
+{
+    
+    /*
+     if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
+     return;
+     */
+    
+    glVertex2f(x+line[0],y+line[1]);
+    glVertex2f(x+line[6],y+line[7]);
+}
+#endif
 
 
 void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
