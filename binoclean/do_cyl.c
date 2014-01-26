@@ -123,7 +123,8 @@ int init_cylinder(Stimulus *st,  Substim *sst) /* passed st, st->left (pointer t
 		cyl->numdots = ndots;
     
 	
-    
+    myrnd_init(st->left->baseseed);
+    srand48(st->left->baseseed);
 	fill_balls(cyl->numdots, cyl->balls, st->flag, cyl->lifeframes);      /* fill balls structure with random numbers */
     /*flag will give whether flat or cylindriical motion */
 	/* if subpix mode and calprims set ie. new or size has changed set new list of primitives */
@@ -172,27 +173,27 @@ void fill_balls(int ndots, ball_s *balls, int flag, int lifeframes)
 	if(flag & FLAT_SURFACES){
 		for (i = 0; i < ndots; i++) {
             
-			balls[i].pos[X] = 2.0 * (drand48() - 0.5); /* -1 to +1 */
-			drnd = drand48();
+			balls[i].pos[X] = 2.0 * (mydrand() - 0.5); /* -1 to +1 */
+			drnd = mydrand();
 			balls[i].pos[Y] = 2.0 * (drnd - 0.5); /* -1 to +1 */
-			if (drand48() >= 0.5) 
+			if (mydrand() >= 0.5)
 			    balls[i].left_right = JONRIGHT;
 			else 
 			    balls[i].left_right = JONLEFT;
-			balls[i].lrnd = lrand48();
+			balls[i].lrnd = myrnd_u();
 			balls[i].countdown = balls[i].lrnd % (lifeframes+1);
 		}  
 	}
 	else{
 		for (i = 0; i < ndots; i++) {
-			balls[i].pos[X] = sinf(M_PI * (drand48() - 0.5)); /* sin(-pi/2 -> pi/2 */
-			drnd = drand48();
+			balls[i].pos[X] = sinf(M_PI * (mydrand() - 0.5)); /* sin(-pi/2 -> pi/2 */
+			drnd = mydrand();
 			balls[i].pos[Y] = 2.0 * (drnd - 0.5); /* -1 to +1 */
-			if (drand48() >= 0.5) 
+			if (mydrand() >= 0.5) 
 			    balls[i].left_right = JONRIGHT;
 			else 
 			    balls[i].left_right = JONLEFT;
-			balls[i].lrnd = lrand48();
+			balls[i].lrnd = myrnd_u();
 			balls[i].countdown = balls[i].lrnd % (lifeframes+1);
 		}
 	}
@@ -503,9 +504,14 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     else if(optionflag & ANTIALIAS_BIT)
     {
         aamode = 1;
+        if(w < 1)
+            glLineWidth(1.0);
+        else
+            glLineWidth(w*2);
         glLineWidth(1.0);
         glLineWidth(hdotsize[0]*balls[0].dot*2);
         glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         if (st->aamode == AAPOLYLINE) { //Line smoothing
             glEnable(GL_LINE_SMOOTH);
@@ -536,6 +542,7 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
             glDisable(GL_LINE_SMOOTH);
         }
     }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPopMatrix();
 }
 
@@ -741,17 +748,17 @@ void calc_cyl_motion(ball_s *balls, float vel, int ndots, int flag, int lifefram
         if (flag & FLAT_SURFACES) {
 		    if (flag & COUNTDOWN){
                 if (balls[i].countdown-- <= 0){ 
-				    balls[i].pos[X] = (2.0) * (drand48() - 0.5);	
-				    balls[i].pos[Y] = (2.0) * (drand48() - 0.5);
+				    balls[i].pos[X] = (2.0) * (mydrand() - 0.5);	
+				    balls[i].pos[Y] = (2.0) * (mydrand() - 0.5);
 				    balls[i].countdown = (lifeframes - 1);
                     nreplaced++;
                     
 			    }	    
 		    }
 		    else
-                if (drand48() < deathchance) { 
-                    balls[i].pos[X] = (2.0) * (drand48() - 0.5);
-                    balls[i].pos[Y] = (2.0) * (drand48() - 0.5);
+                if (mydrand() < deathchance) { 
+                    balls[i].pos[X] = (2.0) * (mydrand() - 0.5);
+                    balls[i].pos[Y] = (2.0) * (mydrand() - 0.5);
                     nreplaced++;
                 }
             
@@ -760,15 +767,15 @@ void calc_cyl_motion(ball_s *balls, float vel, int ndots, int flag, int lifefram
         else {
 		    if (flag & COUNTDOWN){
                 if (balls[i].countdown-- <= 0){ /* should do comparrison then subtract 1 */
-				    balls[i].pos[X] = sinf(M_PI * (drand48() - 0.5));	
-				    balls[i].pos[Y] = (2.0) * (drand48() - 0.5);
+				    balls[i].pos[X] = sinf(M_PI * (mydrand() - 0.5));	
+				    balls[i].pos[Y] = (2.0) * (mydrand() - 0.5);
 				    balls[i].countdown = (lifeframes - 1);	
 			    }	    
 		    }
 		    else
-                if ((rnd = drand48()) < deathchance) { 
-                    balls[i].pos[X] = sinf(M_PI * (drand48() - 0.5)); /* sin(-pi/2 -> pi/2 */
-                    balls[i].pos[Y] = (2.0) * (drand48() - 0.5);
+                if ((rnd = mydrand()) < deathchance) { 
+                    balls[i].pos[X] = sinf(M_PI * (mydrand() - 0.5)); /* sin(-pi/2 -> pi/2 */
+                    balls[i].pos[Y] = (2.0) * (mydrand() - 0.5);
                     nreplaced++;
                 }	
             delta = fabsf(vel * balls[i].proportion);  	/* theta=asin(x)/r, dotvel=cos(theta)) */  
@@ -780,7 +787,7 @@ void calc_cyl_motion(ball_s *balls, float vel, int ndots, int flag, int lifefram
             balls[i].pos[X] = sign - fraction;
             balls[i].left_right*=-1;		/* swaps LEFT and RIGHT */
             if (flag & NO_WRAP)
-                balls[i].pos[Y] = (2.0) * (drand48() - 0.5);    						     
+                balls[i].pos[Y] = (2.0) * (mydrand() - 0.5);    						     
         }
     }
 }

@@ -1088,11 +1088,21 @@ void wipestim(Stimulus *st, int color)
 void clearstim(Stimulus *st, float color, int drawfix)
 {
     
+    float lcolor = color, rcolor = color;
     /* just wipes the stimlus area clear to color */
     
     clearcnt++;
     if(mode & NEED_REPAINT || testflags[TEST_RC])
     {
+        /*
+         * gery monoc is off, need to force clearing other eye to black
+         */
+        if (optionflags[GREY_MONOC] == 0){
+            if ((optionflag & LEFT_FIXATION_CHECK))
+                rcolor = 0;
+            else if ((optionflag & RIGHT_FIXATION_CHECK))
+                lcolor = 0;
+        }
         /*
          * if change to monocular in an RC sequence, need to do a binocular wipe screen
          * befoe setting the mask
@@ -1101,7 +1111,8 @@ void clearstim(Stimulus *st, float color, int drawfix)
             optionflag &= (~(LEFT_FIXATION_CHECK | RIGHT_FIXATION_CHECK));
             setmask(0);
         }
-        glClearColor(color, st->gammaback, color, 1.0);
+        
+        glClearColor(lcolor, st->gammaback, rcolor, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if(expt.backim.name && optionflags[PAINT_BACKGROUND]){
             PaintBackIm(expt.backim);

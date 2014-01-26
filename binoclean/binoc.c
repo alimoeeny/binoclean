@@ -5088,6 +5088,7 @@ float SetRandomPhase( Stimulus *st, Locator *pos)
             if (mode & FIRST_FRAME_BIT && optionflags[RANDOM_INITIAL_PHASE]){
                 iphase = (myrnd_i() %360);
                 pos->phase = (iphase * 2 * M_PI)/st->nphases;
+                iphase = 0; // for recording
             }
             else{
                 iphase = 2*(myrnd_i() %2)-1;
@@ -5095,6 +5096,7 @@ float SetRandomPhase( Stimulus *st, Locator *pos)
                 pos->phase += (st->incr * iphase);
                 pos->locn[0] += (st->posinc * iphase);
             }
+            iphase = (3+iphase)/2; //1,2 for recording dir changes, 0 = not called or first frame
         }
     }
     frameiseqp[expt.framesdone] = iphase;
@@ -5168,6 +5170,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         st->framectr++;
         return;
     }
+    st->framectr++;  //increment first called AFTER painting frame 0
     frame = expt.st->framectr;
     if(st->prev == NULL){
         if((i = (int)rint(expt.vals[FP_MOVE_FRAME])) > 0
@@ -5652,7 +5655,6 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         fixpos[1] = deg2pix(dy);
         SerialSend(FIXPOS_XY);
     }
-    st->framectr++;
 }
 
 
@@ -5790,7 +5792,7 @@ void paint_frame(int type, int showfix)
     
     /* if the middle button is down, dont paint - quick check for stim  effect */
     
-    setmask(BOTHMODE);
+    setmask(FORCEBOTH); //clear both eyes' screen regardless of stimulus ocularity
     if(debug == 3)
         glDrawBuffer(GL_FRONT_AND_BACK);
     if (TheStim->noclear == 0)
@@ -5799,6 +5801,7 @@ void paint_frame(int type, int showfix)
     if(SACCREQD(afc_s) && afc_s.target_in_trial > 0){
         paint_target(expt.targetcolor, 0);
     }
+    setmask(BOTHMODE); // may be monoc if selected
     if(option2flag & PSYCHOPHYSICS_BIT || !(eventstate & MBUTTON) || (eventstate & CNTLKEY)){
         if(type == STIM_BACKGROUND && isastim(TheStim->next))
             paint_stimulus(TheStim->next,1);

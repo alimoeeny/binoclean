@@ -1113,7 +1113,10 @@
 					NIDAQ,
 					Darwin,
 				);
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					NIDAQ,
+					Darwin,
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1144,6 +1147,10 @@
 					NIDAQ,
 					Darwin,
 				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					NIDAQ,
+					Darwin,
+				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -1168,8 +1175,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "FRAME_OUTPUT=1";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					"NIDAQ=1",
+					"Darwin=1",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
@@ -1204,17 +1214,18 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "binoclean/binoclean-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "FRAME_OUTPUT=1";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					"NIDAQ=1",
+					"Darwin=1",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = "";
 				IBC_PLUGIN_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "binoclean/binoclean-Info.plist";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"NIDAQ=1",
-					"FRAME_OUTPUT=1",
-				);
+				INFOPLIST_PREPROCESSOR_DEFINITIONS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/local/c/binoclean,

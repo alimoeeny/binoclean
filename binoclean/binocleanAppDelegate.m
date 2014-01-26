@@ -53,7 +53,7 @@ void acknowledge(char * a ,int b)
                 NSAlert * acknowledgeAlert = [[NSAlert alloc] init];
                 [acknowledgeAlert setMessageText:@"Acknowledge it!"];
                 [acknowledgeAlert addButtonWithTitle:@"I know!"];
-                [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n %d ", [NSString stringWithUTF8String:a],b]];
+                [acknowledgeAlert setInformativeText:[NSString stringWithFormat:@"%@ \n", [NSString stringWithUTF8String:a]]];
                 NSWindow * topwin = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
                 NSLog(@"topwin:%@, wincount:%d", [topwin title], [[[NSApplication sharedApplication] windows] count]);
                 [acknowledgeAlert beginSheetModalForWindow:topwin modalDelegate:nil didEndSelector:nil contextInfo:nil];

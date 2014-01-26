@@ -347,7 +347,7 @@ int calc_rds(Stimulus *st, Substim *sst)
   vcoord yp,diff;
   vcoord xpixdisps[MAXDISPS+1],xd;
   int kill_dot = 0,ncalls = 0;
-  double drnd,drand48(),cosa,sina,vscale,hscale,ascale,bscale,dscale;
+  double drnd,cosa,sina,vscale,hscale,ascale,bscale,dscale;
   int eyemode,induced = 0,hpixmul,wpixmul;
   float *pf,wscale,hiscale,dw,laps,partlap,ftmp;
   int wrapped = 0,sumwrap = 0,nowrap = 1;
@@ -799,7 +799,7 @@ int calc_rds(Stimulus *st, Substim *sst)
 	  else
 	    kill_dot = 0;
 	  if(expt.vals[ALTERNATE_STIM_MODE] == INDUCED_MIMIC && sst->vscale > 1){
-	    drnd = drand48();
+	    drnd = mydrand();
 	    htest =  1 - 2 * fabsf(*y/h) * (sst->vscale-1);
 	    if (drnd >htest)
 	      *x = (float)(((prnd>>8) + (int)(xshift[0]) + xdisp[0]) % (iw*pixmul))/pixmul - w/2;
@@ -1135,7 +1135,7 @@ void testcalc_rds(Stimulus *st, Substim *sst, int mode)
   vcoord yp,diff;
   vcoord xpixdisps[MAXDISPS];
   int kill_dot = 0;
-  double drnd,drand48(),cosa,sina,vscale,hscale,ascale,bscale;
+  double drnd,cosa,sina,vscale,hscale,ascale,bscale;
   int eyemode;
   float dw = sst->dotsiz[0];
     
