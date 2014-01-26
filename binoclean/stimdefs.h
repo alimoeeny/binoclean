@@ -675,6 +675,13 @@ long rnd_i(void);
 #define AltMask 4
 #define InExptChar  ((expt.st->mode & EXPTPENDING) ? '@' : ' ')
 
+//Antialiasing modes
+#define AAPOLYLINE 1 //Polygon with AA line (all) then interior (all)
+#define AAPOLYGON 2 // use POLYGON_SMOOTH. Correct but get diagonal artifact
+#define AABOTH 3 //paint line then polygon for each polygon.
+#define AALINE 4  // Old Irix method with single thick line. :(
+
+
 #ifndef WindowEventdefined 
 
 typedef struct windowevent{

@@ -194,7 +194,7 @@ int CheckOption(int i);
 int ChangeFlag(char *s);
 void SetPopup(char *s, int up);
 int str2code(char *s);
-float readval(char *s, 	Stimulus *TheStim);
+float readval(char *s, 	Stimulus *TheStim, int goteq);
 int ReadMonitorSetup(char *name);
 int LabelAndPath(char *s, char *sublabel, char *path, char *name);
 int InterpretLine(char *line, Expt *ex, int frompc);

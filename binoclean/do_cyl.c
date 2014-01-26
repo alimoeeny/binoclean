@@ -505,14 +505,36 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
         aamode = 1;
         glLineWidth(1.0);
         glLineWidth(hdotsize[0]*balls[0].dot*2);
-        glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBegin(GL_LINES);
-        paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
-        glEnd();
-        glDisable(GL_BLEND);
-        glDisable(GL_LINE_SMOOTH);
+        if (st->aamode == AAPOLYLINE) { //Line smoothing
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
+        else if (st->aamode == AAPOLYGON){  // Polygon AA - get diagonal articact, but geometry correct.
+            glDisable(GL_LINE_SMOOTH);
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
+        else if (st->aamode == AABOTH){  // Do Line then poly for each. Best but slow
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
+        else if (st->aamode == AALINE){  // Drawn as Thick lines. No good on Mac
+            glEnable(GL_LINE_SMOOTH);
+            glBegin(GL_LINES);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+            glEnd();
+            glDisable(GL_BLEND);
+            glDisable(GL_LINE_SMOOTH);
+        }
     }
     glPopMatrix();
 }

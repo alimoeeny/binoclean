@@ -2,6 +2,8 @@ function verg(varargin)
 %binoc
 %GUI for running binoclean via pipe.
 
+autoquit = 0;
+
 if length(varargin) & ishandle(varargin{1})
     f = varargin{1};
     while ~isfigure(f)
@@ -28,6 +30,8 @@ while j <= length(varargin)
             DATA.reopenstr = varargin{j};
         end
 
+    elseif strcmp(varargin{j},'autoquit')
+        autoquit = 1;
     elseif strcmp(varargin{j},'new')
         checkforrestart = 0;
     elseif strcmp(varargin{j},'verbose')
@@ -163,6 +167,12 @@ while j <= length(varargin)
     end
     j = j+1;
 end
+
+
+if autoquit
+    close(DATA.toplevel);
+end
+
 
 function binocprintf(DATA, varargin)
 %call fprintf, but only if pipe is open    
@@ -837,19 +847,29 @@ for j = 1:length(strs{1})
     else
         id = strfind(s,'=');
         if id & s(1) ~= '!'
+% If we get here, its a command not recognized byt binoc or by lines above.
+%In general, Do NOT add these to binoc{1} - it allows the user to create
+%abritrary fields there accidentally. Put then in binoc{5} (not send to binoc)
+%However, catch codes that might be
+%set in verg.setup before binoc has been started. 
             code = s(1:id(1)-1);
             code = strrep(code, 'electrode','Electrode');
             if isempty(strmatch(code, {'1t' '2t' '3t' '4t'})) %illegal names
+                if sum(strcmp(code,{'ereset'}))
+                    bid = DATA.currentstim;
+                else
+                    bid = 5;
+                end
                 code = deblank(code);
-            val = sscanf(s(id(1)+1:end),'%f');
-            if ~isempty(val)
-                DATA.binoc{DATA.currentstim}.(code) = val;
-            else
-                DATA.binoc{DATA.currentstim}.(code) = s(id(1)+1:end);
+                val = sscanf(s(id(1)+1:end),'%f');
+                if ~isempty(val)
+                    DATA.binoc{bid}.(code) = val;
+                else
+                    DATA.binoc{bid}.(code) = s(id(1)+1:end);
+                end
+                SetCode(DATA,code);
             end
-            SetCode(DATA,code);
         end
-    end
     end
 end
 
@@ -1112,6 +1132,9 @@ function SendState(DATA, varargin)
     
     f = fields(DATA.binoc{1});
     
+    if ~isfield(DATA,'codeids') %not connected to binoc
+        return;
+    end
     fprintf(DATA.outid,'\neventpause\n');
     
     
@@ -1285,12 +1308,21 @@ end
 if DATA.inid > 0
     fclose(DATA.inid);
 end
-if exist(DATA.outpipe)
-DATA.outid = fopen(DATA.outpipe,'w');
+
+[a, pstr] = system('ps -e | grep binoclean');
+if isempty(strfind(pstr, 'binoclean.app'))
+    msgbox('Binoc is Not Runnig');
+    binocisrunning = 0;
+else
+    binocisrunning = 1;    
+end
+if exist(DATA.outpipe)  && binocisrunning
+%if binoc crashed out leaving pipes behind, this will freeze.    
+    DATA.outid = fopen(DATA.outpipe,'w');
 else
     DATA.outid = 1;
 end
-if exist(DATA.inpipe)
+if exist(DATA.inpipe) && binocisrunning
     DATA.inid = fopen(DATA.inpipe,'r');
 else
     DATA.inid = 1;
@@ -2809,7 +2841,7 @@ end
         set(it,'string','Store');
     else
         set(it,'string','Run','backgroundcolor',DATA.windowcolor);
-        if ~DATA.optionflags.py
+        if ~DATA.optionflags.py  %%Human Psych
             set(it,'backgroundcolor','r');
         end
     end
@@ -4441,7 +4473,7 @@ function val = GetValue(DATA,code)
 if isfield(DATA.binoc{1},code)
     val = DATA.binoc{1}.(code);
 else
-    va = NaN;
+    val = NaN;
 end
     
 function [s, lbl, type] = CodeText(DATA,code, varargin)

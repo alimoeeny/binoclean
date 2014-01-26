@@ -7077,7 +7077,6 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
     glVertex2f(x+line[2],y+line[3]);
 }
 
-#ifdef Darwin
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
     
@@ -7085,26 +7084,35 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
      if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
      return;
      */
+    if (expt.st->aamode == 4){
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[6],y+line[7]);
+    }
+    else if (expt.st->aamode == 3){
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+    }
+    else{
     glBegin(GL_POLYGON);
     glVertex2f(x+line[0],y+line[1]);
     glVertex2f(x+line[2],y+line[3]);
     glVertex2f(x+line[4],y+line[5]);
     glVertex2f(x+line[6],y+line[7]);
     glEnd();
+    }
 }
-#else
-void aarotrect(vcoord *line, vcoord x, vcoord y)
-{
-    
-    /*
-     if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
-     return;
-     */
-    
-    glVertex2f(x+line[0],y+line[1]);
-    glVertex2f(x+line[6],y+line[7]);
-}
-#endif
 
 
 void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
@@ -7137,6 +7145,52 @@ void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
      */
 }
 
+void InitBlending(int polygon)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLineWidth(1.0);
+    if (polygon)
+        glEnable(GL_POLYGON_SMOOTH);
+    else
+        glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    if (polygon)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+
+void PaintDots(Substim *sst, float *rect, int mode)
+{
+    vcoord *x,*y,xp[2],dw,dh,w,h;
+    int i,j,fw,fh,ival,frame = 0,nframes = 72;;
+    int *p,d,*end;
+
+    x = sst->xpos;
+    y = sst->ypos;
+    p = sst->iim;
+    
+    for (i = 0; i < sst->ndots; i++)
+    {
+        if(*p & BLACKMODE)
+            glColor4f(0,0,0,1);
+        else if(*p & WHITEMODE)
+            glColor4f(1,1,1,1);
+        glBegin(GL_POLYGON);
+        glVertex2f(*x-rect[0],*y-rect[1]);
+        glVertex2f(*x-rect[0],*y+rect[1]);
+        glVertex2f(*x+rect[0],*y+rect[1]);
+        glVertex2f(*x+rect[0],*y-rect[1]);
+        glEnd();
+        x++,y++,p++;
+    }
+
+}
 
 void run_rds_test_loop()
 {
@@ -7151,7 +7205,7 @@ void run_rds_test_loop()
     Substim *gb = TheStim->left;
     Substim *sst = TheStim->left;
     float val,angle;
-    vcoord rect[8],crect[4];
+    vcoord rect[8],crect[4],dx=0;
     double sina,cosa= 1,o;
     char c;
     int ncalls[4];
@@ -7191,23 +7245,47 @@ void run_rds_test_loop()
     rect[3] = h * cosa + w * sina;
     
     if(testmode == 1){
-        optionflag &= (~ANTIALIAS_BIT);
+        glDrawBuffer(GL_BACK);
         gettimeofday(&timeb,NULL);
-
-        for(frame = 0; frame < nframes; frame++){
-        glClear(GL_ACCUM_BUFFER_BIT);
+        glDrawBuffer(GL_FRONT);
+        glClearAccum(0.5, 0.5, 0.5, 0.5);
+        glClearColor(0.5, 0.5, 0.5, 0.5);
         calc_rds(st, st->left);
+        for(frame = 0; frame < nframes; frame++){
+            glClear(GL_ACCUM_BUFFER_BIT);
             xp[0] = st->pos.xy[0];
+            glDisable(GL_LINE_SMOOTH);
+            glDisable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
         for (i = 0; i < ACSIZE; i++){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            st->pos.xy[0] += 0.1;
+            x = sst->xpos;
+            y = sst->ypos;
+            p = sst->iim;
+            dx = (float)(i)/16;
+            for (j = 0; j < sst->ndots; j++)
+            {
+                if(*p & BLACKMODE)
+                    glColor4f(0,0,0,1);
+                else if(*p & WHITEMODE)
+                    glColor4f(1,1,1,1);
+                glBegin(GL_POLYGON);
+                glVertex2f(*x-rect[0]+dx,*y-rect[1]);
+                glVertex2f(*x-rect[0]+dx,*y+rect[1]);
+                glVertex2f(*x+rect[0]+dx,*y+rect[1]);
+                glVertex2f(*x+rect[0]+dx,*y-rect[1]);
+                glEnd();
+                x++,y++,p++;
+            }
             glAccum(GL_ACCUM, 1.0/ACSIZE);
-            paint_rds(st, LEFTMODE);
         }
             st->pos.xy[0] = xp[0];
         glAccum (GL_RETURN, 1.0);
+            glFinish();
             glFinishRenderAPPLE();
-            glSwapAPPLE();
+//            glSwapAPPLE();
         }
         
         gettimeofday(&now,NULL);
@@ -7217,63 +7295,38 @@ void run_rds_test_loop()
         glDrawBuffer(GL_BACK);
 
 
-        for(frame = 0; frame < 72; frame++){
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glLineWidth(1.0);
-//            glEnable(GL_POLYGON_SMOOTH);
-            glEnable(GL_LINE_SMOOTH);
-            glEnable(GL_BLEND);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDisable(GL_DEPTH_TEST);
-            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            x = sst->xpos;
-            y = sst->ypos;
-            p = sst->iim;
-
-            for (i = 0; i < sst->ndots; i++)
-            {
-                if(*p & BLACKMODE)
-                    glColor4f(0,0,0,1);
-                else if(*p & WHITEMODE)
-                    glColor4f(1,1,1,1);
-                glBegin(GL_POLYGON);
-                glVertex2f(*x-rect[0],*y-rect[1]);
-                glVertex2f(*x-rect[0],*y+rect[1]);
-                glVertex2f(*x+rect[0],*y+rect[1]);
-                glVertex2f(*x+rect[0],*y-rect[1]);
-                glEnd();
-                x++,y++,p++;
-            }
+        for(frame = 0; frame < nframes; frame++){
+            InitBlending(0); // line AA
+            PaintDots(sst, rect, 1);
 
             glDisable(GL_LINE_SMOOTH);
             glDisable(GL_BLEND);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            x = sst->xpos;
-            y = sst->ypos;
-            p = sst->iim;
-            for (i = 0; i < sst->ndots; i++)
-            {
-                if(*p & BLACKMODE)
-                    glColor4f(0,0,0,1);
-                else if(*p & WHITEMODE)
-                    glColor4f(1,1,1,1);
-                glBegin(GL_POLYGON);
-                glVertex2f(*x-rect[0],*y-rect[1]);
-                glVertex2f(*x-rect[0],*y+rect[1]);
-                glVertex2f(*x+rect[0],*y+rect[1]);
-                glVertex2f(*x+rect[0],*y-rect[1]);
-                glEnd();
-                x++,y++,p++;
-            }
+            PaintDots(sst, rect, 1);
+
             glFinishRenderAPPLE();
             glSwapAPPLE();
         }
         gettimeofday(&now,NULL);
         val = timediff(&now,&timeb);
-        printf("Blend %d frames took %.3f\n",nframes,val);
+        printf("Line Blend %d frames took %.3f\n",nframes,val);
         gettimeofday(&timeb,NULL);
 
+        for(frame = 0; frame < nframes; frame++){
+            InitBlending(1); // polygon AA
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            PaintDots(sst, rect, 1);
+            glDisable(GL_POLYGON_SMOOTH);
+            glDisable(GL_BLEND);
+            glFinishRenderAPPLE();
+            glSwapAPPLE();
+        }
+        gettimeofday(&now,NULL);
+        val = timediff(&now,&timeb);
+        printf("Polygon Blend %d frames took %.3f\n",nframes,val);
+        gettimeofday(&timeb,NULL);
+
+        
         for(frame = 0; frame < 72; frame++){
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glLineWidth(1.0);
@@ -7294,6 +7347,7 @@ void run_rds_test_loop()
                     glColor4f(0,0,0,1);
                 else if(*p & WHITEMODE)
                     glColor4f(1,1,1,1);
+                glEnable(GL_BLEND);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
@@ -7302,6 +7356,7 @@ void run_rds_test_loop()
                 glVertex2f(*x+rect[0],*y-rect[1]);
                 glEnd();
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDisable(GL_BLEND);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
                 glVertex2f(*x-rect[0],*y+rect[1]);
@@ -7318,6 +7373,7 @@ void run_rds_test_loop()
         printf("Blend Each Dot %d frames took %.3f\n",nframes,val);
 
         for(frame = 0; frame < 72; frame++){
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glEnable(GL_POLYGON_SMOOTH);
             glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
@@ -7331,7 +7387,7 @@ void run_rds_test_loop()
             glVertex2f(100,100);
             glVertex2f(100,50);
             glEnd();
-            if (0){
+            if (1){
                 mycolor(bcolor);
                 glBegin(GL_POLYGON);
                 glVertex2f(75.5,50);

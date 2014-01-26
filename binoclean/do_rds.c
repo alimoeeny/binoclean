@@ -1494,17 +1494,65 @@ void paint_rds(Stimulus *st, int mode)
     {
       if(optionflag & ANTIALIAS_BIT)
         {
-#ifdef Darwin
-	  if(w < 1)
-	    glLineWidth(1.0);
-	  else
-	    glLineWidth(w*2);
+            if(st->aamode == AAPOLYLINE){ //Line Blending then polygon
+                glLineWidth(1.0);
+                glEnable(GL_POLYGON_SMOOTH);
+                glEnable(GL_LINE_SMOOTH);
+                glEnable(GL_BLEND);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDisable(GL_DEPTH_TEST);
+                glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                i = 0;
+                for(;p < end; p++,x++,y++)
+                {
+                    if(*p & BLACKMODE)
+                        mycolor(vcolor);
+                    else if(*p & WHITEMODE)
+                        mycolor(bcolor);
+                    if(*p & mode)
+                        aarotrect(rect, *x,*y);
+                }
+
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glDisable(GL_POLYGON_SMOOTH);
+                p = sst->iim;
+                end = (sst->iim+sst->ndots);
+                x = sst->xpos;
+                y = sst->ypos;
+                for(;p < end; p++,x++,y++)
+                {
+                    if(*p & BLACKMODE)
+                        mycolor(vcolor);
+                    else if(*p & WHITEMODE)
+                        mycolor(bcolor);
+                    if(*p & mode)
+                        aarotrect(rect, *x,*y);
+                }
+            }
+        else if(st->aamode == AAPOLYGON){ //use polygon smoothing
             glLineWidth(1.0);
             glEnable(GL_POLYGON_SMOOTH);
             glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
-                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POLYGON);
             glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            i = 0;
+            for(;p < end; p++,x++,y++)
+            {
+                if(*p & BLACKMODE)
+                    mycolor(vcolor);
+                else if(*p & WHITEMODE)
+                    mycolor(bcolor);
+                if(*p & mode)
+                    aarotrect(rect, *x,*y);
+            }
+        }
+        else if(st->aamode == AABOTH){ //use polygon smoothing
+            glLineWidth(1.0);
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glEnable(GL_BLEND);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             i = 0;
             for(;p < end; p++,x++,y++)
@@ -1513,14 +1561,21 @@ void paint_rds(Stimulus *st, int mode)
                     mycolor(vcolor);      
                 else if(*p & WHITEMODE)
                     mycolor(bcolor);
-                if(*p & mode)
+                if(*p & mode){
+                    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
                     aarotrect(rect, *x,*y);
+                    glPolygonMode(GL_FRONT_AND_BACK,GL_POLYGON);
+                    aarotrect(rect, *x,*y);
+                }
             }
         }
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#else
-	  glLineWidth(1.0);
+        else if(st->aamode == AALINE){ //use thick line;
+            if(w < 0.5)
+                glLineWidth(1.0);
+            else
+                glLineWidth(w*2);
             glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
             glEnable(GL_BLEND);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBegin(GL_LINES);
@@ -1528,35 +1583,29 @@ void paint_rds(Stimulus *st, int mode)
             for(;p < end; p++,x++,y++)
             {
                 if(*p & BLACKMODE)
-                    mycolor(vcolor);      
+                    mycolor(vcolor);
                 else if(*p & WHITEMODE)
                     mycolor(bcolor);
-                if(*p & mode)
-                    aarotrect(rect, *x,*y);
+                if(*p & mode){
+                    aarotrect(rect,*x,*y);
+                }
             }
             glEnd();
         }
-#endif
+        
       p = sst->iim;
       x = sst->xpos;
       y = sst->ypos;
       glDisable(GL_BLEND);
       glDisable(GL_LINE_SMOOTH);
           glDisable(GL_POLYGON_SMOOTH);
+        }
+  else {
       if(w < 0.5)
-	glLineWidth(1.0);
+          glLineWidth(1.0);
       else
-	glLineWidth(w*2);
-        
-      /*
-       * on the mac, the antialised lines do it all in one step, so only need
-       * to do this if antialiasing is off. On SG need both
-       * For macmins+Lion+binoclean, need both atagin
-       */
-#ifdef Darwin
-      if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
-          glBegin(GL_LINES);
-          
+          glLineWidth(w*2);
+         glBegin(GL_LINES);
           i = 0;
           for(;p < end; p++,x++,y++)
           {
@@ -1570,35 +1619,15 @@ void paint_rds(Stimulus *st, int mode)
           if(optionflag & TEST_BIT)
               rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
           glEnd();
-      }
-#else
-	if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
-        glBegin(GL_LINES);
-        
-        i = 0;
-        for(;p < end; p++,x++,y++)
-	    {
-            if(*p & BLACKMODE)
-                mycolor(vcolor);      
-            else if(*p & WHITEMODE)
-                mycolor(bcolor);
-            r = *x * *x + *y + *y;
-            if(*p & mode)
-                rotrect(crect,*x,*y);
-            else
-                r = *x * *x + *y + *y;
-            
-	    }
-        if(optionflag & TEST_BIT)
-            rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
-        glEnd();
+  }
     }
-#endif
-                            
-      }
-      glPopMatrix();
-    }
+
+     glPopMatrix();
+}
     
+
+
+
   void paint_rds_check(Stimulus *st, Substim *sst)
   {
     int *p,*end,i,j,k  = 0;

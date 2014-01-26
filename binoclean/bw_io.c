@@ -72,6 +72,9 @@ int SetBWChannel(char *s)
         return(0);
     sscanf(s,"%d",&chan);
     
+    if (chan < 0 || chan >= MAXCHANS) //out of range
+        return(-1);
+    
     if(*r == '+'){
         expt.bwptr->cflag |= (1<<chan);
         onoff = 1;

@@ -319,7 +319,7 @@ extern OneStim *thecorrug;
 
 #define POPDOWNI 8
 #define NEXPSLOTS 8
-#define MAXQUICK_SUB 20
+#define MAXQUICK_SUB 100
 int nquickexpts = 0;
 int nsubexpts[MAXQUICK_SUB] = {0};
 int nallsubs = 0;
@@ -1598,10 +1598,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     
     tval = time(NULL);
     lastcmdread = time(NULL);
-    winposns[STEPPER_WIN].x = 80;
-    winposns[STEPPER_WIN].y = 10;
-    winposns[PENLOG_WIN].x = 80;
-    winposns[PENLOG_WIN].y = 10;
     
     i = 0;
     while(togglestrings[i].code != NULL){
@@ -1677,10 +1673,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
             longnames[j++] = i;
         i++;
     }
-    for(i = 2; i < MAXWINS; i++){
-        winposns[i].x = 80;
-        winposns[i].y = 200;
-    }
     if(cmdhistory == NULL){
         if((cmdhistory = fopen("./binoc.history","a")) != NULL)
             fprintf(cmdhistory,"\nReopened %s",ctime(&tval));
@@ -1722,7 +1714,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->trials_per_stim = 1;
     ex->plotcluster = 1;
     ex->bwptr = &thebwstruct;
-    ex->bwptr->nchans = 16;
+    ex->bwptr->nchans = 16; // must be < MAXCHANS
     /* Default Color Scheme */
     ex->bwptr->colors[0] = 14; /*Bright Green */
     ex->bwptr->colors[1] = 13; /* Bright Red */
@@ -1878,6 +1870,12 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     afc_s.proportion = 0.5;
     afc_s.sign=1;
     afc_s.target_in_trial = 0;
+    
+#ifdef Darwin
+    ex->st->aamode = 2; //Polygon AA - get diagonal artifact on Mac
+#else
+    ex->st->aamode = 2;
+#endif
     
     SetExptString(ex, ex->st, MONKEYNAME, "none");
 }
@@ -12720,13 +12718,16 @@ int str2code(char *s)
     return(-1);
 }
 
-float readval(char *s, 	Stimulus *TheStim)
+float readval(char *s, 	Stimulus *TheStim, int goteq)
 {
     float val,fval, addval = 0;
     int ok,code;
     char *p;
     ok = 1;
     if(!isanumber(*s)){
+//to set a value by code, ie xo=rx, MUST use '=' to avoid random strings assigning
+        if(goteq ==0)
+            return(0);
         val = 1.0;
         addval = 0;
         if((p = strchr(&s[2],'+')) > 0)
@@ -12999,6 +13000,9 @@ int ReadConjPos(Expt*ex, char *line)
 
 int InterpretLine(char *line, Expt *ex, int frompc)
 {
+//   line now come from ReadInputPipe, and so is not a buffer with any extra space allocaed
+// So DO NOT MODIFY line (.e.g. strcat(line,'\n').  It will crash.
+    
     int i,n,len,ival,total,j,vals[MAXBINS],k,code,icode,oldmode,x,y;
     int bins,prebins,postbins,chan, iin[100];
     char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ],outbuf[BUFSIZ];
@@ -13018,13 +13022,13 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     float fxpos[4];
     double dval;
-    
+    int goteq = 0;
     
   
     gettimeofday(&now,NULL);
     if (optionflags[DEBUG_OUTPUT]){
         dval = timediff(&now,&lastcmdtime);
-        if (dval > 0.001)
+        if (dval > 0.00)
             printf("%d %s %.3f %s\n",frompc,line,dval,ctime(&now.tv_sec));
         gettimeofday(&lastcmdtime, NULL);
     }
@@ -13039,6 +13043,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 
 
     s = strchr(line, '=');
+    if(s)
+        goteq = 1;
+    else
+        goteq = 0;
+    
     if(!strncmp(line,"confirmpopup",10)){
         code = -1;
         if(s != NULL){
@@ -13058,8 +13067,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         *t = 0;
     }
     else if(line[0] == '#'  && frompc ==2){
-        strcat(line,"\n");
         SerialString(line,0);
+        SerialString("\n",0);
+        return(-1);
     }
     else if(line[0] == '\\' || line[0] == '\!'){
         ReadCommand(&line[1]);
@@ -13137,6 +13147,12 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 //    else if(!strncmp(line,"electrode",7)){
 //        SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
 //    }
+    else if(!strncmp(line,"forceaamode=",12)){
+        sscanf(line, "forceaamode=%d",&expt.st->aamode);
+        sprintf(buf,"AAModes:\n1\tLines before Interior\n2\tPolygon mode\n3\tLine+polygon each time\n4\tthick line");
+        acknowledge(buf,NULL);
+        return(0);
+    }
     else if(!strncmp(line,"freerwd",7)){
         SerialSignal(FREE_REWARD);
         return(0);
@@ -13224,6 +13240,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         else{
             end_timeout();
         }
+        return(0);
     }
     else if(!strncmp(line,"monkeyshake",10)){
         if(expt.vals[SHAKE_TIMEOUT_DURATION] > 0){
@@ -13239,33 +13256,18 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     
     else if(!strncmp(line,"stepper",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[STEPPER_WIN].x = x;
-        winposns[STEPPER_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"penwin",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[PENLOG_WIN].x = x;
-        winposns[PENLOG_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"bwwinxy",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[BW_WIN].x = x;
-        winposns[BW_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"afcwinxy",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[AFC_WIN].x = x;
-        winposns[AFC_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"optionwinxy",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[OPTIONS_WIN].x = x;
-        winposns[OPTIONS_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"psychfile",6)  && (s = strchr(line,'=')) != 0){
@@ -13367,6 +13369,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             j++;
         }
+        return(0);
     }
     else if(!strncmp(line,"clearquick",7)){
         nquickexpts = 0;
@@ -13451,44 +13454,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         oldrfs[rfctr].flag = CENTERMARK_ON;
         if(++rfctr >= MAXRF)
             rfctr = MAXRF-1;
+        return(0);
     }
     
     else if(!strncmp(line,"exps",4) && (s = strchr(line,'=')))
     {
-        if(!reading_quickexp){
-            nexpshow[0] = 0;
-            showexp[0][TOTALCODES]=1;
-            for(j = 0; j < MAXTOTALCODES; j++)
-                showexp[0][j] = 0;
-        }
-        j = k = 0;
-        while(s[j] != 0){
-            if(s[j] == '+'){
-                sscanf(&s[++j],"%s",buf);
-                if((code = str2code(buf)) != EXPTYPE_NONE && !showexp[k][code]){
-                    expshoworder[k][nexpshow[k]++] = code;
-                    showexp[k][code] = 1;
-                }
-            }
-            else if(s[j] == '-'){
-                sscanf(&s[++j],"%2s",buf);
-            }
-            else if(s[j++] == ':'){
-                if(!reading_quickexp){
-                    showexp[1][TOTALCODES]=1;
-                    nexpshow[1] = 0;
-                    for(i = 0; i < MAXTOTALCODES; i++)
-                        showexp[1][i] = 0;
-                }
-                k = 1;
-                if(!showexp[k][EXPTYPE_NONE]){
-                    showexp[k][EXPTYPE_NONE] = 1;
-                    expshoworder[k][nexpshow[k]++] = EXPTYPE_NONE;
-                }
-            }
-        }
-        /* don't let this one be removed */
-        showexp[1][EXPTYPE_NONE] = 1;
         return(0);
     }
     else if(line[0] == '\?'){
@@ -13558,6 +13528,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     while(*s != 0 && (isspace(*s) || *s == '='))
         s++;
+    if (*(s-1) == '=')
+        goteq = 1;
+    else
+        goteq=0;
     j = 0;
     i = 0;
     // string with no value means report back current value
@@ -13572,6 +13546,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         SendAllToGui();
         ListExpStims(NULL);
         ShowTrialsNeeded();
+        return(0);
     }
     
     if(line[0] == 'E' && (isdigit(line[1]) || line[1] == 'A'))
@@ -13587,7 +13562,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         if(i < expt.nstim[0] && s != NULL)
         {
             s++;
-            if((val = readval(s,TheStim)) > NOTSET){
+            if((val = readval(s,TheStim,1)) > NOTSET){
                 expval[i+expt.nstim[2]] = val;
                 expt.customvals[i] = val;
                 optionflags[CUSTOM_EXPVAL] = 1;
@@ -13630,7 +13605,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case -1:
             sprintf(buf,"Unrecognized code %s\n",line);
             fprintf(stdout,buf);
-            notify(buf);
+//            notify(buf);
             break;
         case JUMP_SF_COMPONENTS:
             for(i = 0; i < expt.st->nfreqs; i++)
@@ -13715,6 +13690,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 quicknames[nquickexpts] = myscopy(quicknames[nquickexpts],s);
                 nquickexpts++;
             }
+            if (optionflags[DEBUG_OUTPUT])
+                fprintf(stdout,"%d quickexpts\n",nquickexpts);
             /* Do nothing if this is already on the list */
             //Ali	  if(oldnquick && quick_menu){
             //	    for(i = 0; i <= oldnquick; i++){
@@ -14152,7 +14129,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case BACK_ORI:
         case SF:
         case SF2:
-            if((val = readval(s,TheStim)) > NOTSET)
+            if((val = readval(s,TheStim,goteq)) > NOTSET)
                 ok = 1;
             else
                 ok = 0;
@@ -14325,15 +14302,18 @@ int InterpretLine(char *line, Expt *ex, int frompc)
      * as more input codes
      */
     
-    if((t = strchr(s,'#')) == NULL && (t = strchr(line,':')) == NULL){
+    if((t = strchr(s,'#')) == NULL && (t = strchr(line,':')) == NULL && icode >= 0){
         switch(code){
             default:
-                if((t = strchr(s,' ')) != NULL && *(++t))
-                    InterpretLine(t, ex,0);
+                if((t = strchr(s,' ')) != NULL && *(++t)){
+                    if (valstrings[icode].ctype == 'N') // dont recurse chars
+                        InterpretLine(t, ex,0);
+                }
                 break;
 /*
  * Any lines that can have > 1 number need to be in this list to avoid recursive calls
  */
+            case -1:  // if a code is unrecognized, do not recuse
             case SOFTOFF_CODE:
             case QUERY_STATE:
             case UFF_PREFIX:
@@ -14342,6 +14322,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             case SET_SF_COMPONENTS:
             case SET_TF_COMPONENTS:
             case SET_SF_CONTRASTS:
+            case EARLY_RWTIME:
+            case UKA_VALS:
                 break;
         }
     }

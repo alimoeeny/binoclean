@@ -865,6 +865,8 @@ char *bwtoggle_codes[] = {
 #define SAVE_STATE 2  //program state, but not part of stim - e.g. id, Pen details
 #define SAVE_NEVER 0
 
+// SEND_READ_ONLY = not sent to verg or Spike2 - purely internal
+
 ValueCode valstrings[] = {
   {"xo","X offset",  XPOS, 1, 'N' ,2, SEND_EXPT, SAVE_ALWAYS},
     {"yo","Y offset",  YPOS, 1, 'N' ,2, SEND_EXPT, SAVE_ALWAYS},
