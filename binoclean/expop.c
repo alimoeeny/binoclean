@@ -11463,7 +11463,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      */
     if(optionflags[CHECK_FRAMECOUNTS] && retval != BAD_TRIAL && 
        frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){
-        sprintf(buf,"Only completed %d/%d frames (stim %d at %s). op-CN to stop Checking",framesdone,n,stimno,binocTimeString());
+        sprintf(buf,"%d frames took %.3f (stim %d at %s). op-CN to stop Checking",framesdone,frametimes[framesdone-1],stimno,binocTimeString());
         acknowledge(buf,NULL);
         statusline(buf);
     }
