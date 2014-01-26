@@ -504,12 +504,12 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     else if(optionflag & ANTIALIAS_BIT)
     {
         aamode = 1;
+        w = hdotsize[0]*balls[0].dot;
         if(w < 1)
-            glLineWidth(1.0);
+            w = 1;
         else
-            glLineWidth(w*2);
+            w = w*2;
         glLineWidth(1.0);
-        glLineWidth(hdotsize[0]*balls[0].dot*2);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -534,6 +534,7 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
             paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
         }
         else if (st->aamode == AALINE){  // Drawn as Thick lines. No good on Mac
+            glLineWidth(w);
             glEnable(GL_LINE_SMOOTH);
             glBegin(GL_LINES);
             paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
