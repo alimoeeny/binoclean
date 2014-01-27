@@ -1872,9 +1872,9 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     afc_s.target_in_trial = 0;
     
 #ifdef Darwin
-    ex->st->aamode = 2; //Polygon AA - get diagonal artifact on Mac
+    ex->st->aamode = 5; //Polygon + GL_LINES. Fastest option that is correct
 #else
-    ex->st->aamode = 2;
+    ex->st->aamode = 5;
 #endif
     
     SetExptString(ex, ex->st, MONKEYNAME, "none");
@@ -4202,6 +4202,9 @@ int ReadCommand(char *s)
         SendAll();
     }
     else if(!strncasecmp(s,"runtest",7)){
+        sscanf(s,"runtest%d",&i);
+        if (i > 0)
+            testmode = i;
         set_test_loop();
     }
     else if(!strncasecmp(s,"savefile=",9)){
@@ -5392,7 +5395,7 @@ void setstimulusorder(int warnings)
      * don't do this if one per trial. Can mess up total counts with psych because
      * of shufflestim. 
      */
-    if(expt.stimpertrial > 1){
+    if(expt.stimpertrial > 1 && nstimtotal > 0){
         // bgc 2011. Used to check against nstim, not 1. Surely an error? 
         ntoset = nstimtotal*nreps+expt.stimpertrial;
         nset = (ntoset +nstimtotal -1)/nstimtotal;
@@ -13148,7 +13151,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 //    }
     else if(!strncmp(line,"forceaamode=",12)){
         sscanf(line, "forceaamode=%d",&expt.st->aamode);
-        sprintf(buf,"AAModes:\n1\tLines before Interior\n2\tPolygon mode\n3\tLine+polygon each time\n4\tthick line");
+        if(expt.st->next != NULL)
+            expt.st->next->aamode = expt.st->aamode;
+        sprintf(buf,"AAModes:\n1\tLines before Interior\n2\tPolygon mode\n3\tLine+polygon each time\n4\
+                tthick line\n5\tPolygon + GL_LINES\nNow %d",expt.st->aamode);
         acknowledge(buf,NULL);
         return(0);
     }

@@ -226,6 +226,8 @@ void run_rds_test_loop();
 void run_gabor_test_loop();
 void run_anticorrelated_test_loop();
 void set_test_loop();
+void run_polygon_test_loop();
+
 
 void expt_over(int flag);
 void end_timeout();
@@ -2350,6 +2352,8 @@ int event_loop(float delay)
             calc_stimulus(TheStim);
             glFinishRenderAPPLE();
         }
+        else if(testmode == 6)
+            run_polygon_test_loop();
 
     }
     else
@@ -7047,8 +7051,10 @@ void expfront()
 
 void set_test_loop()
 {
-    if(mode & TEST_PENDING)
+    if(mode & TEST_PENDING){
         mode &= (~TEST_PENDING);
+        acknowledge("Testing OFF",NULL);
+    }
     else
         mode |= TEST_PENDING;
 }
@@ -7082,24 +7088,52 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
 
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
-    
+    float adj = -0;
     /*
      if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
      return;
      */
-    if (expt.st->aamode == 4){
-        glVertex2f(x+line[0],y+line[1]);
-        glVertex2f(x+line[6],y+line[7]);
-    }
-    else if (expt.st->aamode == 3){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (!(optionflag & ANTIALIAS_BIT)){
         glBegin(GL_POLYGON);
         glVertex2f(x+line[0],y+line[1]);
         glVertex2f(x+line[2],y+line[3]);
         glVertex2f(x+line[4],y+line[5]);
         glVertex2f(x+line[6],y+line[7]);
         glEnd();
+    }
+    else if (expt.st->aamode == 4){
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[6],y+line[7]);
+        glVertex2f(x+line[1],y+line[0]);
+        glVertex2f(x+line[7],y+line[6]);
+    }
+    else if (expt.st->aamode == 5){
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+        glBegin(GL_LINES);
+        glVertex2f(x+line[0]+adj,y+line[1]);
+        glVertex2f(x+line[2]+adj,y+line[3]);
+        glVertex2f(x+line[4]-adj,y+line[5]);
+        glVertex2f(x+line[6]-adj,y+line[7]);
+        glVertex2f(x+line[0],y+line[1]+adj);
+        glVertex2f(x+line[6],y+line[7]+adj);
+        glVertex2f(x+line[4],y+line[5]-adj);
+        glVertex2f(x+line[2],y+line[3]-adj);
+        glEnd();
+    }
+    else if (expt.st->aamode == 3){
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glBegin(GL_POLYGON);
         glVertex2f(x+line[0],y+line[1]);
         glVertex2f(x+line[2],y+line[3]);
@@ -7206,6 +7240,137 @@ void PaintDots(Substim *sst, float *rect, int mode)
         x++,y++,p++;
     }
 
+}
+
+
+void PaintRect(float x, float y, float w, float h)
+{
+    glBegin(GL_POLYGON);
+    glVertex2f(x-w,y-h);
+    glVertex2f(x-w,y+h);
+    glVertex2f(x+w,y+h);
+    glVertex2f(x+w,y-h);
+    glEnd();
+    
+}
+
+void run_polygon_test_loop()
+{
+    int nframes = 10, frame;
+    float vcolor[4],fixw,bcolor[4];
+    float val,angle,x[10];
+    vcoord rect[8],crect[4],dx=0;
+    double sina,cosa= 1,o;
+    char c;
+    int ncalls[4];
+    
+    
+    
+    x[0] = 0.25;
+    x[1] = 25.0;
+    vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){  // Polygon AA
+// This does not work on Reich Jan 2014.
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // LINE AA then polygon
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // polygon then line AA
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // polygon then line AA
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[0],x[0],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[0],x[0],50,50);
+
+        mycolor(bcolor);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // polygon then line AA
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[0],x[0],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[0],x[0],50,50);
+        
+        mycolor(bcolor);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void run_rds_test_loop()
@@ -7330,10 +7495,9 @@ void run_rds_test_loop()
 
         for(frame = 0; frame < nframes; frame++){
             InitBlending(1); // polygon AA
+            glEnable(GL_POLYGON_SMOOTH);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             PaintDots(sst, rect, 1);
-            glDisable(GL_POLYGON_SMOOTH);
-            glDisable(GL_BLEND);
             glFinishRenderAPPLE();
             glSwapAPPLE();
         }
@@ -7364,15 +7528,14 @@ void run_rds_test_loop()
                 else if(*p & WHITEMODE)
                     glColor4f(1,1,1,1);
                 glEnable(GL_BLEND);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
                 glVertex2f(*x-rect[0],*y+rect[1]);
                 glVertex2f(*x+rect[0],*y+rect[1]);
                 glVertex2f(*x+rect[0],*y-rect[1]);
                 glEnd();
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glDisable(GL_BLEND);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glBegin(GL_POLYGON);
                 glVertex2f(*x-rect[0],*y-rect[1]);
                 glVertex2f(*x-rect[0],*y+rect[1]);

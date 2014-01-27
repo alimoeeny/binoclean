@@ -542,6 +542,14 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
             glDisable(GL_BLEND);
             glDisable(GL_LINE_SMOOTH);
         }
+        else if(st->aamode == AAPOLYGON_AND_LINE){ //Draws ppolygon then uses GL_LINES
+            glLineWidth(1.0);
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glEnable(GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPopMatrix();

@@ -1404,7 +1404,7 @@ void paint_rds(Stimulus *st, int mode)
   vcoord xmv;
   Substim *sst = st->left;
   Locator *pos = &st->pos;
-  float angle,cosa,sina;
+  float angle,cosa,sina,adj=1.5;
   vcoord rect[8],crect[8];
     
     
@@ -1447,7 +1447,6 @@ void paint_rds(Stimulus *st, int mode)
   fw = sst->dotsiz[0];
   fh = sst->dotsiz[1];
     
-  h = h - 0.5;
     
   cosa = cos(pos->angle);
   sina = sin(pos->angle);
@@ -1457,6 +1456,10 @@ void paint_rds(Stimulus *st, int mode)
     //    h = h-0.5;
   }
 #endif
+    if(optionflag & ANTIALIAS_BIT){
+        if (st->aamode == 4)
+            h = h - 0.5;
+    }
     
   rect[0] = -w * cosa - h * sina; //-w,-h
   rect[1] = -h * cosa + w * sina;
@@ -1478,6 +1481,13 @@ void paint_rds(Stimulus *st, int mode)
   crect[1] = -h * cosa;
   crect[2] = h * sina;
   crect[3] = h * cosa;
+    
+    if (st->aamode ==4){
+        rect[0] = -(w-adj) * cosa - (h-adj) * sina; //-w,-h
+        rect[1] = -(h-adj) * cosa + (w-adj) * sina;
+        rect[6] = (w-adj) * cosa - (h-adj) * sina;
+        rect[7] = -(h-adj) * cosa - (w-adj) * sina;
+    }
   h = h+0.5;
   p = sst->iim;
   end = (sst->iim+sst->ndots);
@@ -1534,7 +1544,7 @@ void paint_rds(Stimulus *st, int mode)
             glEnable(GL_POLYGON_SMOOTH);
             glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POLYGON);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDisable(GL_DEPTH_TEST);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             i = 0;
@@ -1548,7 +1558,26 @@ void paint_rds(Stimulus *st, int mode)
                     aarotrect(rect, *x,*y);
             }
         }
-        else if(st->aamode == AABOTH){ //use polygon smoothing
+        else if(st->aamode == AAPOLYGON){ //use polygon smoothing
+            glLineWidth(1.0);
+            glEnable(GL_POLYGON_SMOOTH);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            i = 0;
+            for(;p < end; p++,x++,y++)
+            {
+                if(*p & BLACKMODE)
+                    mycolor(vcolor);
+                else if(*p & WHITEMODE)
+                    mycolor(bcolor);
+                if(*p & mode)
+                    aarotrect(rect, *x,*y);
+            }
+        }
+        else if(st->aamode == AAPOLYGON_AND_LINE){ //Try stuff - polygon + gl_lines so no mode change
             glLineWidth(1.0);
             glEnable(GL_LINE_SMOOTH);
             glDisable(GL_POLYGON_SMOOTH);
@@ -1562,9 +1591,6 @@ void paint_rds(Stimulus *st, int mode)
                 else if(*p & WHITEMODE)
                     mycolor(bcolor);
                 if(*p & mode){
-                    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-                    aarotrect(rect, *x,*y);
-                    glPolygonMode(GL_FRONT_AND_BACK,GL_POLYGON);
                     aarotrect(rect, *x,*y);
                 }
             }
