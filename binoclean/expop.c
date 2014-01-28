@@ -10817,8 +10817,13 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     WindowEvent e;
     
     
-    if (n > MAXFRAMES)
+    if (n > MAXFRAMES){
         n = MAXFRAMES;
+        sprintf(buf,">%d  Frames\n Will Run until stopped by two mouse clicks\n(Suggest Stop Expt first)",MAXFRAMES);
+// if running psych stimuli and > MAXFRAMES, and FIXNUM not set, its intentional so don't warn
+        if (!(option2flag & PSYCHOPHYSICS_BIT && !optionflags[FIXNUM_PAINTED_FRAMES]))
+            acknowledge(buf,0);
+    }
     cbuf[0] = 0;
     
     currentstim.stimid = expt.stimid;
@@ -10925,7 +10930,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             }
             if(freezestimulus)
                 rc = 0;
-            else if(!optionflags[FIXNUM_PAINTED_FRAMES]){
+            else if(!optionflags[FIXNUM_PAINTED_FRAMES] || n > MAXFRAMES){
                 rc = getframecount(); /* real video frames */
                 while(rc < lastframecount + expt.st->framerepeat && rc > 0)
                     rc = getframecount();
@@ -11166,8 +11171,14 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             if(framesdone ==2)
                 val = timediff(&zeroframetime,&pretime);
             
-            if((framesdone = ++framecount) > MAXFRAMES)
+            if((framesdone = ++framecount) > MAXFRAMES){
                 framesdone = MAXFRAMES;
+                if((e.mouseButton = processUIEvents()) > 0){
+                        e.eventType = ButtonPress;
+                        e.modifierKey = 0;
+                        finished = 2;
+                }
+            }
             
             expt.framesdone = framesdone;
             

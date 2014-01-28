@@ -1549,10 +1549,6 @@ extern char *jumpnames[];
 
 #define val_affects_fixn(x) (x == MONOCULARITY_EXPT || x == STATIC_VERGENCE || x == STATIC_CONJUGATE || x == FIXPOS_X || x== FIXPOS_Y)
 
-// Ali #define VERSION_NUMBER "5.15" /* binoc version */
-#define MAXFRAMES 500
-
-
 /*
  * Jump types for FP move/simulate
  */
