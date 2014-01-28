@@ -1872,9 +1872,9 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     afc_s.target_in_trial = 0;
     
 #ifdef Darwin
-    ex->st->aamode = 5; //Polygon + GL_LINES. Fastest option that is correct
+    ex->st->aamode = 4; //Polygon + GL_LINES. Fastest option that is correct
 #else
-    ex->st->aamode = 5;
+    ex->st->aamode = 4;
 #endif
     
     SetExptString(ex, ex->st, MONKEYNAME, "none");
@@ -13149,13 +13149,22 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 //    else if(!strncmp(line,"electrode",7)){
 //        SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
 //    }
-    else if(!strncmp(line,"forceaamode=",12)){
-        sscanf(line, "forceaamode=%d",&expt.st->aamode);
+    else if(!strncmp(line,"forceaamode",11)){
+        oldmode = expt.st->aamode;
+        ival = 0;
+        if(!strncmp(line,"forceaamodesilent",16))
+            sscanf(line, "forceaamodeslient=%d",&expt.st->aamode);
+        else{
+            sscanf(line, "forceaamode=%d",&expt.st->aamode);
+            ival = 1;
+        }
+        sprintf(buf,"AAModes:\n1\tLines before Interior\n2\tPolygon mode\n3\tLine+polygon each time\n4\t2 Thick lines\n5\tPolygon + GL_LINES\n6\nH Thick Line\n7V Thick Line\n8 TestNow %d",expt.st->aamode);
+        if (ival)
+            acknowledge(buf,NULL);
+        else
+            fprintf(stderr,"%s\n",buf);
         if(expt.st->next != NULL)
             expt.st->next->aamode = expt.st->aamode;
-        sprintf(buf,"AAModes:\n1\tLines before Interior\n2\tPolygon mode\n3\tLine+polygon each time\n4\
-                tthick line\n5\tPolygon + GL_LINES\nNow %d",expt.st->aamode);
-        acknowledge(buf,NULL);
         return(0);
     }
     else if(!strncmp(line,"freerwd",7)){

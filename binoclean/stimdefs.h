@@ -679,9 +679,11 @@ long rnd_i(void);
 #define AAPOLYLINE 1 //Polygon with AA line (all) then interior (all)
 #define AAPOLYGON 2 // use POLYGON_SMOOTH. Correct but get diagonal artifact
 #define AABOTH 3 //paint line then polygon for each polygon.
-#define AALINE 4  // Old Irix method with single thick line. :(
+#define AALINE 4  // two thick lines
 #define AAPOLYGON_AND_LINE 5  //Polygon then GL_LINES - no switching of mode
-#define AATEST 6
+#define AAHLINE 6  // Thick horizontal line
+#define AAVLINE 7  // Old Irix method with single thick line. :(
+#define AATEST 8
 
 #ifndef WindowEventdefined 
 

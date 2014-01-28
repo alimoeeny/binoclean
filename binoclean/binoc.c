@@ -2352,7 +2352,7 @@ int event_loop(float delay)
             calc_stimulus(TheStim);
             glFinishRenderAPPLE();
         }
-        else if(testmode == 6)
+        else if(testmode == 6 || testmode == 7 || testmode == 8 || testmode == 9)
             run_polygon_test_loop();
 
     }
@@ -6584,6 +6584,8 @@ int next_frame(Stimulus *st)
                 memcpy(&endstimtime, &now, sizeof(struct timeval));
                 stimstate = POSTSTIMULUS;
                 mode |= LAST_FRAME_BIT;
+                if (framesdone < expt.st->nframes)
+                    ShowTrialCount(0, -1);
             }
             else if(realframecount/mon.framerate > expt.vals[FIXATION_OVERLAP])
             {
@@ -7088,7 +7090,22 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
 
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
-    float adj = -0;
+    float adj =0.5;
+
+/*
+*elements of line relative to dot centre (x,y): 
+ 
+  2,3      14,15      4,5
+  
+  
+  10,11        x,y       12,13
+  
+  0,1       8,9         6,7
+
+*/
+    
+
+    
     /*
      if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
      return;
@@ -7101,11 +7118,21 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
         glVertex2f(x+line[6],y+line[7]);
         glEnd();
     }
-    else if (expt.st->aamode == 4){
-        glVertex2f(x+line[0],y+line[1]);
-        glVertex2f(x+line[6],y+line[7]);
-        glVertex2f(x+line[1],y+line[0]);
-        glVertex2f(x+line[7],y+line[6]);
+    else if (expt.st->aamode == AALINE){
+// On Reich, a single line gets AA at all sides. But Reich is also slower.....
+// On Varse, not so.
+        glVertex2f(x+line[10],y+line[11]); //line horizontal on scree = vertical aa
+        glVertex2f(x+line[12],y+line[13]);
+        glVertex2f(x+line[8],y+line[9]); // Do vertical line second to be sure of horizontal aa
+        glVertex2f(x+line[14],y+line[15]);
+    }
+    else if (expt.st->aamode == AAHLINE){
+        glVertex2f(x+line[10],y+line[11]); //line horizontal on scree = vertical aa
+        glVertex2f(x+line[12],y+line[13]);
+    }
+    else if (expt.st->aamode == AAVLINE){
+        glVertex2f(x+line[8],y+line[9]); // Do vertical line second to be sure of horizontal aa
+        glVertex2f(x+line[14],y+line[15]);
     }
     else if (expt.st->aamode == 5){
         glBegin(GL_POLYGON);
@@ -7115,14 +7142,14 @@ void aarotrect(vcoord *line, vcoord x, vcoord y)
         glVertex2f(x+line[6],y+line[7]);
         glEnd();
         glBegin(GL_LINES);
-        glVertex2f(x+line[0]+adj,y+line[1]);
-        glVertex2f(x+line[2]+adj,y+line[3]);
-        glVertex2f(x+line[4]-adj,y+line[5]);
-        glVertex2f(x+line[6]-adj,y+line[7]);
-        glVertex2f(x+line[0],y+line[1]+adj);
-        glVertex2f(x+line[6],y+line[7]+adj);
-        glVertex2f(x+line[4],y+line[5]-adj);
-        glVertex2f(x+line[2],y+line[3]-adj);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[6],y+line[7]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[2],y+line[3]);
         glEnd();
     }
     else if (expt.st->aamode == 3){
@@ -7247,6 +7274,31 @@ void PaintRect(float x, float y, float w, float h)
 {
     glBegin(GL_POLYGON);
     glVertex2f(x-w,y-h);
+//    glVertex2f(x-w,y+h);
+    glVertex2f(x+w,y+h);
+    glVertex2f(x+w,y-h);
+    glEnd();
+    
+}
+
+void PaintTri(float x, float y, float w, float h)
+{
+    glBegin(GL_POLYGON);
+    glVertex2f(x-w,y-h);
+    glVertex2f(x+w,y+h);
+    glVertex2f(x+w,y-h);
+    glEnd();
+    glBegin(GL_POLYGON);
+    glVertex2f(x-w,y-h);
+    glVertex2f(x-w,y+h);
+    glVertex2f(x+w,y+h);
+    glEnd();
+}
+
+void PaintQuad(float x, float y, float w, float h)
+{
+    glBegin(GL_QUADS);
+    glVertex2f(x-w,y-h);
     glVertex2f(x-w,y+h);
     glVertex2f(x+w,y+h);
     glVertex2f(x+w,y-h);
@@ -7254,22 +7306,111 @@ void PaintRect(float x, float y, float w, float h)
     
 }
 
+void PaintRectLine(float x, float y, float w, float h)
+{
+    glBegin(GL_LINES);
+    glVertex2f(x,y-h);
+    glVertex2f(x,y+h);
+    glEnd();
+}
+
 void run_polygon_test_loop()
 {
-    int nframes = 10, frame;
+    int nframes = 60, frame;
     float vcolor[4],fixw,bcolor[4];
     float val,angle,x[10];
     vcoord rect[8],crect[4],dx=0;
     double sina,cosa= 1,o;
     char c;
     int ncalls[4];
+    static int called = 0;
     
     
+    called++;
     
-    x[0] = 0.25;
-    x[1] = 25.0;
+    x[0] = 0.1 * (called % 10);
+    x[1] = 0.1 * (called % 10);
     vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
     bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
+    
+    x[0] = 0.001;
+    if (testmode ==7 ) //simple translation of polygon to explore jumping
+    {
+// called == 8 or 7 gives trouble here.
+        
+        x[1] = 0.0;
+// if x[1] >0.5, then get displacement for x[0] just > 0
+        nframes=200;
+        glLineWidth(1);
+        for(frame = 0; frame < nframes; frame++){
+            setmask(ALLPLANES);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            mycolor(bcolor);
+            PaintRectLine(x[0],x[1],5,5);
+            PaintRectLine(x[0],x[1]+0.6,2,2);
+            PaintRectLine(x[0],x[1]+8.6,2,2);
+            PaintRectLine(x[0],x[1]+16.9,2,2);
+            glSwapAPPLE();
+            mycolor(bcolor);
+            x[0] = x[0]+0.008;
+        }
+        return;
+    }
+    if (testmode == 8) //simple translation of polygon to explore jumping
+    {
+        // called == 8 or 7 gives trouble here.
+        
+        x[1] = 0.0;
+        // if x[1] >0.5, then get displacement for x[0] just > 0
+        nframes=200;
+        glLineWidth(3);
+        for(frame = 0; frame < nframes; frame++){
+            setmask(ALLPLANES);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            mycolor(bcolor);
+            PaintRect(x[0],x[1],3,3);
+            PaintTri(x[0],x[1]+10.6,3,3);
+            PaintQuad(x[0],x[1]+20.9,3,3);
+            glSwapAPPLE();
+            mycolor(bcolor);
+            x[0] = x[0]+0.008;
+        }
+        return;
+    }
+    
+
+    if (testmode == 9 ) //simple translation of polygon to explore jumping
+    {
+        // called == 8 or 7 gives trouble here.
+        
+        x[1] = 0.0;
+        // if x[1] >0.5, then get displacement for x[0] just > 0
+        nframes=200;
+        glLineWidth(3);
+        for(frame = 0; frame < nframes; frame++){
+            setmask(ALLPLANES);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            mycolor(bcolor);
+            PaintRectLine(x[0],x[1],2,2);
+            PaintRectLine(x[0],x[1]+8.6,2,2);
+            PaintRectLine(x[0],x[1]+16.9,2,2);
+            glSwapAPPLE();
+            mycolor(bcolor);
+            x[0] = x[0]+0.008;
+        }
+        return;
+    }
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for(frame = 0; frame < nframes; frame++){  // Polygon AA
 // This does not work on Reich Jan 2014.
@@ -8339,6 +8480,8 @@ float StimulusProperty(Stimulus *st, int code)
         case JNUMDOTS:
             if(st->type == STIM_CYLINDER)
                 value = stimptr->left->ptr->numdots;
+            else
+                value = stimptr->left->ndots;
             break;
         case JLIFEFRAMES:
             value = stimptr->left->ptr->lifeframes;

@@ -1398,14 +1398,14 @@ void paint_rds(Stimulus *st, int mode)
 {
   int i;
   int *p,d,*end;
-  vcoord  w,h,*x,*y,fw,fh,r;
+  vcoord  w,h,*x,*y,fw,fh,r,lw;
   short pt[2];
   float vcolor[4], bcolor[4];
   vcoord xmv;
   Substim *sst = st->left;
   Locator *pos = &st->pos;
   float angle,cosa,sina,adj=1.5;
-  vcoord rect[8],crect[8];
+  vcoord rect[20],crect[8];
     
     
   angle = rad_deg(pos->angle);
@@ -1446,7 +1446,7 @@ void paint_rds(Stimulus *st, int mode)
   h = sst->dotsiz[1]/2;
   fw = sst->dotsiz[0];
   fh = sst->dotsiz[1];
-    
+  lw = w;
     
   cosa = cos(pos->angle);
   sina = sin(pos->angle);
@@ -1456,9 +1456,23 @@ void paint_rds(Stimulus *st, int mode)
     //    h = h-0.5;
   }
 #endif
+// Drawing and AA line around the edge effecitvely increases dot size by 1 pixel
+// so adjust here.
     if(optionflag & ANTIALIAS_BIT){
-        if (st->aamode == 4)
+        if (st->aamode == AALINE || st->aamode == AAVLINE || st->aamode == AAHLINE){ // AA is only at sides
             h = h - 0.5;
+            w = w - 0.5;
+            if( w < 0.5)
+                w = 0.5;
+            if( h < 0.5)
+                h = 0.5;
+            adj = 0;
+        }
+        else if (st->aamode == AAPOLYGON_AND_LINE){
+            h = h - 0.5;
+            w = w - 0.5;
+        }
+            
     }
     
   rect[0] = -w * cosa - h * sina; //-w,-h
@@ -1469,6 +1483,7 @@ void paint_rds(Stimulus *st, int mode)
   rect[5] = h * cosa - w * sina;
   rect[6] = w * cosa - h * sina;
   rect[7] = -h * cosa - w * sina;
+    
     rect[0] = -w * cosa - h * sina; //-w,-h
     rect[1] = -h * cosa + w * sina;
     rect[2] = -w * cosa + h * sina; //-w,h
@@ -1477,6 +1492,17 @@ void paint_rds(Stimulus *st, int mode)
     rect[5] = h * cosa - w * sina;
     rect[6] = w * cosa - h * sina; //w,-h
     rect[7] = -h * cosa - w * sina;
+    
+    rect[8] = (rect[0]+rect[6])/2;
+    rect[9] = (rect[1]+rect[7])/2;
+    rect[10] = (rect[0]+rect[2])/2;
+    rect[11] = (rect[1]+rect[3])/2;
+    rect[12] = (rect[4]+rect[6])/2;
+    rect[13] = (rect[5]+rect[7])/2;
+    rect[14] = (rect[2]+rect[4])/2;
+    rect[15] = (rect[3]+rect[5])/2;
+
+    
   crect[0] = -h * sina;
   crect[1] = -h * cosa;
   crect[2] = h * sina;
@@ -1595,11 +1621,11 @@ void paint_rds(Stimulus *st, int mode)
                 }
             }
         }
-        else if(st->aamode == AALINE){ //use thick line;
-            if(w < 0.5)
+        else if(st->aamode == AALINE || st->aamode == AAHLINE || st->aamode == AAVLINE){ //use thick line;
+            if(lw < 0.5)
                 glLineWidth(1.0);
             else
-                glLineWidth(w*2);
+                glLineWidth(lw*2);
             glEnable(GL_LINE_SMOOTH);
             glDisable(GL_POLYGON_SMOOTH);
             glEnable(GL_BLEND);
@@ -1624,7 +1650,7 @@ void paint_rds(Stimulus *st, int mode)
       y = sst->ypos;
       glDisable(GL_BLEND);
       glDisable(GL_LINE_SMOOTH);
-          glDisable(GL_POLYGON_SMOOTH);
+      glDisable(GL_POLYGON_SMOOTH);
         }
   else {
       if(w < 0.5)
