@@ -11009,9 +11009,10 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 if(rc >= n && n < MAXFRAMES) 
                     finished = 2;
 // if FIXNUM PAINTED FRAMES, force paintg of all frames. ANd ignore button presses.
-// Button presses during the stimulus will be ignored
+// Button presses during the stimulus will be ignored. If n >= MAXFRAMES will
+// run forevever, so can't ignore buttonpresses then
                 if((e.mouseButton = processUIEvents()) > 0){
-                    if (!optionflags[FIXNUM_PAINTED_FRAMES]){
+                    if (!optionflags[FIXNUM_PAINTED_FRAMES] || n >= MAXFRAMES){
                     e.eventType = ButtonPress;
                         e.modifierKey = 0;
                     HandleMouse(e);
