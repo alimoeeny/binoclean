@@ -488,6 +488,13 @@ void initial_setup()
 	for(i = 0; i < MAXALLFLAGS; i++)
         optionflags[i] = defaultflags[i];
 	TheStim = NewStimulus(NULL);
+#ifdef Darwin
+    TheStim->aamode = AALINE;  //Default AntiAliasing mode
+#else
+    TheStim->aamode = AALINE;  //Default AntiAliasing mode
+#endif
+    
+
 	StimulusType(TheStim, STIM_GRATING);
     NewStimulus(TheStim);
     StimulusType(TheStim->next, STIM_NONE);

@@ -1871,12 +1871,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     afc_s.sign=1;
     afc_s.target_in_trial = 0;
     
-#ifdef Darwin
-    ex->st->aamode = 4; //Polygon + GL_LINES. Fastest option that is correct
-#else
-    ex->st->aamode = 4;
-#endif
-    
     SetExptString(ex, ex->st, MONKEYNAME, "none");
 }
 
