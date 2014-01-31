@@ -223,6 +223,7 @@ void run_radial_test_loop();
 void run_swap_test_loop();
 void run_general_test_loop();
 void run_rds_test_loop();
+void run_grating_test_loop();
 void run_gabor_test_loop();
 void run_anticorrelated_test_loop();
 void set_test_loop();
@@ -2332,6 +2333,8 @@ int event_loop(float delay)
             run_gabor_test_loop();
         else if(testmode == 1 || testmode == 3)
             run_rds_test_loop();
+        else if(testmode == 10)
+            run_grating_test_loop();
         else if (testmode == 4){
             for (i = 0; i < 20; i++){
                 //                  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -7513,6 +7516,114 @@ void run_polygon_test_loop()
     }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+void run_grating_test_loop()
+{
+    int i,j,fw,fh,ival,frame = 0,nframes = 72;;
+    int d,*end;
+    float *p,*q;
+    vcoord x[2],*y,xp[2],dw,dh,w,h;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    Stimulus *st;
+    int shift = pos->xy[1];
+    float vcolor[4],fixw,bcolor[4];
+    Substim *gb = TheStim->left;
+    Substim *sst = TheStim->left;
+    float val,angle;
+    vcoord rect[8],crect[4],dx=0,z[2];
+    double sina,cosa= 1,o;
+    char c;
+    int ncalls[4];
+    
+    vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
+    st = TheStim;
+
+    glDrawBuffer(GL_BACK);
+    gettimeofday(&timeb,NULL);
+    glDrawBuffer(GL_FRONT);
+    glClearAccum(0.5, 0.5, 0.5, 0.5);
+    glClearColor(0.5, 0.5, 0.5, 0.5);
+    calc_grating(st, st->left, 0);
+    glPushMatrix();
+    glRotatef(pos->angle * 180/M_PI,0.0,0.0,1.0);
+    for(frame = 0; frame < nframes; frame++){
+        xp[0] = st->pos.xy[0];
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glLineWidth(1.1);
+        
+        q = p = sst->im;
+        glBegin(GL_LINES);
+        x[0] = z[0] = 0;
+        x[1] = z[1] = -pos->radius[1];
+        vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = *q;
+        p++;
+        glColor4f(vcolor[0],vcolor[1],vcolor[2], vcolor[3]);
+        myvx(x);
+        myvx(x);
+        x[0] = pos->radius[0];
+            z[0] = -x[0];
+            for(i = 0; i < pos->size[1]; i++)
+            {
+                x[1] = (i - pos->size[1]/2) * pos->ss[1];
+                z[1] = x[1];
+                glColor4f(*p,*p,*p,*p);
+                myvx(x);
+                myvx(z);
+                if(*p > 1 || *p == last)
+                    last = 0;
+                last = *p;
+                p++;
+            }
+        glEnd();
+        glFinishRenderAPPLE();
+        glSwapAPPLE();
+    }
+
+    for(frame = 0; frame < nframes; frame++){
+        xp[0] = st->pos.xy[0];
+        if (frame > nframes/2)
+            glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glLineWidth(1.1);
+        
+        q = p = sst->im;
+        glBegin(GL_LINES);
+        x[0] = z[0] = 0;
+        x[1] = z[1] = -pos->radius[1];
+        vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = *q;
+        p++;
+        glColor4f(vcolor[0],vcolor[1],vcolor[2], vcolor[3]);
+        myvx(x);
+        myvx(x);
+        x[0] = pos->radius[0];
+        z[0] = -x[0];
+        for(i = 0; i < pos->size[1]; i++)
+        {
+            x[1] = (i - pos->size[1]/2) * pos->ss[1];
+            z[1] = x[1];
+            glColor4f(*p,*p,*p,1.0);
+            myvx(x);
+            myvx(z);
+            if(*p > 1 || *p == last)
+                last = 0;
+            last = *p;
+            p++;
+        }
+        glEnd();
+        glFinishRenderAPPLE();
+        glSwapAPPLE();
+    }
+        
+        glPopMatrix();
+    }
+
 
 void run_rds_test_loop()
 {

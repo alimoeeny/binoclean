@@ -644,6 +644,8 @@ calc_gratingN(Stimulus *st, Substim *sst, float disp)
     
     
 }
+
+
 void paint_grating(Substim *sst, int mode, int shift)
 {
     int i,ci =0,j,oi =0;
