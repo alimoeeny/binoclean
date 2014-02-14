@@ -1894,7 +1894,7 @@ char *ReadManualStim(char *file, int stimid){
     for(i = 0; i < MAXFRAMES; i++)
         imx[i] = imy[i] = 0;
     while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
-        if (seroutfile)
+        if (seroutfile) // everything from stim file goes to seroutfile
             fputs(inbuf,seroutfile);
 /*
  * Feb 2014. Don't clog up serial line with long lines (with :) for
@@ -1998,6 +1998,29 @@ char *ReadManualStim(char *file, int stimid){
         
     return(cbuf);
 }
+
+int SendManualSequence()
+{
+    int i,p;
+    char buf[BUFSIZ*10],tmp[BUFSIZ];
+    
+    
+    p = 0;
+    while(manualprop[p] >= 0)  // a property sequence was defined
+    {
+        sprintf(buf,"%s%s",serial_strings[MANUAL_TDR],serial_strings[manualprop[p]]);
+        for(i = 0; i < framesdone; i++)
+        {
+            sprintf(tmp,"%.2f ",manualstimvals[p][i]);
+            if(strlen(buf)+strlen(tmp) < BUFSIZ*10)
+                strcat(buf,tmp);
+        }
+        strcat(buf,"\n");
+        SerialString(buf,0);
+            p++;
+        }
+}
+
 
 int SetManualStim(int frame)
 {
@@ -11348,6 +11371,10 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         strcat(buf,"\n");
         SerialString(buf,0);
     }
+    if (optionflags[MANUAL_EXPT] && manualprop[0] >= 0 ){
+        SendManualSequence();
+    }
+
     if(optionflags[FAST_SEQUENCE]){
         sprintf(rcbuf,"%srS=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
