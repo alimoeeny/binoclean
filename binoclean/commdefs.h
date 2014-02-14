@@ -451,7 +451,8 @@
 #define PSYCHMON_VARS MAXSERIALCODES+170
 #define EXPTRESET_FILE MAXSERIALCODES+171
 #define SET_SF_CONTRASTS MAXSERIALCODES+172
-#define MAXSAVECODES MAXSERIALCODES+173 //364
+#define NETWORK_PREFIX MAXSERIALCODES+173
+#define MAXSAVECODES MAXSERIALCODES+174 //364
 //Add above here anything that needs to be saved to .stm files
 //Below here are temporary/convenience/state parameters that do not need saving
 
@@ -1297,6 +1298,7 @@ ValueCode valstrings[] = {
     {"monitor","Monitor Filename",  MONITOR_FILE, 0, 'C', 0, SEND_EXPLICIT, SAVE_ALWAYS},
     {"ereset","File To run for Reset between Expts",  EXPTRESET_FILE, 0, 'C', 0, SEND_EXPLICIT, SAVE_ALWAYS},
     {"seqpause","Pause between computer repeated blocks",  SEQUENCE_PAUSE, 16, 'N', 2, SEND_VERG_ONLY, SAVE_ALWAYS},
+    {"netpref","Prefix for Network Data Record",  NETWORK_PREFIX, 16, 'N', 2, SEND_VERG_ONLY, SAVE_ALWAYS},
     { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 

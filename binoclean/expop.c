@@ -183,7 +183,7 @@ extern Cyber cyberprops[];
 extern int ttys[];
 extern int realframecount;
 extern vcoord psychoff[];
-extern FILE *seroutfile,*logfd,*stairfd;
+extern FILE *seroutfile,*logfd,*stairfd,*netoutfile;
 char *psychfilename = NULL;
 FILE *psychfile = NULL;
 FILE *psychfilelog = NULL;
@@ -1896,6 +1896,13 @@ char *ReadManualStim(char *file, int stimid){
     while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
         if (seroutfile)
             fputs(inbuf,seroutfile);
+/*
+ * Feb 2014. Don't clog up serial line with long lines (with :) for
+ * manual stims. Send these to a network file that AplaySpkFile will read
+ */
+        
+        if (netoutfile)
+            fputs(inbuf,netoutfile);
         s = strchr(inbuf,':');
         if (s != NULL){
             if (strncmp(inbuf,"bar",3) == NULL){
@@ -1914,12 +1921,7 @@ char *ReadManualStim(char *file, int stimid){
             else{
                 manualprop[nprop] = FindCode(inbuf);
                 propmodifier[nprop] = 0;
-                SerialString("mt",0);
-                SerialString(inbuf,0);
-                SerialString("\n",0);
             }
-
-        
             t = s;
             j = 0;
             while(t != NULL){
@@ -2623,6 +2625,10 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     sprintf(sfile,"%s_replay",t);
                 else
                     strcpy(sfile,t);
+                sprintf(buf,"%s/%s",expt.strings[NETWORK_PREFIX],sfile);
+                if ((netoutfile = fopen(buf,"a")) != NULL){
+                    fprintf(netoutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);                    
+                }
                 if((seroutfile = fopen(sfile,"a")) != NULL){
                     sprintf(buf,"Serial Out to %s/%s",expt.cwd,sfile);
                     statusline(buf);
@@ -8511,6 +8517,9 @@ int PrepareExptStim(int show, int caller)
         fprintf(seroutfile,"PrEx %d\n",caller);
     }
 #endif
+    if(netoutfile){
+        fprintf(seroutfile,"#P%d\n",stimno);
+    }
 
     fakestim = 0;
     expt.laststimno = stimno;

@@ -103,7 +103,7 @@ Expt expt;
 AFCstructure afc_s;
 struct BWSTRUCT thebwstruct;
 
-FILE *testfd = NULL,*logfd = NULL;
+FILE *testfd = NULL,*logfd = NULL,*netoutfile = NULL;
 char *logname;
 char *rcname = NULL;
 static    unsigned int first, last,bigfirst,biglast;
@@ -2364,7 +2364,10 @@ int event_loop(float delay)
         }
         else if(testmode == 6 || testmode == 7 || testmode == 8 || testmode == 9)
             run_polygon_test_loop();
-
+// Run tests just once then tell verg. Verg decides whether to repeat
+//Otherwise can freeze verg
+        mode &= (~TEST_PENDING);
+        notify("TESTOVER");
     }
     else
         next_frame(TheStim);
@@ -7364,6 +7367,7 @@ void run_polygon_test_loop()
             mycolor(bcolor);
             x[0] = x[0]+0.008;
         }
+                mode &= (~TEST_PENDING);
         return;
     }
     if (testmode == 8) //simple translation of polygon to explore jumping
@@ -7390,6 +7394,7 @@ void run_polygon_test_loop()
             mycolor(bcolor);
             x[0] = x[0]+0.008;
         }
+        mode &= (~TEST_PENDING);
         return;
     }
     
@@ -7418,6 +7423,7 @@ void run_polygon_test_loop()
             mycolor(bcolor);
             x[0] = x[0]+0.008;
         }
+        mode &= (~TEST_PENDING);
         return;
     }
 
@@ -7549,11 +7555,12 @@ void run_grating_test_loop()
 
     glDrawBuffer(GL_BACK);
     gettimeofday(&timeb,NULL);
-    glDrawBuffer(GL_FRONT);
     glClearAccum(0.5, 0.5, 0.5, 0.5);
     glClearColor(0.5, 0.5, 0.5, 0.5);
     calc_grating(st, st->left, 0);
     glPushMatrix();
+    glTranslatef(0,0.0,0);
+
     glRotatef(pos->angle * 180/M_PI,0.0,0.0,1.0);
     for(frame = 0; frame < nframes; frame++){
         xp[0] = st->pos.xy[0];
@@ -7591,14 +7598,20 @@ void run_grating_test_loop()
         glSwapAPPLE();
     }
 
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glEnable(GL_POLYGON_SMOOTH);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     for(frame = 0; frame < nframes; frame++){
         xp[0] = st->pos.xy[0];
-        if (frame > nframes/2)
+        if (frame < 3) // clear initiall, then see if repeat paints change
             glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
-        glLineWidth(1.1);
+        glLineWidth(1.0);
         
         q = p = sst->im;
         glBegin(GL_LINES);
@@ -7614,6 +7627,7 @@ void run_grating_test_loop()
         for(i = 0; i < pos->size[1]; i++)
         {
             x[1] = (i - pos->size[1]/2) * pos->ss[1];
+//            x[1] = x[1]/2;  //Try halvingline spacing
             z[1] = x[1];
             glColor4f(*p,*p,*p,1.0);
             myvx(x);
@@ -7627,8 +7641,123 @@ void run_grating_test_loop()
         glFinishRenderAPPLE();
         glSwapAPPLE();
     }
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glEnable(GL_POLYGON_SMOOTH);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glLineWidth(1.0);
+    glColor4f(1.0,1.0,1.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    x[0] = -100;
+    x[1] = 0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    x[0] = -100;
+    x[1] = 0.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glColor4f(0.0,0.0,0.0,1.0);
+
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+
+    glColor4f(1.0,1.0,1.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    x[0] = -100;
+    x[1] = 0.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+
+    
+    glClear(GL_COLOR_BUFFER_BIT);
+    for(i = 0; i < nframes; i++){
+    glBegin(GL_LINES);
+        glColor4f(1.0,1.0,1.0,1.0);
+
+    x[0] = -100;
+    x[1] = 0.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glColor4f(0.0,0.0,0.0,1.0);
+    
+    x[0] = -100;
+    x[1] = 2.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    
+    x[0] = -100;
+    x[1] = 3;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+        glColor4f(1.0,1.0,1.0,1.0);
         
+        x[0] = -100;
+        x[1] = 4.0;
+        myvx(x);
+        x[0] = 100;
+        myvx(x);
+        
+        x[0] = -100;
+        x[1] = 5;
+        myvx(x);
+        x[0] = 100;
+        myvx(x);
+        
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+    }
         glPopMatrix();
+        mode &= (~TEST_PENDING);
     }
 
 
@@ -7837,6 +7966,7 @@ void run_rds_test_loop()
             }
             glSwapAPPLE();
         }
+                mode &= (~TEST_PENDING);
         return;
     }
     if(testmode == 3){
@@ -7851,6 +7981,7 @@ void run_rds_test_loop()
             paint_stimulus(st,1);
             //AliGLX	mySwapBuffers();
         }
+                mode &= (~TEST_PENDING);
         return;
     }
     
@@ -9793,6 +9924,19 @@ double  RunTime(void )
     
 }
 
+
+int PrintTrialResult(FILE *fd, char result)
+{
+    
+    if (fd != NULL){
+        fprintf(fd,"R%c %s=%.5f %s=%.5f se=%d id=%d bt=%.3f\n",
+                result,serial_strings[expt.mode],expt.currentval[0],
+                serial_strings[expt.type2],expt.currentval[1],
+                expt.st->left->baseseed,expt.allstimid,ufftime(&now));
+    }
+}
+
+
 int PrintPsychLine(int presult, int sign)
 {
     char str[BUFSIZ];
@@ -10280,6 +10424,7 @@ int GotChar(char c)
                     fprintf(seroutfile,"\n");
                     fflush(seroutfile);
                 }
+                PrintTrialResult(netoutfile, result);
                 /*
                  * if the monkey makes a bad saccade after the stimulus is done,
                  * or a late saccade, need to re-run that stimulus. This is taken

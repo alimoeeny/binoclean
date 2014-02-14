@@ -469,6 +469,11 @@ for j = 1:length(strs{1})
         DATA = SetExptMenus(DATA);
     elseif strncmp(s,'expt',4)
         DATA = ReadStimFile(DATA, value, 'inread');
+    elseif strncmp(s,'TESTOVER',8)
+       if isfield(DATA,'reopenstr') && ~isempty(DATA.reopenstr) && DATA.optionflags.do
+           binocprintf(DATA,'%s\n',DATA.reopenstr);
+       end
+
     elseif strncmp(s,'TRES',4)
         if s(6) == 'G' || s(6) == 'W'
             a = sscanf(s(7:end),'%d');
