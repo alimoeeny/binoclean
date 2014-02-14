@@ -50,6 +50,19 @@ char *getfilename(char *path)
 	return((char *)strcpy((char *)malloc(strlen(p)+1), p));
 }
 
+char *getdirname(char *path)
+{
+	char *p;
+    char pdir[BUFSIZ];
+    
+    strcpy(pdir,path);
+	if((p = strrchr(pdir, '/')) || (p= strrchr(pdir,'\\'))){
+        *p = NULL;
+    }
+    
+	return((char *)strcpy((char *)malloc(strlen(pdir)+1), pdir));
+}
+
 
 
 

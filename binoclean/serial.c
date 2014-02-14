@@ -41,7 +41,7 @@ TTY save_ta;
 //Ali struct termio save_t;
 //Ali struct termio save_ta;
 //Ali #endif
-FILE *seroutfile,*serintest;
+FILE *seroutfile,*serintest,*netoutfile;
 int totalcharsin;
 unsigned long charsread = 0;
 char longlist[BUFSIZ*10];
@@ -257,4 +257,6 @@ void SerialString(char *s, int tty)
 #endif
     if(seroutfile != NULL && tty != ttys[1])
         i = fprintf(seroutfile,"%s",s);
+    if(netoutfile != NULL && tty != ttys[1])
+        i = fprintf(netoutfile,"%s",s);
 }

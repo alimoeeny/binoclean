@@ -33,6 +33,7 @@ int fplaces(float x, int n);
 
 int myfiletype();
 char *getfilename();
+char *getdirname();
 char *getcomment();
 char *tilde(char *s),*CompleteFilename();
 #define ASCII 15

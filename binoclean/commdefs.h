@@ -1298,7 +1298,7 @@ ValueCode valstrings[] = {
     {"monitor","Monitor Filename",  MONITOR_FILE, 0, 'C', 0, SEND_EXPLICIT, SAVE_ALWAYS},
     {"ereset","File To run for Reset between Expts",  EXPTRESET_FILE, 0, 'C', 0, SEND_EXPLICIT, SAVE_ALWAYS},
     {"seqpause","Pause between computer repeated blocks",  SEQUENCE_PAUSE, 16, 'N', 2, SEND_VERG_ONLY, SAVE_ALWAYS},
-    {"netpref","Prefix for Network Data Record",  NETWORK_PREFIX, 16, 'N', 2, SEND_VERG_ONLY, SAVE_ALWAYS},
+    {"netpref","Prefix for Network Data Record",  NETWORK_PREFIX, 16, 'C', 2, SEND_VERG_ONLY, SAVE_ALWAYS},
     { NULL, NULL, -1, -1 ,0 ,0, 0},
 };
 
