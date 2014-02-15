@@ -483,6 +483,8 @@ while npost < 2
                 PlotDepths(DATA, ts, newd);
             end
         catch
+            newd(j) = 0;
+            cprintf('error','Error reading Depth from %s: Verbose%d\n',s,DATA.verbose);
             fprintf('Returned %s\n',s);
         end
     else

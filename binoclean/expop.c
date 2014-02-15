@@ -2492,6 +2492,55 @@ char *GetExptString(Expt *exp, int code)
     return(s);
 }
 
+int CheckDirExists(char *name)
+{
+    char *d,buf[BUFSIZ];
+    
+    d = getdirname(name);
+    if(!isdir(d)){
+        sprintf(buf,"mkdir %s",d);
+        system(buf);
+    }
+}
+
+int OpenNetworkFile(Expt expt)
+{
+    char *t,*r,buf[BUFSIZ],name[BUFSIZ],sfile[BUFSIZ],path[BUFSIZ],outbuf[BUFSIZ];
+    char nbuf[BUFSIZ];
+    time_t tval,nowtime;
+
+    netoutfile= NULL;
+    t = strchr(expt.bwptr->prefix,':');
+    if (t != NULL){
+        strcpy(sfile,++t);
+        while((t = strchr(sfile,'\\')) != NULL)
+            *t = '/';
+        
+        
+        
+        
+        sprintf(name,"%s/%s.bnc",expt.strings[NETWORK_PREFIX],sfile);
+
+        netoutfile = fopen(name,"a");
+    
+        if (netoutfile == NULL){
+            strcpy(nbuf,name);
+            sprintf(name,"/local/%s",sfile);
+            netoutfile = fopen(name,"a");
+        }
+    }
+    if (netoutfile != NULL){
+        fprintf(netoutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);
+        if (seroutfile != NULL)
+            fprintf(seroutfile,"Network Record to %d\n",name);
+    }
+    else{
+        sprintf(buf,"Can't open Network parameter record file\n %s\t or\n%s",nbuf,name);
+        acknowledge(buf,0);
+    }
+}
+
+
 int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
 {
     int chan,pen,i,duplicate = 0,ok = 1;
@@ -2648,10 +2697,8 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     sprintf(sfile,"%s_replay",t);
                 else
                     strcpy(sfile,t);
-                sprintf(buf,"%s/%s",expt.strings[NETWORK_PREFIX],sfile);
-                if ((netoutfile = fopen(buf,"a")) != NULL){
-                    fprintf(netoutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);                    
-                }
+
+                
                 if((seroutfile = fopen(sfile,"a")) != NULL){
                     sprintf(buf,"Serial Out to %s/%s",expt.cwd,sfile);
                     statusline(buf);
@@ -3565,6 +3612,8 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
                 if((i = MakeString(flag, cbuf, &expt, expt.st,0)) >= 0){
                     strcat(cbuf,"*\n\0");
                     fputs(cbuf,seroutfile);
+                    if(netoutfile)
+                        fputs(cbuf,netoutfile);
                 }
             }
             break;
@@ -4212,6 +4261,8 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"openuff",7)){
         SerialSend(UFF_PREFIX);
+        fsleep(0.5);  // allow time for spike2 to make dir
+        OpenNetworkFile(expt);
     }
     else if(!strncasecmp(s,"renderoff",9)){
         renderoff = 1;
@@ -6961,6 +7012,10 @@ void runexpt(int w, Stimulus *st, int *cbs)
         fprintf(seroutfile,"#Start Expt at %.2f %sx%s %d%c%d (%d)\n",
                 ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
                 expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
+    if(netoutfile)
+        fprintf(netoutfile,"#Start Expt at %.2f %sx%s %d%c%d (%d)\n",
+                ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
+                expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
     InitExpt();
 }
 
@@ -7469,6 +7524,7 @@ void InitExpt()
         }
         else if (seroutfile){
             fprintf(seroutfile,"#saverls %s\n",cbuf);
+            fprintf(netoutfile,"#saverls %s\n",cbuf);
         }
     }
     else
@@ -8540,8 +8596,9 @@ int PrepareExptStim(int show, int caller)
         fprintf(seroutfile,"PrEx %d\n",caller);
     }
 #endif
+    gettimeofday(&now,NULL);
     if(netoutfile){
-        fprintf(seroutfile,"#P%d\n",stimno);
+        fprintf(netoutfile,"#Prep%d %d %.3f\n",stimno, stimorder[stimno],ufftime(&now));
     }
 
     fakestim = 0;
@@ -8559,9 +8616,9 @@ int PrepareExptStim(int show, int caller)
             ShuffleStimulus(0); /* ? obsolete  BADFIX and Late already call this*/
     }
     
+    expt.st->preloaded = expt.st->next->preloaded = 0;
     
     if (optionflags[MANUAL_EXPT]){
-        expt.st->preloaded = expt.st->next->preloaded = 0;
 
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf, stimorder[stimno]);
@@ -10853,7 +10910,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     cbuf[0] = 0;
     
     currentstim.stimid = expt.stimid;
-    currentstim.seed = firstseed = expt.st->left->baseseed;
+    currentstim.seed = expt.st->firstseed = expt.st->left->baseseed;
     if(expt.vals[ALTERNATE_STIM_MODE] > 0.5){
         i = rint(expt.vals[ALTERNATE_STIM_MODE]);
         switch(i){
@@ -11315,7 +11372,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     DIOWriteBit(0,0); //clear stimchange pin
 #endif
     if (seroutfile)
-        fprintf(seroutfile,"se%d\n",firstseed);
+        fprintf(seroutfile,"se%d\n",expt.st->firstseed);
     SerialSend(SET_SEED); // get this recorded at stim end also
     if(cctr && 0) // Don't do this normally
         printf("Serial %d: %s\n",cctr,cbuf);
@@ -13258,9 +13315,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"slider",6) && frompc){ //old commands that we don't want to drop down to codes below
         return(0);
     }
-    else if(!strncmp(line,"splitctr",10) && frompc){
+    else if(!strncmp(line,"splitctr",8) && frompc){
         if(seroutfile)
-            fprintf(seroutfile,"%s",line);
+            fprintf(seroutfile,"#%s",line);
+        if(netoutfile)
+            fprintf(netoutfile,"#%s",line);
         return(0);
     }	
     else if(!strncmp(line,"HeadStrain",10)){
@@ -13663,6 +13722,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case -1:
             sprintf(buf,"Unrecognized code %s\n",line);
             fprintf(stdout,buf);
+            if(seroutfile)
+                fputs(buf,seroutfile);
 //            notify(buf);
             break;
         case JUMP_SF_COMPONENTS:
@@ -14722,6 +14783,8 @@ int PrintPsychData(char *filename)
     fprintf(fd,"Run ended %s Took %.2f\n",nonewline(ctime(&tval)),timediff(&now,&bwtime));
     if(seroutfile)
         fprintf(seroutfile,"Run ended %s",ctime(&tval));
+    if (netoutfile)
+        fprintf(netoutfile,"EndExpt %.3f %s",ufftime(&tval),ctime(&tval));
     if(psychlog){
         fprintf(psychlog,"Run ended %s\n",ctime(&tval));
         fflush(psychlog);

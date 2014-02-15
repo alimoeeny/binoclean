@@ -5753,7 +5753,7 @@ void wipescreen(float color)
 void paint_frame(int type, int showfix)
 {
     struct timeval atime,btime,ctime;
-    float r = 0,tval;
+    float r = 0,tval,w;
     int frame = 0;
     
     gettimeofday(&atime, NULL);
@@ -5837,7 +5837,9 @@ void paint_frame(int type, int showfix)
     draw_conjpos(cmarker_size,PLOT_COLOR);
     if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0 && !(option2flag & PSYCHOPHYSICS_BIT)){
         setmask(OVERLAY);
-        DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],2,2,RF_COLOR);
+        DrawBox(fixpos[0],fixpos[1],expt.fw*2,expt.vals[FIXWIN_HEIGHT]*2,RF_COLOR);
+        w = afc_s.sac_fix_crit;
+        DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],w,w,RF_COLOR);
         r = fabs(afc_s.sacval[0])+fabs(afc_s.sacval[1]);
         DrawLine(fixpos[0]+r-0.5,fixpos[1]+r,fixpos[0]+r+0.5,fixpos[1]+r,RF_COLOR);
         if (afc_s.jstairval> 0)
@@ -6878,6 +6880,8 @@ int next_frame(Stimulus *st)
                 fprintf(seroutfile,"#PostTrial, last %d stimno%d%c\n",laststate,stimno,exptchr);
                 fflush(seroutfile);
             }
+            if (netoutfile)
+                fflush(netoutfile);
             if(option2flag & AFC)
                 CountReps(stimno);
             if((option2flag & PSYCHOPHYSICS_BIT) || fixstate == BAD_FIXATION){
@@ -9927,12 +9931,11 @@ double  RunTime(void )
 
 int PrintTrialResult(FILE *fd, char result)
 {
-    
     if (fd != NULL){
-        fprintf(fd,"R%c %s=%.5f %s=%.5f se=%d id=%d bt=%.3f\n",
+        fprintf(fd,"R%c %s=%.5f %s=%.5f se=%d se=%d id=%d bt=%.3f\n",
                 result,serial_strings[expt.mode],expt.currentval[0],
                 serial_strings[expt.type2],expt.currentval[1],
-                expt.st->left->baseseed,expt.allstimid,ufftime(&now));
+                expt.st->left->baseseed,expt.st->firstseed, expt.allstimid,ufftime(&now));
     }
 }
 
