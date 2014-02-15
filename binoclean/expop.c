@@ -11371,7 +11371,9 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         strcat(buf,"\n");
         SerialString(buf,0);
     }
-    if (optionflags[MANUAL_EXPT] && manualprop[0] >= 0 ){
+// If no network stim record, send sequence down serial line
+ 
+    if (optionflags[MANUAL_EXPT] && manualprop[0] >= 0 && netoutfile == NULL ){
         SendManualSequence();
     }
 
