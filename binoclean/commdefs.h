@@ -695,7 +695,7 @@ ToggleCode togglestrings[] = {
     {"Checkfix",    "cf", 0, FIXATION_CHECK, 1},
     {"Whole Stimuli",    "ws", 0, WURTZ_WHOLE_STIMULI, 1},
     {"Trials",    "sw", 0, STIM_IN_WURTZ_BIT, 1},
-    {"Wait for BW",    "bw", 0, WAIT_FOR_BW_BIT, 1},
+    {"Wait for Spike",    "bw", 0, WAIT_FOR_BW_BIT, 1},
 //    {"Wurtz Task",    "wt", 0, WURTZFLAG, 1}, //not used anywhere
     {"L Monoc",    "lm", 0, LEFT_FIXATION_CHECK, 1},
     {"R Monoc",    "rm", 0, RIGHT_FIXATION_CHECK, 1},

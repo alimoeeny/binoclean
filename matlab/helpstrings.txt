@@ -170,6 +170,7 @@ monkey 3 letter monkey name. Binoc will cwd to /local/mnk
 mx Expt Type only. Sets monoc expt wiht L,R, and Binoc
 n3 number of stimuli for Expt3 
 nbars when st=bar, Sets numbner of bars to paint - usually 1. You have to set params for extra bars
+netpref Prefix setting network Drive to store serial output. When recording, this should be the PC drive that has the date files, so that everything is in one place. 
 nco list of contast values for components in nsine stimulus
 Nf N frames actually completed. Read only.
 nf sets stimlus duratio in frames (see also du). 

@@ -2509,7 +2509,15 @@ int OpenNetworkFile(Expt expt)
     char nbuf[BUFSIZ];
     time_t tval,nowtime;
 
+    
     netoutfile= NULL;
+    if (expt.strings[NETWORK_PREFIX] == NULL || ~strcmp(expt.strings[NETWORK_PREFIX],"NotSet"))
+    {
+        sprintf(buf,"No prefix Name for network parameter file");
+        fprintf(stderr,"%s\n",buf);
+        statusline(buf);
+        return(-1);
+    }
     t = strchr(expt.bwptr->prefix,':');
     if (t != NULL){
         strcpy(sfile,++t);
@@ -7449,8 +7457,9 @@ void InitExpt()
      */
     if(expt.st->left->baseseed & 0x1)
         expt.st->left->baseseed++;
+//Force checking of framecount for first stim at least
     if(optionflags[CHECK_FRAMECOUNTS] == 0)
-        optionflags[CHECK_FRAMECOUNTS] = 1;
+        optionflags[CHECK_FRAMECOUNTS] = 2;
     
     
     for(i = 0; i < MAXSTIM; i++)
@@ -7524,7 +7533,8 @@ void InitExpt()
         }
         else if (seroutfile){
             fprintf(seroutfile,"#saverls %s\n",cbuf);
-            fprintf(netoutfile,"#saverls %s\n",cbuf);
+            if (netoutfile)
+                fprintf(netoutfile,"#saverls %s\n",cbuf);
         }
     }
     else
@@ -11554,8 +11564,14 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         /*
          * if optionflags[CHECK_FRAMECOUNTS] ==2, only check the first stimulus
          */
-        if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
-                sprintf(buf,"Only completed %d/%d frames (stim %d at %s). op-CN to stop Checking",framesdone,n,stimno,binocTimeString());
+        if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){
+            if (optionflags[CHECK_FRAMECOUNTS] ==2){
+                optionflags[CHECK_FRAMECOUNTS] =0;
+                sprintf(tmp,"Won't Check again");
+            }
+            else
+                sprintf(tmp," op-CN to stop Checking");
+                sprintf(buf,"Only completed %d/%d frames (stim %d at %s). %s",framesdone,n,stimno,binocTimeString(),tmp);
                 acknowledge(buf,NULL);
             statusline(buf);
         }
@@ -11567,7 +11583,15 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      */
     if(optionflags[CHECK_FRAMECOUNTS] && retval != BAD_TRIAL && 
        frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){
-        sprintf(buf,"%d frames took %.3f (stim %d at %s). op-CN to stop Checking",framesdone,frametimes[framesdone-1],stimno,binocTimeString());
+        
+        if (optionflags[CHECK_FRAMECOUNTS] ==2){
+            optionflags[CHECK_FRAMECOUNTS] =0;
+            sprintf(tmp,"Won't Check again");
+        }
+        else
+            sprintf(tmp," op-CN to stop Checking");
+
+        sprintf(buf,"%d frames took %.3f (stim %d at %s). %s",framesdone,frametimes[framesdone-1],stimno,binocTimeString(),tmp);
         acknowledge(buf,NULL);
         statusline(buf);
     }

@@ -2016,6 +2016,20 @@ function DATA = InitInterface(DATA)
     else
         nrows = 2/nr;
     end
+    
+    
+    cmenu = uicontextmenu;
+    f = fields(DATA.optionstrings)
+    of = fields(DATA.optionflags)
+    amenu = uimenu(cmenu,'Label','General');
+    for j = 1:length(f)
+        if strncmp(of{j},'lbl',3)
+        amenu = uimenu(cmenu,'Label',f{j});
+        else
+            uimenu(amenu,'label',DATA.optionstrings.(f{j}),'Callback',{@OptionMenu, f{j}});
+        end
+    end
+    
     f = f(find(~strcmp('do',f)));
     ymin = 1-1./nr - nrows;
     ymin = 1 - nrows;
@@ -2032,8 +2046,9 @@ function DATA = InitInterface(DATA)
             bp(2) = 1- 1./nr;
         end
         if isfield(DATA.optionflags,f{j})
-            uicontrol(gcf,'style','checkbox','string',str, ...
+            h = uicontrol(gcf,'style','checkbox','string',str, ...
                 'units', 'norm', 'position',bp,'value',DATA.optionflags.(f{j}),'Tag',f{j},'callback',{@HitToggle, f{j}});
+            set(h,'uicontextmenu',cmenu);
         end
 
     end
@@ -2157,7 +2172,14 @@ function ShowHelp(a,b,file)
     end
    uimenu(hm,'Label',sprintf('Version %s',strrep(DATA.vergversion,'verg.','')));
  
-        
+  function OptionMenu(a,b,tag)     
+      on = get(a,'checked');
+      if strcmp(on,'on');
+          set(a,'checked','off');
+      else
+          set(a,'checked','on');
+      end
+   
   function BuildQuickMenu(DATA, hm)
         
     if isfield(DATA.quickexpts,'submenu')
