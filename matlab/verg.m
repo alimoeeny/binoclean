@@ -2177,13 +2177,17 @@ function ShowHelp(a,b,file)
    uimenu(hm,'Label',sprintf('Version %s',strrep(DATA.vergversion,'verg.','')));
  
   function OptionMenu(a,b,tag)     
+      DATA = GetDataFromFig(a);
       on = get(a,'checked');
-
+      f = get(a,'tag')
       if strcmp(on,'on');
           set(a,'checked','off');
+          DATA.optionflags.(f) = 0;
       else
           set(a,'checked','on');
+          DATA.optionflags.(f) = 1;
       end
+      SendCode(DATA, 'optionflag');
    
   function BuildQuickMenu(DATA, hm)
         
