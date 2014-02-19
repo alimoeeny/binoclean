@@ -2019,16 +2019,20 @@ function DATA = InitInterface(DATA)
     
     
     cmenu = uicontextmenu;
-    f = fields(DATA.optionstrings)
-    of = fields(DATA.optionflags)
+    f = fields(DATA.optionstrings);
+    of = fields(DATA.optionflags);
     amenu = uimenu(cmenu,'Label','General');
     for j = 1:length(f)
         if strncmp(of{j},'lbl',3)
-        amenu = uimenu(cmenu,'Label',f{j});
+            amenu = uimenu(cmenu,'Label',DATA.optionstrings.(f{j}));
         else
-            uimenu(amenu,'label',DATA.optionstrings.(f{j}),'Callback',{@OptionMenu, f{j}});
+            h = uimenu(amenu,'label',DATA.optionstrings.(f{j}),'Callback',{@OptionMenu, f{j}},'tag',f{j});
+            if DATA.optionflags.(f{j})
+                set(h,'checked','on');
+            end
         end
     end
+    set(cmenu,'tag','OptionContextMenu');
     
     f = f(find(~strcmp('do',f)));
     ymin = 1-1./nr - nrows;
@@ -2174,6 +2178,7 @@ function ShowHelp(a,b,file)
  
   function OptionMenu(a,b,tag)     
       on = get(a,'checked');
+
       if strcmp(on,'on');
           set(a,'checked','off');
       else
@@ -2894,6 +2899,24 @@ end
     ot = findobj(DATA.toplevel,'tag','FSD','type','uicontrol');
     set(ot,'value',j);
 
+    ot = findobj(DATA.toplevel,'tag','OptionContextMenu');
+    if ~isempty(ot);
+        m = get(ot,'children');
+        for k = 1:length(m)
+        c = get(m(k),'children');
+        for j = 1:length(c)
+            tag = get(c(j),'tag');
+            if isfield(DATA.optionflags,tag) && DATA.optionflags.(tag)
+                set(c(j),'checked','on');
+            else
+                set(c(j),'checked','off');
+            end
+        end
+        end
+    end
+    
+    
+    
 
  function SetTextItem(top, tag, value, varargin)
  it = findobj(top,'Tag',tag);
