@@ -708,9 +708,6 @@ char **argv;
             else if(!strncmp(buf,"fullscreen",6) && s){
                 sscanf(++s,"%d",&fullscreenmode);
             }
-            else if(!strncmp(buf,"videocapture",8) && s){
-                sscanf(++s,"%f %f %f %f",&videocapture[0],&videocapture[1],&videocapture[2],&videocapture[3]);
-            }
             else if(!strncmp(buf,"tty1",4) && s){
                 sscanf(++s,"%s",theport);
             }
@@ -737,6 +734,9 @@ char **argv;
             }
             else if(!strncmp(buf,"printcodes",9)){
                 PrintStates();
+            }
+            else if(!strncmp(buf,"videocapture",7)){
+                InterpretLine(buf, &expt, 3);
             }
 
 

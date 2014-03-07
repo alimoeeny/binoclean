@@ -232,6 +232,7 @@ for j = 1:length(strs{1})
         code = s(1:eid(1)-1);
         value = s(eid(1)+1:end);
     else
+        value = [];
         code = s;
     end
     if DATA.verbose(2) && strcmp(src,'frombinoc')
@@ -324,7 +325,9 @@ for j = 1:length(strs{1})
         DATA.optionstrings.(cc) = s(id(2)+1:end);
         DATA.togglecodesreceived = DATA.togglecodesreceived+1;
     elseif strncmp(s,'pause',5)
-        DATA.readpause = str2num(value);
+        if ~isempty(value)
+            DATA.readpause = str2num(value);
+        end
  %       pause(DATA.readpause);
         DATA.pausetime = now;
     elseif strncmp(s,'rptexpts',6)
@@ -2002,22 +2005,8 @@ function DATA = InitInterface(DATA)
 
     
 
-    bp(1) = 0.01;
-    bp(2) = 1-1/nr;
-    bp(4) = 1./nr;
-    bp(3) = 1./tagc;
-    uicontrol(gcf,'style','checkbox','string','Go', ...
-        'units', 'norm', 'position',bp,'value',1,'Tag','do','callback',@GoToggle);
-    f = fields(DATA.showflags);
-    allf = fields(DATA.optionflags);
-    if isfield(DATA,'showflagseq')
-        f = DATA.showflagseq;
-        nrows = ceil(length(f)./tagc)./nr; %fraction of window height needed for tags
-    else
-        nrows = 2/nr;
-    end
     
-    
+        
     cmenu = uicontextmenu;
     f = fields(DATA.optionstrings);
     of = fields(DATA.optionflags);
@@ -2033,6 +2022,24 @@ function DATA = InitInterface(DATA)
         end
     end
     set(cmenu,'tag','OptionContextMenu');
+
+    
+    
+    bp(1) = 0.01;
+    bp(2) = 1-1/nr;
+    bp(4) = 1./nr;
+    bp(3) = 1./tagc;
+    uicontrol(gcf,'style','checkbox','string','Go', ...
+        'units', 'norm', 'position',bp,'value',1,'Tag','do','callback',@GoToggle);
+    f = fields(DATA.showflags);
+    allf = fields(DATA.optionflags);
+    if isfield(DATA,'showflagseq')
+        f = DATA.showflagseq;
+        nrows = ceil(length(f)./tagc)./nr; %fraction of window height needed for tags
+    else
+        nrows = 2/nr;
+    end
+    
     
     f = f(find(~strcmp('do',f)));
     ymin = 1-1./nr - nrows;
@@ -2188,6 +2195,7 @@ function ShowHelp(a,b,file)
           DATA.optionflags.(f) = 1;
       end
       SendCode(DATA, 'optionflag');
+      SetGui(DATA);
    
   function BuildQuickMenu(DATA, hm)
         
@@ -2887,13 +2895,13 @@ end
     ot = findobj('tag',DATA.windownames{2},'type','figure');
        f = fields(DATA.optionflags);
        for j = 1:length(f)
-           if length(ot) == 1
+           if length(ot) == 1 %set value in options window
                it = findobj(ot,'Tag',f{j});
                set(it,'value',DATA.optionflags.(f{j}));
            end
-           it = findobj(DATA.toplevel,'Tag',f{j});
+           it = findobj(DATA.toplevel,'Tag',f{j},'type','uicontrol');
            if length(it) == 1
-           set(it,'value',DATA.optionflags.(f{j}));
+               set(it,'value',DATA.optionflags.(f{j}));
            end
        end
     ot = findobj('tag',DATA.windownames{3},'type','figure');

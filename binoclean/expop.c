@@ -4361,7 +4361,10 @@ int ReadCommand(char *s)
         sprintf(command_result,"debug %d",debug);
     }
     else if(!strncasecmp(s,"savemovie",8)){ // toggle on/off saving screen images
-        if (testflags[SAVE_IMAGES] == 0){
+        if ((r = strchr(s,'=')) != NULL)
+            strcpy(ImageOutDir,nonewline(&r[1]));
+
+        if (testflags[SAVE_IMAGES] != 10 || !strncasecmp(s,"savemovie+",10)){
             testflags[SAVE_IMAGES] = 10;
             sprintf(buf,"./%spgm.idx",expname);
             imidxfd = fopen(buf,"a");
@@ -13597,7 +13600,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             rfctr = MAXRF-1;
         return(0);
     }
-    
+    else if(!strncmp(line,"videocapture",8) && s){
+        sscanf(++s,"%f %f %f %f",&videocapture[0],&videocapture[1],&videocapture[2],&videocapture[3]);
+        return(0);
+    }
     else if(!strncmp(line,"exps",4) && (s = strchr(line,'=')))
     {
         return(0);
