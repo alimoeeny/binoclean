@@ -2089,7 +2089,7 @@ function DATA = InitInterface(DATA)
             RecoverFile(x,[],'list');    
     hm = uimenu(cntrl_box,'Label','Quick','Tag','QuickMenu');
     BuildQuickMenu(DATA, hm);
-        hm = uimenu(cntrl_box,'Label','&Pop','Tag','PopMenu');
+    hm = uimenu(cntrl_box,'Label','&Pop','Tag','PopMenu');
 %    uimenu(hm,'Label','Stepper','Callback',{@StepperPopup});
 %currently can do everything in binoc. Stick with this til need something
 %new....
@@ -2133,6 +2133,7 @@ function DATA = InitInterface(DATA)
     uimenu(hm,'Label','BlackScreen (shake)','Callback',{@MenuHit, 'setshake'},'accelerator','B');
     uimenu(hm,'Label','pipelog','Callback',{@MenuHit, 'pipelog'});
     uimenu(hm,'Label','freereward','Callback',{@MenuHit, 'freereward'},'accelerator','R');
+    uimenu(hm,'Label','Run One Trial','Callback',{@MenuHit, 'onetrial'},'accelerator','1');
     hm = uimenu(cntrl_box,'Label','Mark');
 
     
@@ -2254,6 +2255,8 @@ function MenuHit(a,b, arg)
         set(DATA.toplevel,'UserData',DATA);
     elseif strcmp(arg,'freereward')
         fprintf(DATA.outid,'freerwd\n');
+    elseif strcmp(arg,'onetrial')
+        fprintf(DATA.outid,'!onetrial\n');
     elseif strcmp(arg,'pipelog')       
         [a, prefix] = fileparts(DATA.binoc{1}.psychfile);
         prefix = regexprep(prefix,'[0-9][0-9][A-Z][a-z][a-z]20[0-9][0-9]','');

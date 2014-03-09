@@ -4182,23 +4182,28 @@ int SaveImage(Stimulus *st, int type)
                 fwrite(pix, sizeof(GLubyte), w*h, ofd);
                 done++;
                 fclose(ofd);
-                fprintf(stderr,"Seed %d,%d written to %s (dx%.3fP%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,pcode);
+                fprintf(stderr,"Seed %d,%d written to %s (dx%.3fP%d S%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,pcode,stimstate);
             }
         }
     
     }
     if(type & 1){
+        h = videocapture[3];
+        w = videocapture[2];
+        x = videocapture[0];
+        y = videocapture[1];
+
         for(i = 0; i < 2; i++){
             sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
-            if((pix = GetStimImage(x, y, h, w,eyec[i])) != NULL){
+            if((pix = GetStimImage(x, y, w, h,eyec[i])) != NULL){
                 if((ofd = fopen(imname,"w")) == NULL)
                     fprintf(stderr,"Can't write image to %s\n",imname);
                 else{
-                    fprintf(ofd,"P6 %d %d 255\n",h,w);
+                    fprintf(ofd,"P5 %d %d 255\n",w,h);
                     fwrite(pix, sizeof(GLubyte), w*h, ofd);
                     done++;
                     fclose(ofd);
-                    fprintf(stderr,"Seed %d,%d written to %s (dx%.3f)\n",st->left->baseseed,st->left->seed,imname,st->disp);
+                    fprintf(stderr,"Seed %d,%d written to %s (dx%.3f S%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,stimstate);
                 }
             }
         }
@@ -4266,6 +4271,9 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"go",2)){
         StopGo(GO);
+    }
+    else if(!strncasecmp(s,"onetrial",8)){
+        RunOneTrial();
     }
     else if(!strncasecmp(s,"openuff",7)){
         SerialSend(UFF_PREFIX);

@@ -142,7 +142,7 @@ vr=1.00	#RAMP_VERGENCE
 nt=2	#N Stim (Expt 1)
 uf=d:\bw\data\ruby\rbtest	#Uff Prefix
 sM=0.0000	#Stimulus mode
-wr=1.00	#WURTZ task response period
+wr=0	#WURTZ task response period
 mD=0.00000	#Max disp Initial manip
 op=+sq+72+fc+ap+wt+ws+sw+bm+cS+C3	#optionflag setup
 nr=2	#N Repetitions
@@ -387,6 +387,7 @@ fl=-nc+pc
 jv=15
 po=0
 pr=0
+videocapture=768 416 1024 768
 !savemovie=/local/Images/Movies
 pause
 !savemovie+

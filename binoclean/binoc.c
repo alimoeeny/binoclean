@@ -4993,7 +4993,8 @@ int change_frame()
         stimstate = POSTSTIMULUS;
 
     if (testflags[SAVE_IMAGES] ==10){ //save images of screen
-        SaveImage(expt.st,0);
+//        SaveImage(expt.st,0); // RE eye only
+        SaveImage(expt.st,1); //Both Eyes
     }
     
     if((mode & FRAME_BITS) || blockallframes)
@@ -6627,6 +6628,8 @@ int next_frame(Stimulus *st)
             {
                 if(!(TheStim->mode & EXPTPENDING && !states[EXPT_PAUSED]) && ++stimctr < expt.stimpertrial)
                     stimstate = PRESTIMULUS;
+                else if (states[ONE_TRIAL] && TheStim->fix.rt == 0 && expt.vals[POSTPERIOD_CODE] <=0)
+                    stimstate = STIMSTOPPED;
                 else{
                     stimstate = POSTPOSTSTIMULUS;
                     if (!(option2flag &AFC)) // don't mess with color before response
