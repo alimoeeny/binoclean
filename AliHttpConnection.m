@@ -14,6 +14,7 @@
 
 Expt expt;
 static NSMutableArray * inputPipeBuffer;
+NSString * outputPipeBuffer;
 BOOL dataReadyInInputPipe;
 
 
@@ -30,39 +31,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 
 - (BOOL)supportsMethod:(NSString *)method atPath:(NSString *)path
 {
-	HTTPLogTrace();
-
-	// Add support for POST
-    if ([method isEqualToString:@"GET"]) {
-        if (request.url){
-            if (request.url.pathComponents){
-                if ([request.url.pathComponents count]>1){
-                    //NSString * pq = [request.url.pathComponents[1] componentsSeparatedByString:@"="][1];
-                    NSString * command =request.url.pathComponents[1];
-                    NSLog(@"Request:%@", command);
-
-                    if (expt.verbose)
-                        NSLog(@"Input Pipe: %@", command);
-                    NSArray * sLines = [command componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r\n"]];
-                    for (int i = 0; i < [sLines count]; i++) {
-                        [inputPipeBuffer addObject:[sLines objectAtIndex:i]];
-                    }
-                    dataReadyInInputPipe = YES;
-                }
-            }
-        }
-    }
-	else if ([method isEqualToString:@"POST"])
-	{
-		if ([path isEqualToString:@"/post.html"])
-		{
-			// Let's be extra cautious, and make sure the upload isn't 5 gigs
-
-			return requestContentLength < 50;
-		}
-	}
-
-	return [super supportsMethod:method atPath:path];
+    return YES;
 }
 
 - (BOOL)expectsRequestBodyFromMethod:(NSString *)method atPath:(NSString *)path
@@ -79,40 +48,34 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path
 {
-	HTTPLogTrace();
-
-	if ([method isEqualToString:@"POST"] && [path isEqualToString:@"/post.html"])
-	{
-		HTTPLogVerbose(@"%@[%p]: postContentLength: %qu", THIS_FILE, self, requestContentLength);
-
-		NSString *postStr = nil;
-
-		NSData *postData = [request body];
-		if (postData)
-		{
-			postStr = [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding];
-		}
-
-		HTTPLogVerbose(@"%@[%p]: postStr: %@", THIS_FILE, self, postStr);
-
-		// Result will be of the form "answer=..."
-
-		int answer = [[postStr substringFromIndex:7] intValue];
-
-		NSData *response = nil;
-		if(answer == 10)
-		{
-			response = [@"<html><body>Correct<body></html>" dataUsingEncoding:NSUTF8StringEncoding];
-		}
-		else
-		{
-			response = [@"<html><body>Sorry - Try Again<body></html>" dataUsingEncoding:NSUTF8StringEncoding];
-		}
-
-		return [[HTTPDataResponse alloc] initWithData:response];
-	}
-
-	return [super httpResponseForMethod:method URI:path];
+    NSData *outputdata = [@"" dataUsingEncoding:NSASCIIStringEncoding];
+    if ([method isEqualToString:@"GET"]) {
+        if (request.url){
+            if (request.url.pathComponents){
+                if ([request.url.pathComponents count]>1){
+                    //NSString * pq = [request.url.pathComponents[1] componentsSeparatedByString:@"="][1];
+                    NSString * command =request.url.pathComponents[1];
+                    if (expt.verbose){
+                        NSLog(@"Input Pipe: %@", command);
+                    }
+                    NSArray * sLines = [command componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r\n"]];
+                    for (int i = 0; i < [sLines count]; i++) {
+                        if (strncmp([sLines objectAtIndex:i], "whatsup", 7) == 0){
+                            NSString * s = [NSString stringWithFormat:@"SENDING%06d\n%@", [outputPipeBuffer length], outputPipeBuffer];
+                            NSData *outputdata = [s dataUsingEncoding:NSASCIIStringEncoding];
+                            outputPipeBuffer = @"";
+                        }
+                        else{
+                            [inputPipeBuffer addObject:[sLines objectAtIndex:i]];
+                        }
+                    }
+                    dataReadyInInputPipe = YES;
+                }
+            }
+        }
+    }
+    return [[HTTPDataResponse alloc] initWithData:outputdata];
+    //	return [super httpResponseForMethod:method URI:path];
 }
 
 - (void)prepareForBodyWithSize:(UInt64)contentLength

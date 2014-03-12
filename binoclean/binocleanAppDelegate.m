@@ -33,6 +33,8 @@ MTRandom64 * randEngine;
 MTRandom64 * drandEngine;
 #endif
 
+const BOOL networkMode = YES;
+
 void quit_binoc()
 {
     [[NSApplication sharedApplication] terminate:nil];
@@ -101,6 +103,9 @@ void notifyPositionChange(int newPosition)
 
 void sendNotification()
 {
+    if (networkMode) {
+        //if in network mode do nothing here
+    }else{
     NSString * s = [NSString stringWithFormat:@"SENDING%06d\n", [outputPipeBuffer length]];
     //    WriteToOutputPipe(s);
     if ([outputPipeBuffer length]>0) {
@@ -110,7 +115,8 @@ void sendNotification()
         outputPipeBuffer = [[[NSString alloc] init] retain];
     }
     else
-        WriteToOutputPipe(s);        
+        WriteToOutputPipe(s);
+    }
 }
 
 void ReadInputPipe()
@@ -263,10 +269,9 @@ int  processUIEvents()
 //        DIOWrite(0xF);
     }
     
-    BOOL networkMode = YES;
     if (networkMode){
         httpServer = [[HTTPServer alloc] init];
-        [httpServer setPort:12345];
+        [httpServer setPort:1110];
         [httpServer setConnectionClass:[AliHttpConnection class]];
         // Serve files from our embedded Web folder
         NSString *webPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Web"];
