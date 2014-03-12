@@ -103,7 +103,7 @@ Expt expt;
 AFCstructure afc_s;
 struct BWSTRUCT thebwstruct;
 
-FILE *testfd = NULL,*logfd = NULL;
+FILE *testfd = NULL,*logfd = NULL,*netoutfile = NULL;
 char *logname;
 char *rcname = NULL;
 static    unsigned int first, last,bigfirst,biglast;
@@ -209,7 +209,7 @@ unsigned int mode = 0;
 int stmode = 0;
 static int oldmode = 0;
 int runmode = 1;
-int testmode = 4;
+int testmode = 1;
 static int maxloops = 0;
 static char *loadfiles[100] = {NULL};
 
@@ -223,9 +223,12 @@ void run_radial_test_loop();
 void run_swap_test_loop();
 void run_general_test_loop();
 void run_rds_test_loop();
+void run_grating_test_loop();
 void run_gabor_test_loop();
 void run_anticorrelated_test_loop();
 void set_test_loop();
+void run_polygon_test_loop();
+
 
 void expt_over(int flag);
 void end_timeout();
@@ -486,6 +489,13 @@ void initial_setup()
 	for(i = 0; i < MAXALLFLAGS; i++)
         optionflags[i] = defaultflags[i];
 	TheStim = NewStimulus(NULL);
+#ifdef Darwin
+    TheStim->aamode = AALINE;  //Default AntiAliasing mode
+#else
+    TheStim->aamode = AALINE;  //Default AntiAliasing mode
+#endif
+    
+
 	StimulusType(TheStim, STIM_GRATING);
     NewStimulus(TheStim);
     StimulusType(TheStim->next, STIM_NONE);
@@ -595,12 +605,16 @@ void initial_setup()
     gettimeofday(&now,NULL);
     ExptInit(&expt, TheStim, &mon);
 //ExptInit now sets up codesend and nfplaces from valstrings
-
+    
+//now can interpret lines from binoc.setup that require Expt to be initialized
     if((fd = fopen("/local/binoc.setup","r")) != NULL)
     {
 	    while(fgets(buf, BUFSIZ, fd) != NULL){
             if (strncmp(buf,"default:",8) ==NULL)
                 InterpretLine(&buf[8],&expt,3);
+            else if(!strncmp(buf,"monitor",7)){
+                InterpretLine(buf,&expt,3);
+            }
         }
     }
     
@@ -694,9 +708,6 @@ char **argv;
             else if(!strncmp(buf,"fullscreen",6) && s){
                 sscanf(++s,"%d",&fullscreenmode);
             }
-            else if(!strncmp(buf,"videocapture",8) && s){
-                sscanf(++s,"%f %f %f %f",&videocapture[0],&videocapture[1],&videocapture[2],&videocapture[3]);
-            }
             else if(!strncmp(buf,"tty1",4) && s){
                 sscanf(++s,"%s",theport);
             }
@@ -724,6 +735,10 @@ char **argv;
             else if(!strncmp(buf,"printcodes",9)){
                 PrintStates();
             }
+            else if(!strncmp(buf,"videocapture",7)){
+                InterpretLine(buf, &expt, 3);
+            }
+
 
 	    }
     }
@@ -2312,7 +2327,6 @@ int event_loop(float delay)
     }
     if(mode & TEST_PENDING)
     {
-        testmode = 4;
         if(testmode == 0){
             /*		      run_anticorrelated_test_loop();*/
             if(TheStim->type == STIM_RADIAL)
@@ -2326,6 +2340,8 @@ int event_loop(float delay)
             run_gabor_test_loop();
         else if(testmode == 1 || testmode == 3)
             run_rds_test_loop();
+        else if(testmode == 10)
+            run_grating_test_loop();
         else if (testmode == 4){
             for (i = 0; i < 20; i++){
                 //                  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -2346,7 +2362,12 @@ int event_loop(float delay)
             calc_stimulus(TheStim);
             glFinishRenderAPPLE();
         }
-
+        else if(testmode == 6 || testmode == 7 || testmode == 8 || testmode == 9)
+            run_polygon_test_loop();
+// Run tests just once then tell verg. Verg decides whether to repeat
+//Otherwise can freeze verg
+        mode &= (~TEST_PENDING);
+        notify("TESTOVER");
     }
     else
         next_frame(TheStim);
@@ -4972,7 +4993,8 @@ int change_frame()
         stimstate = POSTSTIMULUS;
 
     if (testflags[SAVE_IMAGES] ==10){ //save images of screen
-        SaveImage(expt.st,0);
+//        SaveImage(expt.st,0); // RE eye only
+        SaveImage(expt.st,1); //Both Eyes
     }
     
     if((mode & FRAME_BITS) || blockallframes)
@@ -5084,6 +5106,7 @@ float SetRandomPhase( Stimulus *st, Locator *pos)
             if (mode & FIRST_FRAME_BIT && optionflags[RANDOM_INITIAL_PHASE]){
                 iphase = (myrnd_i() %360);
                 pos->phase = (iphase * 2 * M_PI)/st->nphases;
+                iphase = 0; // for recording
             }
             else{
                 iphase = 2*(myrnd_i() %2)-1;
@@ -5091,6 +5114,7 @@ float SetRandomPhase( Stimulus *st, Locator *pos)
                 pos->phase += (st->incr * iphase);
                 pos->locn[0] += (st->posinc * iphase);
             }
+            iphase = (3+iphase)/2; //1,2 for recording dir changes, 0 = not called or first frame
         }
     }
     frameiseqp[expt.framesdone] = iphase;
@@ -5164,6 +5188,7 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         st->framectr++;
         return;
     }
+    st->framectr++;  //increment first called AFTER painting frame 0
     frame = expt.st->framectr;
     if(st->prev == NULL){
         if((i = (int)rint(expt.vals[FP_MOVE_FRAME])) > 0
@@ -5648,7 +5673,6 @@ void increment_stimulus(Stimulus *st, Locator *pos)
         fixpos[1] = deg2pix(dy);
         SerialSend(FIXPOS_XY);
     }
-    st->framectr++;
 }
 
 
@@ -5730,7 +5754,7 @@ void wipescreen(float color)
 void paint_frame(int type, int showfix)
 {
     struct timeval atime,btime,ctime;
-    float r = 0,tval;
+    float r = 0,tval,w;
     int frame = 0;
     
     gettimeofday(&atime, NULL);
@@ -5814,7 +5838,9 @@ void paint_frame(int type, int showfix)
     draw_conjpos(cmarker_size,PLOT_COLOR);
     if (optionflags[FEEDBACK] && expt.vals[SACCADE_AMPLITUDE] > 0 && !(option2flag & PSYCHOPHYSICS_BIT)){
         setmask(OVERLAY);
-        DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],2,2,RF_COLOR);
+        DrawBox(fixpos[0],fixpos[1],expt.fw*2,expt.vals[FIXWIN_HEIGHT]*2,RF_COLOR);
+        w = afc_s.sac_fix_crit;
+        DrawBox(fixpos[0]+afc_s.sacval[0],fixpos[1]+afc_s.sacval[1],w,w,RF_COLOR);
         r = fabs(afc_s.sacval[0])+fabs(afc_s.sacval[1]);
         DrawLine(fixpos[0]+r-0.5,fixpos[1]+r,fixpos[0]+r+0.5,fixpos[1]+r,RF_COLOR);
         if (afc_s.jstairval> 0)
@@ -6574,6 +6600,8 @@ int next_frame(Stimulus *st)
                 memcpy(&endstimtime, &now, sizeof(struct timeval));
                 stimstate = POSTSTIMULUS;
                 mode |= LAST_FRAME_BIT;
+                if (framesdone < expt.st->nframes)
+                    ShowTrialCount(0, -1);
             }
             else if(realframecount/mon.framerate > expt.vals[FIXATION_OVERLAP])
             {
@@ -6600,6 +6628,8 @@ int next_frame(Stimulus *st)
             {
                 if(!(TheStim->mode & EXPTPENDING && !states[EXPT_PAUSED]) && ++stimctr < expt.stimpertrial)
                     stimstate = PRESTIMULUS;
+                else if (states[ONE_TRIAL] && TheStim->fix.rt == 0 && expt.vals[POSTPERIOD_CODE] <=0)
+                    stimstate = STIMSTOPPED;
                 else{
                     stimstate = POSTPOSTSTIMULUS;
                     if (!(option2flag &AFC)) // don't mess with color before response
@@ -6853,6 +6883,8 @@ int next_frame(Stimulus *st)
                 fprintf(seroutfile,"#PostTrial, last %d stimno%d%c\n",laststate,stimno,exptchr);
                 fflush(seroutfile);
             }
+            if (netoutfile)
+                fflush(netoutfile);
             if(option2flag & AFC)
                 CountReps(stimno);
             if((option2flag & PSYCHOPHYSICS_BIT) || fixstate == BAD_FIXATION){
@@ -7041,8 +7073,10 @@ void expfront()
 
 void set_test_loop()
 {
-    if(mode & TEST_PENDING)
+    if(mode & TEST_PENDING){
         mode &= (~TEST_PENDING);
+        acknowledge("Testing OFF",NULL);
+    }
     else
         mode |= TEST_PENDING;
 }
@@ -7076,17 +7110,92 @@ void rotrect(vcoord *line, vcoord x, vcoord y)
 
 void aarotrect(vcoord *line, vcoord x, vcoord y)
 {
+    float adj =0.5;
+
+/*
+*elements of line relative to dot centre (x,y): 
+ 
+  2,3      14,15      4,5
+  
+  
+  10,11        x,y       12,13
+  
+  0,1       8,9         6,7
+
+*/
+    
+
     
     /*
      if(y+line[1] > winsiz[1] || y+line[1] < -winsiz[1])
      return;
      */
+    if (!(optionflag & ANTIALIAS_BIT)){
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+    }
+    else if (expt.st->aamode == AALINE){
+// On Reich, a single line gets AA at all sides. But Reich is also slower.....
+// On Varse, not so.
+        glVertex2f(x+line[10],y+line[11]); //line horizontal on scree = vertical aa
+        glVertex2f(x+line[12],y+line[13]);
+        glVertex2f(x+line[8],y+line[9]); // Do vertical line second to be sure of horizontal aa
+        glVertex2f(x+line[14],y+line[15]);
+    }
+    else if (expt.st->aamode == AAHLINE){
+        glVertex2f(x+line[10],y+line[11]); //line horizontal on scree = vertical aa
+        glVertex2f(x+line[12],y+line[13]);
+    }
+    else if (expt.st->aamode == AAVLINE){
+        glVertex2f(x+line[8],y+line[9]); // Do vertical line second to be sure of horizontal aa
+        glVertex2f(x+line[14],y+line[15]);
+    }
+    else if (expt.st->aamode == 5){
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+        glBegin(GL_LINES);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[6],y+line[7]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[2],y+line[3]);
+        glEnd();
+    }
+    else if (expt.st->aamode == 3){
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBegin(GL_POLYGON);
+        glVertex2f(x+line[0],y+line[1]);
+        glVertex2f(x+line[2],y+line[3]);
+        glVertex2f(x+line[4],y+line[5]);
+        glVertex2f(x+line[6],y+line[7]);
+        glEnd();
+    }
+    else{
     glBegin(GL_POLYGON);
     glVertex2f(x+line[0],y+line[1]);
     glVertex2f(x+line[2],y+line[3]);
     glVertex2f(x+line[4],y+line[5]);
     glVertex2f(x+line[6],y+line[7]);
     glEnd();
+    }
 }
 #ifdef Darwinoldelse
 void aarotrect(vcoord *line, vcoord x, vcoord y)
@@ -7133,26 +7242,552 @@ void inrect(vcoord llx, vcoord lly, vcoord urx, vcoord ury)
      */
 }
 
+void InitBlending(int polygon)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLineWidth(1.0);
+    if (polygon)
+        glEnable(GL_POLYGON_SMOOTH);
+    else
+        glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    if (polygon)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+
+void PaintDots(Substim *sst, float *rect, int mode)
+{
+    vcoord *x,*y,xp[2],dw,dh,w,h;
+    int i,j,fw,fh,ival,frame = 0,nframes = 72;;
+    int *p,d,*end;
+
+    x = sst->xpos;
+    y = sst->ypos;
+    p = sst->iim;
+    
+    for (i = 0; i < sst->ndots; i++)
+    {
+        if(*p & BLACKMODE)
+            glColor4f(0,0,0,1);
+        else if(*p & WHITEMODE)
+            glColor4f(1,1,1,1);
+        glBegin(GL_POLYGON);
+        glVertex2f(*x-rect[0],*y-rect[1]);
+        glVertex2f(*x-rect[0],*y+rect[1]);
+        glVertex2f(*x+rect[0],*y+rect[1]);
+        glVertex2f(*x+rect[0],*y-rect[1]);
+        glEnd();
+        x++,y++,p++;
+    }
+
+}
+
+
+void PaintRect(float x, float y, float w, float h)
+{
+    glBegin(GL_POLYGON);
+    glVertex2f(x-w,y-h);
+//    glVertex2f(x-w,y+h);
+    glVertex2f(x+w,y+h);
+    glVertex2f(x+w,y-h);
+    glEnd();
+    
+}
+
+void PaintTri(float x, float y, float w, float h)
+{
+    glBegin(GL_POLYGON);
+    glVertex2f(x-w,y-h);
+    glVertex2f(x+w,y+h);
+    glVertex2f(x+w,y-h);
+    glEnd();
+    glBegin(GL_POLYGON);
+    glVertex2f(x-w,y-h);
+    glVertex2f(x-w,y+h);
+    glVertex2f(x+w,y+h);
+    glEnd();
+}
+
+void PaintQuad(float x, float y, float w, float h)
+{
+    glBegin(GL_QUADS);
+    glVertex2f(x-w,y-h);
+    glVertex2f(x-w,y+h);
+    glVertex2f(x+w,y+h);
+    glVertex2f(x+w,y-h);
+    glEnd();
+    
+}
+
+void PaintRectLine(float x, float y, float w, float h)
+{
+    glBegin(GL_LINES);
+    glVertex2f(x,y-h);
+    glVertex2f(x,y+h);
+    glEnd();
+}
+
+void run_polygon_test_loop()
+{
+    int nframes = 60, frame;
+    float vcolor[4],fixw,bcolor[4];
+    float val,angle,x[10];
+    vcoord rect[8],crect[4],dx=0;
+    double sina,cosa= 1,o;
+    char c;
+    int ncalls[4];
+    static int called = 0;
+    
+    
+    called++;
+    
+    x[0] = 0.1 * (called % 10);
+    x[1] = 0.1 * (called % 10);
+    vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
+    
+    x[0] = 0.001;
+    if (testmode ==7 ) //simple translation of polygon to explore jumping
+    {
+// called == 8 or 7 gives trouble here.
+        
+        x[1] = 0.0;
+// if x[1] >0.5, then get displacement for x[0] just > 0
+        nframes=200;
+        glLineWidth(1);
+        for(frame = 0; frame < nframes; frame++){
+            setmask(ALLPLANES);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            mycolor(bcolor);
+            PaintRectLine(x[0],x[1],5,5);
+            PaintRectLine(x[0],x[1]+0.6,2,2);
+            PaintRectLine(x[0],x[1]+8.6,2,2);
+            PaintRectLine(x[0],x[1]+16.9,2,2);
+            glSwapAPPLE();
+            mycolor(bcolor);
+            x[0] = x[0]+0.008;
+        }
+                mode &= (~TEST_PENDING);
+        return;
+    }
+    if (testmode == 8) //simple translation of polygon to explore jumping
+    {
+        // called == 8 or 7 gives trouble here.
+        
+        x[1] = 0.0;
+        // if x[1] >0.5, then get displacement for x[0] just > 0
+        nframes=200;
+        glLineWidth(3);
+        for(frame = 0; frame < nframes; frame++){
+            setmask(ALLPLANES);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            mycolor(bcolor);
+            PaintRect(x[0],x[1],3,3);
+            PaintTri(x[0],x[1]+10.6,3,3);
+            PaintQuad(x[0],x[1]+20.9,3,3);
+            glSwapAPPLE();
+            mycolor(bcolor);
+            x[0] = x[0]+0.008;
+        }
+        mode &= (~TEST_PENDING);
+        return;
+    }
+    
+
+    if (testmode == 9 ) //simple translation of polygon to explore jumping
+    {
+        // called == 8 or 7 gives trouble here.
+        
+        x[1] = 0.0;
+        // if x[1] >0.5, then get displacement for x[0] just > 0
+        nframes=200;
+        glLineWidth(3);
+        for(frame = 0; frame < nframes; frame++){
+            setmask(ALLPLANES);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            mycolor(bcolor);
+            PaintRectLine(x[0],x[1],2,2);
+            PaintRectLine(x[0],x[1]+8.6,2,2);
+            PaintRectLine(x[0],x[1]+16.9,2,2);
+            glSwapAPPLE();
+            mycolor(bcolor);
+            x[0] = x[0]+0.008;
+        }
+        mode &= (~TEST_PENDING);
+        return;
+    }
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){  // Polygon AA
+// This does not work on Reich Jan 2014.
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // LINE AA then polygon
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // polygon then line AA
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        mycolor(vcolor);
+        PaintRect(x[0],x[0],50,50);
+        mycolor(bcolor);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // polygon then line AA
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[0],x[0],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[0],x[0],50,50);
+
+        mycolor(bcolor);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(frame = 0; frame < nframes; frame++){ // polygon then line AA
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_POLYGON_SMOOTH);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        mycolor(vcolor);
+        
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[0],x[0],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[0],x[0],50,50);
+        
+        mycolor(bcolor);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        PaintRect(x[1],x[1],50,50);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        PaintRect(x[1],x[1],50,50);
+        glSwapAPPLE();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void run_grating_test_loop()
+{
+    int i,j,fw,fh,ival,frame = 0,nframes = 72;;
+    int d,*end;
+    float *p,*q;
+    vcoord x[2],*y,xp[2],dw,dh,w,h;
+    Locator *pos = &TheStim->pos;
+    char cbuf[BUFSIZ];
+    Stimulus *st;
+    int shift = pos->xy[1];
+    float vcolor[4],fixw,bcolor[4];
+    Substim *gb = TheStim->left;
+    Substim *sst = TheStim->left;
+    float val,angle;
+    vcoord rect[8],crect[4],dx=0,z[2];
+    double sina,cosa= 1,o;
+    char c;
+    int ncalls[4];
+    
+    vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
+    st = TheStim;
+
+    glDrawBuffer(GL_BACK);
+    gettimeofday(&timeb,NULL);
+    glClearAccum(0.5, 0.5, 0.5, 0.5);
+    glClearColor(0.5, 0.5, 0.5, 0.5);
+    calc_grating(st, st->left, 0);
+    glPushMatrix();
+    glTranslatef(0,0.0,0);
+
+    glRotatef(pos->angle * 180/M_PI,0.0,0.0,1.0);
+    for(frame = 0; frame < nframes; frame++){
+        xp[0] = st->pos.xy[0];
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glLineWidth(1.1);
+        
+        q = p = sst->im;
+        glBegin(GL_LINES);
+        x[0] = z[0] = 0;
+        x[1] = z[1] = -pos->radius[1];
+        vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = *q;
+        p++;
+        glColor4f(vcolor[0],vcolor[1],vcolor[2], vcolor[3]);
+        myvx(x);
+        myvx(x);
+        x[0] = pos->radius[0];
+            z[0] = -x[0];
+            for(i = 0; i < pos->size[1]; i++)
+            {
+                x[1] = (i - pos->size[1]/2) * pos->ss[1];
+                z[1] = x[1];
+                glColor4f(*p,*p,*p,*p);
+                myvx(x);
+                myvx(z);
+                if(*p > 1 || *p == last)
+                    last = 0;
+                last = *p;
+                p++;
+            }
+        glEnd();
+        glFinishRenderAPPLE();
+        glSwapAPPLE();
+    }
+
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glEnable(GL_POLYGON_SMOOTH);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    for(frame = 0; frame < nframes; frame++){
+        xp[0] = st->pos.xy[0];
+        if (frame < 3) // clear initiall, then see if repeat paints change
+            glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glLineWidth(1.0);
+        
+        q = p = sst->im;
+        glBegin(GL_LINES);
+        x[0] = z[0] = 0;
+        x[1] = z[1] = -pos->radius[1];
+        vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = *q;
+        p++;
+        glColor4f(vcolor[0],vcolor[1],vcolor[2], vcolor[3]);
+        myvx(x);
+        myvx(x);
+        x[0] = pos->radius[0];
+        z[0] = -x[0];
+        for(i = 0; i < pos->size[1]; i++)
+        {
+            x[1] = (i - pos->size[1]/2) * pos->ss[1];
+//            x[1] = x[1]/2;  //Try halvingline spacing
+            z[1] = x[1];
+            glColor4f(*p,*p,*p,1.0);
+            myvx(x);
+            myvx(z);
+            if(*p > 1 || *p == last)
+                last = 0;
+            last = *p;
+            p++;
+        }
+        glEnd();
+        glFinishRenderAPPLE();
+        glSwapAPPLE();
+    }
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glEnable(GL_POLYGON_SMOOTH);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glLineWidth(1.0);
+    glColor4f(1.0,1.0,1.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    x[0] = -100;
+    x[1] = 0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    x[0] = -100;
+    x[1] = 0.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glColor4f(0.0,0.0,0.0,1.0);
+
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+
+    glColor4f(1.0,1.0,1.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINES);
+    x[0] = -100;
+    x[1] = 0.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+
+    
+    glClear(GL_COLOR_BUFFER_BIT);
+    for(i = 0; i < nframes; i++){
+    glBegin(GL_LINES);
+        glColor4f(1.0,1.0,1.0,1.0);
+
+    x[0] = -100;
+    x[1] = 0.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    
+    x[0] = -100;
+    x[1] = 1;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    glColor4f(0.0,0.0,0.0,1.0);
+    
+    x[0] = -100;
+    x[1] = 2.0;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+    
+    x[0] = -100;
+    x[1] = 3;
+    myvx(x);
+    x[0] = 100;
+    myvx(x);
+        glColor4f(1.0,1.0,1.0,1.0);
+        
+        x[0] = -100;
+        x[1] = 4.0;
+        myvx(x);
+        x[0] = 100;
+        myvx(x);
+        
+        x[0] = -100;
+        x[1] = 5;
+        myvx(x);
+        x[0] = 100;
+        myvx(x);
+        
+    glEnd();
+    glFinishRenderAPPLE();
+    glSwapAPPLE();
+    }
+        glPopMatrix();
+        mode &= (~TEST_PENDING);
+    }
+
 
 void run_rds_test_loop()
 {
-    int i,j,fw,fh,ival,frame = 0;
+    int i,j,fw,fh,ival,frame = 0,nframes = 72;;
     int *p,d,*end;
     vcoord *x,*y,xp[2],dw,dh,w,h;
     Locator *pos = &TheStim->pos;
     char cbuf[BUFSIZ];
     Stimulus *st;
     int shift = pos->xy[1];
-    float vcolor[4],fixw;
+    float vcolor[4],fixw,bcolor[4];
     Substim *gb = TheStim->left;
     Substim *sst = TheStim->left;
     float val,angle;
-    vcoord rect[8],crect[4];
-    double sina,cosa,o;
+    vcoord rect[8],crect[4],dx=0;
+    double sina,cosa= 1,o;
     char c;
     int ncalls[4];
     
     vcolor[0] = vcolor[1] = vcolor[2] = vcolor[3] = 1.0;
+    bcolor[0] = bcolor[1] = bcolor[2] = bcolor[0] = 0.0;
     st = TheStim;
     x = sst->xpos;
     y = sst->ypos;
@@ -7176,6 +7811,171 @@ void run_rds_test_loop()
     
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth(1.0);
+#define ACSIZE 8
+    
+    w = sst->dotsiz[0]/2;
+    h = sst->dotsiz[1]/2;
+    rect[0] = -w * cosa - h * sina; //-w,-h
+    rect[1] = -h * cosa + w * sina;
+    rect[2] = -w * cosa + h * sina;
+    rect[3] = h * cosa + w * sina;
+    
+    if(testmode == 1){
+        glDrawBuffer(GL_BACK);
+        gettimeofday(&timeb,NULL);
+        glDrawBuffer(GL_FRONT);
+        glClearAccum(0.5, 0.5, 0.5, 0.5);
+        glClearColor(0.5, 0.5, 0.5, 0.5);
+        calc_rds(st, st->left);
+        for(frame = 0; frame < nframes; frame++){
+            glClear(GL_ACCUM_BUFFER_BIT);
+            xp[0] = st->pos.xy[0];
+            glDisable(GL_LINE_SMOOTH);
+            glDisable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        for (i = 0; i < ACSIZE; i++){
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            x = sst->xpos;
+            y = sst->ypos;
+            p = sst->iim;
+            dx = (float)(i)/16;
+            for (j = 0; j < sst->ndots; j++)
+            {
+                if(*p & BLACKMODE)
+                    glColor4f(0,0,0,1);
+                else if(*p & WHITEMODE)
+                    glColor4f(1,1,1,1);
+                glBegin(GL_POLYGON);
+                glVertex2f(*x-rect[0]+dx,*y-rect[1]);
+                glVertex2f(*x-rect[0]+dx,*y+rect[1]);
+                glVertex2f(*x+rect[0]+dx,*y+rect[1]);
+                glVertex2f(*x+rect[0]+dx,*y-rect[1]);
+                glEnd();
+                x++,y++,p++;
+            }
+            glAccum(GL_ACCUM, 1.0/ACSIZE);
+        }
+            st->pos.xy[0] = xp[0];
+        glAccum (GL_RETURN, 1.0);
+            glFinish();
+            glFinishRenderAPPLE();
+//            glSwapAPPLE();
+        }
+        
+        gettimeofday(&now,NULL);
+        val = timediff(&now,&timeb);
+        printf("Acculm %d frames took %.3f\n",nframes,val);
+        gettimeofday(&timeb,NULL);
+        glDrawBuffer(GL_BACK);
+
+
+        for(frame = 0; frame < nframes; frame++){
+            InitBlending(0); // line AA
+            PaintDots(sst, rect, 1);
+
+            glDisable(GL_LINE_SMOOTH);
+            glDisable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            PaintDots(sst, rect, 1);
+
+            glFinishRenderAPPLE();
+            glSwapAPPLE();
+        }
+        gettimeofday(&now,NULL);
+        val = timediff(&now,&timeb);
+        printf("Line Blend %d frames took %.3f\n",nframes,val);
+        gettimeofday(&timeb,NULL);
+
+        for(frame = 0; frame < nframes; frame++){
+            InitBlending(1); // polygon AA
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            PaintDots(sst, rect, 1);
+            glFinishRenderAPPLE();
+            glSwapAPPLE();
+        }
+        gettimeofday(&now,NULL);
+        val = timediff(&now,&timeb);
+        printf("Polygon Blend %d frames took %.3f\n",nframes,val);
+        gettimeofday(&timeb,NULL);
+
+        
+        for(frame = 0; frame < 72; frame++){
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glLineWidth(1.0);
+            glDisable(GL_POLYGON_SMOOTH);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            x = sst->xpos;
+            y = sst->ypos;
+            p = sst->iim;
+            
+            for (i = 0; i < sst->ndots; i++)
+            {
+                if(*p & BLACKMODE)
+                    glColor4f(0,0,0,1);
+                else if(*p & WHITEMODE)
+                    glColor4f(1,1,1,1);
+                glEnable(GL_BLEND);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glBegin(GL_POLYGON);
+                glVertex2f(*x-rect[0],*y-rect[1]);
+                glVertex2f(*x-rect[0],*y+rect[1]);
+                glVertex2f(*x+rect[0],*y+rect[1]);
+                glVertex2f(*x+rect[0],*y-rect[1]);
+                glEnd();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glBegin(GL_POLYGON);
+                glVertex2f(*x-rect[0],*y-rect[1]);
+                glVertex2f(*x-rect[0],*y+rect[1]);
+                glVertex2f(*x+rect[0],*y+rect[1]);
+                glVertex2f(*x+rect[0],*y-rect[1]);
+                glEnd();
+                x++,y++,p++;
+            }
+            glFinishRenderAPPLE();
+            glSwapAPPLE();
+        }
+        gettimeofday(&now,NULL);
+        val = timediff(&now,&timeb);
+        printf("Blend Each Dot %d frames took %.3f\n",nframes,val);
+
+        for(frame = 0; frame < 72; frame++){
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_POLYGON_SMOOTH);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            mycolor(vcolor);
+            glBegin(GL_POLYGON);
+            glVertex2f(50,50);
+            glVertex2f(50,100);
+            glVertex2f(100,100);
+            glVertex2f(100,50);
+            glEnd();
+            if (1){
+                mycolor(bcolor);
+                glBegin(GL_POLYGON);
+                glVertex2f(75.5,50);
+                glVertex2f(75.5,100);
+                glVertex2f(125.5,100);
+                glVertex2f(125.5,50);
+                glEnd();
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+            glSwapAPPLE();
+        }
+                mode &= (~TEST_PENDING);
+        return;
+    }
     if(testmode == 3){
         for(frame = 0; frame < 72; frame++){
             testcalc_rds(st->next,st->next->left, testmode);
@@ -7188,6 +7988,7 @@ void run_rds_test_loop()
             paint_stimulus(st,1);
             //AliGLX	mySwapBuffers();
         }
+                mode &= (~TEST_PENDING);
         return;
     }
     
@@ -7712,6 +8513,10 @@ float StimulusProperty(Stimulus *st, int code)
 	double cosa,sina;
 	OneStim *psine;
 	Substim *rds;
+    int icode = -1;
+    
+    if (code < MAXTOTALCODES && valstringindex[code] >=0)
+        icode = valstringindex[code];
     
 	rds = st->left;
 	switch(code)
@@ -7931,6 +8736,8 @@ float StimulusProperty(Stimulus *st, int code)
         case JNUMDOTS:
             if(st->type == STIM_CYLINDER)
                 value = stimptr->left->ptr->numdots;
+            else
+                value = stimptr->left->ndots;
             break;
         case JLIFEFRAMES:
             value = stimptr->left->ptr->lifeframes;
@@ -8502,7 +9309,10 @@ float StimulusProperty(Stimulus *st, int code)
             value = avglen;
             break;
         default:
-            value = NOTSET;
+            if (icode > -1 && valstrings[icode].ctype != 'C')
+                value = expt.vals[code];
+            else
+                value = NOTSET;
             break;
 	}
 	return(value);
@@ -8598,7 +9408,7 @@ int BackupStimFile()
     
     sprintf(cbuf,"./lean%d.stm",i);
     SaveExptFile(cbuf,SAVE_STATE);
-    ctr = (ctr+1)%16;
+    ctr = (ctr+1)%128;
     return(i);
 }
 
@@ -8705,7 +9515,7 @@ void SaveExptFile(char *filename,int flag)
         
 		if(optionflag & CLAMP_HOLD_BIT)
 			optionflag |= CLAMP_EXPT_BIT;
-		for(i = LAST_STIMULUS_CODE; i < MAXSAVECODES; i++)
+		for(i = LAST_STIMULUS_CODE; i < MAXTOTALCODES; i++)
 		{
 			cbuf[0] = '=';
 			cbuf[1] = 0;
@@ -8716,65 +9526,23 @@ void SaveExptFile(char *filename,int flag)
                 s = serial_strings[i];
 			if((j = MakeString(i, cbuf, &expt, TheStim,TO_FILE)) >= 0 && use){
                 switch(i){
-                        
-                        
-                        /* 
-                         * for some parameters, intended as convenienve options online,
-                         * it is best not to save them to the file
-                         * as loading them up just causes trouble
-                         */
-                    case STIM_SIZE:
-                    case BACK_SIZE:
-                    case QUERY_STATE:
-                    case CONTRAST_LEFT:
-                    case CONTRAST_RIGHT:
-                    case SF_LEFT:
-                    case SF_RIGHT:
-                    case WIDTH_L:
-                    case WIDTH_R:
-                    case HEIGHT_L:
-                    case HEIGHT_R:
-                    case CONTRAST_PAIRS:
-                    case SEND_CLEAR:
-                    case SD_BOTH:
-                    case FB_RELATIVE_CONTRAST:
-                    case DISP_A:
-                    case DISP_B:
-                    case STIM_POLARANGLE:
-                    case STIM_ECCENTRICITY:
-                    case ORTHOG_POSR:
-                    case ORTHOG_POSL:
-                    case INITIAL_MOVEMENT:
-                    case INITIAL_DURATION:
-                        go = 0;
-                        break;
                     case SACCADE_DETECTED:
                         if(flag == SAVE_STATE)
                             go = 1;
                         else
                             go = 0;
                         break;
+                    case JUMP_SF_COMPONENTS:
+                    case SET_TF_COMPONENTS:
+                    case SET_SF_COMPONENTS:
+                    case SET_SF_CONTRASTS:
                     case PHASE_AS_DISP:
                         if(expt.st->type == STIM_GRATINGN)
                             go = 1;
                         else
                             go = 0;
                         break;
-                    case PENETRATION_TEXT:
-                    case PENXPOS:
-                    case PENYPOS:
-                    case PENNUMCOUNTER:
-                    case VWHERE:
-                    case GOODTRIALS:
-                    case ORTHOG_POS:
-                    case PARA_POS:
-                    case BADTRIALS:
-                    case RELDISP:
-                        if(flag == SAVE_STATE)
-                            go = 1;
-                        else
-                            go = 0;
-                        break;
+
                         /*
                          * This list NOT save in QuckExpts. Might want to change these during
                          * course of expt
@@ -8806,7 +9574,12 @@ void SaveExptFile(char *filename,int flag)
                             go = 0;
                         break;
                     default:
-                        go = 1;
+                        if (valstrings[code].codesave == SEND_NEVER)
+                            go = 0;
+                        else if (flag != SAVE_STATE && valstrings[code].codesave == SAVE_STATE)
+                            go = 0;
+                        else
+                            go = 1;
                         break;
                         
                 }
@@ -9157,6 +9930,18 @@ double  RunTime(void )
     return(t);
     
 }
+
+
+int PrintTrialResult(FILE *fd, char result)
+{
+    if (fd != NULL){
+        fprintf(fd,"R%c %s=%.5f %s=%.5f se=%d se=%d id=%d bt=%.3f\n",
+                result,serial_strings[expt.mode],expt.currentval[0],
+                serial_strings[expt.type2],expt.currentval[1],
+                expt.st->left->baseseed,expt.st->firstseed, expt.allstimid,ufftime(&now));
+    }
+}
+
 
 int PrintPsychLine(int presult, int sign)
 {
@@ -9645,6 +10430,7 @@ int GotChar(char c)
                     fprintf(seroutfile,"\n");
                     fflush(seroutfile);
                 }
+                PrintTrialResult(netoutfile, result);
                 /*
                  * if the monkey makes a bad saccade after the stimulus is done,
                  * or a late saccade, need to re-run that stimulus. This is taken

@@ -1398,14 +1398,14 @@ void paint_rds(Stimulus *st, int mode)
 {
   int i;
   int *p,d,*end;
-  vcoord  w,h,*x,*y,fw,fh,r;
+  vcoord  w,h,*x,*y,fw,fh,r,lw;
   short pt[2];
   float vcolor[4], bcolor[4];
   vcoord xmv;
   Substim *sst = st->left;
   Locator *pos = &st->pos;
-  float angle,cosa,sina;
-  vcoord rect[8],crect[8];
+  float angle,cosa,sina,adj=1.5;
+  vcoord rect[20],crect[8];
     
     
   angle = rad_deg(pos->angle);
@@ -1446,8 +1446,7 @@ void paint_rds(Stimulus *st, int mode)
   h = sst->dotsiz[1]/2;
   fw = sst->dotsiz[0];
   fh = sst->dotsiz[1];
-    
-  h = h - 0.5;
+  lw = w;
     
   cosa = cos(pos->angle);
   sina = sin(pos->angle);
@@ -1457,6 +1456,24 @@ void paint_rds(Stimulus *st, int mode)
     //    h = h-0.5;
   }
 #endif
+// Drawing and AA line around the edge effecitvely increases dot size by 1 pixel
+// so adjust here.
+    if(optionflag & ANTIALIAS_BIT){
+        if (st->aamode == AALINE || st->aamode == AAVLINE || st->aamode == AAHLINE){ // AA is only at sides
+            h = h - 0.5;
+            w = w - 0.5;
+            if( w < 0.5)
+                w = 0.5;
+            if( h < 0.5)
+                h = 0.5;
+            adj = 0;
+        }
+        else if (st->aamode == AAPOLYGON_AND_LINE){
+            h = h - 0.5;
+            w = w - 0.5;
+        }
+            
+    }
     
   rect[0] = -w * cosa - h * sina; //-w,-h
   rect[1] = -h * cosa + w * sina;
@@ -1466,6 +1483,7 @@ void paint_rds(Stimulus *st, int mode)
   rect[5] = h * cosa - w * sina;
   rect[6] = w * cosa - h * sina;
   rect[7] = -h * cosa - w * sina;
+    
     rect[0] = -w * cosa - h * sina; //-w,-h
     rect[1] = -h * cosa + w * sina;
     rect[2] = -w * cosa + h * sina; //-w,h
@@ -1474,10 +1492,28 @@ void paint_rds(Stimulus *st, int mode)
     rect[5] = h * cosa - w * sina;
     rect[6] = w * cosa - h * sina; //w,-h
     rect[7] = -h * cosa - w * sina;
+    
+    rect[8] = (rect[0]+rect[6])/2;
+    rect[9] = (rect[1]+rect[7])/2;
+    rect[10] = (rect[0]+rect[2])/2;
+    rect[11] = (rect[1]+rect[3])/2;
+    rect[12] = (rect[4]+rect[6])/2;
+    rect[13] = (rect[5]+rect[7])/2;
+    rect[14] = (rect[2]+rect[4])/2;
+    rect[15] = (rect[3]+rect[5])/2;
+
+    
   crect[0] = -h * sina;
   crect[1] = -h * cosa;
   crect[2] = h * sina;
   crect[3] = h * cosa;
+    
+    if (st->aamode ==4){
+        rect[0] = -(w-adj) * cosa - (h-adj) * sina; //-w,-h
+        rect[1] = -(h-adj) * cosa + (w-adj) * sina;
+        rect[6] = (w-adj) * cosa - (h-adj) * sina;
+        rect[7] = -(h-adj) * cosa - (w-adj) * sina;
+    }
   h = h+0.5;
   p = sst->iim;
   end = (sst->iim+sst->ndots);
@@ -1494,16 +1530,84 @@ void paint_rds(Stimulus *st, int mode)
     {
       if(optionflag & ANTIALIAS_BIT)
         {
-	  if(w < 1)
-	    glLineWidth(1.0);
-	  else
-	    glLineWidth(w*2);
+            if(st->aamode == AAPOLYLINE){ //Line Blending then polygon
+                glLineWidth(1.0);
+                glEnable(GL_POLYGON_SMOOTH);
+                glEnable(GL_LINE_SMOOTH);
+                glEnable(GL_BLEND);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDisable(GL_DEPTH_TEST);
+                glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                i = 0;
+                for(;p < end; p++,x++,y++)
+                {
+                    if(*p & BLACKMODE)
+                        mycolor(vcolor);
+                    else if(*p & WHITEMODE)
+                        mycolor(bcolor);
+                    if(*p & mode)
+                        aarotrect(rect, *x,*y);
+                }
+
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glDisable(GL_POLYGON_SMOOTH);
+                p = sst->iim;
+                end = (sst->iim+sst->ndots);
+                x = sst->xpos;
+                y = sst->ypos;
+                for(;p < end; p++,x++,y++)
+                {
+                    if(*p & BLACKMODE)
+                        mycolor(vcolor);
+                    else if(*p & WHITEMODE)
+                        mycolor(bcolor);
+                    if(*p & mode)
+                        aarotrect(rect, *x,*y);
+                }
+            }
+        else if(st->aamode == AAPOLYGON){ //use polygon smoothing
             glLineWidth(1.0);
             glEnable(GL_POLYGON_SMOOTH);
             glEnable(GL_LINE_SMOOTH);
             glEnable(GL_BLEND);
-                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            i = 0;
+            for(;p < end; p++,x++,y++)
+            {
+                if(*p & BLACKMODE)
+                    mycolor(vcolor);
+                else if(*p & WHITEMODE)
+                    mycolor(bcolor);
+                if(*p & mode)
+                    aarotrect(rect, *x,*y);
+            }
+        }
+        else if(st->aamode == AAPOLYGON){ //use polygon smoothing
+            glLineWidth(1.0);
+            glEnable(GL_POLYGON_SMOOTH);
+            glEnable(GL_LINE_SMOOTH);
+            glEnable(GL_BLEND);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDisable(GL_DEPTH_TEST);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            i = 0;
+            for(;p < end; p++,x++,y++)
+            {
+                if(*p & BLACKMODE)
+                    mycolor(vcolor);
+                else if(*p & WHITEMODE)
+                    mycolor(bcolor);
+                if(*p & mode)
+                    aarotrect(rect, *x,*y);
+            }
+        }
+        else if(st->aamode == AAPOLYGON_AND_LINE){ //Try stuff - polygon + gl_lines so no mode change
+            glLineWidth(1.0);
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glEnable(GL_BLEND);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             i = 0;
             for(;p < end; p++,x++,y++)
@@ -1512,14 +1616,18 @@ void paint_rds(Stimulus *st, int mode)
                     mycolor(vcolor);      
                 else if(*p & WHITEMODE)
                     mycolor(bcolor);
-                if(*p & mode)
+                if(*p & mode){
                     aarotrect(rect, *x,*y);
+                }
             }
         }
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#ifdef Darwinoldelse // was else after #ifdef Darwinaabgc
-	  glLineWidth(1.0);
+        else if(st->aamode == AALINE || st->aamode == AAHLINE || st->aamode == AAVLINE){ //use thick line;
+            if(lw < 0.5)
+                glLineWidth(1.0);
+            else
+                glLineWidth(lw*2);
             glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
             glEnable(GL_BLEND);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBegin(GL_LINES);
@@ -1527,34 +1635,29 @@ void paint_rds(Stimulus *st, int mode)
             for(;p < end; p++,x++,y++)
             {
                 if(*p & BLACKMODE)
-                    mycolor(vcolor);      
+                    mycolor(vcolor);
                 else if(*p & WHITEMODE)
                     mycolor(bcolor);
-                if(*p & mode)
-                    aarotrect(rect, *x,*y);
+                if(*p & mode){
+                    aarotrect(rect,*x,*y);
+                }
             }
             glEnd();
         }
-#endif
+        
       p = sst->iim;
       x = sst->xpos;
       y = sst->ypos;
       glDisable(GL_BLEND);
       glDisable(GL_LINE_SMOOTH);
-          glDisable(GL_POLYGON_SMOOTH);
+      glDisable(GL_POLYGON_SMOOTH);
+        }
+  else {
       if(w < 0.5)
-	glLineWidth(1.0);
+          glLineWidth(1.0);
       else
-	glLineWidth(w*2);
-        
-      /*
-       * on the mac, the antialised lines do it all in one step, so only need
-       * to do this if antialiasing is off. On SG need both
-       * For macmins+Lion+binoclean, need both atagin
-       */
-      if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
-          glBegin(GL_LINES);
-          
+          glLineWidth(w*2);
+         glBegin(GL_LINES);
           i = 0;
           for(;p < end; p++,x++,y++)
           {
@@ -1568,35 +1671,15 @@ void paint_rds(Stimulus *st, int mode)
           if(optionflag & TEST_BIT)
               rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
           glEnd();
-      }
-#ifdef Darwinoldelse
-	if(1 || ~optionflag & ANTIALIAS_BIT){ // turn off 1 to debug antialiasing
-        glBegin(GL_LINES);
-        
-        i = 0;
-        for(;p < end; p++,x++,y++)
-	    {
-            if(*p & BLACKMODE)
-                mycolor(vcolor);      
-            else if(*p & WHITEMODE)
-                mycolor(bcolor);
-            r = *x * *x + *y + *y;
-            if(*p & mode)
-                rotrect(crect,*x,*y);
-            else
-                r = *x * *x + *y + *y;
-            
-	    }
-        if(optionflag & TEST_BIT)
-            rotrect(crect,expt.vals[TEST_VALUE1],expt.vals[TEST_VALUE2]);
-        glEnd();
+  }
     }
-#endif
-                            
-      }
-      glPopMatrix();
-    }
+
+     glPopMatrix();
+}
     
+
+
+
   void paint_rds_check(Stimulus *st, Substim *sst)
   {
     int *p,*end,i,j,k  = 0;

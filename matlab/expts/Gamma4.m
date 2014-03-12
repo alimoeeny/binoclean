@@ -80,10 +80,15 @@ fprintf(fid,'nc=%d\n',ncs(j));
 fprintf(fid,'or=0\n',ncs(j));
 fprintf(fid,'co=1\n',ncs(j));
 fprintf(fid,'jv=%.1f\n',speed);
-if j > 3
+if j > 4
     fprintf(fid,'sl=1\n');
     fprintf(fid,'sM=29\n');
     fprintf(fid,'Dr=1\n');
+elseif j ==4
+    fprintf(fid,'sl=1\n');
+    fprintf(fid,'sM=0\n');
+    fprintf(fid,'Dr=1\n');
+    fprintf(fid,'nph=1\n');
 elseif j ==3
     fprintf(fid,'sl=1\n');
     fprintf(fid,'sM=30\n');

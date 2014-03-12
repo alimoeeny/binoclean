@@ -231,9 +231,9 @@ float pix2degy(float val);
 #define RANDOM_ONOFF_LOG 7
 #define INDEP_ONOFF 8
 #define INDEP_ONOFF_LOG 9
-#define BINOC_INDEP_ONOFF_LOG 10
-#define THREE_CONTRAST_LEVEL 11
-#define BINOC_INDEP_ONOFF 12
+#define BINOC_INDEP_ONOFF 10  //order of 10,11,12 shifted Jan 2014
+#define BINOC_INDEP_ONOFF_LOG 11
+#define THREE_CONTRAST_LEVEL 12
 //for RLS
 #define WHITENOISE16 5   //16 levels of grey
 //for grating subspace expts
@@ -252,7 +252,7 @@ float pix2degy(float val);
 #define RDSRLSSETSL 25
 #define BUTTSEXPT 26
 #define IMAGETRIALMIX 27
-#define MANUAL_STIM_SEQ 28
+
 #define RLS_TERMINATOR 29
 #define RLS_HIGHPASS 30
 
@@ -674,6 +674,16 @@ long rnd_i(void);
 #define ControlMask 2
 #define AltMask 4
 #define InExptChar  ((expt.st->mode & EXPTPENDING) ? '@' : ' ')
+
+//Antialiasing modes
+#define AAPOLYLINE 1 //Polygon with AA line (all) then interior (all)
+#define AAPOLYGON 2 // use POLYGON_SMOOTH. Correct but get diagonal artifact
+#define AABOTH 3 //paint line then polygon for each polygon.
+#define AALINE 4  // two thick lines
+#define AAPOLYGON_AND_LINE 5  //Polygon then GL_LINES - no switching of mode
+#define AAHLINE 6  // Thick horizontal line
+#define AAVLINE 7  // Old Irix method with single thick line. :(
+#define AATEST 8
 
 #ifndef WindowEventdefined 
 

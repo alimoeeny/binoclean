@@ -655,6 +655,8 @@ void calc_rls(Stimulus *st, Substim *sst)
     
     if(maxconsec > 0){
         p = sst->iim;
+        lastq = *(p+sst->ndots-1)  & (WHITEMODE | BLACKMODE);
+        nbit = 0;
         for(i = 0; i < sst->ndots; i++){
             lastp = (*p & (WHITEMODE | BLACKMODE));
             if (lastp == lastq)

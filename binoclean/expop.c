@@ -183,7 +183,7 @@ extern Cyber cyberprops[];
 extern int ttys[];
 extern int realframecount;
 extern vcoord psychoff[];
-extern FILE *seroutfile,*logfd,*stairfd;
+extern FILE *seroutfile,*logfd,*stairfd,*netoutfile;
 char *psychfilename = NULL;
 FILE *psychfile = NULL;
 FILE *psychfilelog = NULL;
@@ -319,7 +319,7 @@ extern OneStim *thecorrug;
 
 #define POPDOWNI 8
 #define NEXPSLOTS 8
-#define MAXQUICK_SUB 20
+#define MAXQUICK_SUB 100
 int nquickexpts = 0;
 int nsubexpts[MAXQUICK_SUB] = {0};
 int nallsubs = 0;
@@ -528,7 +528,7 @@ Exptmenu secondmenu[] = {
     {"SF (Linear)",SFLIN},
     {"TF (Linear)",TFLIN},
     {"RF sign",RF_SIGN},
-    {"vergence",STATIC_VERGENCE},
+//    {"vergence",STATIC_VERGENCE},
     {"Ped Disp",STANDING_DISP},
     {"Nplanes",NPLANES},
     {"Clamp",CLAMP_DISPARITY_CODE},
@@ -1465,8 +1465,10 @@ void PrintCodes(int mode)
     sprintf(s,"");
     for(i = 0; i < expt.totalcodes; i++)
     {
+        if(valstrings[i].codesend < SEND_READ_ONLY || valstrings[i].codesend == SEND_VERG_ONLY){
         sprintf(tmp,"CODE %s %d %s%c %d\n",valstrings[i].code,valstrings[i].icode,valstrings[i].label,valstrings[i].ctype,valstrings[i].group);
         notify(tmp);
+        }
     }
     sprintf(tmp,"CODE OVER\n");
     notify(tmp);
@@ -1596,10 +1598,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     
     tval = time(NULL);
     lastcmdread = time(NULL);
-    winposns[STEPPER_WIN].x = 80;
-    winposns[STEPPER_WIN].y = 10;
-    winposns[PENLOG_WIN].x = 80;
-    winposns[PENLOG_WIN].y = 10;
     
     i = 0;
     while(togglestrings[i].code != NULL){
@@ -1626,8 +1624,10 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
         i++;
     }
     ncodes = ncodes+1;
+// expt.totalcodes is the size of valstrings, expt.maxcode is max value of icode
     expt.totalcodes = i;
     expt.maxcode = ncodes-1;
+    
 // serial_stings[i] gives the string associated with code i
     serial_strings = (char**)(malloc(sizeof(char *) * ncodes));
     serial_names = (char**)(malloc(sizeof(char *) * ncodes));
@@ -1673,10 +1673,6 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
             longnames[j++] = i;
         i++;
     }
-    for(i = 2; i < MAXWINS; i++){
-        winposns[i].x = 80;
-        winposns[i].y = 200;
-    }
     if(cmdhistory == NULL){
         if((cmdhistory = fopen("./binoc.history","a")) != NULL)
             fprintf(cmdhistory,"\nReopened %s",ctime(&tval));
@@ -1718,7 +1714,7 @@ void ExptInit(Expt *ex, Stimulus *stim, Monitor *mon)
     ex->trials_per_stim = 1;
     ex->plotcluster = 1;
     ex->bwptr = &thebwstruct;
-    ex->bwptr->nchans = 16;
+    ex->bwptr->nchans = 16; // must be < MAXCHANS
     /* Default Color Scheme */
     ex->bwptr->colors[0] = 14; /*Bright Green */
     ex->bwptr->colors[1] = 13; /* Bright Red */
@@ -1898,8 +1894,15 @@ char *ReadManualStim(char *file, int stimid){
     for(i = 0; i < MAXFRAMES; i++)
         imx[i] = imy[i] = 0;
     while((s = fgets(inbuf, BUFSIZ *10, fin)) != NULL){
-        if (seroutfile)
+        if (seroutfile) // everything from stim file goes to seroutfile
             fputs(inbuf,seroutfile);
+/*
+ * Feb 2014. Don't clog up serial line with long lines (with :) for
+ * manual stims. Send these to a network file that AplaySpkFile will read
+ */
+        
+        if (netoutfile)
+            fputs(inbuf,netoutfile);
         s = strchr(inbuf,':');
         if (s != NULL){
             if (strncmp(inbuf,"bar",3) == NULL){
@@ -1919,8 +1922,6 @@ char *ReadManualStim(char *file, int stimid){
                 manualprop[nprop] = FindCode(inbuf);
                 propmodifier[nprop] = 0;
             }
-
-        
             t = s;
             j = 0;
             while(t != NULL){
@@ -1998,6 +1999,29 @@ char *ReadManualStim(char *file, int stimid){
     return(cbuf);
 }
 
+int SendManualSequence()
+{
+    int i,p;
+    char buf[BUFSIZ*10],tmp[BUFSIZ];
+    
+    
+    p = 0;
+    while(manualprop[p] >= 0)  // a property sequence was defined
+    {
+        sprintf(buf,"%s%s",serial_strings[MANUAL_TDR],serial_strings[manualprop[p]]);
+        for(i = 0; i < framesdone; i++)
+        {
+            sprintf(tmp,"%.2f ",manualstimvals[p][i]);
+            if(strlen(buf)+strlen(tmp) < BUFSIZ*10)
+                strcat(buf,tmp);
+        }
+        strcat(buf,"\n");
+        SerialString(buf,0);
+            p++;
+        }
+}
+
+
 int SetManualStim(int frame)
 {
     int i,p = 0,code;
@@ -2025,7 +2049,7 @@ int ReadCommandFile(char *file)
 {
     struct stat statbuf;
     FILE *fin;
-    char *s;
+    char *s,buf[BUFSIZ];
     
     if(file == NULL)
         return(0);
@@ -2034,11 +2058,11 @@ int ReadCommandFile(char *file)
     
     if(statbuf.st_mtime > lastcmdread) /* file has been modified */
     { 
-        fprintf(stdout,"last read was at %s",ctime(&lastcmdread));
-        fprintf(stdout,"cmdfile modified at %s",ctime(&statbuf.st_mtime));
+        sprintf(buf,"cmdfile modified at %s (last read %s)",ctime(&statbuf.st_mtime),ctime(&lastcmdread));
+        fprintf(stderr,buf);
+        statusline(buf);
         if(seroutfile){
-            fprintf(seroutfile,"#cmdfile modified at %s,",nonewline(ctime(&statbuf.st_mtime)));
-            fprintf(seroutfile," since %s",ctime(&lastcmdread));
+            fprintf(seroutfile,"#%s\n",buf);
         }
         
         usleep(100000);
@@ -2468,6 +2492,63 @@ char *GetExptString(Expt *exp, int code)
     return(s);
 }
 
+int CheckDirExists(char *name)
+{
+    char *d,buf[BUFSIZ];
+    
+    d = getdirname(name);
+    if(!isdir(d)){
+        sprintf(buf,"mkdir %s",d);
+        system(buf);
+    }
+}
+
+int OpenNetworkFile(Expt expt)
+{
+    char *t,*r,buf[BUFSIZ],name[BUFSIZ],sfile[BUFSIZ],path[BUFSIZ],outbuf[BUFSIZ];
+    char nbuf[BUFSIZ];
+    time_t tval,nowtime;
+
+    
+    netoutfile= NULL;
+    if (expt.strings[NETWORK_PREFIX] == NULL || ~strcmp(expt.strings[NETWORK_PREFIX],"NotSet"))
+    {
+        sprintf(buf,"No prefix Name for network parameter file");
+        fprintf(stderr,"%s\n",buf);
+        statusline(buf);
+        return(-1);
+    }
+    t = strchr(expt.bwptr->prefix,':');
+    if (t != NULL){
+        strcpy(sfile,++t);
+        while((t = strchr(sfile,'\\')) != NULL)
+            *t = '/';
+        
+        
+        
+        
+        sprintf(name,"%s/%s.bnc",expt.strings[NETWORK_PREFIX],sfile);
+
+        netoutfile = fopen(name,"a");
+    
+        if (netoutfile == NULL){
+            strcpy(nbuf,name);
+            sprintf(name,"/local/%s",sfile);
+            netoutfile = fopen(name,"a");
+        }
+    }
+    if (netoutfile != NULL){
+        fprintf(netoutfile,"Reopened %s by binoc Version %s",ctime(&tval),VERSION_NUMBER);
+        if (seroutfile != NULL)
+            fprintf(seroutfile,"Network Record to %d\n",name);
+    }
+    else{
+        sprintf(buf,"Can't open Network parameter record file\n %s\t or\n%s",nbuf,name);
+        acknowledge(buf,0);
+    }
+}
+
+
 int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
 {
     int chan,pen,i,duplicate = 0,ok = 1;
@@ -2624,6 +2705,8 @@ int SetExptString(Expt *exp, Stimulus *st, int flag, char *s)
                     sprintf(sfile,"%s_replay",t);
                 else
                     strcpy(sfile,t);
+
+                
                 if((seroutfile = fopen(sfile,"a")) != NULL){
                     sprintf(buf,"Serial Out to %s/%s",expt.cwd,sfile);
                     statusline(buf);
@@ -3537,6 +3620,8 @@ int SetExptProperty(Expt *exp, Stimulus *st, int flag, float val, int event)
                 if((i = MakeString(flag, cbuf, &expt, expt.st,0)) >= 0){
                     strcat(cbuf,"*\n\0");
                     fputs(cbuf,seroutfile);
+                    if(netoutfile)
+                        fputs(cbuf,netoutfile);
                 }
             }
             break;
@@ -4097,23 +4182,28 @@ int SaveImage(Stimulus *st, int type)
                 fwrite(pix, sizeof(GLubyte), w*h, ofd);
                 done++;
                 fclose(ofd);
-                fprintf(stderr,"Seed %d,%d written to %s (dx%.3fP%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,pcode);
+                fprintf(stderr,"Seed %d,%d written to %s (dx%.3fP%d S%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,pcode,stimstate);
             }
         }
     
     }
     if(type & 1){
+        h = videocapture[3];
+        w = videocapture[2];
+        x = videocapture[0];
+        y = videocapture[1];
+
         for(i = 0; i < 2; i++){
             sprintf(imname,"%s/%sim%d%c.pgm",ImageOutDir,expname,imstimid,eyec[i]);
-            if((pix = GetStimImage(x, y, h, w,eyec[i])) != NULL){
+            if((pix = GetStimImage(x, y, w, h,eyec[i])) != NULL){
                 if((ofd = fopen(imname,"w")) == NULL)
                     fprintf(stderr,"Can't write image to %s\n",imname);
                 else{
-                    fprintf(ofd,"P6 %d %d 255\n",h,w);
+                    fprintf(ofd,"P5 %d %d 255\n",w,h);
                     fwrite(pix, sizeof(GLubyte), w*h, ofd);
                     done++;
                     fclose(ofd);
-                    fprintf(stderr,"Seed %d,%d written to %s (dx%.3f)\n",st->left->baseseed,st->left->seed,imname,st->disp);
+                    fprintf(stderr,"Seed %d,%d written to %s (dx%.3f S%d)\n",st->left->baseseed,st->left->seed,imname,st->disp,stimstate);
                 }
             }
         }
@@ -4182,8 +4272,13 @@ int ReadCommand(char *s)
     else if(!strncasecmp(s,"go",2)){
         StopGo(GO);
     }
+    else if(!strncasecmp(s,"onetrial",8)){
+        RunOneTrial();
+    }
     else if(!strncasecmp(s,"openuff",7)){
         SerialSend(UFF_PREFIX);
+        fsleep(0.5);  // allow time for spike2 to make dir
+        OpenNetworkFile(expt);
     }
     else if(!strncasecmp(s,"renderoff",9)){
         renderoff = 1;
@@ -4195,6 +4290,12 @@ int ReadCommand(char *s)
     else if(!strncasecmp(s,"reopenserial",10)){
         ReopenSerial();
         SendAll();
+    }
+    else if(!strncasecmp(s,"runtest",7)){
+        sscanf(s,"runtest%d",&i);
+        if (i > 0)
+            testmode = i;
+        set_test_loop();
     }
     else if(!strncasecmp(s,"savefile=",9)){
         SaveExptFile(&s[9],0);
@@ -4235,7 +4336,7 @@ int ReadCommand(char *s)
     }
     else if(!strncasecmp(s,"nomonkey",7)){
         monkeyhour = 0;
-        printf("Not Checking for running without monkey\n");
+        acknowledge("Not Checking for running without monkey\nDO NOT use this if a monkey is in this Rig");
     }
     else if(!strncmp(s,"test",4)){
 
@@ -4268,7 +4369,10 @@ int ReadCommand(char *s)
         sprintf(command_result,"debug %d",debug);
     }
     else if(!strncasecmp(s,"savemovie",8)){ // toggle on/off saving screen images
-        if (testflags[SAVE_IMAGES] == 0){
+        if ((r = strchr(s,'=')) != NULL)
+            strcpy(ImageOutDir,nonewline(&r[1]));
+
+        if (testflags[SAVE_IMAGES] != 10 || !strncasecmp(s,"savemovie+",10)){
             testflags[SAVE_IMAGES] = 10;
             sprintf(buf,"./%spgm.idx",expname);
             imidxfd = fopen(buf,"a");
@@ -5245,7 +5349,12 @@ int ReadStimOrder(char *file)
                         s++;
                }
             }
-            else{ // send all other lines to serial file
+            else{ // send all other lines to serial file or InterpretLine
+//Dont send all to Interpretline in case of accidental code.
+                ival = FindCode(s);
+                if (ival == EXPT_NAME)
+                    InterpretLine(s, &expt, 2);
+                else
                     SerialString(s,0);
             }
         }
@@ -5379,7 +5488,7 @@ void setstimulusorder(int warnings)
      * don't do this if one per trial. Can mess up total counts with psych because
      * of shufflestim. 
      */
-    if(expt.stimpertrial > 1){
+    if(expt.stimpertrial > 1 && nstimtotal > 0){
         // bgc 2011. Used to check against nstim, not 1. Surely an error? 
         ntoset = nstimtotal*nreps+expt.stimpertrial;
         nset = (ntoset +nstimtotal -1)/nstimtotal;
@@ -6831,7 +6940,8 @@ int MakeString(int code, char *cbuf, Expt *ex, Stimulus *st, int flag)
 
 int confirm_no(char *s, *help)
 {
-    return(1);   
+    acknowledge(s,help);
+    return(1);
 }
 
 int confirm_yes(char *s, char *yescmd, char *nocmd, char *help)
@@ -6919,6 +7029,10 @@ void runexpt(int w, Stimulus *st, int *cbs)
     }
     if(seroutfile)
         fprintf(seroutfile,"#Start Expt at %.2f %sx%s %d%c%d (%d)\n",
+                ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
+                expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
+    if(netoutfile)
+        fprintf(netoutfile,"#Start Expt at %.2f %sx%s %d%c%d (%d)\n",
                 ufftime(&now),serial_strings[expt.mode],serial_strings[expt.type2],
                 expt.nstim[0],(expt.flag & TIMES_EXPT2) ? 'x' : '+',expt.nstim[1],expt.nstim[4]);
     InitExpt();
@@ -7354,8 +7468,9 @@ void InitExpt()
      */
     if(expt.st->left->baseseed & 0x1)
         expt.st->left->baseseed++;
+//Force checking of framecount for first stim at least
     if(optionflags[CHECK_FRAMECOUNTS] == 0)
-        optionflags[CHECK_FRAMECOUNTS] = 1;
+        optionflags[CHECK_FRAMECOUNTS] = 2;
     
     
     for(i = 0; i < MAXSTIM; i++)
@@ -7426,7 +7541,11 @@ void InitExpt()
             acknowledge(buf,NULL);
             sprintf(cbuf,"./%s.%sX%s.rc%d",stimulus_names[expt.st->type],serial_strings[expt.mode],serial_strings[expt.type2],rcctr++);
             rcfd = fopen(cbuf,"w");
-            
+        }
+        else if (seroutfile){
+            fprintf(seroutfile,"#saverls %s\n",cbuf);
+            if (netoutfile)
+                fprintf(netoutfile,"#saverls %s\n",cbuf);
         }
     }
     else
@@ -8498,6 +8617,10 @@ int PrepareExptStim(int show, int caller)
         fprintf(seroutfile,"PrEx %d\n",caller);
     }
 #endif
+    gettimeofday(&now,NULL);
+    if(netoutfile){
+        fprintf(netoutfile,"#Prep%d %d %.3f\n",stimno, stimorder[stimno],ufftime(&now));
+    }
 
     fakestim = 0;
     expt.laststimno = stimno;
@@ -8514,9 +8637,9 @@ int PrepareExptStim(int show, int caller)
             ShuffleStimulus(0); /* ? obsolete  BADFIX and Late already call this*/
     }
     
+    expt.st->preloaded = expt.st->next->preloaded = 0;
     
     if (optionflags[MANUAL_EXPT]){
-        expt.st->preloaded = expt.st->next->preloaded = 0;
 
         sprintf(ebuf,"%s/stim%d",expt.strings[EXPT_PREFIX],stimorder[stimno]);
         s = ReadManualStim(ebuf, stimorder[stimno]);
@@ -10798,12 +10921,17 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     WindowEvent e;
     
     
-    if (n > MAXFRAMES)
+    if (n > MAXFRAMES){
         n = MAXFRAMES;
+        sprintf(buf,">%d  Frames\n Will Run until stopped by two mouse clicks\n(Suggest Stop Expt first)",MAXFRAMES);
+// if running psych stimuli and > MAXFRAMES, and FIXNUM not set, its intentional so don't warn
+        if (!(option2flag & PSYCHOPHYSICS_BIT && !optionflags[FIXNUM_PAINTED_FRAMES]))
+            acknowledge(buf,0);
+    }
     cbuf[0] = 0;
     
     currentstim.stimid = expt.stimid;
-    currentstim.seed = firstseed = expt.st->left->baseseed;
+    currentstim.seed = expt.st->firstseed = expt.st->left->baseseed;
     if(expt.vals[ALTERNATE_STIM_MODE] > 0.5){
         i = rint(expt.vals[ALTERNATE_STIM_MODE]);
         switch(i){
@@ -10906,7 +11034,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             }
             if(freezestimulus)
                 rc = 0;
-            else if(!optionflags[FIXNUM_PAINTED_FRAMES]){
+            else if(!optionflags[FIXNUM_PAINTED_FRAMES] || n > MAXFRAMES){
                 rc = getframecount(); /* real video frames */
                 while(rc < lastframecount + expt.st->framerepeat && rc > 0)
                     rc = getframecount();
@@ -10985,9 +11113,10 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
                 if(rc >= n && n < MAXFRAMES) 
                     finished = 2;
 // if FIXNUM PAINTED FRAMES, force paintg of all frames. ANd ignore button presses.
-// Button presses during the stimulus will be ignored
+// Button presses during the stimulus will be ignored. If n >= MAXFRAMES will
+// run forevever, so can't ignore buttonpresses then
                 if((e.mouseButton = processUIEvents()) > 0){
-                    if (!optionflags[FIXNUM_PAINTED_FRAMES]){
+                    if (!optionflags[FIXNUM_PAINTED_FRAMES] || n >= MAXFRAMES){
                     e.eventType = ButtonPress;
                         e.modifierKey = 0;
                     HandleMouse(e);
@@ -11147,8 +11276,14 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
             if(framesdone ==2)
                 val = timediff(&zeroframetime,&pretime);
             
-            if((framesdone = ++framecount) > MAXFRAMES)
+            if((framesdone = ++framecount) > MAXFRAMES){
                 framesdone = MAXFRAMES;
+                if((e.mouseButton = processUIEvents()) > 0){
+                        e.eventType = ButtonPress;
+                        e.modifierKey = 0;
+                        finished = 2;
+                }
+            }
             
             expt.framesdone = framesdone;
             
@@ -11258,7 +11393,7 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
     DIOWriteBit(0,0); //clear stimchange pin
 #endif
     if (seroutfile)
-        fprintf(seroutfile,"se%d\n",firstseed);
+        fprintf(seroutfile,"se%d\n",expt.st->firstseed);
     SerialSend(SET_SEED); // get this recorded at stim end also
     if(cctr && 0) // Don't do this normally
         printf("Serial %d: %s\n",cctr,cbuf);
@@ -11314,6 +11449,12 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         strcat(buf,"\n");
         SerialString(buf,0);
     }
+// If no network stim record, send sequence down serial line
+ 
+    if (optionflags[MANUAL_EXPT] && manualprop[0] >= 0 && netoutfile == NULL ){
+        SendManualSequence();
+    }
+
     if(optionflags[FAST_SEQUENCE]){
         sprintf(rcbuf,"%srS=",serial_strings[MANUAL_TDR]);
         for(i = 0; i < framesdone; i++){
@@ -11434,15 +11575,16 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
         /*
          * if optionflags[CHECK_FRAMECOUNTS] ==2, only check the first stimulus
          */
-        if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){ 
-            if(optionflags[CHECK_FRAMECOUNTS] < 2){
-                sprintf(buf,"Only completed %d/%d frames. op-CN to stop Checking",framesdone,n);
-                confirm_yes(buf,"op=+CN","op=-CN",NULL);
+        if(optionflags[CHECK_FRAMECOUNTS] &&   framesdone * rpt < n * 0.9){
+            if (optionflags[CHECK_FRAMECOUNTS] ==2){
+                optionflags[CHECK_FRAMECOUNTS] =0;
+                sprintf(tmp,"Won't Check again");
             }
-            else if (stimno ==  0){
-                sprintf(buf,"Only completed %d/%d frames. Will not Check again.",framesdone,n);
+            else
+                sprintf(tmp," op-CN to stop Checking");
+                sprintf(buf,"Only completed %d/%d frames (stim %d at %s). %s",framesdone,n,stimno,binocTimeString(),tmp);
                 acknowledge(buf,NULL);
-            }
+            statusline(buf);
         }
     }
     
@@ -11452,15 +11594,17 @@ int RunExptStim(Stimulus *st, int n, /*Ali Display */ int D, /*Window */ int win
      */
     if(optionflags[CHECK_FRAMECOUNTS] && retval != BAD_TRIAL && 
        frametimes[framesdone-1] > (1.1 * n)/expt.mon->framerate){
-        if(optionflags[CHECK_FRAMECOUNTS] < 2){
-            sprintf(buf,"%d frames took %.1f.  op-CN to stop Checking",framesdone,frametimes[framesdone-1]);
-            confirm_yes(buf,"op=+CN","op=-CN", NULL);
-                optionflags[CHECK_FRAMECOUNTS] = 0;
+        
+        if (optionflags[CHECK_FRAMECOUNTS] ==2){
+            optionflags[CHECK_FRAMECOUNTS] =0;
+            sprintf(tmp,"Won't Check again");
         }
-        else if (stimno == 0){
-            sprintf(buf,"%d frames took %.1f. Won't check again",framesdone,frametimes[framesdone-1]);
-            acknowledge(buf,NULL);
-        }
+        else
+            sprintf(tmp," op-CN to stop Checking");
+
+        sprintf(buf,"%d frames took %.3f (stim %d at %s). %s",framesdone,frametimes[framesdone-1],stimno,binocTimeString(),tmp);
+        acknowledge(buf,NULL);
+        statusline(buf);
     }
     
     if(rcfd && optionflags[WATCH_TIMES]){
@@ -12494,7 +12638,7 @@ void inc_psychdata(int response_direction, Expt *ex, int jstimno)
 
 int ShowFlag(char *s, int flag)
 {
-    char c = *s++;
+    char c = *s++,buf[BUFSIZ];
     int bit = 0, bit2 = 0,i = 0,j =0;
     
     if(flag){
@@ -12529,8 +12673,11 @@ int ShowFlag(char *s, int flag)
     else if(togglestrings[i].group ==3)
     {
         j = togglestrings[i].icode;
-        if(j >= MAXALLFLAGS)
-            fprintf(stderr,"Unrecognized flag %s",s);
+        if(j >= MAXALLFLAGS){
+            sprintf(buf,"Unrecognized flag %s",s);
+            notify(buf);
+            fprintf(stderr,buf);
+        }
         if(c == '+')
             allflags[j] = 1;
         else
@@ -12708,13 +12855,16 @@ int str2code(char *s)
     return(-1);
 }
 
-float readval(char *s, 	Stimulus *TheStim)
+float readval(char *s, 	Stimulus *TheStim, int goteq)
 {
     float val,fval, addval = 0;
     int ok,code;
     char *p;
     ok = 1;
     if(!isanumber(*s)){
+//to set a value by code, ie xo=rx, MUST use '=' to avoid random strings assigning
+        if(goteq ==0)
+            return(0);
         val = 1.0;
         addval = 0;
         if((p = strchr(&s[2],'+')) > 0)
@@ -12977,16 +13127,20 @@ int ReadConjPos(Expt*ex, char *line)
     
     return(0);
 }
+
+
+
 /*
  * Interpretline pases text strings from files, the serial line, and the GUI input pipe;
  * frompc = 1 mean it came form the serial line
- * frompc = 2 means it came from the GUI input line
+ * frompc = 2 means it came from the GUI input line, or a disk file
  * frompc = 3 means generated within binoclean, eg in ReadCommandLine
  */
-
-
 int InterpretLine(char *line, Expt *ex, int frompc)
 {
+//   line now come from ReadInputPipe, and so is not a buffer with any extra space allocaed
+// So DO NOT MODIFY line (.e.g. strcat(line,'\n').  It will crash.
+    
     int i,n,len,ival,total,j,vals[MAXBINS],k,code,icode,oldmode,x,y;
     int bins,prebins,postbins,chan, iin[100];
     char *s,*t,c,buf[BUFSIZ],nbuf[BUFSIZ],outbuf[BUFSIZ];
@@ -13006,13 +13160,13 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     float fxpos[4];
     double dval;
-    
+    int goteq = 0;
     
   
     gettimeofday(&now,NULL);
     if (optionflags[DEBUG_OUTPUT]){
         dval = timediff(&now,&lastcmdtime);
-        if (dval > 0.001)
+        if (dval > 0.00)
             printf("%d %s %.3f %s\n",frompc,line,dval,ctime(&now.tv_sec));
         gettimeofday(&lastcmdtime, NULL);
     }
@@ -13027,6 +13181,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 
 
     s = strchr(line, '=');
+    if(s)
+        goteq = 1;
+    else
+        goteq = 0;
+    
     if(!strncmp(line,"confirmpopup",10)){
         code = -1;
         if(s != NULL){
@@ -13046,8 +13205,9 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         *t = 0;
     }
     else if(line[0] == '#'  && frompc ==2){
-        strcat(line,"\n");
         SerialString(line,0);
+        SerialString("\n",0);
+        return(-1);
     }
     else if(line[0] == '\\' || line[0] == '\!'){
         ReadCommand(&line[1]);
@@ -13125,16 +13285,37 @@ int InterpretLine(char *line, Expt *ex, int frompc)
 //    else if(!strncmp(line,"electrode",7)){
 //        SetExptString(&expt, expt.st, ELECTRODE_TYPE,++s);
 //    }
+    else if(!strncmp(line,"forceaamode",11)){
+        oldmode = expt.st->aamode;
+        ival = 0;
+        if(!strncmp(line,"forceaamodesilent",16))
+            sscanf(line, "forceaamodeslient=%d",&expt.st->aamode);
+        else{
+            sscanf(line, "forceaamode=%d",&expt.st->aamode);
+            ival = 1;
+        }
+        sprintf(buf,"AAModes:\n1\tLines before Interior\n2\tPolygon mode\n3\tLine+polygon each time\n4\t2 Thick lines\n5\tPolygon + GL_LINES\n6\nH Thick Line\n7V Thick Line\n8 TestNow %d",expt.st->aamode);
+        if (ival)
+            acknowledge(buf,NULL);
+        else
+            fprintf(stderr,"%s\n",buf);
+        if(expt.st->next != NULL)
+            expt.st->next->aamode = expt.st->aamode;
+        return(0);
+    }
     else if(!strncmp(line,"freerwd",7)){
         SerialSignal(FREE_REWARD);
+        return(0);
     }
     else if(!strncmp(line,"newexpt",7)){
         ResetExpt();
+        return(0);
     }
     else if(!strncmp(line,"quicksave",7)){
         sscanf(&line[9],"%d",&i);
         sprintf(buf,"./q%dexp.stm",i);
         SaveExptFile(buf,QUICK_SAVE);
+        return(0);
     }
     else if(!strncmp(line,"offdelay",8)){
         sprintf(buf,"%s\n",line);
@@ -13169,9 +13350,11 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     else if(!strncmp(line,"slider",6) && frompc){ //old commands that we don't want to drop down to codes below
         return(0);
     }
-    else if(!strncmp(line,"splitctr",10) && frompc){
+    else if(!strncmp(line,"splitctr",8) && frompc){
         if(seroutfile)
-            fprintf(seroutfile,"%s",line);
+            fprintf(seroutfile,"#%s",line);
+        if(netoutfile)
+            fprintf(netoutfile,"#%s",line);
         return(0);
     }	
     else if(!strncmp(line,"HeadStrain",10)){
@@ -13209,6 +13392,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         else{
             end_timeout();
         }
+        return(0);
     }
     else if(!strncmp(line,"monkeyshake",10)){
         if(expt.vals[SHAKE_TIMEOUT_DURATION] > 0){
@@ -13224,33 +13408,18 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     
     else if(!strncmp(line,"stepper",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[STEPPER_WIN].x = x;
-        winposns[STEPPER_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"penwin",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[PENLOG_WIN].x = x;
-        winposns[PENLOG_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"bwwinxy",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[BW_WIN].x = x;
-        winposns[BW_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"afcwinxy",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[AFC_WIN].x = x;
-        winposns[AFC_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"optionwinxy",6)  && (s = strchr(line,'=')) != 0){
-        sscanf(++s,"%d %d",&x,&y);
-        winposns[OPTIONS_WIN].x = x;
-        winposns[OPTIONS_WIN].y = y;
         return(0);
     }
     else if(!strncmp(line,"psychfile",6)  && (s = strchr(line,'=')) != 0){
@@ -13352,6 +13521,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             }
             j++;
         }
+        return(0);
     }
     else if(!strncmp(line,"clearquick",7)){
         nquickexpts = 0;
@@ -13436,44 +13606,14 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         oldrfs[rfctr].flag = CENTERMARK_ON;
         if(++rfctr >= MAXRF)
             rfctr = MAXRF-1;
+        return(0);
     }
-    
+    else if(!strncmp(line,"videocapture",8) && s){
+        sscanf(++s,"%f %f %f %f",&videocapture[0],&videocapture[1],&videocapture[2],&videocapture[3]);
+        return(0);
+    }
     else if(!strncmp(line,"exps",4) && (s = strchr(line,'=')))
     {
-        if(!reading_quickexp){
-            nexpshow[0] = 0;
-            showexp[0][TOTALCODES]=1;
-            for(j = 0; j < MAXTOTALCODES; j++)
-                showexp[0][j] = 0;
-        }
-        j = k = 0;
-        while(s[j] != 0){
-            if(s[j] == '+'){
-                sscanf(&s[++j],"%s",buf);
-                if((code = str2code(buf)) != EXPTYPE_NONE && !showexp[k][code]){
-                    expshoworder[k][nexpshow[k]++] = code;
-                    showexp[k][code] = 1;
-                }
-            }
-            else if(s[j] == '-'){
-                sscanf(&s[++j],"%2s",buf);
-            }
-            else if(s[j++] == ':'){
-                if(!reading_quickexp){
-                    showexp[1][TOTALCODES]=1;
-                    nexpshow[1] = 0;
-                    for(i = 0; i < MAXTOTALCODES; i++)
-                        showexp[1][i] = 0;
-                }
-                k = 1;
-                if(!showexp[k][EXPTYPE_NONE]){
-                    showexp[k][EXPTYPE_NONE] = 1;
-                    expshoworder[k][nexpshow[k]++] = EXPTYPE_NONE;
-                }
-            }
-        }
-        /* don't let this one be removed */
-        showexp[1][EXPTYPE_NONE] = 1;
         return(0);
     }
     else if(line[0] == '\?'){
@@ -13543,6 +13683,10 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     
     while(*s != 0 && (isspace(*s) || *s == '='))
         s++;
+    if (*(s-1) == '=')
+        goteq = 1;
+    else
+        goteq=0;
     j = 0;
     i = 0;
     // string with no value means report back current value
@@ -13557,6 +13701,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         SendAllToGui();
         ListExpStims(NULL);
         ShowTrialsNeeded();
+        return(0);
     }
     
     if(line[0] == 'E' && (isdigit(line[1]) || line[1] == 'A'))
@@ -13572,7 +13717,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         if(i < expt.nstim[0] && s != NULL)
         {
             s++;
-            if((val = readval(s,TheStim)) > NOTSET){
+            if((val = readval(s,TheStim,1)) > NOTSET){
                 expval[i+expt.nstim[2]] = val;
                 expt.customvals[i] = val;
                 optionflags[CUSTOM_EXPVAL] = 1;
@@ -13612,6 +13757,13 @@ int InterpretLine(char *line, Expt *ex, int frompc)
     }
     else switch(code)
     {
+        case -1:
+            sprintf(buf,"Unrecognized code %s\n",line);
+            fprintf(stdout,buf);
+            if(seroutfile)
+                fputs(buf,seroutfile);
+//            notify(buf);
+            break;
         case JUMP_SF_COMPONENTS:
             for(i = 0; i < expt.st->nfreqs; i++)
                 expt.st->componentjumps[i] = 1;
@@ -13695,6 +13847,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
                 quicknames[nquickexpts] = myscopy(quicknames[nquickexpts],s);
                 nquickexpts++;
             }
+            if (optionflags[DEBUG_OUTPUT])
+                fprintf(stdout,"%d quickexpts\n",nquickexpts);
             /* Do nothing if this is already on the list */
             //Ali	  if(oldnquick && quick_menu){
             //	    for(i = 0; i <= oldnquick; i++){
@@ -14132,7 +14286,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
         case BACK_ORI:
         case SF:
         case SF2:
-            if((val = readval(s,TheStim)) > NOTSET)
+            if((val = readval(s,TheStim,goteq)) > NOTSET)
                 ok = 1;
             else
                 ok = 0;
@@ -14279,7 +14433,7 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             {
                 SetExptString(&expt,expt.st, code, s);
             }
-            else if(code < MAXTOTALCODES)
+            else if(code <= expt.maxcode)
             {
                 sscanf(s,"%f",&val);
                 SetProperty(ex, TheStim,code, val);
@@ -14305,15 +14459,18 @@ int InterpretLine(char *line, Expt *ex, int frompc)
      * as more input codes
      */
     
-    if((t = strchr(s,'#')) == NULL && (t = strchr(line,':')) == NULL){
+    if((t = strchr(s,'#')) == NULL && (t = strchr(line,':')) == NULL && icode >= 0){
         switch(code){
             default:
-                if((t = strchr(s,' ')) != NULL && *(++t))
-                    InterpretLine(t, ex,0);
+                if((t = strchr(s,' ')) != NULL && *(++t)){
+                    if (valstrings[icode].ctype == 'N') // dont recurse chars
+                        InterpretLine(t, ex,0);
+                }
                 break;
 /*
  * Any lines that can have > 1 number need to be in this list to avoid recursive calls
  */
+            case -1:  // if a code is unrecognized, do not recuse
             case SOFTOFF_CODE:
             case QUERY_STATE:
             case UFF_PREFIX:
@@ -14322,6 +14479,8 @@ int InterpretLine(char *line, Expt *ex, int frompc)
             case SET_SF_COMPONENTS:
             case SET_TF_COMPONENTS:
             case SET_SF_CONTRASTS:
+            case EARLY_RWTIME:
+            case UKA_VALS:
                 break;
         }
     }
@@ -14662,6 +14821,8 @@ int PrintPsychData(char *filename)
     fprintf(fd,"Run ended %s Took %.2f\n",nonewline(ctime(&tval)),timediff(&now,&bwtime));
     if(seroutfile)
         fprintf(seroutfile,"Run ended %s",ctime(&tval));
+    if (netoutfile)
+        fprintf(netoutfile,"EndExpt %.3f %s",ufftime(&tval),ctime(&tval));
     if(psychlog){
         fprintf(psychlog,"Run ended %s\n",ctime(&tval));
         fflush(psychlog);

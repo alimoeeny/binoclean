@@ -50,6 +50,19 @@ char *getfilename(char *path)
 	return((char *)strcpy((char *)malloc(strlen(p)+1), p));
 }
 
+char *getdirname(char *path)
+{
+	char *p;
+    char pdir[BUFSIZ];
+    
+    strcpy(pdir,path);
+	if((p = strrchr(pdir, '/')) || (p= strrchr(pdir,'\\'))){
+        *p = NULL;
+    }
+    
+	return((char *)strcpy((char *)malloc(strlen(pdir)+1), pdir));
+}
+
 
 
 
@@ -71,6 +84,9 @@ int SetBWChannel(char *s)
     if((r = strchr(s,'+')) == NULL && (r = strchr(s,'-')) == NULL)
         return(0);
     sscanf(s,"%d",&chan);
+    
+    if (chan < 0 || chan >= MAXCHANS) //out of range
+        return(-1);
     
     if(*r == '+'){
         expt.bwptr->cflag |= (1<<chan);

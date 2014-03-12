@@ -15,8 +15,8 @@ extern Expt expt;
 extern Monitor mon;
 extern int YOFFSET;
 static int aamode = 0;
-static vcoord cylrect[8];
-static vcoord clrect[4];
+static vcoord cylrect[20];
+static vcoord clrect[20];
 
 float calc_newoffset(float maxdisparity, float xpos);
 OneStim *NewCylinder(Stimulus *st, Substim *sst, Substim  *copy);
@@ -381,6 +381,7 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     float cosa,sina,h,w;
     float lum[2];
     float plcscale = expt.vals[PLC_MAG];
+    float lw;
     
     if (st->flag & DIRECTION_L || st->disp < 0)
     	cyl->direction_r = 0;
@@ -389,9 +390,28 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     
     w = hdotsize[X] = cyl->dotsiz[X]/2;
     h = hdotsize[Y] = cyl->dotsiz[Y]/2;
+    lw = w;
     rotatefactor[X]=cosf(pos->angle-(M_PI/2));
     rotatefactor[Y]=sinf(pos->angle-(M_PI/2));
+
+    if(optionflag & ANTIALIAS_BIT){
+        if (st->aamode == AALINE || st->aamode == AAVLINE || st->aamode == AAHLINE){ // AA is only at sides
+            h = h-1;
+            w = w-1;
+            if( w < 0.5)
+                w = 0.5;
+            if( h < 0.5)
+                h = 0.5;
+        }
+        else if (st->aamode == AAPOLYGON_AND_LINE){
+            h = h - 0.5;
+            w = w - 0.5;
+        }
+    }
     
+    
+    hdotsize[0] -= 1;
+
     cosa = cos(pos->angle+M_PI/2);
     sina = sin(pos->angle+M_PI/2);
     cylrect[0] = -w * cosa - h * sina;
@@ -402,6 +422,18 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     cylrect[5] = h * cosa - w * sina;
     cylrect[6] = w * cosa - h * sina;
     cylrect[7] = -h * cosa - w * sina;
+    
+    
+    cylrect[8] = (cylrect[0]+cylrect[6])/2;
+    cylrect[9] = (cylrect[1]+cylrect[7])/2;
+    cylrect[10] = (cylrect[0]+cylrect[2])/2;
+    cylrect[11] = (cylrect[1]+cylrect[3])/2;
+    cylrect[12] = (cylrect[4]+cylrect[6])/2;
+    cylrect[13] = (cylrect[5]+cylrect[7])/2;
+    cylrect[14] = (cylrect[2]+cylrect[4])/2;
+    cylrect[15] = (cylrect[3]+cylrect[5])/2;
+
+    
     h = h+0.5;
     clrect[0] = -h * sina;
     clrect[1] = -h * cosa;
@@ -504,22 +536,54 @@ void paint_cylinder(Stimulus *st, int mode, double subtracting)
     else if(optionflag & ANTIALIAS_BIT)
     {
         aamode = 1;
+        w = hdotsize[0]*balls[0].dot;
         if(w < 1)
-            glLineWidth(1.0);
+            w = 1;
         else
-            glLineWidth(w*2);
+            w = w*2;
         glLineWidth(1.0);
-        glEnable(GL_POLYGON_SMOOTH);
-        glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        if (st->aamode == AAPOLYLINE) { //Line smoothing
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
+        else if (st->aamode == AAPOLYGON){  // Polygon AA - get diagonal articact, but geometry correct.
+            glDisable(GL_LINE_SMOOTH);
+            glEnable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
+        else if (st->aamode == AABOTH){  // Do Line then poly for each. Best but slow
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
+        else if(st->aamode == AALINE || st->aamode == AAHLINE || st->aamode == AAVLINE){ //use thick line;
+            glLineWidth(lw*2);
+            glEnable(GL_LINE_SMOOTH);
+            glBegin(GL_LINES);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+            glEnd();
+            glDisable(GL_BLEND);
+            glDisable(GL_LINE_SMOOTH);
+        }
+        else if(st->aamode == AAPOLYGON_AND_LINE){ //Draws ppolygon then uses GL_LINES
+            glLineWidth(1.0);
+            hdotsize[0] -= 1;
+            hdotsize[1] -= 1;
+            glEnable(GL_LINE_SMOOTH);
+            glDisable(GL_POLYGON_SMOOTH);
+            glEnable(GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            paint_balls(st, mode, cyl, vcolor, bcolor, rotatefactor, hdotsize, 1);
+        }
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPopMatrix();
@@ -711,9 +775,9 @@ void draw_dot(float rotatefactor[XY], float hdotsize[XY], float xpos, float ypos
         myrect(dotdata[0][X],dotdata[0][Y],dotdata[2][X],dotdata[2][Y]);
     }
     else{
-        ypos = rint(ypos);
-        xpos = rint(xpos);
-        rotrect(clrect,xpos,ypos);
+//        ypos = rint(ypos); // the graphics card can do this....
+//        xpos = rint(xpos);
+        aarotrect(cylrect,xpos,ypos);
     }
 }   
 /*******************************************************************************************/

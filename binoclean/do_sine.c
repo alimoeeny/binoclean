@@ -365,7 +365,14 @@ double SetFreqOnOff433(Substim *sst, int nc)
     int i,j,nset;
     double tpower = 0,drnd;
     
-    
+/* 
+ * RANDOM_ONOFF sets 50% of the freqs on, 50% off
+ * RANDOM_ONOFF_LOG sets 50% of the freqs on, 50% off, Log spaces fresq
+ * INDEP_ONOFF sets each component ON/Off with independent p = 0.5
+ * INDEP_ONOFF_LOG does this with log spacing of freqs
+ * BINOC_INDEP_ONOFF_LOG is randomly on/off indep in each eye
+ */
+ 
     if(expt.stimmode == RANDOM_ONOFF || expt.stimmode == RANDOM_ONOFF_LOG){
         nset = 0;
         for(j = 0; j < nc; j++){
@@ -637,6 +644,8 @@ calc_gratingN(Stimulus *st, Substim *sst, float disp)
     
     
 }
+
+
 void paint_grating(Substim *sst, int mode, int shift)
 {
     int i,ci =0,j,oi =0;

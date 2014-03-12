@@ -66,6 +66,8 @@ int *RecordImage(int frame, Stimulus *st){
         imagerec[frame] = (int *)malloc(sizeof(int) * 4096); //MAX # bars......
     }
     p=imagerec[frame];
+// For RLS 0 = Black, 1 = grey, 2 = whiee
+// For RDS 0 = Grey, 1 = BLACK, 2 = white
         if(st->type == STIM_RLS){
             for (j = 0; j < st->left->ndots; j++) {
                 *p++ = st->left->iimb[j] | (st->right->iimb[j] << 2);
