@@ -263,30 +263,49 @@ int  processUIEvents()
 //        DIOWrite(0xF);
     }
     
-    
-    unlink(IN_PIPE);
-    if (mkfifo(IN_PIPE, S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
-        NSLog(@"Can't create the pipe");
-//        [NSAlert alertWithMessageText:@"Can't create the input pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the input pipe. You can try to remove it manually by rm /tmp/binocinputpipe "];   
-        abort();
+    BOOL networkMode = YES;
+    if (networkMode){
+        httpServer = [[HTTPServer alloc] init];
+        [httpServer setPort:12345];
+        [httpServer setConnectionClass:[AliHttpConnection class]];
+        // Serve files from our embedded Web folder
+        NSString *webPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Web"];
+        NSLog(@"Setting document root: %@", webPath);
+
+        [httpServer setDocumentRoot:webPath];
+
+
+        NSError *error = nil;
+        if(![httpServer start:&error])
+        {
+            NSLog(@"Error starting HTTP Server: %@", error);
+            abort();
+        }
+
+    }else{
+        unlink(IN_PIPE);
+        if (mkfifo(IN_PIPE, S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
+            NSLog(@"Can't create the pipe");
+            //        [NSAlert alertWithMessageText:@"Can't create the input pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the input pipe. You can try to remove it manually by rm /tmp/binocinputpipe "];
+            abort();
+        }
+
+        unlink(OUT_PIPE);
+        if (mkfifo(OUT_PIPE, S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
+            NSLog(@"Can't create the output pipe");
+            //        [NSAlert alertWithMessageText:@"Can't create the output pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the output pipe. You can try to remove it manually by rm /tmp/binocoutputpipe "];
+            abort();
+        }
+
+        open(IN_PIPE, O_RDWR);
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
+        inputPipe = [[NSFileHandle fileHandleForReadingAtPath:@IN_PIPE] retain];
+        [inputPipe readInBackgroundAndNotify];
+
+        open(OUT_PIPE, O_RDWR);
+        outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
+        [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
     }
-    
-    unlink(OUT_PIPE);
-    if (mkfifo(OUT_PIPE, S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
-        NSLog(@"Can't create the output pipe");
-//        [NSAlert alertWithMessageText:@"Can't create the output pipe" defaultButton:@"Okay" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Can't create the output pipe. You can try to remove it manually by rm /tmp/binocoutputpipe "];   
-        abort();
-    }
-    
-    open(IN_PIPE, O_RDWR); 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReadyToRead:) name:NSFileHandleReadCompletionNotification object:nil];
-    inputPipe = [[NSFileHandle fileHandleForReadingAtPath:@IN_PIPE] retain];
-    [inputPipe readInBackgroundAndNotify];
-    
-    open(OUT_PIPE, O_RDWR); 
-    outputPipe = [[NSFileHandle fileHandleForWritingAtPath:@IN_PIPE] retain];
-    [outputPipe writeData:[@"binocstart" dataUsingEncoding:NSASCIIStringEncoding]];
-    
     // if wisize read from binoc.setup is 0,0 then do a fullscreen otherwise use the winsize
     CGRect r;
     if (fullscreenmode==0)

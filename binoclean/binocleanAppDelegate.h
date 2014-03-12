@@ -18,6 +18,8 @@
 #import <sys/termios.h>
 #import "mainGUI.h"
 #import "MonkeyWindow.h"
+#import "HTTPServer.h"
+#import "AliHttpConnection.h"
 
 #ifndef __i386__
 #import "MTRandom64.h"
@@ -36,6 +38,8 @@ void WriteToOutputPipe(NSString * ns);
     NSFileHandle * inputPipe;
     NSString * inputLine;
     NSFileHandle * outputPipe;
+
+    HTTPServer *httpServer;
 }
 
 @property (retain) IBOutlet mainGUI *window;
